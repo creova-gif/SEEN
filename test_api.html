@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SEEN API Test</title>
+</head>
+<body>
+    <h1>SEEN Backend API Test</h1>
+    <div id="results"></div>
+    
+    <script type="module">
+        const projectId = "cddipfbiqnxouvgsndly";
+        const publicAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNkZGlwZmJpcW54b3V2Z3NuZGx5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyNTk1NjMsImV4cCI6MjA4NTgzNTU2M30.v5kxc-jLeAra-aXgXxNAm2JKsbOTU5miWtkB1XPGdLA";
+        const API_BASE = `https://${projectId}.supabase.co/functions/v1/make-server-2bdc05e6`;
+        
+        const results = document.getElementById('results');
+        
+        async function testHealthCheck() {
+            results.innerHTML += '<h2>Testing Health Check...</h2>';
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                results.innerHTML += `<p style="color: green;">✅ Health Check: ${JSON.stringify(data)}</p>`;
+            } catch (error) {
+                results.innerHTML += `<p style="color: red;">❌ Health Check Failed: ${error.message}</p>`;
+            }
+        }
+        
+        async function testSignup() {
+            results.innerHTML += '<h2>Testing Signup...</h2>';
+            try {
+                const response = await fetch(`${API_BASE}/auth/signup`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${publicAnonKey}`,
+                    },
+                    body: JSON.stringify({
+                        email: `test${Date.now()}@example.com`,
+                        password: 'testpassword123',
+                        name: 'Test User',
+                        role: 'viewer',
+                        language: 'en',
+                        intent: 'explore'
+                    }),
+                });
+                
+                const contentType = response.headers.get("content-type");
+                results.innerHTML += `<p>Response Content-Type: ${contentType}</p>`;
+                results.innerHTML += `<p>Response Status: ${response.status}</p>`;
+                
+                let data;
+                if (contentType && contentType.includes("application/json")) {
+                    data = await response.json();
+                    results.innerHTML += `<p style="color: ${response.ok ? 'green' : 'red'};">${response.ok ? '✅' : '❌'} Signup Response: ${JSON.stringify(data, null, 2)}</p>`;
+                } else {
+                    const text = await response.text();
+                    results.innerHTML += `<p style="color: red;">❌ Non-JSON Response: ${text.substring(0, 500)}</p>`;
+                }
+            } catch (error) {
+                results.innerHTML += `<p style="color: red;">❌ Signup Failed: ${error.message}</p>`;
+                console.error('Signup error:', error);
+            }
+        }
+        
+        // Run tests
+        testHealthCheck();
+        setTimeout(testSignup, 1000);
+    </script>
+</body>
+</html>

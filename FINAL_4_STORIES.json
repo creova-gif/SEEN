@@ -1,0 +1,32 @@
+{
+  "status": "Generating final 4 Story Worlds",
+  "remaining": [
+    {
+      "id": "black-atlantic-canada",
+      "priority": "HIGH",
+      "surface": "Explore",
+      "chapters": 6
+    },
+    {
+      "id": "what-we-carry",
+      "priority": "HIGH",
+      "surface": "Explore",
+      "chapters": 5
+    },
+    {
+      "id": "small-histories",
+      "priority": "MEDIUM",
+      "surface": "Explore",
+      "chapters": 6
+    },
+    {
+      "id": "work-worth",
+      "priority": "MEDIUM",
+      "surface": "BOTH",
+      "chapters": 5
+    }
+  ],
+  "total_chapters_remaining": 22,
+  "token_budget": "112k+ (sufficient)",
+  "execution": "IN PROGRESS"
+}
