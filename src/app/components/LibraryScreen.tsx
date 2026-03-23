@@ -12,7 +12,7 @@ import { useState } from "react";
 import { NavigationBar } from "./NavigationBar";
 import { ContentCard } from "./ContentCard";
 import { EmptyState } from "./EmptyState";
-import { Play, Bookmark, Check, Trash2, Home, Compass, Library, User, Download, FolderOpen, FolderPlus, Clock } from "lucide-react";
+import { Play, Bookmark, Check, Trash2, Home, Compass, Library, User, Download, FolderOpen, FolderPlus, Clock, Shield } from "lucide-react";
 import { useStoryState } from "../contexts/StoryStateContext";
 import { getLibraryStories } from "../data/storyService";
 import type { Language } from "../data/storyDatabase";
@@ -458,6 +458,8 @@ function BottomNav({
   onNavigate: (screen: string) => void;
   activeTab: string;
 }) {
+  const { state } = useStoryState();
+  const isModerator = state.userRole === 'moderator' || state.userRole === 'admin';
   return (
     <nav className="fixed bottom-0 left-0 right-0 backdrop-blur-xl bg-black/60 border-t border-white/5 z-50 pointer-events-auto">
       <div className="max-w-[428px] mx-auto px-5 py-4 flex justify-around">
@@ -524,6 +526,32 @@ function BottomNav({
             Library
           </span>
         </button>
+        {isModerator && (
+          <button
+            type="button"
+            onClick={() => onNavigate("moderation-queue")}
+            className={`flex flex-col items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
+              activeTab === 'moderation-queue' ? 'text-amber-400' : 'text-amber-500/50 hover:text-amber-400/70'
+            }`}
+          >
+            <div className="relative">
+              <Shield 
+                className={`w-5 h-5 transition-all duration-300 ${
+                  activeTab === 'moderation-queue' 
+                    ? 'drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]' 
+                    : 'group-hover:drop-shadow-[0_0_4px_rgba(251,191,36,0.3)]'
+                }`}
+                strokeWidth={activeTab === 'moderation-queue' ? 2 : 1.5}
+              />
+              <div className="absolute -top-0.5 -right-1 w-1.5 h-1.5 rounded-full bg-amber-400" />
+            </div>
+            <span className={`text-[10px] tracking-widest uppercase transition-all duration-300 ${
+              activeTab === 'moderation-queue' ? 'font-medium' : 'font-light'
+            }`}>
+              Queue
+            </span>
+          </button>
+        )}
         <button
           type="button"
           onClick={() => onNavigate("profile")}

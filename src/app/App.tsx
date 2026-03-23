@@ -57,6 +57,15 @@ function AppContent() {
   const { state: authState } = useAuth();
   
   useEffect(() => {
+    if (!authState.isAuthenticated && !authState.isLoading) {
+      const savedRole = localStorage.getItem('seen_user_role');
+      if (savedRole && ['viewer', 'creator', 'moderator', 'admin'].includes(savedRole)) {
+        setUserRole(savedRole as UserRole);
+      }
+    }
+  }, [authState.isAuthenticated, authState.isLoading, setUserRole]);
+
+  useEffect(() => {
     if (authState.isAuthenticated && authState.user?.role) {
       setUserRole(authState.user.role);
       if (authState.user.language) {
