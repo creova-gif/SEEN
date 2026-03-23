@@ -14,7 +14,7 @@ import {
 
 interface ExploreScreenCreatorProps {
   activeLanguage: ContentLanguage;
-  onNavigate: (screen: "for-you" | "explore" | "library" | "profile") => void;
+  onNavigate: (screen: "for-you" | "explore" | "library" | "profile" | "create") => void;
   onContentSelect: (contentId: string) => void;
 }
 
@@ -246,7 +246,7 @@ export function ExploreScreenCreator({
 
       {/* Bottom Navigation */}
       <div className="fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur-xl border-t border-white/10 pointer-events-none">
-        <div className="max-w-[428px] mx-auto px-5 py-4 flex justify-around">
+        <div className="max-w-[428px] mx-auto px-4 py-4 flex justify-around items-end">
           <button
             type="button"
             onClick={() => onNavigate("for-you")}
@@ -270,6 +270,19 @@ export function ExploreScreenCreator({
               <div className="w-4 h-4 rounded-full border border-white drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]" />
             </div>
             <span className="text-[10px] tracking-widest uppercase font-medium">Explore</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onNavigate("create")}
+            className="flex flex-col items-center gap-1 transition-all duration-300 pointer-events-auto group -mt-3"
+          >
+            <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-[0_0_24px_rgba(255,255,255,0.25)] group-hover:shadow-[0_0_32px_rgba(255,255,255,0.4)] transition-shadow duration-300">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M10 4v12M4 10h12" stroke="black" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+            </div>
+            <span className="text-[10px] tracking-widest uppercase font-light text-white/60 group-hover:text-white/80 transition-colors">Create</span>
           </button>
           
           <button

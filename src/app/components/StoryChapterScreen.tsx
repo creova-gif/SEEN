@@ -303,18 +303,26 @@ export function StoryChapterScreen({
             {getText(currentChapter.content, state.language)}
           </motion.p>
 
-          {/* Captions overlay */}
+          {/* Subtitle captions overlay */}
           <AnimatePresence>
             {showCaptions && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 10 }}
-                className="p-4 rounded-xl bg-black/60 backdrop-blur-md border border-white/10"
+                className="mx-auto max-w-sm"
               >
-                <p className="text-sm text-white/90 leading-relaxed">
-                  [Ambient sounds: distant city traffic, wind through buildings, occasional footsteps]
-                </p>
+                <div className="px-4 py-3 rounded-lg bg-black/80 backdrop-blur-md border border-white/10 text-center">
+                  <p className="text-sm text-white leading-relaxed font-light">
+                    {getText(currentChapter.content, state.language)}
+                  </p>
+                </div>
+                <div className="mt-1.5 flex items-center justify-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-white/60 animate-pulse" />
+                  <span className="text-[10px] text-white/40 tracking-widest uppercase">
+                    {state.language === 'fr' ? 'Sous-titres' : state.language === 'es' ? 'Subtítulos' : 'Subtitles'}
+                  </span>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>

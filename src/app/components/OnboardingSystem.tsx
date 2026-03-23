@@ -30,6 +30,7 @@ interface OnboardingSystemProps {
     role: UserRole;
     intent: UserIntent;
   }) => void;
+  onGuestPreview?: () => void;
   initialStep?: number;
   hasEnteredSEEN?: boolean;
 }
@@ -38,7 +39,8 @@ type OnboardingLayer = "language" | "invocation" | "orientation";
 type OrientationStep = "purpose" | "role" | "intent" | "account" | "accessibility" | "presence" | "threshold";
 
 export function OnboardingSystem({ 
-  onComplete, 
+  onComplete,
+  onGuestPreview,
   initialStep = 0,
   hasEnteredSEEN = false 
 }: OnboardingSystemProps) {
@@ -188,7 +190,8 @@ export function OnboardingSystem({
         {currentLayer === "invocation" && (
           <InvocationLayer 
             key="invocation"
-            onComplete={handleInvocationComplete} 
+            onComplete={handleInvocationComplete}
+            onGuestPreview={onGuestPreview}
           />
         )}
 
@@ -254,7 +257,7 @@ export function OnboardingSystem({
  * The emotional entry point - first thing user sees
  * Simple, grounding, no choices
  */
-function InvocationLayer({ onComplete }: { onComplete: () => void }) {
+function InvocationLayer({ onComplete, onGuestPreview }: { onComplete: () => void; onGuestPreview?: () => void }) {
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -376,6 +379,18 @@ function InvocationLayer({ onComplete }: { onComplete: () => void }) {
             style={{ borderRadius: '2px' }}
           />
         </motion.button>
+
+        {onGuestPreview && (
+          <motion.button
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 2.8, duration: 1 }}
+            onClick={onGuestPreview}
+            className="mt-6 text-xs text-white/30 hover:text-white/50 transition-colors tracking-[0.2em] uppercase"
+          >
+            Explore without signing in
+          </motion.button>
+        )}
       </div>
     </motion.div>
   );

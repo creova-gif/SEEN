@@ -1,0 +1,216 @@
+STRATEGIC POSITIONING (IMPORTANT)
+
+You’re NOT adding:
+
+social networking
+
+You ARE adding:
+
+creator identity & external linking
+
+This keeps your platform:
+
+Professional
+Creator-focused
+CMF-aligned (non-social, cultural platform)
+✅ WHAT THE FEATURE SHOULD DO
+
+Users (especially creators) can:
+
+Add external social links to their profile
+Share:
+Their profile
+Individual stories
+
+BUT:
+
+No feeds
+No likes/follows
+No in-app social interaction
+🔧 ENGINEERED PROMPT (UI/UX SAFE)
+
+This prompt integrates the feature without changing your design.
+
+🔒 SOCIAL LINKING + SHARING PROMPT
+SYSTEM MODE: PROFILE EXTENSION — EXTERNAL IDENTITY & SHARING
+DESIGN STATUS: FINAL / LOCKED
+UI/UX STATUS: IMMUTABLE
+
+ABSOLUTE RULES:
+DO NOT:
+• Add new screens or tabs
+• Introduce social feeds, likes, or follows
+• Change layout or navigation
+
+ONLY:
+• Extend profile data
+• Enable external linking
+• Enable share functionality
+
+---
+
+OBJECTIVE
+
+Allow users to:
+• Add social profile links
+• Share their SEEN profile externally
+• Share stories externally
+
+WITHOUT introducing social platform behavior.
+
+---
+
+## SECTION 1 — PROFILE SOCIAL LINKS
+
+Extend user profile schema:
+
+UserProfile {
+  userId
+  displayName
+  bio
+  socialLinks: [
+    {
+      platform: "instagram" | "twitter" | "linkedin" | "youtube" | "tiktok" | "website",
+      url
+    }
+  ]
+}
+
+RULES:
+• Max 5 links per user
+• Validate URLs before saving
+• Store only — do not fetch external data
+
+DISPLAY:
+• Use existing profile section
+• Show icons or text links inline
+• Clicking opens external browser
+
+---
+
+## SECTION 2 — PROFILE SHARING
+
+Enable share functionality for user profiles.
+
+IMPLEMENT:
+
+On Profile screen:
+• Add share trigger using existing icon (if available)
+• Generate shareable URL:
+
+https://seen.app/profile/{userId}
+
+SHARE CONTENT:
+• Name
+• Short description
+• Link
+
+NO:
+• Preview scraping required
+• No internal messaging
+
+---
+
+## SECTION 3 — STORY SHARING
+
+Enable share functionality for Story Worlds.
+
+IMPLEMENT:
+
+On Story screen:
+• Share button triggers native share
+
+GENERATE LINK:
+https://seen.app/story/{storyWorldId}
+
+SHARE TEXT TEMPLATE:
+“Explore this story on SEEN — {Story Title}”
+
+RULES:
+• Opens directly to story
+• Respects language preference if available
+• No forced login
+
+---
+
+## SECTION 4 — DEEP LINKING
+
+Ensure shared links:
+
+• Open correct screen in-app (if installed)
+• Open web fallback if not installed
+• Preserve story context
+
+---
+
+## SECTION 5 — SAFETY & COMPLIANCE
+
+• No scraping external profiles
+• No tracking external clicks beyond aggregate
+• No ranking users based on social links
+• No linking required (optional feature)
+
+---
+
+## SECTION 6 — VALIDATION
+
+VERIFY:
+
+• Users can add/edit/remove links
+• Links open externally
+• Profile share works
+• Story share works
+• No UI changes introduced
+
+OUTPUT:
+
+• Feature enabled confirmation
+• Link structure verification
+💡 EXTRA CREATIVE IDEAS (OPTIONAL ADD-ONS)
+
+If you want to elevate this further:
+
+🔹 1. “Creator Card”
+
+When someone shares:
+
+Show:
+Name
+1 line bio
+Link to story
+🔹 2. “Share with Context”
+
+Instead of just link:
+
+“This story reflects migration journeys in Canada…”
+
+Adds depth → better engagement.
+
+🔹 3. “Institution Sharing Mode”
+
+For schools:
+
+Share entire collections
+Not just individual stories
+⚠️ WHAT TO AVOID (CRITICAL)
+
+Do NOT add:
+
+Follow buttons
+Like counters
+Comment threads tied to profiles
+Social feeds
+
+That would:
+❌ weaken CMF application
+❌ dilute your identity
+❌ increase moderation complexity
+
+🚀 FINAL TAKE
+
+This feature:
+
+Helps creators grow
+Makes your platform shareable
+Increases reach organically
+Keeps your platform clean + intentional

@@ -527,3 +527,85 @@ export function getInstitutionalOpportunities(language: ContentLanguage) {
 
   return opportunities.filter(opp => opp.languages.includes(language));
 }
+
+/**
+ * Get For You feed sections for creator view.
+ * Returns grouped sections with layout metadata so the creator screen
+ * can render carousels, grids, etc.
+ */
+export function getForYouSections(language: ContentLanguage) {
+  const toCard = (item: ContentItem) => ({
+    id: item.id,
+    title: item.title,
+    creator: item.creator,
+    duration: item.duration,
+    imageUrl: item.mediaSource,
+    category: (item.type as string).charAt(0).toUpperCase() + (item.type as string).slice(1),
+  });
+
+  const featured = ALL_CONTENT
+    .filter(i => i.featured && i.language.includes(language))
+    .slice(0, 6)
+    .map(toCard);
+
+  const trending = ALL_CONTENT
+    .filter(i => i.trending && i.language.includes(language))
+    .slice(0, 4)
+    .map(toCard);
+
+  const newReleases = ALL_CONTENT
+    .filter(i => i.new && i.language.includes(language))
+    .slice(0, 4)
+    .map(toCard);
+
+  const sections: Array<{
+    id: string;
+    title: string;
+    subtitle?: string;
+    layout: 'carousel' | 'grid';
+    items: ReturnType<typeof toCard>[];
+    onViewAll?: () => void;
+  }> = [];
+
+  if (featured.length > 0) {
+    sections.push({
+      id: 'featured',
+      title: language === 'fr' ? 'À la Une' : 'Featured',
+      subtitle: language === 'fr' ? 'Sélection éditoriale' : 'Editorial picks',
+      layout: 'carousel',
+      items: featured,
+    });
+  }
+
+  if (trending.length > 0) {
+    sections.push({
+      id: 'trending',
+      title: language === 'fr' ? 'Tendances' : 'Trending',
+      subtitle: language === 'fr' ? 'Ce que les gens écoutent' : 'What people are listening to',
+      layout: 'grid',
+      items: trending,
+    });
+  }
+
+  if (newReleases.length > 0) {
+    sections.push({
+      id: 'new',
+      title: language === 'fr' ? 'Nouvelles Sorties' : 'New Releases',
+      subtitle: language === 'fr' ? 'Ajouts récents' : 'Recently added',
+      layout: 'carousel',
+      items: newReleases,
+    });
+  }
+
+  // Fallback: return a generic section if nothing filtered
+  if (sections.length === 0) {
+    sections.push({
+      id: 'all',
+      title: language === 'fr' ? 'Découvrir' : 'Discover',
+      layout: 'grid',
+      items: ALL_CONTENT.slice(0, 6).map(toCard),
+    });
+  }
+
+  return sections;
+}

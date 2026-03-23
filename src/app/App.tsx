@@ -6,9 +6,14 @@ import { NavigationProvider } from "./navigation/NavigationController";
 import { OnboardingSystem } from "./components/OnboardingSystem";
 import { HomeScreen } from "./components/HomeScreen";
 import { ForYouScreen } from "./components/ForYouScreen";
+import { ForYouScreenCreator } from "./components/ForYouScreenCreator";
 import { ExploreScreen } from "./components/ExploreScreen";
+import { ExploreScreenCreator } from "./components/ExploreScreenCreator";
 import { LibraryScreen } from "./components/LibraryScreen";
+import { LibraryScreenCreator } from "./components/LibraryScreenCreator";
 import { ProfileScreen } from "./components/ProfileScreen";
+import { ProfileScreenCreator } from "./components/ProfileScreenCreator";
+import { ModeratorQueueScreen } from "./components/ModeratorQueueScreen";
 import { FeaturedStoryPreview } from "./components/FeaturedStoryPreview";
 import { StoryChapterScreen } from "./components/StoryChapterScreen";
 import { ChapterIndexScreen } from "./components/ChapterIndexScreen";
@@ -21,7 +26,6 @@ import { useStoryState } from "./contexts/StoryStateContext";
 import type { Language, UserIntent, UserRole } from "./contexts/StoryStateContext";
 import { initializeDemoData } from "./data/demoData";
 
-// Initialize demo data for testing (only runs once)
 initializeDemoData();
 
 type AppScreen = 
@@ -36,6 +40,7 @@ type AppScreen =
   | "explore"
   | "library"
   | "profile"
+  | "moderation-queue"
   | "story-preview"
   | "story-chapter"
   | "chapter-index"
@@ -49,8 +54,6 @@ function AppContent() {
   const { state, setLanguage, setIntent, setUserRole, setAccessibilityPreferences, setPersonalizationPreferences, enterStoryWorld } = useStoryState();
   const { state: authState } = useAuth();
   
-  // Sync user role from auth state when user is authenticated
-  // Use primitive values as dependencies to avoid infinite loops
   useEffect(() => {
     if (authState.isAuthenticated && authState.user?.role) {
       setUserRole(authState.user.role);
@@ -69,39 +72,37 @@ function AppContent() {
     setUserRole,
     setLanguage,
     setIntent
-  ]); // Include setter functions in dependencies
+  ]);
   
-  // Check onboarding status from localStorage
   const hasCompletedOnboarding = localStorage.getItem("onboarding_completed") === "true";
   const hasEnteredSEEN = localStorage.getItem("hasEnteredSEEN") === "true";
   const savedStep = localStorage.getItem("onboarding_step");
   
-  // Determine initial screen based on onboarding status and auth
   const getInitialScreen = (): AppScreen => {
-    // If authenticated and onboarding complete, go to For You
     if (authState.isAuthenticated && hasCompletedOnboarding) {
       return "for-you";
     }
-    // If authenticated but not completed onboarding, continue onboarding
     if (authState.isAuthenticated && (savedStep || hasEnteredSEEN)) {
       return "onboarding";
     }
-    // If not authenticated, show onboarding (which includes account creation)
     if (!authState.isLoading) {
       return "onboarding";
     }
-    // While checking auth, show onboarding
     return "onboarding";
   };
   
   const [currentScreen, setCurrentScreen] = useState<AppScreen>(getInitialScreen());
   const [isFirstVisit, setIsFirstVisit] = useState(!hasCompletedOnboarding);
 
-  // Handle onboarding completion
   const handleOnboardingComplete = (data: { role: UserRole; intent: UserIntent }) => {
     setUserRole(data.role);
     setIntent(data.intent);
     setIsFirstVisit(false);
+    setCurrentScreen("for-you");
+  };
+
+  const handleGuestPreview = () => {
+    localStorage.setItem("guest_mode", "true");
     setCurrentScreen("for-you");
   };
 
@@ -117,7 +118,7 @@ function AppContent() {
 
   const handleAccessibilityComplete = (prefs: { captionsEnabled: boolean; highContrast: boolean; reducedMotion: boolean }) => {
     setAccessibilityPreferences(prefs);
-    setCurrentScreen("for-you"); // Navigate to For You after onboarding
+    setCurrentScreen("for-you");
   };
 
   const handleEnterStory = (storyWorldId: string) => {
@@ -125,13 +126,11 @@ function AppContent() {
     setCurrentScreen("story-preview");
   };
 
-  // Handle story click with content ID
   const handleStoryClick = (contentId: string) => {
     enterStoryWorld(contentId);
     setCurrentScreen("story-preview");
   };
 
-  // Navigation handler for bottom tabs
   const handleNavigate = (screen: string) => {
     switch (screen) {
       case "for-you":
@@ -149,10 +148,20 @@ function AppContent() {
       case "home":
         setCurrentScreen("home");
         break;
+      case "create":
+        setCurrentScreen("story-builder");
+        break;
+      case "moderation-queue":
+        setCurrentScreen("moderation-queue");
+        break;
       default:
         break;
     }
   };
+
+  const isCreator = state.userRole === "creator";
+  const isModerator = state.userRole === "moderator" || state.userRole === "admin";
+  const activeLanguage = (state.language as "en" | "fr" | "es") || "en";
 
   return (
     <div className="size-full bg-black">
@@ -161,6 +170,7 @@ function AppContent() {
           <OnboardingSystem 
             key="onboarding"
             onComplete={handleOnboardingComplete}
+            onGuestPreview={handleGuestPreview}
             initialStep={savedStep ? parseInt(savedStep) : 0}
             hasEnteredSEEN={hasEnteredSEEN}
           />
@@ -195,14 +205,23 @@ function AppContent() {
           <ChapterIndexScreen 
             key="chapter-index"
             onClose={() => setCurrentScreen("story-chapter")}
-            onSelectChapter={(id) => {
+            onSelectChapter={(_id) => {
               setCurrentScreen("story-chapter");
             }}
             storyWorldId={state.currentStoryWorldId}
           />
         )}
 
-        {currentScreen === "for-you" && (
+        {currentScreen === "for-you" && isCreator && (
+          <ForYouScreenCreator 
+            key="for-you-creator"
+            activeLanguage={activeLanguage}
+            onNavigate={handleNavigate}
+            onContentSelect={handleStoryClick}
+          />
+        )}
+
+        {currentScreen === "for-you" && !isCreator && (
           <ForYouScreen 
             key="for-you"
             onStoryClick={handleStoryClick}
@@ -213,7 +232,16 @@ function AppContent() {
           />
         )}
 
-        {currentScreen === "explore" && (
+        {currentScreen === "explore" && isCreator && (
+          <ExploreScreenCreator 
+            key="explore-creator"
+            activeLanguage={activeLanguage}
+            onNavigate={handleNavigate}
+            onContentSelect={handleStoryClick}
+          />
+        )}
+
+        {currentScreen === "explore" && !isCreator && (
           <ExploreScreen 
             key="explore"
             onStoryClick={handleStoryClick}
@@ -222,7 +250,15 @@ function AppContent() {
           />
         )}
 
-        {currentScreen === "library" && (
+        {currentScreen === "library" && isCreator && (
+          <LibraryScreenCreator 
+            key="library-creator"
+            onNavigate={handleNavigate}
+            onContentSelect={handleStoryClick}
+          />
+        )}
+
+        {currentScreen === "library" && !isCreator && (
           <LibraryScreen 
             key="library"
             onStoryClick={handleStoryClick}
@@ -230,17 +266,32 @@ function AppContent() {
           />
         )}
 
-        {currentScreen === "profile" && (
+        {currentScreen === "profile" && isCreator && (
+          <ProfileScreenCreator
+            key="profile-creator"
+            onNavigate={handleNavigate}
+          />
+        )}
+
+        {currentScreen === "profile" && !isCreator && (
           <ProfileScreen 
             key="profile"
             onNavigate={handleNavigate}
             onOpenSettings={() => setCurrentScreen("settings")}
             onOpenAbout={() => setCurrentScreen("about")}
             onOpenCreatorDashboard={() => setCurrentScreen("story-builder")}
-            onOpenModeration={() => setCurrentScreen("moderation-governance")}
+            onOpenModeration={() => setCurrentScreen("moderation-queue")}
             onOpenInstitutional={() => setCurrentScreen("institutional-collection")}
             userIntent={state.intent}
             language={state.language}
+          />
+        )}
+
+        {currentScreen === "moderation-queue" && (
+          <ModeratorQueueScreen
+            key="moderation-queue"
+            onNavigate={handleNavigate}
+            isModerator={isModerator}
           />
         )}
 
@@ -261,7 +312,8 @@ function AppContent() {
         {currentScreen === "story-builder" && (
           <StoryBuilderScreen 
             key="story-builder"
-            onBack={() => setCurrentScreen("profile")}
+            onClose={() => isCreator ? setCurrentScreen("for-you") : setCurrentScreen("profile")}
+            onSave={() => isCreator ? setCurrentScreen("library") : setCurrentScreen("profile")}
           />
         )}
 

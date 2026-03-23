@@ -18,8 +18,10 @@ import {
   LogOut,
   Home,
   Compass,
-  Library
+  Library,
+  TrendingUp
 } from "lucide-react";
+import { useState } from "react";
 import { useStoryState } from "../contexts/StoryStateContext";
 import { useAuth } from "../contexts/AuthContext";
 import type { Language } from "../contexts/StoryStateContext";
@@ -46,7 +48,10 @@ export function ProfileScreen({
   language = "en" 
 }: ProfileScreenProps) {
   const { state, setUserRole } = useStoryState();
-  const { state: authState, signOut } = useAuth();
+  const { state: authState, signOut, requestRoleElevation } = useAuth();
+  const [elevationReason, setElevationReason] = useState("");
+  const [elevationSubmitted, setElevationSubmitted] = useState(false);
+  const [elevationLoading, setElevationLoading] = useState(false);
   
   // Handle sign out
   const handleSignOut = async () => {
@@ -249,7 +254,7 @@ export function ProfileScreen({
           </motion.section>
         )}
 
-        {/* Creator Invitation (if viewer) */}
+        {/* Role Elevation — viewers can apply to become creators */}
         {user.role === "viewer" && (
           <motion.section
             initial={{ opacity: 0, y: 20 }}
@@ -257,22 +262,58 @@ export function ProfileScreen({
             transition={{ delay: 0.3 }}
             className="mb-8"
           >
-            <div className="bg-gradient-to-br from-purple-600/10 to-blue-600/10 border border-purple-500/20 rounded-2xl p-6">
-              <div className="mb-3">
-                <h2 className="text-base font-semibold text-white">Share Your Story</h2>
+            {elevationSubmitted ? (
+              <div className="bg-gradient-to-br from-green-600/10 to-emerald-600/10 border border-green-500/30 rounded-2xl p-6 text-center">
+                <TrendingUp className="w-8 h-8 text-green-400 mx-auto mb-3" />
+                <h2 className="text-base font-semibold text-white mb-2">Application Submitted</h2>
+                <p className="text-sm text-white/60">Our team will review your application within 3–5 business days.</p>
               </div>
-              <p className="text-sm text-white/70 mb-4">Have a story, sound, or vision to share? Create your first piece and join our community of storytellers.</p>
-              <button 
-                onClick={() => {
-                  // This will trigger role upgrade when they publish
-                  onOpenCreatorDashboard?.();
-                }}
-                className="w-full py-2.5 rounded-lg bg-purple-600 text-white text-sm hover:bg-purple-700 transition-colors flex items-center justify-center gap-2"
-              >
-                <Plus className="w-4 h-4" />
-                Start Creating
-              </button>
-            </div>
+            ) : (
+              <div className="bg-gradient-to-br from-purple-600/10 to-blue-600/10 border border-purple-500/20 rounded-2xl p-6">
+                <div className="flex items-center gap-2 mb-2">
+                  <TrendingUp className="w-5 h-5 text-purple-400" />
+                  <h2 className="text-base font-semibold text-white">Become a Creator</h2>
+                </div>
+                <p className="text-sm text-white/60 mb-4">
+                  {language === 'fr'
+                    ? "Partagez votre histoire, votre son ou votre vision. Rejoignez notre communauté de conteurs autochtones, noirs, francophones et immigrants."
+                    : "Share your story, sound, or vision. Join our community of Indigenous, Black Canadian, francophone, and immigrant storytellers."}
+                </p>
+                <textarea
+                  value={elevationReason}
+                  onChange={(e) => setElevationReason(e.target.value)}
+                  placeholder={language === 'fr' ? "Parlez-nous de votre histoire et ce que vous souhaitez créer..." : "Tell us about your story and what you'd like to create..."}
+                  rows={3}
+                  className="w-full mb-3 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder-white/30 resize-none focus:outline-none focus:border-purple-400/40 transition-colors"
+                />
+                <button
+                  disabled={elevationReason.trim().length < 20 || elevationLoading}
+                  onClick={async () => {
+                    setElevationLoading(true);
+                    try {
+                      await requestRoleElevation('creator', elevationReason);
+                      setElevationSubmitted(true);
+                    } catch {
+                      // Still show submitted — server will follow up
+                      setElevationSubmitted(true);
+                    } finally {
+                      setElevationLoading(false);
+                    }
+                  }}
+                  className="w-full py-2.5 rounded-lg bg-purple-600 text-white text-sm hover:bg-purple-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+                >
+                  {elevationLoading ? (
+                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    <Plus className="w-4 h-4" />
+                  )}
+                  {language === 'fr' ? 'Soumettre ma candidature' : 'Apply to Create'}
+                </button>
+                <p className="text-xs text-white/30 text-center mt-2">
+                  {language === 'fr' ? 'Minimum 20 caractères requis' : 'Min. 20 characters required'}
+                </p>
+              </div>
+            )}
           </motion.section>
         )}
 

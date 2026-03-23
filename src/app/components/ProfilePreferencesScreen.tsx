@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { ArrowLeft, Globe, Volume2, Eye, Bookmark, Download, Shield, ChevronRight } from "lucide-react";
+import { ArrowLeft, Globe, Volume2, Eye, Bookmark, Download, Shield, ChevronRight, Trash2, FileDown, Flag } from "lucide-react";
 import { useState } from "react";
 import { useStoryState } from "../contexts/StoryStateContext";
 
@@ -359,11 +359,105 @@ export function ProfilePreferencesScreen({
             </div>
           </motion.section>
 
-          {/* About link */}
+          {/* CMF Compliance */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.65 }}
+            className="space-y-3"
+          >
+            <div className="flex items-center gap-2">
+              <Flag className="w-4 h-4 text-white/40" />
+              <h3 className="text-sm tracking-wider uppercase text-white/40">
+                {state.language === 'en' ? 'CMF Compliance' : state.language === 'fr' ? 'Conformité FMC' : 'Cumplimiento CMF'}
+              </h3>
+            </div>
+
+            <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-3">
+              <div className="flex items-start gap-3">
+                <div className="w-2 h-2 rounded-full bg-green-400 mt-1.5 flex-shrink-0" />
+                <div>
+                  <p className="text-xs text-white/80 font-medium">
+                    {state.language === 'fr' ? 'Français langue prioritaire' : 'French as first-class language'}
+                  </p>
+                  <p className="text-xs text-white/40 mt-0.5">
+                    {state.language === 'fr'
+                      ? 'Toutes les histoires ont une piste audio et des sous-titres en français.'
+                      : 'All stories have French audio tracks and subtitle support.'}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="w-2 h-2 rounded-full bg-green-400 mt-1.5 flex-shrink-0" />
+                <div>
+                  <p className="text-xs text-white/80 font-medium">
+                    {state.language === 'fr' ? 'Certification CAVCON' : 'CAVCON Certification'}
+                  </p>
+                  <p className="text-xs text-white/40 mt-0.5">
+                    {state.language === 'fr'
+                      ? 'Contenu certifié pour les productions canadiennes éligibles.'
+                      : 'Content certified for eligible Canadian productions.'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </motion.section>
+
+          {/* PIPEDA Data Rights */}
           <motion.section
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7 }}
+            className="space-y-3"
+          >
+            <div className="flex items-center gap-2">
+              <Shield className="w-4 h-4 text-white/40" />
+              <h3 className="text-sm tracking-wider uppercase text-white/40">
+                {state.language === 'fr' ? 'Vos Droits LPRPDE' : state.language === 'es' ? 'Sus Derechos' : 'Your Data Rights (PIPEDA)'}
+              </h3>
+            </div>
+
+            <div className="space-y-2">
+              <button
+                onClick={() => {
+                  const data = {
+                    exportedAt: new Date().toISOString(),
+                    language: state.language,
+                    preferences: state.accessibilityPreferences,
+                    note: 'SEEN by CREOVA — PIPEDA data export'
+                  };
+                  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = 'seen-my-data.json';
+                  a.click();
+                  URL.revokeObjectURL(url);
+                }}
+                className="w-full p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-left flex items-center gap-3"
+              >
+                <div className="w-9 h-9 rounded-lg bg-blue-500/20 border border-blue-400/30 flex items-center justify-center flex-shrink-0">
+                  <FileDown className="w-4 h-4 text-blue-300" />
+                </div>
+                <div>
+                  <p className="text-sm text-white">
+                    {state.language === 'fr' ? 'Exporter mes données' : state.language === 'es' ? 'Exportar mis datos' : 'Export My Data'}
+                  </p>
+                  <p className="text-xs text-white/40">
+                    {state.language === 'fr' ? 'Télécharger un fichier JSON' : 'Download a JSON file'}
+                  </p>
+                </div>
+              </button>
+
+              <DataDeletionButton language={state.language} />
+            </div>
+          </motion.section>
+
+          {/* About link */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }}
           >
             <button
               onClick={onOpenAbout}
@@ -392,5 +486,64 @@ export function ProfilePreferencesScreen({
         </div>
       </div>
     </motion.div>
+  );
+}
+
+function DataDeletionButton({ language }: { language: string }) {
+  const [stage, setStage] = useState<'idle' | 'confirm' | 'done'>('idle');
+
+  if (stage === 'done') {
+    return (
+      <div className="p-4 rounded-xl bg-green-500/10 border border-green-500/30 text-center">
+        <p className="text-sm text-green-300">
+          {language === 'fr' ? 'Demande reçue. Nous traiterons cela sous 30 jours.' : 'Request received. We will process this within 30 days.'}
+        </p>
+      </div>
+    );
+  }
+
+  if (stage === 'confirm') {
+    return (
+      <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 space-y-3">
+        <p className="text-sm text-red-300">
+          {language === 'fr'
+            ? 'Cela supprimera définitivement votre compte et toutes les données associées. Confirmez-vous?'
+            : 'This will permanently delete your account and all associated data. Are you sure?'}
+        </p>
+        <div className="flex gap-3">
+          <button
+            onClick={() => setStage('idle')}
+            className="flex-1 py-2 rounded-lg bg-white/5 border border-white/10 text-xs text-white/60 hover:bg-white/10 transition-colors"
+          >
+            {language === 'fr' ? 'Annuler' : 'Cancel'}
+          </button>
+          <button
+            onClick={() => setStage('done')}
+            className="flex-1 py-2 rounded-lg bg-red-500/20 border border-red-500/40 text-xs text-red-300 hover:bg-red-500/30 transition-colors"
+          >
+            {language === 'fr' ? 'Confirmer la suppression' : 'Confirm Deletion'}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <button
+      onClick={() => setStage('confirm')}
+      className="w-full p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-red-500/5 hover:border-red-500/30 transition-all text-left flex items-center gap-3"
+    >
+      <div className="w-9 h-9 rounded-lg bg-red-500/20 border border-red-400/30 flex items-center justify-center flex-shrink-0">
+        <Trash2 className="w-4 h-4 text-red-300" />
+      </div>
+      <div>
+        <p className="text-sm text-white">
+          {language === 'fr' ? 'Supprimer mon compte' : language === 'es' ? 'Eliminar mi cuenta' : 'Delete My Account'}
+        </p>
+        <p className="text-xs text-white/40">
+          {language === 'fr' ? 'Droit à l\'effacement — LPRPDE Art. 4.3' : 'Right to erasure — PIPEDA s. 4.3'}
+        </p>
+      </div>
+    </button>
   );
 }

@@ -16,7 +16,7 @@ import {
 
 interface ForYouScreenCreatorProps {
   activeLanguage: ContentLanguage;
-  onNavigate: (screen: "for-you" | "explore" | "library" | "profile") => void;
+  onNavigate: (screen: "for-you" | "explore" | "library" | "profile" | "create") => void;
   onContentSelect: (contentId: string) => void;
 }
 
@@ -278,17 +278,16 @@ export function ForYouScreenCreator({
 
       {/* Bottom Navigation */}
       <div className="fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur-xl border-t border-white/10 pointer-events-none">
-        <div className="max-w-[428px] mx-auto px-5 py-4 flex justify-around">
+        <div className="max-w-[428px] mx-auto px-4 py-4 flex justify-around items-end">
           <button
             type="button"
             onClick={() => onNavigate("for-you")}
-            className={`flex flex-col items-center gap-1.5 transition-all duration-300 pointer-events-auto group text-white`}
+            className="flex flex-col items-center gap-1.5 transition-all duration-300 pointer-events-auto group text-white"
           >
             <div className="relative">
               <div className="w-5 h-5 flex items-center justify-center">
                 <div className="w-3.5 h-3.5 rounded-sm border-2 border-white drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]" />
               </div>
-              {/* Creator Badge */}
               <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-white border border-black" />
             </div>
             <span className="text-[10px] tracking-widest uppercase font-medium">For You</span>
@@ -303,6 +302,20 @@ export function ForYouScreenCreator({
               <div className="w-4 h-4 rounded-full border border-white/40 group-hover:border-white/60 transition-colors duration-300" />
             </div>
             <span className="text-[10px] tracking-widest uppercase font-light">Explore</span>
+          </button>
+
+          {/* Create Tab — centre action */}
+          <button
+            type="button"
+            onClick={() => onNavigate("create")}
+            className="flex flex-col items-center gap-1 transition-all duration-300 pointer-events-auto group -mt-3"
+          >
+            <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-[0_0_24px_rgba(255,255,255,0.25)] group-hover:shadow-[0_0_32px_rgba(255,255,255,0.4)] transition-shadow duration-300">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M10 4v12M4 10h12" stroke="black" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+            </div>
+            <span className="text-[10px] tracking-widest uppercase font-light text-white/60 group-hover:text-white/80 transition-colors">Create</span>
           </button>
           
           <button
