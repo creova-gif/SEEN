@@ -14,14 +14,14 @@ import type { UserProgress, UserBookmark } from './types';
  * Call this once to simulate a user who has interacted with content
  */
 export function populateDemoUserData(): void {
-  // Simulate user started "Midnight Resonance"
+  // Simulate user started the CREOVA album
   const midnightResonanceProgress: UserProgress = {
-    contentId: 'music-001',
+    contentId: 'creova-album-001',
     contentType: 'music',
-    startedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
-    lastAccessedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
+    startedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    lastAccessedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
     progressPercentage: 45,
-    playbackPosition: 1230, // seconds
+    playbackPosition: 1230,
     completed: false
   };
   saveProgress(midnightResonanceProgress);

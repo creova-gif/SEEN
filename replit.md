@@ -45,14 +45,28 @@ App.tsx renders different screen variants per `state.userRole`:
 - CMF Compliance section in Preferences: CAVCON certification status, French first-class indicator
 - PIPEDA section: data export (JSON download) + data deletion request with 2-step confirmation
 
+## CREOVA Music Content
+The platform features CREOVA's own released music as first-party content:
+- `creova-single-001` — New Single (Mar 2026, featured + trending)
+- `creova-album-001` — CREOVA: The Album (Feb 2026, full 42-min album)
+- `creova-album-002` — Racines / Roots (bilingual track, trending)
+- `creova-album-003` — Corridor (instrumental)
+
+To add real audio URLs, set the `audioSrc` field in `src/app/data/database.ts`. Accepts:
+- Soundcloud track URL: `https://soundcloud.com/creova/track-name`
+- Hosted MP3/OGG: `https://cdn.example.com/audio/track.mp3`
+- Spotify embed: `https://open.spotify.com/embed/track/{trackId}`
+
 ## Data Layer
+- `src/app/data/types.ts` — `ContentItem` includes optional `audioSrc?: string`
 - `src/app/data/queries.ts` exports all data access functions:
-  - `getForYouFeed()` — viewer feed
-  - `getForYouSections(language)` — creator feed sections with layout metadata
+  - `getForYouFeed()` — viewer feed (storyDatabase)
+  - `getForYouSections(language)` — creator feed sections with layout metadata (database.ts)
   - `getCreatorDrafts()`, `getCreatorPerformanceData()`, `getCreatorRecommendations()` — creator analytics
   - `getExploreCategories()`, `getCreatorOpenCalls(language)` — explore screen
   - `getInstitutionalOpportunities(language)` — institutional collections
 - `src/app/data/database.ts` — Content arrays (ALL_CONTENT, MUSIC_CONTENT, etc.)
+- `src/app/data/demoData.ts` — Dev-only demo data (only runs in `import.meta.env.DEV`)
 
 ## Development
 - Dev server: `npm run dev` (port 5000, host 0.0.0.0)

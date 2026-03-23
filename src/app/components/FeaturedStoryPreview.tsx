@@ -1,8 +1,9 @@
 import { motion } from "motion/react";
-import { ArrowLeft, Play, Volume2, Share2, Bookmark } from "lucide-react";
-import { useState } from "react";
+import { ArrowLeft, Play, Volume2, Share2, Bookmark, Check, Music, BookOpen, Film, Folder, Archive } from "lucide-react";
+import { useState, useCallback } from "react";
 import { useStoryState } from "../contexts/StoryStateContext";
 import { getStoryWorldData } from "../data/storyService";
+import { getContentById } from "../data/database";
 import type { Language } from "../data/storyDatabase";
 
 interface FeaturedStoryPreviewProps {
@@ -10,19 +11,89 @@ interface FeaturedStoryPreviewProps {
   onEnterStory?: () => void;
 }
 
+const CONTENT_TYPE_LABELS: Record<string, string> = {
+  music: 'Music',
+  story: 'Story',
+  film: 'Film',
+  collection: 'Collection',
+  archive: 'Archive',
+};
+
 export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPreviewProps) {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [shareStatus, setShareStatus] = useState<'idle' | 'copied'>('idle');
   const { state } = useStoryState();
   
-  // Get story data from current story world ID
-  const storyData = state.currentStoryWorldId 
+  // Try storyDatabase first, then fall back to ALL_CONTENT database
+  const storyDbData = state.currentStoryWorldId 
     ? getStoryWorldData(state.currentStoryWorldId, state.language as Language)
     : null;
+
+  const contentDbItem = (!storyDbData && state.currentStoryWorldId)
+    ? getContentById(state.currentStoryWorldId)
+    : null;
+
+  // Normalise to a common shape
+  const storyData = storyDbData
+    ? storyDbData
+    : contentDbItem
+      ? {
+          id: contentDbItem.id,
+          title: contentDbItem.title,
+          description: contentDbItem.description,
+          creator: contentDbItem.creator,
+          coverImage: contentDbItem.mediaSource,
+          releaseDate: contentDbItem.releaseDate,
+          totalDuration: contentDbItem.duration,
+          chapterCount: 0,
+          culturalThemes: contentDbItem.tags,
+          contentType: contentDbItem.type,
+          audioSrc: contentDbItem.audioSrc,
+          chapters: [],
+        }
+      : null;
   
+  const handleShareContent = useCallback(async () => {
+    if (!storyData) return;
+    const shareUrl = `https://seen.app/story/${storyData.id}`;
+    const shareData = {
+      title: `${storyData.title} — SEEN`,
+      text: `Explore this on SEEN — "${storyData.title}"`,
+      url: shareUrl,
+    };
+    try {
+      if (navigator.share) { await navigator.share(shareData); }
+      else {
+        await navigator.clipboard.writeText(shareUrl);
+        setShareStatus('copied');
+        setTimeout(() => setShareStatus('idle'), 2000);
+      }
+    } catch {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        setShareStatus('copied');
+        setTimeout(() => setShareStatus('idle'), 2000);
+      } catch {}
+    }
+  }, [storyData]);
+
   if (!storyData) {
-    console.error('[FeaturedStoryPreview] No story data found for:', state.currentStoryWorldId);
-    return null;
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black z-50 flex flex-col items-center justify-center gap-4"
+      >
+        <p className="text-white/50 text-sm">Content not found</p>
+        <button onClick={onClose} className="text-white/70 underline text-sm">Go back</button>
+      </motion.div>
+    );
   }
+
+  const typeLabel = (storyData as any).contentType
+    ? CONTENT_TYPE_LABELS[(storyData as any).contentType] || 'Content'
+    : 'Story';
 
   const handleEnterStory = () => {
     if (onEnterStory) {
@@ -71,10 +142,15 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
             className="flex gap-2"
           >
             <button 
+              onClick={handleShareContent}
               className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center hover:bg-black/60 transition-colors"
               aria-label="Share"
             >
-              <Share2 className="w-4 h-4 text-white" />
+              {shareStatus === 'copied' ? (
+                <Check className="w-4 h-4 text-green-400" />
+              ) : (
+                <Share2 className="w-4 h-4 text-white" />
+              )}
             </button>
             <button 
               className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center hover:bg-black/60 transition-colors"
@@ -132,9 +208,9 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
           {/* Category badge */}
           <div className="flex items-center gap-2">
             <span className="text-xs tracking-[0.2em] uppercase text-white/60 backdrop-blur-sm bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
-              CREOVA Music
+              {typeLabel}
             </span>
-            <span className="text-xs text-white/40">• 24 min</span>
+            <span className="text-xs text-white/40">• {storyData.totalDuration}</span>
           </div>
 
           {/* Title and description */}
@@ -150,10 +226,10 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
           {/* Credits */}
           <div className="pt-2 space-y-1">
             <p className="text-sm text-white/50">
-              Produced by <span className="text-white/80">CREOVA Studio</span>
+              By <span className="text-white/80">{storyData.creator}</span>
             </p>
             <p className="text-xs text-white/40">
-              Released February 2026
+              Released {storyData.releaseDate}
             </p>
           </div>
 

@@ -26,7 +26,9 @@ import { useStoryState } from "./contexts/StoryStateContext";
 import type { Language, UserIntent, UserRole } from "./contexts/StoryStateContext";
 import { initializeDemoData } from "./data/demoData";
 
-initializeDemoData();
+if (import.meta.env.DEV) {
+  initializeDemoData();
+}
 
 type AppScreen = 
   | "onboarding"

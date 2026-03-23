@@ -19,21 +19,69 @@ import type {
 // ============================================
 
 export const MUSIC_CONTENT: ContentItem[] = [
+  // ── CREOVA Music ─────────────────────────────────────────────
+  // To update audio: replace audioSrc with a Soundcloud embed URL
+  // e.g. "https://soundcloud.com/creova/track-slug"
+  // or a hosted MP3: "https://your-cdn.com/audio/track.mp3"
   {
-    id: 'music-001',
+    id: 'creova-single-001',
     type: 'music',
-    title: 'Midnight Resonance',
-    description: 'A sonic journey through Tokyo\'s nocturnal soundscapes, blending binaural field recordings with experimental electronic textures.',
-    duration: '45 min',
+    title: 'New Single — CREOVA',
+    description: 'The latest release from CREOVA — a cinematic, genre-blurring single that weaves together cultural texture, rhythm, and storytelling. Available on all major streaming platforms.',
+    duration: '3 min',
     creator: 'CREOVA Music',
-    releaseDate: 'Feb 2026',
+    releaseDate: 'Mar 2026',
     language: ['en', 'fr'],
-    mediaSource: 'https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=800',
-    tags: ['electronic', 'ambient', 'tokyo', 'experimental'],
+    mediaSource: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=800',
+    // audioSrc: 'REPLACE_WITH_SOUNDCLOUD_OR_DIRECT_URL',
+    tags: ['creova', 'single', 'cinematic', 'cultural', 'new-release'],
     featured: true,
     new: true,
     trending: true
   },
+  {
+    id: 'creova-album-001',
+    type: 'music',
+    title: 'CREOVA — The Album',
+    description: 'CREOVA\'s debut album — a journey through sound, identity, and belonging. Each track tells a story drawn from real cultural experiences, spanning rhythm, spoken word, and ambient texture. Stream on Spotify, Apple Music, and all major platforms.',
+    duration: '42 min',
+    creator: 'CREOVA Music',
+    releaseDate: 'Feb 2026',
+    language: ['en', 'fr'],
+    mediaSource: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800',
+    // audioSrc: 'REPLACE_WITH_SOUNDCLOUD_OR_DIRECT_URL',
+    tags: ['creova', 'album', 'cultural', 'storytelling', 'debut'],
+    featured: true,
+    new: true
+  },
+  {
+    id: 'creova-album-002',
+    type: 'music',
+    title: 'Racines / Roots',
+    description: 'A track from the CREOVA album exploring the tension between heritage and reinvention — layered with field recordings, percussion, and multilingual verse.',
+    duration: '4 min',
+    creator: 'CREOVA Music',
+    releaseDate: 'Feb 2026',
+    language: ['en', 'fr'],
+    mediaSource: 'https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=800',
+    // audioSrc: 'REPLACE_WITH_SOUNDCLOUD_OR_DIRECT_URL',
+    tags: ['creova', 'heritage', 'bilingual', 'roots', 'percussion'],
+    trending: true
+  },
+  {
+    id: 'creova-album-003',
+    type: 'music',
+    title: 'Corridor',
+    description: 'An instrumental piece from the CREOVA album — built from hallway ambiences, distant voices, and structural rhythms. A meditation on shared space and cultural crossing.',
+    duration: '5 min',
+    creator: 'CREOVA Music',
+    releaseDate: 'Feb 2026',
+    language: ['en', 'fr'],
+    mediaSource: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=800',
+    // audioSrc: 'REPLACE_WITH_SOUNDCLOUD_OR_DIRECT_URL',
+    tags: ['creova', 'instrumental', 'ambient', 'cultural', 'space']
+  },
+  // ── Other Creators ───────────────────────────────────────────
   {
     id: 'music-002',
     type: 'music',

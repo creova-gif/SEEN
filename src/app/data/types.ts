@@ -39,7 +39,8 @@ export interface ContentItem {
   language: ContentLanguage[];
   
   // Media
-  mediaSource: string; // Image URL
+  mediaSource: string; // Cover image URL
+  audioSrc?: string;   // Optional direct audio URL or embed URL (Soundcloud, etc.)
   
   // Classification
   tags: string[];

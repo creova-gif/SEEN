@@ -1,4 +1,4 @@
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { NavigationBar } from "./NavigationBar";
 import { 
   Settings, 
@@ -16,11 +16,49 @@ import {
   ChevronRight,
   BarChart3,
   FileText,
-  Palette
+  Palette,
+  Share2,
+  Instagram,
+  Twitter,
+  Linkedin,
+  Youtube,
+  Link2,
+  Check,
+  X,
+  Pencil
 } from "lucide-react";
+import { useState, useCallback } from "react";
 import { useStoryState } from "../contexts/StoryStateContext";
 import { useAuth } from "../contexts/AuthContext";
 import type { Language } from "../contexts/StoryStateContext";
+
+type SocialPlatform = 'instagram' | 'twitter' | 'linkedin' | 'youtube' | 'tiktok' | 'website';
+interface SocialLink { platform: SocialPlatform; url: string; }
+
+const PLATFORM_META: Record<SocialPlatform, { label: string; icon: React.ReactNode; placeholder: string }> = {
+  instagram: { label: 'Instagram', icon: <Instagram className="w-4 h-4" />, placeholder: 'https://instagram.com/yourhandle' },
+  twitter:   { label: 'X / Twitter', icon: <Twitter className="w-4 h-4" />, placeholder: 'https://x.com/yourhandle' },
+  linkedin:  { label: 'LinkedIn', icon: <Linkedin className="w-4 h-4" />, placeholder: 'https://linkedin.com/in/yourhandle' },
+  youtube:   { label: 'YouTube', icon: <Youtube className="w-4 h-4" />, placeholder: 'https://youtube.com/@yourchannel' },
+  tiktok:    { label: 'TikTok', icon: <Link2 className="w-4 h-4" />, placeholder: 'https://tiktok.com/@yourhandle' },
+  website:   { label: 'Website', icon: <Globe className="w-4 h-4" />, placeholder: 'https://yoursite.com' },
+};
+
+const PLATFORMS = Object.keys(PLATFORM_META) as SocialPlatform[];
+const MAX_LINKS = 5;
+const STORAGE_KEY = 'seen_social_links';
+
+function loadSocialLinks(): SocialLink[] {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { return []; }
+}
+function saveSocialLinks(links: SocialLink[]) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(links));
+}
+function isValidUrl(url: string) {
+  if (!url.trim()) return true;
+  try { const u = new URL(url.trim()); return u.protocol === 'http:' || u.protocol === 'https:'; }
+  catch { return false; }
+}
 
 interface ProfileScreenCreatorProps {
   onNavigate: (screen: "for-you" | "explore" | "library" | "profile" | "create") => void;
@@ -35,6 +73,67 @@ export function ProfileScreenCreator({ onNavigate }: ProfileScreenCreatorProps) 
     culturalContributions: 12,
     communityImpact: 2845,
     averageCompletion: 78,
+  };
+
+  // Social links
+  const [socialLinks, setSocialLinks] = useState<SocialLink[]>(loadSocialLinks);
+  const [editingLinks, setEditingLinks] = useState(false);
+  const [draftLinks, setDraftLinks] = useState<Record<SocialPlatform, string>>(() => {
+    const loaded = loadSocialLinks();
+    const map = {} as Record<SocialPlatform, string>;
+    PLATFORMS.forEach(p => { map[p] = loaded.find(l => l.platform === p)?.url ?? ''; });
+    return map;
+  });
+  const [urlErrors, setUrlErrors] = useState<Record<string, boolean>>({});
+  const [shareStatus, setShareStatus] = useState<'idle' | 'copied'>('idle');
+
+  const userId = authState.user?.id ?? 'me';
+  const profileUrl = `https://seen.app/profile/${userId}`;
+
+  const handleOpenLink = (url: string) => {
+    if (url) window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
+  const handleShareProfile = useCallback(async () => {
+    const shareData = {
+      title: `${authState.user?.name || 'Creator'} on SEEN`,
+      text: `Check out my creator profile on SEEN`,
+      url: profileUrl,
+    };
+    try {
+      if (navigator.share) { await navigator.share(shareData); }
+      else {
+        await navigator.clipboard.writeText(profileUrl);
+        setShareStatus('copied');
+        setTimeout(() => setShareStatus('idle'), 2000);
+      }
+    } catch {
+      try {
+        await navigator.clipboard.writeText(profileUrl);
+        setShareStatus('copied');
+        setTimeout(() => setShareStatus('idle'), 2000);
+      } catch {}
+    }
+  }, [profileUrl, authState.user?.name]);
+
+  const handleSaveLinks = () => {
+    const errors: Record<string, boolean> = {};
+    PLATFORMS.forEach(p => { if (draftLinks[p] && !isValidUrl(draftLinks[p])) errors[p] = true; });
+    if (Object.keys(errors).length > 0) { setUrlErrors(errors); return; }
+    setUrlErrors({});
+    const filled = PLATFORMS.filter(p => draftLinks[p].trim()).map(p => ({ platform: p, url: draftLinks[p].trim() }));
+    const trimmed = filled.slice(0, MAX_LINKS);
+    saveSocialLinks(trimmed);
+    setSocialLinks(trimmed);
+    setEditingLinks(false);
+  };
+
+  const handleCancelEdit = () => {
+    const map = {} as Record<SocialPlatform, string>;
+    PLATFORMS.forEach(p => { map[p] = socialLinks.find(l => l.platform === p)?.url ?? ''; });
+    setDraftLinks(map);
+    setUrlErrors({});
+    setEditingLinks(false);
   };
 
   const handleSignOut = async () => {
@@ -92,15 +191,104 @@ export function ProfileScreenCreator({ onNavigate }: ProfileScreenCreatorProps) 
             </div>
           </div>
 
-          {/* Create New Button */}
-          <button
-            type="button"
-            onClick={() => console.log("Create new content")}
-            className="w-full py-4 bg-white text-black rounded-lg flex items-center justify-center gap-2 text-sm tracking-wide font-medium hover:bg-white/90 transition-all duration-300"
-          >
-            <Plus className="w-4 h-4" strokeWidth={2} />
-            <span>Create New</span>
-          </button>
+          {/* Create New + Share row */}
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => onNavigate("create")}
+              className="flex-1 py-4 bg-white text-black rounded-lg flex items-center justify-center gap-2 text-sm tracking-wide font-medium hover:bg-white/90 transition-all duration-300"
+            >
+              <Plus className="w-4 h-4" strokeWidth={2} />
+              <span>Create New</span>
+            </button>
+            <button
+              type="button"
+              onClick={handleShareProfile}
+              aria-label="Share profile"
+              className="py-4 px-5 border border-white/20 rounded-lg flex items-center justify-center gap-2 text-sm text-white/70 hover:border-white/40 hover:text-white transition-all duration-300"
+            >
+              {shareStatus === 'copied' ? (
+                <Check className="w-4 h-4 text-green-400" />
+              ) : (
+                <Share2 className="w-4 h-4" />
+              )}
+            </button>
+          </div>
+
+          {/* Social Links Panel */}
+          <div className="border border-white/10 bg-white/[0.02] rounded-lg overflow-hidden">
+            <div className="flex items-center justify-between px-4 py-3">
+              <div className="flex items-center gap-3.5">
+                {PLATFORMS.map(platform => {
+                  const link = socialLinks.find(l => l.platform === platform);
+                  const meta = PLATFORM_META[platform];
+                  return (
+                    <button
+                      key={platform}
+                      aria-label={meta.label}
+                      onClick={() => link?.url ? handleOpenLink(link.url) : setEditingLinks(true)}
+                      className={`transition-colors duration-200 ${link?.url ? 'text-white' : 'text-white/20 hover:text-white/40'}`}
+                    >
+                      {meta.icon}
+                    </button>
+                  );
+                })}
+              </div>
+              <button
+                onClick={() => setEditingLinks(v => !v)}
+                aria-label="Manage links"
+                className="text-white/30 hover:text-white/60 transition-colors"
+              >
+                <Pencil className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            <AnimatePresence>
+              {editingLinks && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="overflow-hidden"
+                >
+                  <div className="border-t border-white/10 px-4 py-4 space-y-2.5">
+                    <p className="text-[10px] tracking-widest uppercase text-white/30 mb-1">External Links (max {MAX_LINKS})</p>
+                    {PLATFORMS.map(platform => {
+                      const meta = PLATFORM_META[platform];
+                      const hasError = urlErrors[platform];
+                      return (
+                        <div key={platform}>
+                          <div className={`flex items-center gap-2 rounded-lg border px-3 py-2 ${hasError ? 'border-red-500/40' : 'border-white/10 bg-white/[0.02]'}`}>
+                            <span className="text-white/40 flex-shrink-0">{meta.icon}</span>
+                            <input
+                              type="url"
+                              value={draftLinks[platform]}
+                              onChange={e => {
+                                setDraftLinks(prev => ({ ...prev, [platform]: e.target.value }));
+                                if (urlErrors[platform]) setUrlErrors(prev => { const n = {...prev}; delete n[platform]; return n; });
+                              }}
+                              placeholder={meta.placeholder}
+                              className="flex-1 bg-transparent text-xs text-white placeholder-white/20 focus:outline-none min-w-0"
+                            />
+                            {draftLinks[platform] && (
+                              <button onClick={() => setDraftLinks(prev => ({ ...prev, [platform]: '' }))} className="text-white/25 hover:text-white/50 flex-shrink-0">
+                                <X className="w-3 h-3" />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                    <div className="flex gap-2 pt-2">
+                      <button onClick={handleSaveLinks} className="flex-1 py-2.5 rounded-lg bg-white text-black text-xs tracking-wide font-medium hover:bg-white/90 transition-colors">Save</button>
+                      <button onClick={handleCancelEdit} className="flex-1 py-2.5 rounded-lg border border-white/20 text-white text-xs tracking-wide hover:border-white/40 transition-colors">Cancel</button>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
 
         {/* Creator Stats */}
