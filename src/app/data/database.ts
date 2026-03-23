@@ -48,7 +48,7 @@ export const MUSIC_CONTENT: ContentItem[] = [
     releaseDate: 'Feb 2026',
     language: ['en', 'fr'],
     mediaSource: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800',
-    audioSrc: 'https://open.spotify.com/embed/artist/2RLqSJtCZ3PcAGY1V8e8HS?utm_source=generator',
+    audioSrc: 'https://open.spotify.com/embed/album/5bmB1hFEdm3OeeMpZm8uIY?utm_source=generator',
     tags: ['creova', 'album', 'cultural', 'storytelling', 'debut'],
     featured: true,
     new: true
@@ -63,7 +63,7 @@ export const MUSIC_CONTENT: ContentItem[] = [
     releaseDate: 'Feb 2026',
     language: ['en', 'fr'],
     mediaSource: 'https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=800',
-    audioSrc: 'https://open.spotify.com/embed/artist/2RLqSJtCZ3PcAGY1V8e8HS?utm_source=generator',
+    audioSrc: 'https://open.spotify.com/embed/album/5bmB1hFEdm3OeeMpZm8uIY?utm_source=generator',
     tags: ['creova', 'heritage', 'bilingual', 'roots', 'percussion'],
     trending: true
   },
@@ -77,7 +77,7 @@ export const MUSIC_CONTENT: ContentItem[] = [
     releaseDate: 'Feb 2026',
     language: ['en', 'fr'],
     mediaSource: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=800',
-    audioSrc: 'https://open.spotify.com/embed/artist/2RLqSJtCZ3PcAGY1V8e8HS?utm_source=generator',
+    audioSrc: 'https://open.spotify.com/embed/album/5bmB1hFEdm3OeeMpZm8uIY?utm_source=generator',
     tags: ['creova', 'instrumental', 'ambient', 'cultural', 'space']
   },
   // ── Other Creators ───────────────────────────────────────────
