@@ -272,6 +272,8 @@ function AppContent() {
           <ProfileScreenCreator
             key="profile-creator"
             onNavigate={handleNavigate}
+            onOpenSettings={() => setCurrentScreen("settings")}
+            onOpenAbout={() => setCurrentScreen("about")}
           />
         )}
 

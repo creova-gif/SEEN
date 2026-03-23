@@ -1,4 +1,4 @@
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { useState } from "react";
 import { NavigationBar } from "./NavigationBar";
 import { ContentCard } from "./ContentCard";
@@ -56,8 +56,34 @@ export function LibraryScreenCreator({
 }: LibraryScreenCreatorProps) {
   const [activeTab, setActiveTab] = useState<'drafts' | 'scheduled' | 'published' | 'archived'>('drafts');
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
+  const [localContent, setLocalContent] = useState(mockContent);
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
 
-  const content = mockContent[activeTab] || [];
+  const showToast = (msg: string) => {
+    setToastMsg(msg);
+    setTimeout(() => setToastMsg(null), 2200);
+  };
+
+  const handleDuplicate = (item: ContentItem) => {
+    const clone: ContentItem = { ...item, id: `${item.id}-copy-${Date.now()}`, title: `${item.title} (Copy)`, status: 'draft', progress: 0, lastEdited: 'Just now', completeness: 0 };
+    setLocalContent(prev => ({ ...prev, drafts: [clone, ...prev.drafts] }));
+    showToast('Duplicated to Drafts');
+  };
+
+  const handleArchive = (item: ContentItem) => {
+    setLocalContent(prev => {
+      const updated: Record<string, ContentItem[]> = { ...prev };
+      (Object.keys(updated) as Array<keyof typeof updated>).forEach(tab => {
+        updated[tab] = updated[tab].filter(i => i.id !== item.id);
+      });
+      const archived: ContentItem = { ...item, status: 'archived' };
+      updated.archived = [archived, ...updated.archived.filter(i => i.id !== item.id)];
+      return updated;
+    });
+    showToast('Moved to Archive');
+  };
+
+  const content = localContent[activeTab] || [];
 
   const getStatusBadge = (status: ContentItem['status']) => {
     const badges = {
@@ -81,7 +107,7 @@ export function LibraryScreenCreator({
         action={{
           label: "Create",
           icon: Plus,
-          onClick: () => console.log("Create new content")
+          onClick: () => onNavigate("create")
         }}
       />
 
@@ -90,10 +116,10 @@ export function LibraryScreenCreator({
         <div className="max-w-[428px] mx-auto px-5">
           <div className="flex gap-6 overflow-x-auto scrollbar-hide">
             {[
-              { id: 'drafts', label: 'Drafts', count: mockContent.drafts.length },
-              { id: 'scheduled', label: 'Scheduled', count: mockContent.scheduled.length },
-              { id: 'published', label: 'Published', count: mockContent.published.length },
-              { id: 'archived', label: 'Archived', count: mockContent.archived.length },
+              { id: 'drafts', label: 'Drafts', count: localContent.drafts.length },
+              { id: 'scheduled', label: 'Scheduled', count: localContent.scheduled.length },
+              { id: 'published', label: 'Published', count: localContent.published.length },
+              { id: 'archived', label: 'Archived', count: localContent.archived.length },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -224,7 +250,7 @@ export function LibraryScreenCreator({
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
-                      console.log('Edit', item.id);
+                      onNavigate("create");
                     }}
                     className="flex-1 flex items-center justify-center gap-2 py-3 text-xs tracking-wider uppercase text-white/40 hover:text-white/80 hover:bg-white/[0.02] transition-all duration-200 border-r border-white/5"
                   >
@@ -237,7 +263,7 @@ export function LibraryScreenCreator({
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
-                      console.log('Preview', item.id);
+                      onContentSelect(item.id);
                     }}
                     className="flex-1 flex items-center justify-center gap-2 py-3 text-xs tracking-wider uppercase text-white/40 hover:text-white/80 hover:bg-white/[0.02] transition-all duration-200 border-r border-white/5"
                   >
@@ -250,7 +276,7 @@ export function LibraryScreenCreator({
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
-                      console.log('Duplicate', item.id);
+                      handleDuplicate(item);
                     }}
                     className="flex-1 flex items-center justify-center gap-2 py-3 text-xs tracking-wider uppercase text-white/40 hover:text-white/80 hover:bg-white/[0.02] transition-all duration-200 border-r border-white/5"
                   >
@@ -263,7 +289,7 @@ export function LibraryScreenCreator({
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
-                      console.log('Archive', item.id);
+                      handleArchive(item);
                     }}
                     className="flex-1 flex items-center justify-center gap-2 py-3 text-xs tracking-wider uppercase text-white/40 hover:text-white/80 hover:bg-white/[0.02] transition-all duration-200"
                   >
@@ -347,6 +373,21 @@ export function LibraryScreenCreator({
           </button>
         </div>
       </div>
+
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {toastMsg && (
+          <motion.div
+            key="library-toast"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed top-16 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 bg-white text-black text-xs tracking-widest uppercase rounded-full shadow-lg pointer-events-none"
+          >
+            {toastMsg}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

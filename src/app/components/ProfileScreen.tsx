@@ -101,7 +101,8 @@ export function ProfileScreen({
   userIntent = "explore", 
   language = "en" 
 }: ProfileScreenProps) {
-  const { state, setUserRole } = useStoryState();
+  const { state, setUserRole, setLanguage, setIntent } = useStoryState();
+  const [showGuidelinesModal, setShowGuidelinesModal] = useState(false);
   const { state: authState, signOut, requestRoleElevation } = useAuth();
   const [elevationReason, setElevationReason] = useState("");
   const [elevationSubmitted, setElevationSubmitted] = useState(false);
@@ -582,19 +583,25 @@ export function ProfileScreen({
               icon={<Globe className="w-5 h-5" />}
               label="Language"
               value={language === "en" ? "English" : language === "fr" ? "Français" : "Español"}
-              onClick={() => {}}
+              onClick={() => {
+                const next: Record<string, "en" | "fr" | "es"> = { en: 'fr', fr: 'es', es: 'en' };
+                setLanguage(next[language] ?? 'en');
+              }}
             />
             <SettingItem
               icon={<Moon className="w-5 h-5" />}
               label="Intent"
               value={userIntent === "create" ? "Create" : userIntent === "contribute" ? "Contribute" : "Explore"}
-              onClick={() => {}}
+              onClick={() => {
+                const next: Record<string, "explore" | "create" | "contribute"> = { explore: 'create', create: 'contribute', contribute: 'explore' };
+                setIntent(next[userIntent] ?? 'explore');
+              }}
             />
             <SettingItem
               icon={<Eye className="w-5 h-5" />}
               label="Accessibility"
               value="Customized"
-              onClick={() => {}}
+              onClick={onOpenSettings}
             />
             <SettingItem
               icon={<Settings className="w-5 h-5" />}
@@ -617,12 +624,12 @@ export function ProfileScreen({
               icon={<Heart className="w-5 h-5" />}
               label="Your Contributions"
               value={`${stats.contributionsMade} responses`}
-              onClick={() => {}}
+              onClick={() => onNavigate("library")}
             />
             <SettingItem
               icon={<MessageCircle className="w-5 h-5" />}
               label="Community Guidelines"
-              onClick={() => {}}
+              onClick={() => setShowGuidelinesModal(true)}
             />
             <SettingItem
               icon={<Info className="w-5 h-5" />}
@@ -690,6 +697,56 @@ export function ProfileScreen({
           </button>
         </div>
       </nav>
+
+      {/* Community Guidelines Modal */}
+      <AnimatePresence>
+        {showGuidelinesModal && (
+          <motion.div
+            key="guidelines-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm"
+            onClick={() => setShowGuidelinesModal(false)}
+          />
+        )}
+        {showGuidelinesModal && (
+          <motion.div
+            key="guidelines-sheet"
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+            className="fixed bottom-0 left-0 right-0 z-50 max-w-[428px] mx-auto bg-[#111] border-t border-white/10 rounded-t-2xl overflow-hidden"
+          >
+            <div className="flex justify-center pt-3 pb-2">
+              <div className="w-10 h-1 rounded-full bg-white/20" />
+            </div>
+            <div className="px-5 pb-10">
+              <h3 className="text-base tracking-wide font-light mb-1">Community Guidelines</h3>
+              <p className="text-xs text-white/40 mb-5">How we keep SEEN a safe space</p>
+              <div className="space-y-2 mb-6">
+                {[
+                  'Respect every voice — especially those historically silenced',
+                  'No harassment, hate speech, or discrimination of any kind',
+                  'Share content responsibly — misinformation is never welcome',
+                  'Obtain consent before recording or featuring others in your story',
+                  'Report harmful content using the in-story flag button',
+                  'PIPEDA applies to all user data — protect people\'s privacy',
+                ].map((item, i) => (
+                  <div key={i} className="flex items-start gap-3 py-2 border-b border-white/5 last:border-0">
+                    <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <MessageCircle className="w-3 h-3 text-white/60" strokeWidth={2} />
+                    </div>
+                    <span className="text-xs text-white/60 leading-relaxed">{item}</span>
+                  </div>
+                ))}
+              </div>
+              <button type="button" onClick={() => setShowGuidelinesModal(false)} className="w-full py-3 text-sm tracking-widest uppercase text-white/40 border border-white/10 rounded-lg hover:border-white/20 transition-all">Got it</button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

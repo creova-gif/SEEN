@@ -60,13 +60,23 @@ function isValidUrl(url: string) {
   catch { return false; }
 }
 
+type ActiveModal = null | 'dashboard' | 'rights' | 'guidelines' | 'accessibility' | 'privacy' | 'feedback';
+
 interface ProfileScreenCreatorProps {
   onNavigate: (screen: "for-you" | "explore" | "library" | "profile" | "create") => void;
+  onOpenSettings?: () => void;
+  onOpenAbout?: () => void;
 }
 
-export function ProfileScreenCreator({ onNavigate }: ProfileScreenCreatorProps) {
-  const { state: { language }, setLanguage } = useStoryState();
+export function ProfileScreenCreator({ onNavigate, onOpenSettings, onOpenAbout }: ProfileScreenCreatorProps) {
+  const { state: { language, accessibilityPreferences }, setLanguage, setAccessibilityPreferences } = useStoryState();
   const { state: authState, signOut } = useAuth();
+  const [activeModal, setActiveModal] = useState<ActiveModal>(null);
+
+  const cycleLanguage = () => {
+    const next: Record<string, Language> = { en: 'fr', fr: 'es', es: 'en' };
+    setLanguage(next[language] ?? 'en');
+  };
 
   const userStats = {
     hoursCreated: 47,
@@ -154,7 +164,7 @@ export function ProfileScreenCreator({ onNavigate }: ProfileScreenCreatorProps) 
         action={{
           label: "Settings",
           icon: Settings,
-          onClick: () => console.log("Open settings")
+          onClick: () => onOpenSettings?.()
         }}
       />
 
@@ -360,7 +370,7 @@ export function ProfileScreenCreator({ onNavigate }: ProfileScreenCreatorProps) 
             {/* Creator Dashboard */}
             <button
               type="button"
-              onClick={() => console.log("Open creator dashboard")}
+              onClick={() => setActiveModal('dashboard')}
               className="w-full flex items-center justify-between p-4 border border-white/10 bg-white/[0.02] rounded-lg hover:border-white/20 hover:bg-white/[0.04] transition-all duration-300"
             >
               <div className="flex items-center gap-3">
@@ -378,7 +388,7 @@ export function ProfileScreenCreator({ onNavigate }: ProfileScreenCreatorProps) 
             {/* Rights & Licensing */}
             <button
               type="button"
-              onClick={() => console.log("Open rights & licensing")}
+              onClick={() => setActiveModal('rights')}
               className="w-full flex items-center justify-between p-4 border border-white/10 bg-white/[0.02] rounded-lg hover:border-white/20 hover:bg-white/[0.04] transition-all duration-300"
             >
               <div className="flex items-center gap-3">
@@ -396,7 +406,7 @@ export function ProfileScreenCreator({ onNavigate }: ProfileScreenCreatorProps) 
             {/* Content Guidelines */}
             <button
               type="button"
-              onClick={() => console.log("Open content guidelines")}
+              onClick={() => setActiveModal('guidelines')}
               className="w-full flex items-center justify-between p-4 border border-white/10 bg-white/[0.02] rounded-lg hover:border-white/20 hover:bg-white/[0.04] transition-all duration-300"
             >
               <div className="flex items-center gap-3">
@@ -421,7 +431,7 @@ export function ProfileScreenCreator({ onNavigate }: ProfileScreenCreatorProps) 
             {/* Language */}
             <button
               type="button"
-              onClick={() => console.log("Change language")}
+              onClick={cycleLanguage}
               className="w-full flex items-center justify-between p-4 border border-white/10 bg-white/[0.02] rounded-lg hover:border-white/20 hover:bg-white/[0.04] transition-all duration-300"
             >
               <div className="flex items-center gap-3">
@@ -441,7 +451,7 @@ export function ProfileScreenCreator({ onNavigate }: ProfileScreenCreatorProps) 
             {/* Accessibility */}
             <button
               type="button"
-              onClick={() => console.log("Open accessibility")}
+              onClick={() => setActiveModal('accessibility')}
               className="w-full flex items-center justify-between p-4 border border-white/10 bg-white/[0.02] rounded-lg hover:border-white/20 hover:bg-white/[0.04] transition-all duration-300"
             >
               <div className="flex items-center gap-3">
@@ -459,7 +469,7 @@ export function ProfileScreenCreator({ onNavigate }: ProfileScreenCreatorProps) 
             {/* Privacy */}
             <button
               type="button"
-              onClick={() => console.log("Open privacy")}
+              onClick={() => setActiveModal('privacy')}
               className="w-full flex items-center justify-between p-4 border border-white/10 bg-white/[0.02] rounded-lg hover:border-white/20 hover:bg-white/[0.04] transition-all duration-300"
             >
               <div className="flex items-center gap-3">
@@ -484,7 +494,7 @@ export function ProfileScreenCreator({ onNavigate }: ProfileScreenCreatorProps) 
             {/* Grant Resources */}
             <button
               type="button"
-              onClick={() => console.log("Open grant resources")}
+              onClick={() => window.open('https://cmf-fmc.ca/en/', '_blank', 'noopener,noreferrer')}
               className="w-full flex items-center justify-between p-4 border border-white/10 bg-white/[0.02] rounded-lg hover:border-white/20 hover:bg-white/[0.04] transition-all duration-300"
             >
               <div className="flex items-center gap-3">
@@ -499,7 +509,7 @@ export function ProfileScreenCreator({ onNavigate }: ProfileScreenCreatorProps) 
             {/* Feedback */}
             <button
               type="button"
-              onClick={() => console.log("Send feedback")}
+              onClick={() => setActiveModal('feedback')}
               className="w-full flex items-center justify-between p-4 border border-white/10 bg-white/[0.02] rounded-lg hover:border-white/20 hover:bg-white/[0.04] transition-all duration-300"
             >
               <div className="flex items-center gap-3">
@@ -514,7 +524,7 @@ export function ProfileScreenCreator({ onNavigate }: ProfileScreenCreatorProps) 
             {/* About */}
             <button
               type="button"
-              onClick={() => console.log("Open about")}
+              onClick={() => onOpenAbout?.()}
               className="w-full flex items-center justify-between p-4 border border-white/10 bg-white/[0.02] rounded-lg hover:border-white/20 hover:bg-white/[0.04] transition-all duration-300"
             >
               <div className="flex items-center gap-3">
@@ -611,6 +621,189 @@ export function ProfileScreenCreator({ onNavigate }: ProfileScreenCreatorProps) 
           </button>
         </div>
       </div>
+
+      {/* Modal Overlay */}
+      <AnimatePresence>
+        {activeModal && (
+          <motion.div
+            key="modal-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm"
+            onClick={() => setActiveModal(null)}
+          />
+        )}
+        {activeModal && (
+          <motion.div
+            key="modal-sheet"
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+            className="fixed bottom-0 left-0 right-0 z-50 max-w-[428px] mx-auto bg-[#111] border-t border-white/10 rounded-t-2xl overflow-hidden"
+          >
+            {/* Modal Handle */}
+            <div className="flex justify-center pt-3 pb-2">
+              <div className="w-10 h-1 rounded-full bg-white/20" />
+            </div>
+
+            {/* Dashboard */}
+            {activeModal === 'dashboard' && (
+              <div className="px-5 pb-10">
+                <h3 className="text-base tracking-wide font-light mb-1">Creator Dashboard</h3>
+                <p className="text-xs text-white/40 mb-6">Your analytics at a glance</p>
+                <div className="grid grid-cols-2 gap-3 mb-6">
+                  {[
+                    { label: 'Total Views', value: '4,368', icon: <Eye className="w-4 h-4" /> },
+                    { label: 'Stories Published', value: '3', icon: <FileText className="w-4 h-4" /> },
+                    { label: 'Avg. Completion', value: '78%', icon: <BarChart3 className="w-4 h-4" /> },
+                    { label: 'Community Impact', value: '2,845', icon: <Heart className="w-4 h-4" /> },
+                  ].map(({ label, value, icon }) => (
+                    <div key={label} className="p-4 border border-white/10 bg-white/[0.02] rounded-lg">
+                      <div className="flex items-center gap-2 mb-2 text-white/40">{icon}<span className="text-[10px] tracking-widest uppercase">{label}</span></div>
+                      <div className="text-2xl font-light tracking-wide">{value}</div>
+                    </div>
+                  ))}
+                </div>
+                <button type="button" onClick={() => setActiveModal(null)} className="w-full py-3 text-sm tracking-widest uppercase text-white/40 border border-white/10 rounded-lg hover:border-white/20 transition-all">Close</button>
+              </div>
+            )}
+
+            {/* Rights & Licensing */}
+            {activeModal === 'rights' && (
+              <div className="px-5 pb-10">
+                <h3 className="text-base tracking-wide font-light mb-1">Rights & Licensing</h3>
+                <p className="text-xs text-white/40 mb-5">Your intellectual property on SEEN</p>
+                <div className="space-y-3 mb-6">
+                  {[
+                    { title: 'You own your content', body: 'All stories you publish remain your intellectual property. SEEN holds a limited licence to display your work on the platform.' },
+                    { title: 'Attribution required', body: 'Content shared or remixed by other creators must credit you. Violations can be reported through the moderation system.' },
+                    { title: 'CMF compliance', body: 'Content funded through CMF grants must comply with Canadian content requirements. See CMF Grant Resources for details.' },
+                  ].map(({ title, body }) => (
+                    <div key={title} className="p-3 border border-white/10 bg-white/[0.02] rounded-lg">
+                      <div className="text-xs tracking-wide font-medium mb-1">{title}</div>
+                      <div className="text-xs text-white/50 leading-relaxed">{body}</div>
+                    </div>
+                  ))}
+                </div>
+                <button type="button" onClick={() => setActiveModal(null)} className="w-full py-3 text-sm tracking-widest uppercase text-white/40 border border-white/10 rounded-lg hover:border-white/20 transition-all">Close</button>
+              </div>
+            )}
+
+            {/* Content Guidelines */}
+            {activeModal === 'guidelines' && (
+              <div className="px-5 pb-10">
+                <h3 className="text-base tracking-wide font-light mb-1">Content Guidelines</h3>
+                <p className="text-xs text-white/40 mb-5">Standards for publishing on SEEN</p>
+                <div className="space-y-2 mb-6">
+                  {[
+                    'Uplift underrepresented Canadian voices and cultural perspectives',
+                    'No hate speech, discrimination, or harmful stereotyping',
+                    'Audio must meet PIPEDA privacy standards — no recording third parties without consent',
+                    'All copyrighted music or media must be properly licensed',
+                    'Content involving minors requires parental consent documentation',
+                    'Subtitle/caption files are strongly encouraged for accessibility',
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-start gap-3 py-2 border-b border-white/5 last:border-0">
+                      <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Check className="w-3 h-3 text-white/60" strokeWidth={2} />
+                      </div>
+                      <span className="text-xs text-white/60 leading-relaxed">{item}</span>
+                    </div>
+                  ))}
+                </div>
+                <button type="button" onClick={() => setActiveModal(null)} className="w-full py-3 text-sm tracking-widest uppercase text-white/40 border border-white/10 rounded-lg hover:border-white/20 transition-all">Close</button>
+              </div>
+            )}
+
+            {/* Accessibility */}
+            {activeModal === 'accessibility' && (
+              <div className="px-5 pb-10">
+                <h3 className="text-base tracking-wide font-light mb-1">Accessibility</h3>
+                <p className="text-xs text-white/40 mb-5">Adjust your experience</p>
+                <div className="space-y-3 mb-6">
+                  {[
+                    { key: 'reducedMotion' as const, label: 'Reduce Motion', desc: 'Minimise animations and transitions' },
+                    { key: 'captionsEnabled' as const, label: 'Subtitles & Captions', desc: 'Show captions during story playback' },
+                    { key: 'highContrast' as const, label: 'High Contrast', desc: 'Increase contrast for better readability' },
+                  ].map(({ key, label, desc }) => (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => setAccessibilityPreferences({ [key]: !accessibilityPreferences[key] })}
+                      className="w-full flex items-center justify-between p-4 border border-white/10 bg-white/[0.02] rounded-lg hover:border-white/20 transition-all"
+                    >
+                      <div className="text-left">
+                        <div className="text-sm tracking-wide">{label}</div>
+                        <div className="text-xs text-white/40">{desc}</div>
+                      </div>
+                      <div className={`w-10 h-5 rounded-full transition-all duration-300 flex items-center px-0.5 ${accessibilityPreferences[key] ? 'bg-white' : 'bg-white/20'}`}>
+                        <div className={`w-4 h-4 rounded-full bg-black transition-all duration-300 ${accessibilityPreferences[key] ? 'translate-x-5' : 'translate-x-0'}`} />
+                      </div>
+                    </button>
+                  ))}
+                </div>
+                <button type="button" onClick={() => setActiveModal(null)} className="w-full py-3 text-sm tracking-widest uppercase text-white/40 border border-white/10 rounded-lg hover:border-white/20 transition-all">Done</button>
+              </div>
+            )}
+
+            {/* Privacy */}
+            {activeModal === 'privacy' && (
+              <div className="px-5 pb-10">
+                <h3 className="text-base tracking-wide font-light mb-1">Privacy</h3>
+                <p className="text-xs text-white/40 mb-5">PIPEDA-compliant data handling</p>
+                <div className="space-y-3 mb-6">
+                  {[
+                    { title: 'Data we collect', body: 'Account details, content you publish, and anonymised engagement metrics. No third-party advertising data is collected.' },
+                    { title: 'How it\'s used', body: 'Your data powers your creator analytics, personalised recommendations, and platform safety. It is never sold to third parties.' },
+                    { title: 'Your rights', body: 'You may request a data export or deletion of your account at any time by contacting privacy@creova.ca.' },
+                  ].map(({ title, body }) => (
+                    <div key={title} className="p-3 border border-white/10 bg-white/[0.02] rounded-lg">
+                      <div className="text-xs tracking-wide font-medium mb-1">{title}</div>
+                      <div className="text-xs text-white/50 leading-relaxed">{body}</div>
+                    </div>
+                  ))}
+                </div>
+                <button type="button" onClick={() => setActiveModal(null)} className="w-full py-3 text-sm tracking-widest uppercase text-white/40 border border-white/10 rounded-lg hover:border-white/20 transition-all">Close</button>
+              </div>
+            )}
+
+            {/* Feedback */}
+            {activeModal === 'feedback' && (
+              <div className="px-5 pb-10">
+                <h3 className="text-base tracking-wide font-light mb-1">Send Feedback</h3>
+                <p className="text-xs text-white/40 mb-5">Help us improve SEEN for all creators</p>
+                <div className="space-y-3 mb-6">
+                  <button
+                    type="button"
+                    onClick={() => { window.open('mailto:hello@creova.ca?subject=SEEN Creator Feedback', '_blank'); setActiveModal(null); }}
+                    className="w-full flex items-center gap-3 p-4 border border-white/10 bg-white/[0.02] rounded-lg hover:border-white/20 transition-all"
+                  >
+                    <MessageCircle className="w-4 h-4 text-white/60" strokeWidth={1.5} />
+                    <div className="text-left">
+                      <div className="text-sm tracking-wide">Email the team</div>
+                      <div className="text-xs text-white/40">hello@creova.ca</div>
+                    </div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { window.open('https://cmf-fmc.ca/en/', '_blank', 'noopener,noreferrer'); setActiveModal(null); }}
+                    className="w-full flex items-center gap-3 p-4 border border-white/10 bg-white/[0.02] rounded-lg hover:border-white/20 transition-all"
+                  >
+                    <Building2 className="w-4 h-4 text-white/60" strokeWidth={1.5} />
+                    <div className="text-left">
+                      <div className="text-sm tracking-wide">Report a CMF concern</div>
+                      <div className="text-xs text-white/40">cmf-fmc.ca</div>
+                    </div>
+                  </button>
+                </div>
+                <button type="button" onClick={() => setActiveModal(null)} className="w-full py-3 text-sm tracking-widest uppercase text-white/40 border border-white/10 rounded-lg hover:border-white/20 transition-all">Cancel</button>
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
