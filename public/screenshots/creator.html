@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=428px, initial-scale=1.0"/>
+<title>SEEN — Creator Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<style>
+  * { font-family: 'Inter', sans-serif; }
+  body { background: #000; display: flex; justify-content: center; min-height: 100vh; margin: 0; }
+  #app { width: 428px; min-height: 100vh; background: #000; position: relative; }
+  .download-btn { position: fixed; top: 12px; right: 12px; z-index: 9999; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 8px 16px; border-radius: 20px; font-size: 12px; letter-spacing: 0.1em; cursor: pointer; backdrop-filter: blur(8px); }
+  .stat-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 16px; }
+</style>
+</head>
+<body>
+<button class="download-btn" onclick="downloadScreenshot('seen-creator-dashboard')">↓ Download PNG</button>
+<div id="app">
+  <!-- Nav Bar -->
+  <div style="background:rgba(0,0,0,0.85);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.05);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;">
+    <div>
+      <p style="font-size:9px;letter-spacing:0.2em;color:rgba(255,255,255,0.3);text-transform:uppercase;">Creator Studio</p>
+      <h1 style="font-size:22px;font-weight:600;color:white;letter-spacing:0.08em;">SEEN</h1>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <div style="background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);border-radius:20px;padding:6px 12px;display:flex;align-items:center;gap:6px;">
+        <svg width="12" height="12" fill="none" stroke="rgb(167,139,250)" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12l7-7 7 7"/></svg>
+        <span style="font-size:10px;letter-spacing:0.1em;color:rgb(167,139,250);text-transform:uppercase;">Publish</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="padding:20px 20px 120px;space-y:8px;">
+    <!-- Analytics Overview -->
+    <div style="margin-bottom:24px;">
+      <p style="font-size:9px;letter-spacing:0.2em;color:rgba(255,255,255,0.35);text-transform:uppercase;margin-bottom:14px;">This Month</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+        <div class="stat-card" style="text-align:center;">
+          <p style="font-size:22px;font-weight:600;color:white;margin-bottom:2px;">2.4K</p>
+          <p style="font-size:9px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.1em;">Listeners</p>
+        </div>
+        <div class="stat-card" style="text-align:center;">
+          <p style="font-size:22px;font-weight:600;color:white;margin-bottom:2px;">87%</p>
+          <p style="font-size:9px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.1em;">Completion</p>
+        </div>
+        <div class="stat-card" style="text-align:center;">
+          <p style="font-size:22px;font-weight:600;color:white;margin-bottom:2px;">142</p>
+          <p style="font-size:9px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.1em;">Saves</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CMF Eligibility -->
+    <div style="margin-bottom:24px;background:linear-gradient(135deg,rgba(16,185,129,0.08),rgba(16,185,129,0.04));border:1px solid rgba(16,185,129,0.2);border-radius:14px;padding:16px;display:flex;align-items:center;gap:14px;">
+      <div style="width:40px;height:40px;border-radius:10px;background:rgba(16,185,129,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <svg width="18" height="18" fill="none" stroke="rgb(52,211,153)" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      </div>
+      <div>
+        <p style="font-size:11px;font-weight:500;color:rgba(255,255,255,0.85);margin-bottom:2px;">CMF Eligible</p>
+        <p style="font-size:10px;color:rgba(255,255,255,0.45);">Your story meets Canadian content requirements — 87% MAPL score.</p>
+      </div>
+    </div>
+
+    <!-- Published Stories -->
+    <div style="margin-bottom:24px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <p style="font-size:9px;letter-spacing:0.2em;color:rgba(255,255,255,0.35);text-transform:uppercase;">Published</p>
+        <span style="font-size:10px;letter-spacing:0.1em;color:rgba(255,255,255,0.3);text-transform:uppercase;">+ New Story</span>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:14px;display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+        <div style="width:52px;height:52px;border-radius:10px;background:linear-gradient(135deg,#1a0a2e,#0d1b2a);flex-shrink:0;"></div>
+        <div style="flex:1;">
+          <h4 style="font-size:14px;font-weight:500;color:white;margin-bottom:3px;">Midnight Resonance</h4>
+          <p style="font-size:10px;color:rgba(255,255,255,0.4);">4 chapters · 2.4K listeners</p>
+          <div style="display:flex;gap:6px;margin-top:6px;">
+            <span style="font-size:8px;letter-spacing:0.1em;color:rgb(52,211,153);border:1px solid rgba(52,211,153,0.3);padding:2px 8px;border-radius:10px;text-transform:uppercase;">Live</span>
+            <span style="font-size:8px;letter-spacing:0.1em;color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.1);padding:2px 8px;border-radius:10px;text-transform:uppercase;">CMF ✓</span>
+          </div>
+        </div>
+        <div>
+          <p style="font-size:16px;font-weight:600;color:white;">87%</p>
+          <p style="font-size:9px;color:rgba(255,255,255,0.3);">complete</p>
+        </div>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.1);border-radius:12px;padding:14px;display:flex;align-items:center;gap:12px;">
+        <div style="width:52px;height:52px;border-radius:10px;background:rgba(255,255,255,0.05);flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+          <svg width="20" height="20" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12l7-7 7 7"/></svg>
+        </div>
+        <div>
+          <h4 style="font-size:14px;font-weight:500;color:rgba(255,255,255,0.5);">Draft: The Church Choir</h4>
+          <p style="font-size:10px;color:rgba(255,255,255,0.3);">2 of 4 chapters · In review</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Collab Invites -->
+    <div>
+      <p style="font-size:9px;letter-spacing:0.2em;color:rgba(255,255,255,0.35);text-transform:uppercase;margin-bottom:14px;">Collaborators</p>
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:14px;display:flex;align-items:center;gap:12px;">
+        <div style="display:flex;">
+          <div style="width:32px;height:32px;border-radius:50%;background:rgba(139,92,246,0.3);border:2px solid #000;display:flex;align-items:center;justify-content:center;font-size:11px;color:white;font-weight:500;">M</div>
+          <div style="width:32px;height:32px;border-radius:50%;background:rgba(16,185,129,0.3);border:2px solid #000;margin-left:-8px;display:flex;align-items:center;justify-content:center;font-size:11px;color:white;font-weight:500;">S</div>
+        </div>
+        <div>
+          <p style="font-size:13px;color:rgba(255,255,255,0.8);">2 active collaborators</p>
+          <p style="font-size:10px;color:rgba(255,255,255,0.4);">Marcus L. · Simone A.</p>
+        </div>
+        <div style="margin-left:auto;">
+          <svg width="16" height="16" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Creator Bottom Nav -->
+  <div style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:428px;background:rgba(0,0,0,0.8);backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,0.05);padding:12px 20px 20px;">
+    <div class="flex justify-around">
+      <button style="display:flex;flex-direction:column;align-items:center;gap:4px;color:white;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        <span style="font-size:9px;letter-spacing:0.15em;text-transform:uppercase;">Home</span>
+      </button>
+      <button style="display:flex;flex-direction:column;align-items:center;gap:4px;color:rgba(255,255,255,0.35);">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v8M8 12h8"/></svg>
+        <span style="font-size:9px;letter-spacing:0.15em;text-transform:uppercase;">Create</span>
+      </button>
+      <button style="display:flex;flex-direction:column;align-items:center;gap:4px;color:rgba(255,255,255,0.35);">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span style="font-size:9px;letter-spacing:0.15em;text-transform:uppercase;">Collab</span>
+      </button>
+      <button style="display:flex;flex-direction:column;align-items:center;gap:4px;color:rgba(255,255,255,0.35);">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m16 6 4 14"/><path d="M12 6v14"/></svg>
+        <span style="font-size:9px;letter-spacing:0.15em;text-transform:uppercase;">Library</span>
+      </button>
+      <button style="display:flex;flex-direction:column;align-items:center;gap:4px;color:rgba(255,255,255,0.35);">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span style="font-size:9px;letter-spacing:0.15em;text-transform:uppercase;">Profile</span>
+      </button>
+    </div>
+  </div>
+</div>
+<script>
+async function downloadScreenshot(name) {
+  const btn = document.querySelector('.download-btn');
+  btn.textContent = 'Capturing…';
+  const canvas = await html2canvas(document.getElementById('app'), { backgroundColor:'#000', scale:2, useCORS:true, logging:false });
+  const link = document.createElement('a');
+  link.download = name + '.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+  btn.textContent = '✓ Downloaded!';
+  setTimeout(() => btn.textContent = '↓ Download PNG', 2000);
+}
+</script>
+</body>
+</html>

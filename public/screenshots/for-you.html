@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=428px, initial-scale=1.0"/>
+<title>SEEN — For You</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<style>
+  * { font-family: 'Inter', sans-serif; }
+  body { background: #000; display: flex; justify-content: center; min-height: 100vh; }
+  #app { width: 428px; min-height: 100vh; background: #000; position: relative; overflow: hidden; }
+  .download-btn { position: fixed; top: 12px; right: 12px; z-index: 9999; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 8px 16px; border-radius: 20px; font-size: 12px; letter-spacing: 0.1em; cursor: pointer; backdrop-filter: blur(8px); }
+  .card-gradient { background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%); }
+  .featured-gradient { background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.7) 60%, #000 100%); }
+</style>
+</head>
+<body>
+<button class="download-btn" onclick="downloadScreenshot('seen-for-you')">↓ Download PNG</button>
+<div id="app">
+  <!-- Nav Bar -->
+  <div style="background: rgba(0,0,0,0.8); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.05);" class="sticky top-0 z-40 px-5 py-4 flex items-center justify-between">
+    <div>
+      <p style="font-size:9px; letter-spacing:0.2em; color:rgba(255,255,255,0.3);" class="uppercase">BY CREOVA</p>
+      <h1 style="font-size:22px; font-weight:600; color:white; letter-spacing:0.08em;">SEEN</h1>
+    </div>
+    <div class="flex gap-3">
+      <div style="width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;">
+        <svg width="16" height="16" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="px-5 pb-32 space-y-8 pt-6">
+    <!-- Section: Featured -->
+    <section>
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <p style="font-size:9px;letter-spacing:0.2em;color:rgba(255,255,255,0.35);" class="uppercase mb-1">Curated For You</p>
+          <h2 style="font-size:15px;font-weight:500;color:white;letter-spacing:0.05em;">Stories</h2>
+        </div>
+        <span style="font-size:10px;letter-spacing:0.12em;color:rgba(255,255,255,0.3);" class="uppercase">See All</span>
+      </div>
+
+      <!-- Featured Card: Midnight Resonance -->
+      <div style="position:relative;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);margin-bottom:12px;">
+        <div style="height:220px;background:linear-gradient(135deg,#1a0a2e 0%,#0d1b2a 50%,#0a1a0d 100%);position:relative;">
+          <div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 30%,rgba(0,0,0,0.85) 100%)"></div>
+          <div style="position:absolute;bottom:0;left:0;right:0;padding:20px;">
+            <div class="flex gap-2 mb-2">
+              <span style="font-size:9px;letter-spacing:0.15em;color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.15);padding:2px 8px;border-radius:20px;" class="uppercase">Black Canadian</span>
+              <span style="font-size:9px;letter-spacing:0.15em;color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.15);padding:2px 8px;border-radius:20px;" class="uppercase">Jazz</span>
+            </div>
+            <h3 style="font-size:20px;font-weight:600;color:white;letter-spacing:0.04em;margin-bottom:4px;">Midnight Resonance</h3>
+            <p style="font-size:12px;color:rgba(255,255,255,0.55);letter-spacing:0.02em;">A cinematic audio journey through Black Canadian jazz culture — Oscar Peterson to CREOVA.</p>
+            <div class="flex items-center gap-3 mt-3">
+              <div style="width:36px;height:36px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="black"><path d="M5 3l14 9-14 9V3z"/></svg>
+              </div>
+              <div>
+                <p style="font-size:10px;color:rgba(255,255,255,0.6);letter-spacing:0.1em;" class="uppercase">4 Chapters · 38 min</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card: The Iron Road -->
+      <div style="display:flex;gap:12px;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.07);padding:14px;background:rgba(255,255,255,0.03);margin-bottom:10px;">
+        <div style="width:64px;height:64px;border-radius:10px;background:linear-gradient(135deg,#2a1a0a,#1a2a0a);flex-shrink:0;"></div>
+        <div style="flex:1;">
+          <div class="flex gap-1 mb-1">
+            <span style="font-size:8px;letter-spacing:0.12em;color:rgba(255,255,255,0.4);" class="uppercase">Chinese Canadian</span>
+          </div>
+          <h4 style="font-size:14px;font-weight:500;color:white;letter-spacing:0.03em;margin-bottom:2px;">The Iron Road</h4>
+          <p style="font-size:11px;color:rgba(255,255,255,0.45);">Lim Wing Chung and the 17,000 hands that built Canada's spine.</p>
+          <p style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:4px;">4 chapters · 42 min</p>
+        </div>
+      </div>
+
+      <!-- Card: Roots in Niagara -->
+      <div style="display:flex;gap:12px;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.07);padding:14px;background:rgba(255,255,255,0.03);">
+        <div style="width:64px;height:64px;border-radius:10px;background:linear-gradient(135deg,#1a0a0a,#0a1a2a);flex-shrink:0;"></div>
+        <div style="flex:1;">
+          <div class="flex gap-1 mb-1">
+            <span style="font-size:8px;letter-spacing:0.12em;color:rgba(255,255,255,0.4);" class="uppercase">Black Canadian</span>
+          </div>
+          <h4 style="font-size:14px;font-weight:500;color:white;letter-spacing:0.03em;margin-bottom:2px;">Roots in Niagara</h4>
+          <p style="font-size:11px;color:rgba(255,255,255,0.45);">From the Underground Railroad to Salem Chapel BME — tracing a freedom legacy.</p>
+          <p style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:4px;">4 chapters · 35 min</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section: CREOVA Music -->
+    <section>
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <p style="font-size:9px;letter-spacing:0.2em;color:rgba(255,255,255,0.35);" class="uppercase mb-1">First-Party</p>
+          <h2 style="font-size:15px;font-weight:500;color:white;letter-spacing:0.05em;">CREOVA Music</h2>
+        </div>
+      </div>
+
+      <!-- Music track -->
+      <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.07);padding:14px;background:rgba(255,255,255,0.03);margin-bottom:10px;display:flex;align-items:center;gap:12px;">
+        <div style="width:48px;height:48px;border-radius:8px;background:linear-gradient(135deg,#1a0a2e,#2e0a1a);flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="rgba(255,255,255,0.6)"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        </div>
+        <div style="flex:1;">
+          <h4 style="font-size:13px;font-weight:500;color:white;margin-bottom:2px;">Corridor</h4>
+          <p style="font-size:11px;color:rgba(255,255,255,0.4);">CREOVA · 4:12</p>
+        </div>
+        <div style="width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="white"><path d="M5 3l14 9-14 9V3z"/></svg>
+        </div>
+      </div>
+
+      <div style="border-radius:12px;border:1px solid rgba(255,255,255,0.07);padding:14px;background:rgba(255,255,255,0.03);display:flex;align-items:center;gap:12px;">
+        <div style="width:48px;height:48px;border-radius:8px;background:linear-gradient(135deg,#0a1a2e,#0a2e1a);flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="rgba(255,255,255,0.6)"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        </div>
+        <div style="flex:1;">
+          <h4 style="font-size:13px;font-weight:500;color:white;margin-bottom:2px;">The Album</h4>
+          <p style="font-size:11px;color:rgba(255,255,255,0.4);">CREOVA · 6:44</p>
+        </div>
+        <div style="width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="white"><path d="M5 3l14 9-14 9V3z"/></svg>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:428px;background:rgba(0,0,0,0.8);backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,0.05);padding:12px 20px 20px;">
+    <div class="flex justify-around">
+      <button style="display:flex;flex-direction:column;align-items:center;gap:4px;color:white;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+        <span style="font-size:9px;letter-spacing:0.15em;" class="uppercase">For You</span>
+      </button>
+      <button style="display:flex;flex-direction:column;align-items:center;gap:4px;color:rgba(255,255,255,0.35);">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polygon points="16.24,7.76 14.12,14.12 7.76,16.24 9.88,9.88 16.24,7.76"/></svg>
+        <span style="font-size:9px;letter-spacing:0.15em;" class="uppercase">Explore</span>
+      </button>
+      <button style="display:flex;flex-direction:column;align-items:center;gap:4px;color:rgba(255,255,255,0.35);">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/></svg>
+        <span style="font-size:9px;letter-spacing:0.15em;" class="uppercase">Library</span>
+      </button>
+      <button style="display:flex;flex-direction:column;align-items:center;gap:4px;color:rgba(255,255,255,0.35);">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span style="font-size:9px;letter-spacing:0.15em;" class="uppercase">Profile</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+async function downloadScreenshot(name) {
+  const btn = document.querySelector('.download-btn');
+  btn.textContent = 'Capturing…';
+  try {
+    const canvas = await html2canvas(document.getElementById('app'), {
+      backgroundColor: '#000000',
+      scale: 2,
+      useCORS: true,
+      logging: false,
+    });
+    const link = document.createElement('a');
+    link.download = name + '.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    btn.textContent = '✓ Downloaded!';
+    setTimeout(() => btn.textContent = '↓ Download PNG', 2000);
+  } catch(e) {
+    btn.textContent = 'Error – try again';
+  }
+}
+</script>
+</body>
+</html>

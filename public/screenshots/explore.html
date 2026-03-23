@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=428px, initial-scale=1.0"/>
+<title>SEEN — Explore</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<style>
+  * { font-family: 'Inter', sans-serif; }
+  body { background: #000; display: flex; justify-content: center; min-height: 100vh; }
+  #app { width: 428px; min-height: 100vh; background: #000; position: relative; }
+  .download-btn { position: fixed; top: 12px; right: 12px; z-index: 9999; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 8px 16px; border-radius: 20px; font-size: 12px; letter-spacing: 0.1em; cursor: pointer; backdrop-filter: blur(8px); }
+  .tag { display:inline-flex; align-items:center; padding:6px 14px; border-radius:20px; border:1px solid rgba(255,255,255,0.12); font-size:10px; letter-spacing:0.12em; color:rgba(255,255,255,0.55); text-transform:uppercase; margin:4px; }
+  .tag.active { background:rgba(255,255,255,0.1); color:white; border-color:rgba(255,255,255,0.3); }
+</style>
+</head>
+<body>
+<button class="download-btn" onclick="downloadScreenshot('seen-explore')">↓ Download PNG</button>
+<div id="app">
+  <!-- Nav Bar -->
+  <div style="background:rgba(0,0,0,0.85);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.05);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;">
+    <div>
+      <p style="font-size:9px;letter-spacing:0.2em;color:rgba(255,255,255,0.3);text-transform:uppercase;">BY CREOVA</p>
+      <h1 style="font-size:22px;font-weight:600;color:white;letter-spacing:0.08em;">SEEN</h1>
+    </div>
+    <div style="width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;">
+      <svg width="16" height="16" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+    </div>
+  </div>
+
+  <div style="padding:20px 20px 120px;">
+    <!-- Search Bar -->
+    <div style="position:relative;margin-bottom:24px;">
+      <svg width="16" height="16" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" viewBox="0 0 24 24" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px 12px 12px 40px;color:rgba(255,255,255,0.5);font-size:13px;letter-spacing:0.02em;outline:none;box-sizing:border-box;" placeholder="Search stories, creators, cultures…" readonly/>
+    </div>
+
+    <!-- Cultural Categories -->
+    <div style="margin-bottom:24px;">
+      <p style="font-size:9px;letter-spacing:0.2em;color:rgba(255,255,255,0.35);text-transform:uppercase;margin-bottom:12px;">Cultural Lens</p>
+      <div style="display:flex;flex-wrap:wrap;gap:0;">
+        <span class="tag active">All Stories</span>
+        <span class="tag">Indigenous</span>
+        <span class="tag">Black Canadian</span>
+        <span class="tag">Francophone</span>
+        <span class="tag">Immigrant</span>
+        <span class="tag">AAPI</span>
+      </div>
+    </div>
+
+    <!-- Featured Stories Grid -->
+    <div style="margin-bottom:28px;">
+      <p style="font-size:9px;letter-spacing:0.2em;color:rgba(255,255,255,0.35);text-transform:uppercase;margin-bottom:12px;">Featured</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div style="border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.07);">
+          <div style="height:110px;background:linear-gradient(135deg,#1a0a2e,#0d1b2a);"></div>
+          <div style="padding:10px;background:rgba(255,255,255,0.03);">
+            <p style="font-size:9px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:3px;">Black Canadian</p>
+            <p style="font-size:13px;font-weight:500;color:white;">Midnight Resonance</p>
+            <p style="font-size:10px;color:rgba(255,255,255,0.4);margin-top:2px;">4 chapters</p>
+          </div>
+        </div>
+        <div style="border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.07);">
+          <div style="height:110px;background:linear-gradient(135deg,#2a1a0a,#1a2a0a);"></div>
+          <div style="padding:10px;background:rgba(255,255,255,0.03);">
+            <p style="font-size:9px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:3px;">Chinese Canadian</p>
+            <p style="font-size:13px;font-weight:500;color:white;">The Iron Road</p>
+            <p style="font-size:10px;color:rgba(255,255,255,0.4);margin-top:2px;">4 chapters</p>
+          </div>
+        </div>
+        <div style="border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.07);">
+          <div style="height:110px;background:linear-gradient(135deg,#1a0a0a,#0a1a2a);"></div>
+          <div style="padding:10px;background:rgba(255,255,255,0.03);">
+            <p style="font-size:9px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:3px;">Black Canadian</p>
+            <p style="font-size:13px;font-weight:500;color:white;">Roots in Niagara</p>
+            <p style="font-size:10px;color:rgba(255,255,255,0.4);margin-top:2px;">4 chapters</p>
+          </div>
+        </div>
+        <div style="border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.07);">
+          <div style="height:110px;background:linear-gradient(135deg,#0a1a0a,#1a0a2e);"></div>
+          <div style="padding:10px;background:rgba(255,255,255,0.03);">
+            <p style="font-size:9px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:3px;">Francophone</p>
+            <p style="font-size:13px;font-weight:500;color:white;">La Voix du Nord</p>
+            <p style="font-size:10px;color:rgba(255,255,255,0.4);margin-top:2px;">3 chapters</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cultural Tag Cloud -->
+    <div>
+      <p style="font-size:9px;letter-spacing:0.2em;color:rgba(255,255,255,0.35);text-transform:uppercase;margin-bottom:12px;">Explore by Tag</p>
+      <div style="display:flex;flex-wrap:wrap;">
+        <span class="tag">#jazz</span>
+        <span class="tag">#underground-railroad</span>
+        <span class="tag">#cpr-history</span>
+        <span class="tag">#oral-traditions</span>
+        <span class="tag">#diaspora</span>
+        <span class="tag">#afrofuturism</span>
+        <span class="tag">#residential-schools</span>
+        <span class="tag">#immigration</span>
+        <span class="tag">#archives</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:428px;background:rgba(0,0,0,0.8);backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,0.05);padding:12px 20px 20px;">
+    <div class="flex justify-around">
+      <button style="display:flex;flex-direction:column;align-items:center;gap:4px;color:rgba(255,255,255,0.35);">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        <span style="font-size:9px;letter-spacing:0.15em;" class="uppercase">For You</span>
+      </button>
+      <button style="display:flex;flex-direction:column;align-items:center;gap:4px;color:white;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="16.24,7.76 14.12,14.12 7.76,16.24 9.88,9.88 16.24,7.76"/></svg>
+        <span style="font-size:9px;letter-spacing:0.15em;" class="uppercase">Explore</span>
+      </button>
+      <button style="display:flex;flex-direction:column;align-items:center;gap:4px;color:rgba(255,255,255,0.35);">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/></svg>
+        <span style="font-size:9px;letter-spacing:0.15em;" class="uppercase">Library</span>
+      </button>
+      <button style="display:flex;flex-direction:column;align-items:center;gap:4px;color:rgba(255,255,255,0.35);">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span style="font-size:9px;letter-spacing:0.15em;" class="uppercase">Profile</span>
+      </button>
+    </div>
+  </div>
+</div>
+<script>
+async function downloadScreenshot(name) {
+  const btn = document.querySelector('.download-btn');
+  btn.textContent = 'Capturing…';
+  const canvas = await html2canvas(document.getElementById('app'), { backgroundColor:'#000', scale:2, useCORS:true, logging:false });
+  const link = document.createElement('a');
+  link.download = name + '.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+  btn.textContent = '✓ Downloaded!';
+  setTimeout(() => btn.textContent = '↓ Download PNG', 2000);
+}
+</script>
+</body>
+</html>

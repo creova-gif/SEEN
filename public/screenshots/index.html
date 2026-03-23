@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SEEN — Screenshot Gallery</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { font-family: 'Inter', sans-serif; box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #000; color: white; min-height: 100vh; padding: 48px 24px; }
+  h1 { font-size: 36px; font-weight: 600; letter-spacing: 0.08em; margin-bottom: 6px; }
+  .sub { font-size: 11px; letter-spacing: 0.2em; color: rgba(255,255,255,0.35); text-transform: uppercase; margin-bottom: 48px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; max-width: 1100px; }
+  .card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; overflow: hidden; text-decoration: none; color: white; display: block; transition: border-color 0.2s, transform 0.2s; }
+  .card:hover { border-color: rgba(255,255,255,0.2); transform: translateY(-2px); }
+  .card-preview { height: 160px; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 42px; }
+  .card-body { padding: 16px; }
+  .card-title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+  .card-desc { font-size: 11px; color: rgba(255,255,255,0.4); letter-spacing: 0.02em; margin-bottom: 12px; }
+  .card-btn { display: inline-flex; align-items: center; gap: 6px; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.12); padding: 6px 14px; border-radius: 20px; }
+  .note { margin-top: 48px; padding: 20px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; max-width: 700px; }
+  .note p { font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.7; }
+  .note strong { color: rgba(255,255,255,0.75); }
+</style>
+</head>
+<body>
+  <h1>SEEN</h1>
+  <p class="sub">Screenshot Gallery · 6 Screens</p>
+
+  <div class="grid">
+    <a class="card" href="onboarding.html">
+      <div class="card-preview" style="background:radial-gradient(ellipse at center,rgba(30,15,60,0.6),#000);">👁</div>
+      <div class="card-body">
+        <p class="card-title">Welcome / Onboarding</p>
+        <p class="card-desc">SEEN intro screen with language selector, eye logo, and cultural mission statement. EN / FR / ES selector.</p>
+        <span class="card-btn">↓ Open &amp; Download</span>
+      </div>
+    </a>
+
+    <a class="card" href="for-you.html">
+      <div class="card-preview" style="background:linear-gradient(135deg,#0d1b2a,#1a0a2e,#000);">🎧</div>
+      <div class="card-body">
+        <p class="card-title">For You — Viewer Feed</p>
+        <p class="card-desc">Personalized story feed. Midnight Resonance featured card, The Iron Road, Roots in Niagara, CREOVA Music section.</p>
+        <span class="card-btn">↓ Open &amp; Download</span>
+      </div>
+    </a>
+
+    <a class="card" href="explore.html">
+      <div class="card-preview" style="background:linear-gradient(135deg,#0a1a2e,#1a0a0a,#000);">🧭</div>
+      <div class="card-body">
+        <p class="card-title">Explore</p>
+        <p class="card-desc">Search bar, cultural lens filters (Indigenous / Black Canadian / Francophone / Immigrant / AAPI), 2×2 story grid, tag cloud.</p>
+        <span class="card-btn">↓ Open &amp; Download</span>
+      </div>
+    </a>
+
+    <a class="card" href="story-chapter.html">
+      <div class="card-preview" style="background:linear-gradient(160deg,#0d0818,#060d14,#040a08);">🎶</div>
+      <div class="card-body">
+        <p class="card-title">Story Chapter Playback</p>
+        <p class="card-desc">Full-screen cinematic audio player. Subtitle/caption area, historical context card, chapter nav, play/pause/skip controls.</p>
+        <span class="card-btn">↓ Open &amp; Download</span>
+      </div>
+    </a>
+
+    <a class="card" href="creator.html">
+      <div class="card-preview" style="background:linear-gradient(135deg,#1a0a2e,#0a1a0a,#000);">✦</div>
+      <div class="card-body">
+        <p class="card-title">Creator Dashboard</p>
+        <p class="card-desc">Listener analytics, CMF Eligible badge (87% MAPL score), published stories, draft review, collaborator list.</p>
+        <span class="card-btn">↓ Open &amp; Download</span>
+      </div>
+    </a>
+
+    <a class="card" href="settings.html">
+      <div class="card-preview" style="background:linear-gradient(135deg,#0a0a1a,#1a0a0a,#000);">⚙</div>
+      <div class="card-body">
+        <p class="card-title">Settings / Your Account</p>
+        <p class="card-desc">Language & accessibility toggles, current role badge (Viewer/Creator/Moderator), role switcher, PIPEDA privacy controls.</p>
+        <span class="card-btn">↓ Open &amp; Download</span>
+      </div>
+    </a>
+  </div>
+
+  <div class="note" style="margin-top:40px;">
+    <p><strong>How to download PNGs:</strong> Click any card above to open the screen. Once it loads, click the <strong>"↓ Download PNG"</strong> button in the top-right corner of that page. html2canvas renders the full screen at 2× resolution and downloads it directly to your computer.</p>
+  </div>
+</body>
+</html>
