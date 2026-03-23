@@ -225,7 +225,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await signIn(email, password);
       }
     } catch (error) {
-      console.error('Error during signup:', error);
+      console.error('Error during signup:', error instanceof Error ? error.message : error);
       throw error;
     }
   };
@@ -236,18 +236,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${publicAnonKey}`, // Add anon key for public endpoint
+          'Authorization': `Bearer ${publicAnonKey}`,
         },
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Sign in failed');
+      const contentType = response.headers.get('content-type');
+      let data: Record<string, unknown>;
+      if (contentType && contentType.includes('application/json')) {
+        data = await response.json();
+      } else {
+        const text = await response.text();
+        console.error('Sign in non-JSON response:', text);
+        throw new Error('Unexpected server response. Please try again.');
       }
 
-      const { session, user } = data;
+      console.log('Sign in response:', { status: response.status, data });
+
+      if (!response.ok) {
+        const message = (data.error as string) || (data.message as string) || 'Sign in failed. Please check your email and password.';
+        throw new Error(message);
+      }
+
+      const { session, user } = data as { session: { access_token: string; refresh_token: string }; user: User };
+
+      if (!session || !user) {
+        throw new Error('Invalid response from server. Please try again.');
+      }
 
       setState({
         user,
@@ -258,7 +273,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       persistSession(session.access_token, session.refresh_token, user);
     } catch (error) {
-      console.error('Error during sign in:', error);
+      console.error('Error during sign in:', error instanceof Error ? error.message : error);
       throw error;
     }
   };

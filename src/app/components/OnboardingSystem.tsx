@@ -108,7 +108,7 @@ export function OnboardingSystem({
       await signUp(email, password, name, selectedRole, state.language, selectedIntent);
       setCurrentStep("accessibility");
     } catch (error) {
-      console.error("Error creating account:", error);
+      console.error("Error creating account:", error instanceof Error ? error.message : error);
       setAccountError(error instanceof Error ? error.message : "Failed to create account");
     } finally {
       setIsCreatingAccount(false);
@@ -126,7 +126,7 @@ export function OnboardingSystem({
       // Skip to accessibility step since account already exists
       setCurrentStep("accessibility");
     } catch (error) {
-      console.error("Error signing in:", error);
+      console.error("Error signing in:", error instanceof Error ? error.message : error);
       setAccountError(error instanceof Error ? error.message : "Failed to sign in");
     } finally {
       setIsCreatingAccount(false);
@@ -219,6 +219,7 @@ export function OnboardingSystem({
                 onComplete={handleAccountCreate}
                 onSignIn={handleSignIn}
                 onRecover={handlePasswordRecovery}
+                onClearError={() => setAccountError(null)}
                 isLoading={isCreatingAccount}
                 error={accountError}
               />
@@ -543,12 +544,14 @@ function AccountStep({
   onComplete, 
   onSignIn,
   onRecover,
+  onClearError,
   isLoading, 
   error,
 }: { 
   onComplete: (email: string, password: string, name: string) => void; 
   onSignIn: (email: string, password: string) => void;
   onRecover: (email: string) => Promise<string | null>;
+  onClearError: () => void;
   isLoading: boolean; 
   error: string | null;
 }) {
@@ -559,6 +562,18 @@ function AccountStep({
   const [recoveryEmail, setRecoveryEmail] = useState("");
   const [recoveryMessage, setRecoveryMessage] = useState("");
   const [localError, setLocalError] = useState<string | null>(null);
+
+  const switchMode = (newMode: 'signup' | 'signin' | 'recovery') => {
+    setMode(newMode);
+    setLocalError(null);
+    onClearError();
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && isFormValid() && !isLoading) {
+      handleSubmit();
+    }
+  };
 
   const showSignInSuggestion = (error || localError) && (
     (error || localError || '').includes('already exists') || 
@@ -657,6 +672,7 @@ function AccountStep({
                 type="email"
                 value={recoveryEmail}
                 onChange={(e) => setRecoveryEmail(e.target.value)}
+                onKeyDown={handleKeyDown}
                 placeholder="Email"
                 className="w-full py-3 px-4 text-sm text-white/90 bg-black border border-white/10 rounded focus:outline-none focus:border-white/30 transition-colors duration-300"
               />
@@ -689,6 +705,7 @@ function AccountStep({
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
+                  onKeyDown={handleKeyDown}
                   placeholder="Name"
                   className="w-full py-3 px-4 text-sm text-white/90 bg-black border border-white/10 rounded focus:outline-none focus:border-white/30 transition-colors duration-300"
                 />
@@ -697,6 +714,7 @@ function AccountStep({
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                onKeyDown={handleKeyDown}
                 placeholder="Email"
                 className="w-full py-3 px-4 text-sm text-white/90 bg-black border border-white/10 rounded focus:outline-none focus:border-white/30 transition-colors duration-300"
               />
@@ -704,6 +722,7 @@ function AccountStep({
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={handleKeyDown}
                 placeholder="Password"
                 className="w-full py-3 px-4 text-sm text-white/90 bg-black border border-white/10 rounded focus:outline-none focus:border-white/30 transition-colors duration-300"
               />
@@ -752,7 +771,7 @@ function AccountStep({
         </AnimatePresence>
 
         {/* Error Messages */}
-        {error || localError && (
+        {(error || localError) && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -763,7 +782,7 @@ function AccountStep({
             </p>
             {showSignInSuggestion && (
               <button
-                onClick={() => setMode('signin')}
+                onClick={() => switchMode('signin')}
                 className="text-sm text-white/60 hover:text-white/90 underline underline-offset-2 transition-all duration-300"
               >
                 Sign in instead
@@ -805,7 +824,7 @@ function AccountStep({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
-              onClick={() => setMode('recovery')}
+              onClick={() => switchMode('recovery')}
               className="w-full py-2 text-xs text-white/40 hover:text-white/60 transition-all duration-300"
             >
               Forgot password?
@@ -817,7 +836,7 @@ function AccountStep({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
-              onClick={() => setMode('signin')}
+              onClick={() => switchMode('signin')}
               className="w-full py-2 text-xs text-white/50 hover:text-white/70 transition-all duration-300"
             >
               Already have an account? Sign in
@@ -827,7 +846,7 @@ function AccountStep({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
-              onClick={() => setMode('signup')}
+              onClick={() => switchMode('signup')}
               className="w-full py-2 text-xs text-white/50 hover:text-white/70 transition-all duration-300"
             >
               Need an account? Create one
@@ -837,7 +856,7 @@ function AccountStep({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
-              onClick={() => setMode('signin')}
+              onClick={() => switchMode('signin')}
               className="w-full py-2 text-xs text-white/50 hover:text-white/70 transition-all duration-300"
             >
               Back to sign in
