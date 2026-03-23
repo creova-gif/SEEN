@@ -2122,6 +2122,377 @@ export const STORY_WORLDS: StoryWorld[] = [
       },
     ],
   },
+
+  // ============================================================
+  // THE IRON ROAD — Canadian Pacific Railway Labour Story
+  // ============================================================
+  {
+    id: 'canadian-railway',
+    title: {
+      en: 'The Iron Road',
+      fr: 'La Route de Fer',
+      es: 'El Camino de Hierro',
+    },
+    description: {
+      en: 'The story of the 17,000 Chinese labourers who built Canada\'s transcontinental railway through the Rocky Mountains — paid half of what white workers earned, killed by the hundreds in blasting accidents, and then taxed $500 to bring their families to the country they helped build. This is the story that was left out of the history books.',
+      fr: 'L\'histoire des 17 000 travailleurs chinois qui ont construit le chemin de fer transcontinental du Canada à travers les Rocheuses — payés la moitié de ce que gagnaient les travailleurs blancs, tués par centaines dans des accidents d\'explosion, puis taxés à 500 $ pour faire venir leurs familles dans le pays qu\'ils ont aidé à construire.',
+      es: 'La historia de los 17,000 trabajadores chinos que construyeron el ferrocarril transcontinental de Canadá a través de las Montañas Rocosas — pagados la mitad de lo que ganaban los trabajadores blancos, muertos por cientos en accidentes de explosión, y luego gravados con $500 para traer a sus familias al país que ayudaron a construir.',
+    },
+    creator: {
+      en: 'CREOVA Documentary',
+      fr: 'CREOVA Documentaire',
+      es: 'CREOVA Documental',
+    },
+    coverImage: 'https://images.unsplash.com/photo-1474487548417-781cb71495f3?w=800&h=1200&fit=crop',
+    releaseDate: 'Mar 2026',
+    languagesAvailable: ['en', 'fr'],
+    culturalThemes: ['Labour & Resistance', 'Chinese-Canadian History', 'Documentary & Film', 'Migration & Diaspora'],
+    totalDuration: '55 min',
+    chapterCount: 4,
+    featured: true,
+    new: true,
+    trending: true,
+    visibility: 'public',
+    institutionalPartner: 'Chinese Canadian Museum',
+    chapters: [
+      {
+        id: 'railway-ch1',
+        order: 1,
+        title: {
+          en: 'Gold Mountain',
+          fr: 'La Montagne d\'Or',
+          es: 'La Montaña de Oro',
+        },
+        description: {
+          en: 'In 1881, contractors sail to Guangdong province to recruit labourers with promises of gold and good wages. Thousands of young men board ships for Canada — a place they call Gold Mountain.',
+          fr: 'En 1881, des entrepreneurs naviguent vers la province du Guangdong pour recruter des travailleurs avec des promesses d\'or et de bons salaires. Des milliers de jeunes hommes s\'embarquent pour le Canada — un endroit qu\'ils appellent la Montagne d\'Or.',
+          es: 'En 1881, los contratistas navegan a la provincia de Guangdong para reclutar trabajadores con promesas de oro y buenos salarios. Miles de jóvenes se embarcan hacia Canadá — un lugar al que llaman la Montaña de Oro.',
+        },
+        text: {
+          en: 'Lim Wing Chung is twenty-two years old when the contractor\'s man comes to his village. He speaks of a great railway being built through mountains taller than anything in China. He speaks of wages — $1 a day, more than a man can earn in a month at home. He does not speak of the men who have not returned.\n\nWing Chung\'s mother presses a small jade pendant into his palm at the dock. "Come back," she says. It is not a request. It is a prayer.\n\nThe ship takes 47 days to cross the Pacific. Below decks, 600 men sleep in shifts. They arrive at Victoria, British Columbia, in the spring of 1882. No one greets them. The dock workers, who are white, refuse to unload their ship.',
+          fr: 'Lim Wing Chung a vingt-deux ans quand l\'homme du contractant vient à son village. Il parle d\'un grand chemin de fer construit à travers des montagnes plus hautes que tout ce qui existe en Chine. Il parle de salaires — 1 $ par jour, plus qu\'un homme ne peut gagner en un mois chez lui. Il ne parle pas des hommes qui ne sont pas revenus.\n\nLa mère de Wing Chung presse un petit pendentif de jade dans sa paume au quai. "Reviens," dit-elle. Ce n\'est pas une demande. C\'est une prière.\n\nLe navire met 47 jours pour traverser le Pacifique. En dessous du pont, 600 hommes dorment par roulement. Ils arrivent à Victoria, en Colombie-Britannique, au printemps 1882. Personne ne les accueille.',
+          es: 'Lim Wing Chung tiene veintidós años cuando el hombre del contratista llega a su aldea. Habla de un gran ferrocarril construido a través de montañas más altas que cualquier cosa en China. Habla de salarios — $1 al día, más de lo que un hombre puede ganar en un mes en casa. No habla de los hombres que no han regresado.\n\nLa madre de Wing Chung presiona un pequeño colgante de jade en su palma en el muelle. "Vuelve," dice. No es una petición. Es una oración.',
+        },
+        media: {
+          ambient: { url: '/media/ambient/ocean-crossing.mp3' },
+          music: { url: '/media/music/departure.mp3' },
+        },
+        estimatedDuration: 14,
+        contextCards: [
+          {
+            id: 'gold-mountain-context',
+            type: 'historical',
+            title: {
+              en: 'Why "Gold Mountain"?',
+              fr: 'Pourquoi "Montagne d\'Or"?',
+              es: '¿Por qué "Montaña de Oro"?',
+            },
+            content: {
+              en: '"Gold Mountain" (金山, Gam Saan) was the Chinese name for California during the 1849 Gold Rush, and later applied to all of North America. It captured both genuine opportunity and dangerous illusion — the hope that drove migration and the brutal reality that often awaited.',
+              fr: '"Montagne d\'Or" (金山, Gam Saan) était le nom chinois de la Californie pendant la ruée vers l\'or de 1849, et plus tard appliqué à toute l\'Amérique du Nord. Il capturait à la fois une opportunité réelle et une illusion dangereuse.',
+              es: '"Montaña de Oro" (金山, Gam Saan) era el nombre chino de California durante la fiebre del oro de 1849, y luego se aplicó a toda América del Norte.',
+            },
+          },
+        ],
+      },
+      {
+        id: 'railway-ch2',
+        order: 2,
+        title: {
+          en: 'Through the Mountains',
+          fr: 'À Travers les Montagnes',
+          es: 'A Través de las Montañas',
+        },
+        description: {
+          en: 'Chinese workers are assigned the most dangerous sections — blasting tunnels through solid granite with nitroglycerin. For every mile of track through the Fraser Canyon, one man dies.',
+          fr: 'Les travailleurs chinois sont assignés aux sections les plus dangereuses — faire sauter des tunnels dans du granite solide avec de la nitroglycérine. Pour chaque mille de voie ferrée dans le canyon Fraser, un homme meurt.',
+          es: 'Los trabajadores chinos son asignados a las secciones más peligrosas — volando túneles a través del granito sólido con nitroglicerina. Por cada milla de vía a través del cañón Fraser, muere un hombre.',
+        },
+        text: {
+          en: 'White workers are paid $1.50 to $2.50 a day. Chinese workers are paid $1.00. And from that dollar, they must purchase their own food, their own tools, their own tents. White workers have these provided.\n\nThe most dangerous work — handling nitroglycerin, lowering men in wicker baskets down cliff faces to drill blast holes — is given to the Chinese crews. When a charge misfires, there is no warning. Men disappear. Bodies are sometimes not recovered at all.\n\nWing Chung learns to read the mountain. The way rock sounds before it cracks. The smell of dampness that precedes a slide. He teaches others. This knowledge keeps them alive when nothing else does.\n\nAt night, in the camps, men gather around small fires. They speak of home. They play music on instruments brought from Guangdong. They write letters knowing most will never arrive.',
+          fr: 'Les travailleurs blancs sont payés 1,50 $ à 2,50 $ par jour. Les travailleurs chinois sont payés 1,00 $. Et sur ce dollar, ils doivent acheter leur propre nourriture, leurs propres outils, leurs propres tentes.\n\nLe travail le plus dangereux — manipuler la nitroglycérine, descendre des hommes dans des paniers en osier le long des falaises pour forer des trous — est confié aux équipes chinoises. Quand une charge rate, il n\'y a pas d\'avertissement. Les hommes disparaissent.',
+          es: 'Los trabajadores blancos reciben entre $1.50 y $2.50 por día. Los trabajadores chinos reciben $1.00. Y de ese dólar, deben comprar su propia comida, sus propias herramientas, sus propias tiendas.\n\nEl trabajo más peligroso — manipular la nitroglicerina, bajar a los hombres en canastas de mimbre por los acantilados para perforar agujeros de voladura — se le da a los equipos chinos.',
+        },
+        media: {
+          ambient: { url: '/media/ambient/mountain-wind.mp3' },
+          music: { url: '/media/music/labour-rhythm.mp3' },
+        },
+        estimatedDuration: 16,
+        contextCards: [
+          {
+            id: 'death-toll-context',
+            type: 'historical',
+            title: {
+              en: 'The Death Toll',
+              fr: 'Le Bilan des Morts',
+              es: 'El Número de Muertos',
+            },
+            content: {
+              en: 'Historians estimate between 600 and 2,000 Chinese workers died building the CPR. The Canadian government kept no official records of Chinese worker deaths. Many families in China never learned what happened to their sons and husbands.',
+              fr: 'Les historiens estiment qu\'entre 600 et 2 000 travailleurs chinois sont morts lors de la construction du CPR. Le gouvernement canadien n\'a gardé aucun registre officiel des décès des travailleurs chinois.',
+              es: 'Los historiadores estiman que entre 600 y 2,000 trabajadores chinos murieron construyendo el CPR. El gobierno canadiense no mantuvo registros oficiales de las muertes de trabajadores chinos.',
+            },
+          },
+        ],
+      },
+      {
+        id: 'railway-ch3',
+        order: 3,
+        title: {
+          en: 'The Head Tax',
+          fr: 'La Taxe de Capitation',
+          es: 'El Impuesto por Cabeza',
+        },
+        description: {
+          en: 'The railway is complete. The Chinese workers who built it are no longer needed — and the Canadian government decides they are no longer welcome. In 1885, Parliament passes the Chinese Immigration Act, imposing a $50 head tax on every Chinese person entering Canada.',
+          fr: 'Le chemin de fer est terminé. Les travailleurs chinois qui l\'ont construit ne sont plus nécessaires — et le gouvernement canadien décide qu\'ils ne sont plus les bienvenus. En 1885, le Parlement passe la Loi sur l\'immigration chinoise, imposant une taxe de 50 $ par tête sur chaque Chinois entrant au Canada.',
+          es: 'El ferrocarril está completo. Los trabajadores chinos que lo construyeron ya no son necesarios — y el gobierno canadiense decide que ya no son bienvenidos. En 1885, el Parlamento aprueba la Ley de Inmigración China, imponiendo un impuesto de $50 por cabeza a cada chino que ingrese a Canadá.',
+        },
+        text: {
+          en: 'The last spike is driven at Craigellachie, British Columbia, on November 7, 1885. A photograph is taken. Donald Smith — the financier — drives the spike. Directors and white supervisors crowd the frame.\n\nNot one Chinese worker appears in the photograph.\n\nWing Chung is 26 years old. He has been in Canada for four years. He wants to bring his wife and young daughter to this country. He saves. He scrimps. He sends money home.\n\nIn 1885, the same year the railway is completed, Parliament raises the head tax to $50 — nearly two months of wages. In 1900, it becomes $100. In 1903, it becomes $500. Five hundred dollars. When the average Chinese worker earns $1 a day.\n\nWing Chung works for eleven more years to save the tax. He is 37 when his daughter finally arrives in Victoria. She is 15. He doesn\'t recognize her. She doesn\'t recognize him.',
+          fr: 'Le dernier crampon est enfoncé à Craigellachie, en Colombie-Britannique, le 7 novembre 1885. Une photographie est prise. Donald Smith — le financier — enfonce le crampon. Des directeurs et des superviseurs blancs encombrent le cadre.\n\nAucun travailleur chinois n\'apparaît dans la photographie.\n\nWing Chung a 26 ans. Il est au Canada depuis quatre ans. Il veut amener sa femme et sa jeune fille dans ce pays. Il économise. En 1885, la même année où le chemin de fer est terminé, le Parlement augmente la taxe de capitation à 50 $. En 1903, elle devient 500 $.',
+          es: 'El último clavo se clava en Craigellachie, Columbia Británica, el 7 de noviembre de 1885. Se toma una fotografía. Donald Smith — el financiero — clava el spike. Directores y supervisores blancos llenan el encuadre.\n\nNingún trabajador chino aparece en la fotografía.\n\nWing Chung tiene 26 años. Ha estado en Canadá durante cuatro años. Quiere traer a su esposa e hija a este país.',
+        },
+        media: {
+          ambient: { url: '/media/ambient/empty-platform.mp3' },
+        },
+        estimatedDuration: 16,
+        contextCards: [
+          {
+            id: 'head-tax-context',
+            type: 'historical',
+            title: {
+              en: 'The Chinese Head Tax',
+              fr: 'La Taxe de Capitation Chinoise',
+              es: 'El Impuesto por Cabeza Chino',
+            },
+            content: {
+              en: 'Between 1885 and 1923, the Canadian government collected approximately $23 million in head taxes from Chinese immigrants — equivalent to over $700 million today. In 2006, Prime Minister Stephen Harper issued a formal apology. No direct financial redress was provided to surviving payers or their descendants.',
+              fr: 'Entre 1885 et 1923, le gouvernement canadien a perçu environ 23 millions de dollars en taxes de capitation auprès des immigrants chinois — soit plus de 700 millions de dollars aujourd\'hui. En 2006, le Premier ministre Stephen Harper a présenté des excuses formelles.',
+              es: 'Entre 1885 y 1923, el gobierno canadiense recaudó aproximadamente $23 millones en impuestos por cabeza de inmigrantes chinos — equivalente a más de $700 millones hoy.',
+            },
+          },
+        ],
+      },
+      {
+        id: 'railway-ch4',
+        order: 4,
+        title: {
+          en: 'What the Spike Left Unnamed',
+          fr: 'Ce que le Crampon a Laissé Sans Nom',
+          es: 'Lo que el Clavo Dejó Sin Nombre',
+        },
+        description: {
+          en: 'More than a century later, descendants search the archives for the names of the men who built the railway. Many are missing. What does it mean to remember people a country tried to forget?',
+          fr: 'Plus d\'un siècle plus tard, des descendants fouillent les archives à la recherche des noms des hommes qui ont construit le chemin de fer. Beaucoup sont manquants. Que signifie se souvenir de personnes qu\'un pays a essayé d\'oublier?',
+          es: 'Más de un siglo después, los descendientes buscan en los archivos los nombres de los hombres que construyeron el ferrocarril. Muchos faltan. ¿Qué significa recordar a personas que un país trató de olvidar?',
+        },
+        text: {
+          en: 'Yenna Chan is 34 and a historian at the University of British Columbia. She has been looking for her great-great-grandfather\'s name for six years.\n\nThe pay ledgers exist — some of them. But Chinese workers were often listed only as "John Chinaman" or by a number. The contractors didn\'t think their names mattered. The government didn\'t think their names mattered. For a long time, Canada didn\'t think their names mattered.\n\n"I found him," Yenna says. "In a letter. Not a government document. A letter from a church missionary who visited the camps in 1883. He lists the names of the men he met. And there he is. Lim Wing Chung. My great-great-grandfather. He existed. He was here."\n\nThe railway runs 4,700 kilometres. It was built in five years. Every mile of it passes through land that was not ceded. Every rivet in it was driven by hands that history tried to erase.\n\nWe are still counting the names.',
+          fr: 'Yenna Chan a 34 ans et est historienne à l\'Université de Colombie-Britannique. Cela fait six ans qu\'elle cherche le nom de son arrière-arrière-grand-père.\n\nLes livres de paie existent — certains d\'entre eux. Mais les travailleurs chinois étaient souvent listés seulement comme "John Chinaman" ou par un numéro. Les entrepreneurs ne pensaient pas que leurs noms importaient.\n\n"Je l\'ai trouvé," dit Yenna. "Dans une lettre. Lim Wing Chung. Mon arrière-arrière-grand-père. Il existait. Il était là."\n\nNous comptons encore les noms.',
+          es: 'Yenna Chan tiene 34 años y es historiadora en la Universidad de Columbia Británica. Ha estado buscando el nombre de su tatarabuelo durante seis años.\n\nLos libros de nóminas existen — algunos de ellos. Pero los trabajadores chinos a menudo figuraban solo como "John Chinaman" o por un número.\n\n"Lo encontré," dice Yenna. "En una carta. Lim Wing Chung. Mi tatarabuelo. Existió. Estuvo aquí."\n\nTodavía estamos contando los nombres.',
+        },
+        media: {
+          ambient: { url: '/media/ambient/archive-room.mp3' },
+          music: { url: '/media/music/remembrance.mp3' },
+        },
+        estimatedDuration: 13,
+        contextCards: [
+          {
+            id: 'chinese-canadian-museum',
+            type: 'institutional',
+            title: {
+              en: 'Chinese Canadian Museum',
+              fr: 'Musée Canadien Chinois',
+              es: 'Museo Canadiense Chino',
+            },
+            content: {
+              en: 'The Chinese Canadian Museum in Vancouver opened in 2023 in the historic Wing Sang building in Chinatown — the oldest commercial building in BC. It preserves and shares the history of Chinese Canadians, including railway labour, the Head Tax, and the 1923 Exclusion Act.',
+              fr: 'Le Musée Canadien Chinois de Vancouver a ouvert en 2023 dans le bâtiment historique Wing Sang dans Chinatown. Il préserve et partage l\'histoire des Canadiens chinois, y compris le travail ferroviaire, la taxe de capitation et la Loi d\'exclusion de 1923.',
+              es: 'El Museo Canadiense Chino en Vancouver abrió en 2023 en el histórico edificio Wing Sang en Chinatown. Preserva y comparte la historia de los canadienses chinos.',
+            },
+          },
+        ],
+      },
+    ],
+  },
+
+  // ============================================================
+  // ROOTS IN NIAGARA — Brock University Black Families Archive
+  // ============================================================
+  {
+    id: 'niagara-black-archive',
+    title: {
+      en: 'Roots in Niagara',
+      fr: 'Racines à Niagara',
+      es: 'Raíces en Niagara',
+    },
+    description: {
+      en: 'A digital archive experience curated with Brock University Special Collections, documenting the Black families who built lives in the Niagara Region — from freedom seekers crossing the river at the end of the Underground Railroad, to the builders of the British Methodist Episcopal Church, to the entrepreneurs and educators who shaped St. Catharines and Niagara-on-the-Lake across two centuries. Explore this living history without travelling to the archive.',
+      fr: 'Une expérience d\'archives numériques élaborée avec les Collections spéciales de l\'Université Brock, documentant les familles noires qui ont construit leur vie dans la région de Niagara — des chercheurs de liberté traversant la rivière à la fin du Chemin de fer clandestin, aux bâtisseurs de l\'Église méthodiste épiscopale britannique.',
+      es: 'Una experiencia de archivo digital curada con las Colecciones Especiales de la Universidad Brock, documentando las familias negras que construyeron vidas en la Región de Niagara.',
+    },
+    creator: {
+      en: 'Brock University Special Collections × CREOVA',
+      fr: 'Collections spéciales de l\'Université Brock × CREOVA',
+      es: 'Colecciones Especiales de la Universidad Brock × CREOVA',
+    },
+    coverImage: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=800&h=1200&fit=crop',
+    releaseDate: 'Mar 2026',
+    languagesAvailable: ['en', 'fr'],
+    culturalThemes: ['Black Canadian History', 'Community Stories', 'Documentary & Film', 'Archive & Memory'],
+    totalDuration: '50 min',
+    chapterCount: 4,
+    featured: true,
+    new: true,
+    visibility: 'institutional',
+    institutionalPartner: 'Brock University Special Collections',
+    chapters: [
+      {
+        id: 'niagara-ch1',
+        order: 1,
+        title: {
+          en: 'Crossing the River',
+          fr: 'Traverser la Rivière',
+          es: 'Cruzando el Río',
+        },
+        description: {
+          en: 'For freedom seekers following the Underground Railroad, the Niagara River was the final crossing — the boundary between slavery and freedom. Many who crossed settled in St. Catharines, drawn by the community that had formed around Harriet Tubman\'s base of operations.',
+          fr: 'Pour les chercheurs de liberté suivant le Chemin de fer clandestin, la rivière Niagara était la dernière traversée — la frontière entre l\'esclavage et la liberté. Beaucoup de ceux qui traversaient s\'installaient à St. Catharines.',
+          es: 'Para los buscadores de libertad que seguían el Ferrocarril Clandestino, el río Niagara era el último cruce — la frontera entre la esclavitud y la libertad.',
+        },
+        text: {
+          en: 'The river is only a few hundred metres wide at Queenston. On one bank: New York State. Slavery. On the other: Upper Canada. Freedom.\n\nBetween 1820 and 1860, an estimated 40,000 freedom seekers crossed into Canada. St. Catharines became one of the most important destinations — partly because of the work of Harriet Tubman, who made the town her base between 1851 and 1861 and guided at least 70 people north along routes she knew by heart.\n\nThe families who settled here did not arrive with nothing. They arrived with everything that could not be taken from them: their languages, their faith, their music, their memory, their names. The Brock University archive holds their records — deeds to land purchased, church membership rolls, school registrations, letters to family members still enslaved south of the border.\n\nThis is where we begin.',
+          fr: 'La rivière ne fait que quelques centaines de mètres de large à Queenston. D\'un côté: l\'État de New York. L\'esclavage. De l\'autre: le Haut-Canada. La liberté.\n\nEntre 1820 et 1860, environ 40 000 chercheurs de liberté ont traversé au Canada. St. Catharines est devenue l\'une des destinations les plus importantes — en partie grâce au travail de Harriet Tubman, qui a fait de la ville sa base entre 1851 et 1861.\n\nL\'archive de l\'Université Brock conserve leurs dossiers — actes de propriété, listes de membres d\'église, inscriptions scolaires, lettres à des membres de la famille encore réduits en esclavage au sud de la frontière.',
+          es: 'El río tiene solo unos pocos cientos de metros de ancho en Queenston. En una orilla: el Estado de Nueva York. Esclavitud. En la otra: el Alto Canadá. Libertad.\n\nEntre 1820 y 1860, un estimado de 40,000 buscadores de libertad cruzaron a Canadá. St. Catharines se convirtió en uno de los destinos más importantes.',
+        },
+        media: {
+          ambient: { url: '/media/ambient/river-crossing.mp3' },
+          music: { url: '/media/music/freedom-walking.mp3' },
+        },
+        estimatedDuration: 14,
+        contextCards: [
+          {
+            id: 'harriet-tubman-context',
+            type: 'historical',
+            title: {
+              en: 'Harriet Tubman in St. Catharines',
+              fr: 'Harriet Tubman à St. Catharines',
+              es: 'Harriet Tubman en St. Catharines',
+            },
+            content: {
+              en: 'Harriet Tubman lived in St. Catharines from 1851 to 1861, using it as her base for rescue missions into the United States. She guided at least 70 enslaved people to freedom along routes through upstate New York and across the Niagara River. The Salem Chapel BME Church, which she attended, still stands in St. Catharines.',
+              fr: 'Harriet Tubman a vécu à St. Catharines de 1851 à 1861, l\'utilisant comme base pour des missions de sauvetage aux États-Unis. Elle a guidé au moins 70 personnes réduites en esclavage vers la liberté. La chapelle Salem BME, qu\'elle fréquentait, est toujours debout à St. Catharines.',
+              es: 'Harriet Tubman vivió en St. Catharines de 1851 a 1861, usándola como base para misiones de rescate en los Estados Unidos.',
+            },
+          },
+        ],
+      },
+      {
+        id: 'niagara-ch2',
+        order: 2,
+        title: {
+          en: 'The Church That Kept the Record',
+          fr: 'L\'Église Qui Gardait le Registre',
+          es: 'La Iglesia que Guardó el Registro',
+        },
+        description: {
+          en: 'The British Methodist Episcopal Church was the spiritual and civic anchor of Black life in Niagara. Its congregation kept records that governments didn\'t — births, marriages, deaths, property transfers. The Brock archive holds 180 years of those records.',
+          fr: 'L\'Église méthodiste épiscopale britannique était l\'ancre spirituelle et civique de la vie noire à Niagara. Sa congrégation a tenu des registres que les gouvernements ne tenaient pas — naissances, mariages, décès, transferts de propriété.',
+          es: 'La Iglesia Metodista Episcopal Británica era el ancla espiritual y cívica de la vida negra en Niagara.',
+        },
+        text: {
+          en: 'The Salem Chapel BME Church on Geneva Street in St. Catharines was built in 1855. It is one of the oldest surviving Black church buildings in Canada.\n\nThe church was not only a place of worship. It was a post office, a community hall, a safe house, a school before the public schools would admit Black children, a courthouse of community disputes, and a library. The congregation kept meticulous records because they understood that their existence would be doubted, and so they documented it.\n\nIn the Brock University archive, those records fill dozens of boxes. Marriage registers with names written in careful copperplate. Land deed copies made because the original would be held by the county clerk who might not always be trusted. Letters read aloud at Sunday service and then preserved in the church files.\n\n"They knew they were making history," says Dr. Maureen FitzGerald, the Brock archivist who has spent fifteen years cataloguing the collection. "They were preserving themselves."',
+          fr: 'La chapelle Salem BME sur la rue Geneva à St. Catharines a été construite en 1855. C\'est l\'un des plus anciens bâtiments d\'église noire survivants au Canada.\n\nL\'église n\'était pas seulement un lieu de culte. C\'était un bureau de poste, une salle communautaire, une maison sûre, une école avant que les écoles publiques n\'admettent les enfants noirs.\n\nDans l\'archive de l\'Université Brock, ces registres remplissent des dizaines de boîtes. Registres de mariage avec des noms écrits en belle cursive. Copies d\'actes de propriété.',
+          es: 'La Capilla Salem BME en la calle Geneva en St. Catharines fue construida en 1855. Es uno de los edificios de iglesia negra más antiguos que sobreviven en Canadá.\n\nLa iglesia no era solo un lugar de culto. Era una oficina de correos, un salón comunitario, una casa segura.',
+        },
+        media: {
+          ambient: { url: '/media/ambient/church-interior.mp3' },
+          music: { url: '/media/music/hymn-voices.mp3' },
+        },
+        estimatedDuration: 13,
+        contextCards: [
+          {
+            id: 'bme-church-context',
+            type: 'institutional',
+            title: {
+              en: 'The BME Church',
+              fr: 'L\'Église BME',
+              es: 'La Iglesia BME',
+            },
+            content: {
+              en: 'The British Methodist Episcopal Church was founded in Canada in 1856 by Black Canadians who had separated from the Methodist Episcopal Church to form a denomination of their own. At its peak, the BME Church operated congregations in 36 communities across Ontario. Salem Chapel in St. Catharines is a National Historic Site of Canada.',
+              fr: 'L\'Église méthodiste épiscopale britannique a été fondée au Canada en 1856 par des Canadiens noirs qui s\'étaient séparés de l\'Église méthodiste épiscopale pour former leur propre dénomination. La Chapelle Salem à St. Catharines est un lieu historique national du Canada.',
+              es: 'La Iglesia Metodista Episcopal Británica fue fundada en Canadá en 1856 por canadienses negros.',
+            },
+          },
+        ],
+      },
+      {
+        id: 'niagara-ch3',
+        order: 3,
+        title: {
+          en: 'Business and Belonging',
+          fr: 'Commerce et Appartenance',
+          es: 'Negocio y Pertenencia',
+        },
+        description: {
+          en: 'By the 1880s, Black families in Niagara had established hotels, barbershops, farms, and service businesses throughout the region. The archive documents an economic life that was largely invisible to mainstream Canadian historians.',
+          fr: 'Dans les années 1880, les familles noires de Niagara avaient établi des hôtels, des barbiers, des fermes et des entreprises de services dans toute la région. L\'archive documente une vie économique largement invisible pour les historiens canadiens.',
+          es: 'En la década de 1880, las familias negras en Niagara habían establecido hoteles, barberías, granjas y negocios de servicios en toda la región.',
+        },
+        text: {
+          en: 'Richard Pierpoint arrived in Upper Canada in 1780. He was a Mandinka man who had been enslaved at age 16, purchased by a British soldier, and brought to what is now Ontario after the American Revolution. He fought in the War of 1812, petitioned the Crown to be repatriated to Africa, was denied, and died in Fergus, Ontario, in his eighties.\n\nThe Niagara region is full of stories like his — lives that stretched across empires and laws and centuries, leaving traces in documents that most people never knew existed.\n\nThe Brock archive holds the business ledger of Henry Weaver, who operated a hotel on King Street in Niagara-on-the-Lake in the 1870s. The ledger lists his clients, his suppliers, and his debts. It is an ordinary business record. And also an extraordinary act of documentation — proof that a Black man owned property, employed workers, and served customers in a town that the tourist industry now presents as a well-preserved 19th-century English village.',
+          fr: 'Richard Pierpoint est arrivé dans le Haut-Canada en 1780. C\'était un homme Mandinka qui avait été réduit en esclavage à 16 ans, acheté par un soldat britannique, et amené dans ce qui est maintenant l\'Ontario après la Révolution américaine.\n\nL\'archive de Brock contient le livre de comptes de Henry Weaver, qui exploitait un hôtel sur la rue King à Niagara-on-the-Lake dans les années 1870.',
+          es: 'Richard Pierpoint llegó al Alto Canadá en 1780. Era un hombre Mandinka que había sido esclavizado a los 16 años, comprado por un soldado británico, y traído a lo que ahora es Ontario después de la Revolución Americana.\n\nEl archivo de Brock contiene el libro de contabilidad de Henry Weaver, que operaba un hotel en la calle King en Niagara-on-the-Lake en la década de 1870.',
+        },
+        media: {
+          ambient: { url: '/media/ambient/town-market.mp3' },
+        },
+        estimatedDuration: 13,
+      },
+      {
+        id: 'niagara-ch4',
+        order: 4,
+        title: {
+          en: 'The Living Archive',
+          fr: 'L\'Archive Vivante',
+          es: 'El Archivo Vivo',
+        },
+        description: {
+          en: 'Descendants of Niagara\'s Black families are using the Brock archive to reconstruct family histories. This chapter follows three families across the region as they encounter their ancestors for the first time through documents, photographs, and oral histories.',
+          fr: 'Les descendants des familles noires de Niagara utilisent l\'archive de Brock pour reconstruire des histoires familiales. Ce chapitre suit trois familles à travers la région alors qu\'elles rencontrent leurs ancêtres pour la première fois.',
+          es: 'Los descendientes de las familias negras de Niagara están usando el archivo de Brock para reconstruir historias familiares.',
+        },
+        text: {
+          en: 'Diane Smythe is 61 years old and she has lived in St. Catharines her entire life. She knew her grandmother was from the area but never knew much more than that. Last spring, a researcher at Brock contacted her.\n\n"They found my great-great-grandmother\'s name in the Salem Chapel marriage register from 1879," Diane says. "Her name was Celeste. She married a man named James Smythe. And they listed her parents\' names — they had come from Maryland. Which means they came across. They crossed the river."\n\nDiane\'s voice breaks when she says this. Not from grief. From recognition.\n\n"I knew we were from here. But I didn\'t know how far back. And now I know: my family has been in Niagara for almost 200 years. Two hundred years. That\'s not just history. That\'s home."\n\nThe Brock archive is still being catalogued. New records surface every year. Somewhere in those boxes are the names of people whose descendants are still looking.',
+          fr: 'Diane Smythe a 61 ans et a vécu toute sa vie à St. Catharines. Elle savait que sa grand-mère était de la région mais n\'en savait pas beaucoup plus. Le printemps dernier, une chercheuse à Brock l\'a contactée.\n\n"Ils ont trouvé le nom de mon arrière-arrière-grand-mère dans le registre de mariage de la chapelle Salem de 1879," dit Diane. "Son nom était Céleste. Elle a épousé un homme nommé James Smythe. Et ils ont inscrit les noms de ses parents — ils étaient venus du Maryland. Ce qui signifie qu\'ils sont venus à travers. Ils ont traversé la rivière."\n\nMa famille est à Niagara depuis presque 200 ans. Ce n\'est pas seulement de l\'histoire. C\'est chez moi.',
+          es: 'Diane Smythe tiene 61 años y ha vivido en St. Catharines toda su vida. Sabía que su abuela era de la zona pero nunca supo mucho más. La primavera pasada, una investigadora de Brock se puso en contacto con ella.\n\n"Mi familia ha estado en Niagara durante casi 200 años. Doscientos años. Eso no es solo historia. Eso es hogar."',
+        },
+        media: {
+          ambient: { url: '/media/ambient/archive-room.mp3' },
+          music: { url: '/media/music/homecoming.mp3' },
+        },
+        estimatedDuration: 14,
+        contextCards: [
+          {
+            id: 'brock-archive-context',
+            type: 'institutional',
+            title: {
+              en: 'Brock University Special Collections',
+              fr: 'Collections Spéciales de l\'Université Brock',
+              es: 'Colecciones Especiales de la Universidad Brock',
+            },
+            content: {
+              en: 'Brock University\'s Special Collections and Archives in St. Catharines holds one of Ontario\'s most significant collections of Black Canadian historical records, including the records of the British Methodist Episcopal Church, land deeds, personal correspondence, and oral history recordings dating to the early 20th century. The archive is physically located at the James A. Gibson Library on Brock\'s main campus. SEEN is partnering with Brock to make portions of this collection available digitally for the first time.',
+              fr: 'Les Collections spéciales et Archives de l\'Université Brock à St. Catharines détiennent l\'une des collections les plus importantes de documents historiques canadiens noirs en Ontario. SEEN s\'associe à Brock pour rendre des portions de cette collection disponibles numériquement pour la première fois.',
+              es: 'Las Colecciones Especiales y Archivos de la Universidad Brock en St. Catharines tienen una de las colecciones más significativas de registros históricos negros canadienses en Ontario. SEEN se asocia con Brock para hacer porciones de esta colección disponibles digitalmente por primera vez.',
+            },
+          },
+        ],
+      },
+    ],
+  },
 ];
 
 // ============================================
