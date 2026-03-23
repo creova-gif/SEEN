@@ -161,54 +161,32 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
           </motion.div>
         </div>
 
-        {/* Center: Spotify embed or play button */}
-        <div className="flex-1 flex items-center justify-center px-6">
-          {storyData.audioSrc?.includes('open.spotify.com/embed') ? (
+        {/* Center: Play button */}
+        <div className="flex-1 flex items-center justify-center">
+          <motion.button
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setIsPlaying(!isPlaying)}
+            className="w-20 h-20 rounded-full bg-white/95 backdrop-blur-sm flex items-center justify-center shadow-2xl"
+          >
+            <Play className="w-8 h-8 text-black fill-black ml-1" />
+          </motion.button>
+
+          {isPlaying && (
             <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.35 }}
-              className="w-full rounded-xl overflow-hidden shadow-2xl"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="absolute"
             >
-              <iframe
-                src={storyData.audioSrc}
-                width="100%"
-                height="152"
-                frameBorder="0"
-                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                loading="lazy"
-                title="CREOVA Music on Spotify"
-                style={{ borderRadius: '12px' }}
+              <motion.div
+                animate={{ scale: [1, 1.5, 1], opacity: [0.3, 0, 0.3] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                className="w-32 h-32 rounded-full border-2 border-white/30"
               />
             </motion.div>
-          ) : (
-            <>
-              <motion.button
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setIsPlaying(!isPlaying)}
-                className="w-20 h-20 rounded-full bg-white/95 backdrop-blur-sm flex items-center justify-center shadow-2xl"
-              >
-                <Play className="w-8 h-8 text-black fill-black ml-1" />
-              </motion.button>
-
-              {isPlaying && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="absolute"
-                >
-                  <motion.div
-                    animate={{ scale: [1, 1.5, 1], opacity: [0.3, 0, 0.3] }}
-                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                    className="w-32 h-32 rounded-full border-2 border-white/30"
-                  />
-                </motion.div>
-              )}
-            </>
           )}
         </div>
 
@@ -267,20 +245,39 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
             </button>
           </div>
 
-          {/* Ambient sound notice — only when no real audio is embedded */}
-          {!storyData.audioSrc?.includes('open.spotify.com/embed') && (
+          {/* Spotify embed — shown below actions when available */}
+          {storyData.audioSrc?.includes('open.spotify.com/embed') && (
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1 }}
-              className="flex items-center gap-2 pt-2"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7 }}
+              className="rounded-xl overflow-hidden"
             >
-              <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-              <p className="text-xs text-white/40">
-                Ambient soundscape playing
-              </p>
+              <iframe
+                src={storyData.audioSrc}
+                width="100%"
+                height="152"
+                frameBorder="0"
+                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                loading="lazy"
+                title="Listen on Spotify"
+                style={{ borderRadius: '12px' }}
+              />
             </motion.div>
           )}
+
+          {/* Ambient sound notice */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1 }}
+            className="flex items-center gap-2 pt-2"
+          >
+            <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+            <p className="text-xs text-white/40">
+              Ambient soundscape playing
+            </p>
+          </motion.div>
         </motion.div>
       </div>
     </motion.div>
