@@ -543,18 +543,23 @@ export function getForYouSections(language: ContentLanguage) {
     category: (item.type as string).charAt(0).toUpperCase() + (item.type as string).slice(1),
   });
 
+  // CREOVA Music — always pinned first
+  const creovaMusic = MUSIC_CONTENT
+    .filter(i => i.creator === 'CREOVA Music')
+    .map(toCard);
+
   const featured = ALL_CONTENT
-    .filter(i => i.featured && i.language.includes(language))
+    .filter(i => i.featured && i.language.includes(language) && i.creator !== 'CREOVA Music')
     .slice(0, 6)
     .map(toCard);
 
   const trending = ALL_CONTENT
-    .filter(i => i.trending && i.language.includes(language))
+    .filter(i => i.trending && i.language.includes(language) && i.creator !== 'CREOVA Music')
     .slice(0, 4)
     .map(toCard);
 
   const newReleases = ALL_CONTENT
-    .filter(i => i.new && i.language.includes(language))
+    .filter(i => i.new && i.language.includes(language) && i.creator !== 'CREOVA Music')
     .slice(0, 4)
     .map(toCard);
 
@@ -566,6 +571,16 @@ export function getForYouSections(language: ContentLanguage) {
     items: ReturnType<typeof toCard>[];
     onViewAll?: () => void;
   }> = [];
+
+  if (creovaMusic.length > 0) {
+    sections.push({
+      id: 'creova-music',
+      title: 'CREOVA Music',
+      subtitle: language === 'fr' ? 'Notre musique' : 'Our music',
+      layout: 'carousel',
+      items: creovaMusic,
+    });
+  }
 
   if (featured.length > 0) {
     sections.push({

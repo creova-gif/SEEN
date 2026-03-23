@@ -16,6 +16,7 @@ import { Play, TrendingUp, Music, Film, BookOpen, Archive, Folder, Home, Compass
 import type { ContentLanguage, UserIntent } from "../data/types";
 import { getForYouFeed } from "../data/storyService";
 import type { Language } from "../data/storyDatabase";
+import { MUSIC_CONTENT } from "../data/database";
 
 interface ForYouScreenProps {
   onStoryClick: (contentId: string) => void;
@@ -230,6 +231,43 @@ export function ForYouScreen({
             </motion.div>
           </div>
         </motion.div>
+
+        {/* CREOVA Music — always on top */}
+        {(() => {
+          const creovaItems = MUSIC_CONTENT.filter(i => i.creator === 'CREOVA Music');
+          if (creovaItems.length === 0) return null;
+          return (
+            <motion.section
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25 }}
+              className="mb-12"
+            >
+              <SectionHeader
+                title="CREOVA Music"
+                subtitle={language === 'fr' ? 'Notre musique' : 'Our music'}
+              />
+              <div className="space-y-4">
+                {creovaItems.map(item => (
+                  <div key={item.id} onClick={() => onStoryClick(item.id)} className="cursor-pointer relative">
+                    <ContentCard
+                      id={item.id}
+                      title={item.title}
+                      creator={item.creator}
+                      imageUrl={item.mediaSource}
+                      category="Music"
+                      onSelect={onStoryClick}
+                    />
+                    <div className="absolute top-3 left-3 px-2 py-1 bg-black/60 backdrop-blur-sm rounded text-xs text-white/90 uppercase tracking-wider border border-white/20 flex items-center gap-1.5">
+                      <Music className="w-3 h-3" />
+                      Music
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.section>
+          );
+        })()}
 
         {/* Featured Content */}
         {featuredContent.length > 0 && (
