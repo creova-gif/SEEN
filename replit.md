@@ -52,10 +52,13 @@ The platform features CREOVA's own released music as first-party content:
 - `creova-album-002` — Racines / Roots (bilingual track, trending)
 - `creova-album-003` — Corridor (instrumental)
 
-To add real audio URLs, set the `audioSrc` field in `src/app/data/database.ts`. Accepts:
-- Soundcloud track URL: `https://soundcloud.com/creova/track-name`
+The `audioSrc` field on a `ContentItem` accepts:
+- Spotify embed: `https://open.spotify.com/embed/track/{trackId}?utm_source=generator` ← renders a live Spotify player
+- Soundcloud: `https://soundcloud.com/creova/track-slug`
 - Hosted MP3/OGG: `https://cdn.example.com/audio/track.mp3`
-- Spotify embed: `https://open.spotify.com/embed/track/{trackId}`
+
+`creova-single-001` currently has a live Spotify embed wired in.
+`FeaturedStoryPreview` detects Spotify URLs and renders an iframe embed instead of the static play button.
 
 ## Data Layer
 - `src/app/data/types.ts` — `ContentItem` includes optional `audioSrc?: string`

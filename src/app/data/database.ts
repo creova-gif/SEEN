@@ -33,7 +33,7 @@ export const MUSIC_CONTENT: ContentItem[] = [
     releaseDate: 'Mar 2026',
     language: ['en', 'fr'],
     mediaSource: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=800',
-    // audioSrc: 'REPLACE_WITH_SOUNDCLOUD_OR_DIRECT_URL',
+    audioSrc: 'https://open.spotify.com/embed/track/4uP4AnhXAVSfdacFrRiOLE?utm_source=generator',
     tags: ['creova', 'single', 'cinematic', 'cultural', 'new-release'],
     featured: true,
     new: true,
