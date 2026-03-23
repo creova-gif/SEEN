@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "motion/react";
-import { ArrowLeft, Play, Volume2, VolumeX } from "lucide-react";
-import { useState } from "react";
+import { ArrowLeft, Play, Volume2, VolumeX, Share2, Check } from "lucide-react";
+import { useState, useCallback } from "react";
 import { useStoryState } from "../contexts/StoryStateContext";
 import { getStoryWorld, getText } from "../data/content";
 import { LanguageSwitcher } from "./LanguageSwitcher";
@@ -21,7 +21,34 @@ export function StoryWorldEntryScreen({
   const storyWorld = getStoryWorld(storyWorldId);
   const progress = getProgressForStory(storyWorldId);
   const [showDetails, setShowDetails] = useState(false);
-  
+  const [shareStatus, setShareStatus] = useState<'idle' | 'copied'>('idle');
+
+  const handleShareStory = useCallback(async () => {
+    if (!storyWorld) return;
+    const title = typeof storyWorld.title === 'string' ? storyWorld.title : getText(storyWorld.title, state.language);
+    const storyUrl = `https://seen.app/story/${storyWorldId}`;
+    const shareData = {
+      title: `${title} — SEEN`,
+      text: `Explore this story on SEEN — "${title}"`,
+      url: storyUrl,
+    };
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(storyUrl);
+        setShareStatus('copied');
+        setTimeout(() => setShareStatus('idle'), 2000);
+      }
+    } catch {
+      try {
+        await navigator.clipboard.writeText(storyUrl);
+        setShareStatus('copied');
+        setTimeout(() => setShareStatus('idle'), 2000);
+      } catch {}
+    }
+  }, [storyWorld, storyWorldId, state.language]);
+
   // Ambient audio for story world
   const ambientAudio = useAudioPlayer({
     src: undefined, // Would be actual ambient audio URL
@@ -73,6 +100,19 @@ export function StoryWorldEntryScreen({
               onLanguageChange={setLanguage}
               availableLanguages={storyWorld.availableLanguages}
             />
+
+            {/* Share story */}
+            <button
+              onClick={handleShareStory}
+              aria-label="Share story"
+              className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center hover:bg-black/60 transition-colors"
+            >
+              {shareStatus === 'copied' ? (
+                <Check className="w-4 h-4 text-green-400" />
+              ) : (
+                <Share2 className="w-4 h-4 text-white" />
+              )}
+            </button>
             
             {/* Ambient audio toggle */}
             <button

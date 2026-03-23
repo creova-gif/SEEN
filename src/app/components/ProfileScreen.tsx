@@ -1,4 +1,4 @@
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { NavigationBar } from "./NavigationBar";
 import { 
   Settings, 
@@ -19,12 +19,66 @@ import {
   Home,
   Compass,
   Library,
-  TrendingUp
+  TrendingUp,
+  Share2,
+  Instagram,
+  Twitter,
+  Linkedin,
+  Youtube,
+  Link2,
+  ExternalLink,
+  Check,
+  X,
+  Pencil
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useStoryState } from "../contexts/StoryStateContext";
 import { useAuth } from "../contexts/AuthContext";
 import type { Language } from "../contexts/StoryStateContext";
+
+type SocialPlatform = 'instagram' | 'twitter' | 'linkedin' | 'youtube' | 'tiktok' | 'website';
+
+interface SocialLink {
+  platform: SocialPlatform;
+  url: string;
+}
+
+const PLATFORM_META: Record<SocialPlatform, { label: string; icon: React.ReactNode; placeholder: string }> = {
+  instagram: { label: 'Instagram', icon: <Instagram className="w-4 h-4" />, placeholder: 'https://instagram.com/yourhandle' },
+  twitter:   { label: 'X / Twitter', icon: <Twitter className="w-4 h-4" />, placeholder: 'https://x.com/yourhandle' },
+  linkedin:  { label: 'LinkedIn', icon: <Linkedin className="w-4 h-4" />, placeholder: 'https://linkedin.com/in/yourhandle' },
+  youtube:   { label: 'YouTube', icon: <Youtube className="w-4 h-4" />, placeholder: 'https://youtube.com/@yourchannel' },
+  tiktok:    { label: 'TikTok', icon: <Link2 className="w-4 h-4" />, placeholder: 'https://tiktok.com/@yourhandle' },
+  website:   { label: 'Website', icon: <Globe className="w-4 h-4" />, placeholder: 'https://yoursite.com' },
+};
+
+const PLATFORMS = Object.keys(PLATFORM_META) as SocialPlatform[];
+
+const MAX_LINKS = 5;
+const STORAGE_KEY = 'seen_social_links';
+
+function loadSocialLinks(): SocialLink[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveSocialLinks(links: SocialLink[]) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(links));
+}
+
+function isValidUrl(url: string) {
+  if (!url.trim()) return true;
+  try {
+    const u = new URL(url.trim());
+    return u.protocol === 'http:' || u.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
 
 interface ProfileScreenProps {
   onNavigate: (screen: string) => void;
@@ -52,29 +106,96 @@ export function ProfileScreen({
   const [elevationReason, setElevationReason] = useState("");
   const [elevationSubmitted, setElevationSubmitted] = useState(false);
   const [elevationLoading, setElevationLoading] = useState(false);
-  
+
+  // Social links state
+  const [socialLinks, setSocialLinks] = useState<SocialLink[]>(loadSocialLinks);
+  const [editingLinks, setEditingLinks] = useState(false);
+  const [draftLinks, setDraftLinks] = useState<Record<SocialPlatform, string>>(() => {
+    const loaded = loadSocialLinks();
+    const map = {} as Record<SocialPlatform, string>;
+    PLATFORMS.forEach(p => { map[p] = loaded.find(l => l.platform === p)?.url ?? ''; });
+    return map;
+  });
+  const [urlErrors, setUrlErrors] = useState<Record<string, boolean>>({});
+  const [shareStatus, setShareStatus] = useState<'idle' | 'copied'>('idle');
+
+  const userId = authState.user?.id ?? 'me';
+  const profileUrl = `https://seen.app/profile/${userId}`;
+
+  const activeCount = socialLinks.filter(l => l.url.trim()).length;
+
+  const handleOpenLink = (url: string) => {
+    if (url) window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
+  const handleShareProfile = useCallback(async () => {
+    const shareData = {
+      title: `${user.name} on SEEN`,
+      text: `${user.bio} — ${language === 'fr' ? 'Découvrez mon profil sur SEEN' : 'Check out my profile on SEEN'}`,
+      url: profileUrl,
+    };
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(profileUrl);
+        setShareStatus('copied');
+        setTimeout(() => setShareStatus('idle'), 2000);
+      }
+    } catch {
+      try {
+        await navigator.clipboard.writeText(profileUrl);
+        setShareStatus('copied');
+        setTimeout(() => setShareStatus('idle'), 2000);
+      } catch {}
+    }
+  }, [profileUrl, language]);
+
+  const handleSaveLinks = () => {
+    const errors: Record<string, boolean> = {};
+    PLATFORMS.forEach(p => {
+      if (draftLinks[p] && !isValidUrl(draftLinks[p])) errors[p] = true;
+    });
+    if (Object.keys(errors).length > 0) { setUrlErrors(errors); return; }
+    setUrlErrors({});
+
+    const filled = PLATFORMS
+      .filter(p => draftLinks[p].trim())
+      .map(p => ({ platform: p, url: draftLinks[p].trim() }));
+
+    const trimmed = filled.slice(0, MAX_LINKS);
+    saveSocialLinks(trimmed);
+    setSocialLinks(trimmed);
+    setEditingLinks(false);
+  };
+
+  const handleCancelEdit = () => {
+    const map = {} as Record<SocialPlatform, string>;
+    PLATFORMS.forEach(p => { map[p] = socialLinks.find(l => l.platform === p)?.url ?? ''; });
+    setDraftLinks(map);
+    setUrlErrors({});
+    setEditingLinks(false);
+  };
+
   // Handle sign out
   const handleSignOut = async () => {
     try {
       await signOut();
-      // User will be redirected to onboarding automatically
       window.location.reload();
     } catch (error) {
       console.error("Error signing out:", error);
     }
   };
   
-  // User profile data
   const user = {
     name: authState.user?.name || "Alex Rivera",
     email: authState.user?.email || "alex.rivera@example.com",
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwb3J0cmFpdCUyMG1hbiUyMHByb2Zlc3Npb25hbHxlbnwxfHx8fDE3Mzg3MTEyMDB8MA&ixlib=rb-4.1.0&q=80&w=400",
     bio: "Music lover, storyteller, cultural explorer",
     joinDate: "January 2026",
-    role: state.userRole // Use role from global state
+    role: state.userRole
   };
 
-  // User stats
   const stats = {
     storiesCompleted: 12,
     hoursListened: 28,
@@ -83,7 +204,6 @@ export function ProfileScreen({
     followingCount: 89
   };
 
-  // Recent activity
   const recentActivity = [
     { action: "Completed", title: "Midnight Resonance", date: "Feb 3, 2026" },
     { action: "Bookmarked", title: "Echoes of Light", date: "Feb 2, 2026" },
@@ -98,11 +218,10 @@ export function ProfileScreen({
       transition={{ duration: 0.4 }}
       className="min-h-screen bg-black"
     >
-      {/* Navigation */}
       <NavigationBar />
 
-      {/* Main Content */}
       <main className="pt-20 pb-24 px-5 max-w-[428px] mx-auto">
+
         {/* Profile Header */}
         <motion.section
           initial={{ opacity: 0, y: 20 }}
@@ -111,17 +230,15 @@ export function ProfileScreen({
           className="mb-8"
         >
           <div className="flex items-start gap-4 mb-6">
-            {/* Avatar */}
             <div 
-              className="w-20 h-20 rounded-full bg-cover bg-center border-2 border-white/10"
+              className="w-20 h-20 rounded-full bg-cover bg-center border-2 border-white/10 flex-shrink-0"
               style={{ backgroundImage: `url(${user.avatar})` }}
             />
-            {/* User Info */}
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
                 <h1 className="text-xl font-bold text-white">{user.name}</h1>
                 {user.role === "creator" && (
-                  <Moon className="w-4 h-4 text-purple-400" />
+                  <Moon className="w-4 h-4 text-purple-400 flex-shrink-0" />
                 )}
               </div>
               <p className="text-sm text-white/60 mb-2">{user.email}</p>
@@ -129,14 +246,136 @@ export function ProfileScreen({
             </div>
           </div>
 
-          {/* Bio */}
           <p className="text-sm text-white/80 mb-4">{user.bio}</p>
 
-          {/* Edit Profile Button */}
-          <button className="w-full py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm hover:bg-white/10 transition-colors flex items-center justify-center gap-2">
-            <User className="w-4 h-4" />
-            Edit Profile
-          </button>
+          {/* Edit Profile + Share Profile row */}
+          <div className="flex gap-2 mb-4">
+            <button className="flex-1 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm hover:bg-white/10 transition-colors flex items-center justify-center gap-2">
+              <User className="w-4 h-4" />
+              {language === 'fr' ? 'Modifier le profil' : 'Edit Profile'}
+            </button>
+            <button
+              onClick={handleShareProfile}
+              aria-label="Share profile"
+              className="py-3 px-4 rounded-xl bg-white/5 border border-white/10 text-white text-sm hover:bg-white/10 transition-colors flex items-center justify-center gap-2 min-w-[52px]"
+            >
+              {shareStatus === 'copied' ? (
+                <Check className="w-4 h-4 text-green-400" />
+              ) : (
+                <Share2 className="w-4 h-4" />
+              )}
+              {shareStatus === 'copied' && (
+                <span className="text-xs text-green-400">
+                  {language === 'fr' ? 'Copié' : 'Copied'}
+                </span>
+              )}
+            </button>
+          </div>
+
+          {/* Social Links */}
+          <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+            {/* Platform icons row */}
+            <div className="flex items-center justify-between px-4 py-3">
+              <div className="flex items-center gap-3">
+                {PLATFORMS.map(platform => {
+                  const link = socialLinks.find(l => l.platform === platform);
+                  const meta = PLATFORM_META[platform];
+                  return (
+                    <button
+                      key={platform}
+                      aria-label={meta.label}
+                      onClick={() => link?.url ? handleOpenLink(link.url) : setEditingLinks(true)}
+                      className={`transition-all duration-200 ${
+                        link?.url
+                          ? 'text-white hover:text-white/80'
+                          : 'text-white/20 hover:text-white/40'
+                      }`}
+                    >
+                      {meta.icon}
+                    </button>
+                  );
+                })}
+              </div>
+              <button
+                onClick={() => setEditingLinks(v => !v)}
+                aria-label="Manage social links"
+                className="text-white/40 hover:text-white/70 transition-colors"
+              >
+                <Pencil className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {/* Inline edit form */}
+            <AnimatePresence>
+              {editingLinks && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="overflow-hidden"
+                >
+                  <div className="border-t border-white/10 px-4 py-4 space-y-3">
+                    <p className="text-xs text-white/40 mb-1">
+                      {language === 'fr'
+                        ? `Max ${MAX_LINKS} liens · ${activeCount} actif${activeCount !== 1 ? 's' : ''}`
+                        : `Max ${MAX_LINKS} links · ${activeCount} active`}
+                    </p>
+                    {PLATFORMS.map(platform => {
+                      const meta = PLATFORM_META[platform];
+                      const hasError = urlErrors[platform];
+                      return (
+                        <div key={platform}>
+                          <div className={`flex items-center gap-2 rounded-xl border px-3 py-2.5 ${
+                            hasError ? 'border-red-500/50 bg-red-500/5' : 'border-white/10 bg-white/5'
+                          }`}>
+                            <span className="text-white/50 flex-shrink-0">{meta.icon}</span>
+                            <input
+                              type="url"
+                              value={draftLinks[platform]}
+                              onChange={e => {
+                                setDraftLinks(prev => ({ ...prev, [platform]: e.target.value }));
+                                if (urlErrors[platform]) setUrlErrors(prev => { const n = {...prev}; delete n[platform]; return n; });
+                              }}
+                              placeholder={meta.placeholder}
+                              className="flex-1 bg-transparent text-xs text-white placeholder-white/25 focus:outline-none min-w-0"
+                            />
+                            {draftLinks[platform] && (
+                              <button
+                                onClick={() => setDraftLinks(prev => ({ ...prev, [platform]: '' }))}
+                                className="text-white/30 hover:text-white/60 flex-shrink-0"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            )}
+                          </div>
+                          {hasError && (
+                            <p className="text-xs text-red-400 mt-1 px-1">
+                              {language === 'fr' ? 'URL invalide' : 'Invalid URL'}
+                            </p>
+                          )}
+                        </div>
+                      );
+                    })}
+                    <div className="flex gap-2 pt-1">
+                      <button
+                        onClick={handleSaveLinks}
+                        className="flex-1 py-2.5 rounded-xl bg-white text-black text-sm font-medium hover:bg-white/90 transition-colors"
+                      >
+                        {language === 'fr' ? 'Enregistrer' : 'Save'}
+                      </button>
+                      <button
+                        onClick={handleCancelEdit}
+                        className="flex-1 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm hover:bg-white/10 transition-colors"
+                      >
+                        {language === 'fr' ? 'Annuler' : 'Cancel'}
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </motion.section>
 
         {/* Stats Grid */}
@@ -171,18 +410,6 @@ export function ProfileScreen({
             </button>
           </div>
         </motion.section>
-
-        {/* Development Testing - Switch Role */}
-        {process.env.NODE_ENV === 'development' && (
-          <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="mb-8"
-          >
-            {/* Testing mode removed - roles are now set during onboarding only */}
-          </motion.section>
-        )}
 
         {/* Role-Based Navigation */}
         {(state.userRole === 'creator' || state.userRole === 'moderator' || state.userRole === 'admin') && (
@@ -226,7 +453,7 @@ export function ProfileScreen({
           </motion.section>
         )}
 
-        {/* Creator Section (if creator) */}
+        {/* Creator Section */}
         {user.role === "creator" && (
           <motion.section
             initial={{ opacity: 0, y: 20 }}
@@ -294,7 +521,6 @@ export function ProfileScreen({
                       await requestRoleElevation('creator', elevationReason);
                       setElevationSubmitted(true);
                     } catch {
-                      // Still show submitted — server will follow up
                       setElevationSubmitted(true);
                     } finally {
                       setElevationLoading(false);
@@ -422,7 +648,6 @@ export function ProfileScreen({
           </button>
         </motion.section>
 
-        {/* App Version */}
         <div className="text-center text-xs text-white/30">
           SEEN v1.0.0 • Made with ❤️ by CREOVA
         </div>
@@ -434,86 +659,34 @@ export function ProfileScreen({
           <button
             type="button"
             onClick={() => onNavigate("for-you")}
-            className={`flex flex-col items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
-              'for-you' === 'profile' ? 'text-white' : 'text-white/40 hover:text-white/60'
-            }`}
+            className="flex flex-col items-center gap-1.5 transition-all duration-300 pointer-events-auto group text-white/40 hover:text-white/60"
           >
-            <Home 
-              className={`w-5 h-5 transition-all duration-300 ${
-                'for-you' === 'profile' 
-                  ? 'drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]' 
-                  : 'group-hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.2)]'
-              }`}
-              strokeWidth={'for-you' === 'profile' ? 2 : 1.5}
-            />
-            <span className={`text-[10px] tracking-widest uppercase transition-all duration-300 ${
-              'for-you' === 'profile' ? 'font-medium' : 'font-light'
-            }`}>
-              For You
-            </span>
+            <Home className="w-5 h-5 transition-all duration-300 group-hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.2)]" strokeWidth={1.5} />
+            <span className="text-[10px] tracking-widest uppercase font-light">For You</span>
           </button>
           <button
             type="button"
             onClick={() => onNavigate("explore")}
-            className={`flex flex-col items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
-              'explore' === 'profile' ? 'text-white' : 'text-white/40 hover:text-white/60'
-            }`}
+            className="flex flex-col items-center gap-1.5 transition-all duration-300 pointer-events-auto group text-white/40 hover:text-white/60"
           >
-            <Compass 
-              className={`w-5 h-5 transition-all duration-300 ${
-                'explore' === 'profile' 
-                  ? 'drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]' 
-                  : 'group-hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.2)]'
-              }`}
-              strokeWidth={'explore' === 'profile' ? 2 : 1.5}
-            />
-            <span className={`text-[10px] tracking-widest uppercase transition-all duration-300 ${
-              'explore' === 'profile' ? 'font-medium' : 'font-light'
-            }`}>
-              Explore
-            </span>
+            <Compass className="w-5 h-5 transition-all duration-300 group-hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.2)]" strokeWidth={1.5} />
+            <span className="text-[10px] tracking-widest uppercase font-light">Explore</span>
           </button>
           <button
             type="button"
             onClick={() => onNavigate("library")}
-            className={`flex flex-col items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
-              'library' === 'profile' ? 'text-white' : 'text-white/40 hover:text-white/60'
-            }`}
+            className="flex flex-col items-center gap-1.5 transition-all duration-300 pointer-events-auto group text-white/40 hover:text-white/60"
           >
-            <Library 
-              className={`w-5 h-5 transition-all duration-300 ${
-                'library' === 'profile' 
-                  ? 'drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]' 
-                  : 'group-hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.2)]'
-              }`}
-              strokeWidth={'library' === 'profile' ? 2 : 1.5}
-            />
-            <span className={`text-[10px] tracking-widest uppercase transition-all duration-300 ${
-              'library' === 'profile' ? 'font-medium' : 'font-light'
-            }`}>
-              Library
-            </span>
+            <Library className="w-5 h-5 transition-all duration-300 group-hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.2)]" strokeWidth={1.5} />
+            <span className="text-[10px] tracking-widest uppercase font-light">Library</span>
           </button>
           <button
             type="button"
             onClick={() => onNavigate("profile")}
-            className={`flex flex-col items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
-              'profile' === 'profile' ? 'text-white' : 'text-white/40 hover:text-white/60'
-            }`}
+            className="flex flex-col items-center gap-1.5 transition-all duration-300 pointer-events-auto group text-white"
           >
-            <User 
-              className={`w-5 h-5 transition-all duration-300 ${
-                'profile' === 'profile' 
-                  ? 'drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]' 
-                  : 'group-hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.2)]'
-              }`}
-              strokeWidth={'profile' === 'profile' ? 2 : 1.5}
-            />
-            <span className={`text-[10px] tracking-widest uppercase transition-all duration-300 ${
-              'profile' === 'profile' ? 'font-medium' : 'font-light'
-            }`}>
-              Profile
-            </span>
+            <User className="w-5 h-5 transition-all duration-300 drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]" strokeWidth={2} />
+            <span className="text-[10px] tracking-widest uppercase font-medium">Profile</span>
           </button>
         </div>
       </nav>
