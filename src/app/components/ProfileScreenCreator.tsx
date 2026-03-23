@@ -60,7 +60,7 @@ function isValidUrl(url: string) {
   catch { return false; }
 }
 
-type ActiveModal = null | 'dashboard' | 'rights' | 'guidelines' | 'accessibility' | 'privacy' | 'feedback';
+type ActiveModal = null | 'dashboard' | 'rights' | 'guidelines' | 'accessibility' | 'privacy' | 'feedback' | 'cmf';
 
 interface ProfileScreenCreatorProps {
   onNavigate: (screen: "for-you" | "explore" | "library" | "profile" | "create") => void;
@@ -416,6 +416,24 @@ export function ProfileScreenCreator({ onNavigate, onOpenSettings, onOpenAbout }
                 <div className="text-left">
                   <div className="text-sm tracking-wide">Content Guidelines</div>
                   <div className="text-xs text-white/40">Standards & best practices</div>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-white/30" strokeWidth={1.5} />
+            </button>
+
+            {/* Feature 6: CMF Eligibility Checker */}
+            <button
+              type="button"
+              onClick={() => setActiveModal('cmf')}
+              className="w-full flex items-center justify-between p-4 border border-white/10 bg-white/[0.02] rounded-lg hover:border-white/20 hover:bg-white/[0.04] transition-all duration-300"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center">
+                  <Building2 className="w-4 h-4 text-white/60" strokeWidth={1.5} />
+                </div>
+                <div className="text-left">
+                  <div className="text-sm tracking-wide">CMF Eligibility Checker</div>
+                  <div className="text-xs text-white/40">Find matching grant programs</div>
                 </div>
               </div>
               <ChevronRight className="w-4 h-4 text-white/30" strokeWidth={1.5} />
@@ -801,9 +819,218 @@ export function ProfileScreenCreator({ onNavigate, onOpenSettings, onOpenAbout }
                 <button type="button" onClick={() => setActiveModal(null)} className="w-full py-3 text-sm tracking-widest uppercase text-white/40 border border-white/10 rounded-lg hover:border-white/20 transition-all">Cancel</button>
               </div>
             )}
+
+            {/* Feature 6: CMF Eligibility Checker */}
+            {activeModal === 'cmf' && <CMFEligibilityChecker onClose={() => setActiveModal(null)} />}
           </motion.div>
         )}
       </AnimatePresence>
+    </div>
+  );
+}
+
+// Feature 6: CMF Eligibility Checker Component
+type CMFStep = 1 | 2 | 3 | 4;
+
+const CMF_PROGRAMS = [
+  {
+    id: 'lfp',
+    name: 'Linear and Digital Performance Envelopes',
+    desc: 'For French-language dramatic series and docs with strong broadcaster support.',
+    budget: ['250k-1m', '1m+'],
+    types: ['drama', 'documentary'],
+    languages: ['french'],
+    url: 'https://cmf-fmc.ca/en/funding/programs/linear-digital-performance-envelopes/',
+  },
+  {
+    id: 'esp',
+    name: 'English-Language Performance Envelopes',
+    desc: 'Broadcaster-driven funding for English dramatic and children\'s content.',
+    budget: ['250k-1m', '1m+'],
+    types: ['drama', 'childrens', 'animation'],
+    languages: ['english'],
+    url: 'https://cmf-fmc.ca/en/funding/programs/linear-digital-performance-envelopes/',
+  },
+  {
+    id: 'experiment',
+    name: 'Experimental Stream',
+    desc: 'For digital-first and innovative format productions under $250k.',
+    budget: ['under250k'],
+    types: ['drama', 'documentary', 'variety', 'animation'],
+    languages: ['english', 'french', 'indigenous', 'multilingual'],
+    url: 'https://cmf-fmc.ca/en/funding/programs/experimental-stream/',
+  },
+  {
+    id: 'indigenous',
+    name: 'Indigenous Program',
+    desc: 'Dedicated program for Indigenous creators telling Indigenous stories.',
+    budget: ['under250k', '250k-1m', '1m+'],
+    types: ['drama', 'documentary', 'animation', 'childrens'],
+    languages: ['indigenous', 'multilingual'],
+    url: 'https://cmf-fmc.ca/en/funding/programs/indigenous-program/',
+  },
+  {
+    id: 'doc',
+    name: 'Documentary Program',
+    desc: 'For independently produced Canadian documentary projects.',
+    budget: ['under250k', '250k-1m'],
+    types: ['documentary'],
+    languages: ['english', 'french', 'multilingual'],
+    url: 'https://cmf-fmc.ca/en/funding/programs/documentary-program/',
+  },
+  {
+    id: 'convergent',
+    name: 'Convergent Stream',
+    desc: 'Linear TV content with digital extensions for all content types.',
+    budget: ['250k-1m', '1m+'],
+    types: ['drama', 'documentary', 'childrens', 'variety'],
+    languages: ['english', 'french'],
+    url: 'https://cmf-fmc.ca/en/funding/programs/convergent-stream/',
+  },
+];
+
+function CMFEligibilityChecker({ onClose }: { onClose: () => void }) {
+  const [step, setStep] = useState<CMFStep>(1);
+  const [budget, setBudget] = useState<string>('');
+  const [prodType, setProdType] = useState<string>('');
+  const [lang, setLang] = useState<string>('');
+
+  const matchedPrograms = CMF_PROGRAMS.filter(p =>
+    (!budget || p.budget.includes(budget)) &&
+    (!prodType || p.types.includes(prodType)) &&
+    (!lang || p.languages.includes(lang))
+  );
+
+  const BUDGET_OPTIONS = [
+    { id: 'under250k', label: 'Under $250K', desc: 'Micro-budget & experimental' },
+    { id: '250k-1m', label: '$250K – $1M', desc: 'Mid-budget production' },
+    { id: '1m+', label: 'Over $1M', desc: 'Large-scale production' },
+  ];
+  const TYPE_OPTIONS = [
+    { id: 'drama', label: 'Drama / Scripted' },
+    { id: 'documentary', label: 'Documentary' },
+    { id: 'childrens', label: "Children's" },
+    { id: 'animation', label: 'Animation' },
+    { id: 'variety', label: 'Variety / Talk' },
+  ];
+  const LANG_OPTIONS = [
+    { id: 'english', label: 'English' },
+    { id: 'french', label: 'French / OLFB' },
+    { id: 'indigenous', label: 'Indigenous Language' },
+    { id: 'multilingual', label: 'Multilingual' },
+  ];
+
+  return (
+    <div className="px-5 pb-10 max-h-[70vh] overflow-y-auto">
+      <div className="flex items-center justify-between mb-1">
+        <h3 className="text-base tracking-wide font-light">CMF Eligibility Checker</h3>
+        <span className="text-xs text-white/30">Step {step === 4 ? 3 : step} of 3</span>
+      </div>
+      <p className="text-xs text-white/40 mb-5">Answer 3 questions to see which programs match your project</p>
+
+      {/* Step indicator */}
+      <div className="flex gap-2 mb-6">
+        {[1,2,3].map(s => (
+          <div key={s} className={`flex-1 h-0.5 rounded-full transition-all duration-300 ${step >= s ? 'bg-white/60' : 'bg-white/10'}`} />
+        ))}
+      </div>
+
+      {/* Step 1: Budget */}
+      {step === 1 && (
+        <div className="space-y-3">
+          <p className="text-sm text-white/70 mb-4">What is your project budget?</p>
+          {BUDGET_OPTIONS.map(opt => (
+            <button
+              key={opt.id}
+              type="button"
+              onClick={() => { setBudget(opt.id); setStep(2); }}
+              className="w-full flex items-center justify-between p-4 border border-white/10 bg-white/[0.02] rounded-lg hover:border-white/30 hover:bg-white/[0.04] transition-all text-left"
+            >
+              <div>
+                <div className="text-sm tracking-wide">{opt.label}</div>
+                <div className="text-xs text-white/40 mt-0.5">{opt.desc}</div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-white/30 flex-shrink-0" />
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Step 2: Production Type */}
+      {step === 2 && (
+        <div className="space-y-3">
+          <p className="text-sm text-white/70 mb-4">What type of content are you producing?</p>
+          {TYPE_OPTIONS.map(opt => (
+            <button
+              key={opt.id}
+              type="button"
+              onClick={() => { setProdType(opt.id); setStep(3); }}
+              className="w-full flex items-center justify-between p-4 border border-white/10 bg-white/[0.02] rounded-lg hover:border-white/30 hover:bg-white/[0.04] transition-all text-left"
+            >
+              <span className="text-sm tracking-wide">{opt.label}</span>
+              <ChevronRight className="w-4 h-4 text-white/30 flex-shrink-0" />
+            </button>
+          ))}
+          <button type="button" onClick={() => setStep(1)} className="w-full text-xs text-white/30 py-2 hover:text-white/50 transition-colors">← Back</button>
+        </div>
+      )}
+
+      {/* Step 3: Language */}
+      {step === 3 && (
+        <div className="space-y-3">
+          <p className="text-sm text-white/70 mb-4">What is the primary language of your content?</p>
+          {LANG_OPTIONS.map(opt => (
+            <button
+              key={opt.id}
+              type="button"
+              onClick={() => { setLang(opt.id); setStep(4); }}
+              className="w-full flex items-center justify-between p-4 border border-white/10 bg-white/[0.02] rounded-lg hover:border-white/30 hover:bg-white/[0.04] transition-all text-left"
+            >
+              <span className="text-sm tracking-wide">{opt.label}</span>
+              <ChevronRight className="w-4 h-4 text-white/30 flex-shrink-0" />
+            </button>
+          ))}
+          <button type="button" onClick={() => setStep(2)} className="w-full text-xs text-white/30 py-2 hover:text-white/50 transition-colors">← Back</button>
+        </div>
+      )}
+
+      {/* Step 4: Results */}
+      {step === 4 && (
+        <div>
+          <p className="text-sm text-white/70 mb-4">
+            {matchedPrograms.length > 0
+              ? `${matchedPrograms.length} program${matchedPrograms.length !== 1 ? 's' : ''} match your project`
+              : 'No exact matches — try adjusting your selections'}
+          </p>
+          <div className="space-y-3 mb-5">
+            {matchedPrograms.map(prog => (
+              <button
+                key={prog.id}
+                type="button"
+                onClick={() => window.open(prog.url, '_blank', 'noopener,noreferrer')}
+                className="w-full p-4 border border-white/10 bg-white/[0.02] rounded-lg hover:border-white/30 hover:bg-white/[0.04] transition-all text-left"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1">
+                    <div className="text-xs font-medium tracking-wide mb-1">{prog.name}</div>
+                    <div className="text-xs text-white/50 leading-relaxed">{prog.desc}</div>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-white/30 flex-shrink-0 mt-0.5" />
+                </div>
+              </button>
+            ))}
+            {matchedPrograms.length === 0 && (
+              <div className="p-4 border border-white/10 bg-white/[0.02] rounded-lg text-center">
+                <p className="text-xs text-white/40">Try visiting cmf-fmc.ca for the full list of programs</p>
+              </div>
+            )}
+          </div>
+          <div className="flex gap-2">
+            <button type="button" onClick={() => { setStep(1); setBudget(''); setProdType(''); setLang(''); }} className="flex-1 py-3 text-xs tracking-widest uppercase text-white/40 border border-white/10 rounded-lg hover:border-white/20 transition-all">Start Over</button>
+            <button type="button" onClick={onClose} className="flex-1 py-3 text-xs tracking-widest uppercase text-white/40 border border-white/10 rounded-lg hover:border-white/20 transition-all">Close</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

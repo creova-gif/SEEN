@@ -2,18 +2,18 @@
  * EXPLORE SCREEN
  * SEEN by CREOVA
  * 
- * Curated discovery with fixed categories
+ * Curated discovery with fixed categories + Cultural Tag Cloud
  * NO personalized content - different from For You
  */
 
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { useState } from "react";
 import { NavigationBar } from "./NavigationBar";
 import { ContentCard } from "./ContentCard";
 import { StoryCard } from "./StoryCard";
 import { SectionHeader } from "./SectionHeader";
 import { EmptyState } from "./EmptyState";
-import { Search, Filter, Music, Film, Archive, Globe, TrendingUp, Clock, Home, Compass, Library, User } from "lucide-react";
+import { Search, Filter, Music, Film, Archive, Globe, TrendingUp, Clock, Home, Compass, Library, User, Tag, X } from "lucide-react";
 import type { ContentLanguage } from "../data/types";
 import { getExploreCategories, searchStories } from "../data/storyService";
 import type { Language } from "../data/storyDatabase";
@@ -24,6 +24,24 @@ interface ExploreScreenProps {
   language: ContentLanguage;
 }
 
+// Feature 7: Cultural Tag Cloud — Canadian cultural identities
+const CULTURAL_TAGS = [
+  { id: 'metis', label: 'Métis', color: '#7C6FCD' },
+  { id: 'cree', label: 'Cree Nation', color: '#C86E3E' },
+  { id: 'first-nations', label: 'First Nations', color: '#4A7C59' },
+  { id: 'anishinaabe', label: 'Anishinaabe', color: '#B85C38' },
+  { id: 'haudenosaunee', label: 'Haudenosaunee', color: '#5C8A6E' },
+  { id: 'haitian', label: 'Haitian-Canadian', color: '#D4444C' },
+  { id: 'quebecois', label: 'Québécois', color: '#1E4D8C' },
+  { id: 'acadian', label: 'Acadian', color: '#2B6CB0' },
+  { id: 'somali', label: 'Somali-Canadian', color: '#8B5CF6' },
+  { id: 'indo-canadian', label: 'Indo-Canadian', color: '#D97706' },
+  { id: 'franco-african', label: 'Franco-African', color: '#059669' },
+  { id: 'afro-caribbean', label: 'Afro-Caribbean', color: '#DC2626' },
+  { id: 'chinese-canadian', label: 'Chinese-Canadian', color: '#B91C1C' },
+  { id: 'ukrainian-canadian', label: 'Ukrainian-Canadian', color: '#1D4ED8' },
+];
+
 /**
  * EXPLORE SECTION - CURATED DISCOVERY
  * 
@@ -32,6 +50,7 @@ interface ExploreScreenProps {
  * 2. NO personalization - same for all users
  * 3. Search functionality
  * 4. Filter by type
+ * 5. Cultural tag cloud for identity-based discovery
  */
 export function ExploreScreen({ 
   onStoryClick, 
@@ -40,6 +59,7 @@ export function ExploreScreen({
 }: ExploreScreenProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState<string | null>(null);
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
 
   // Get curated categories
   const categories = getExploreCategories(language as Language);
@@ -58,6 +78,8 @@ export function ExploreScreen({
         items: cat.items.filter(item => item.type === selectedType)
       })).filter(cat => cat.items.length > 0)
     : categories;
+
+  const activeCulturalTag = CULTURAL_TAGS.find(t => t.id === selectedTag);
 
   // Show empty state if no categories
   if (categories.length === 0 && !searchQuery) {
@@ -132,7 +154,7 @@ export function ExploreScreen({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="mb-8"
+          className="mb-6"
         >
           <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2 -mx-5 px-5">
             <TypeFilter
@@ -166,6 +188,71 @@ export function ExploreScreen({
               onClick={() => setSelectedType('collection')}
             />
           </div>
+        </motion.section>
+
+        {/* Feature 7: Cultural Tag Cloud */}
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35 }}
+          className="mb-8"
+        >
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Tag className="w-3.5 h-3.5 text-white/40" strokeWidth={1.5} />
+              <span className="text-xs tracking-widest uppercase text-white/40">Cultural Identities</span>
+            </div>
+            {selectedTag && (
+              <button
+                type="button"
+                onClick={() => setSelectedTag(null)}
+                className="flex items-center gap-1 text-xs text-white/40 hover:text-white/60 transition-colors"
+              >
+                <X className="w-3 h-3" />
+                Clear
+              </button>
+            )}
+          </div>
+          <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2 -mx-5 px-5">
+            {CULTURAL_TAGS.map((tag) => (
+              <button
+                key={tag.id}
+                type="button"
+                onClick={() => setSelectedTag(selectedTag === tag.id ? null : tag.id)}
+                className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs tracking-wide whitespace-nowrap transition-all duration-200 border ${
+                  selectedTag === tag.id
+                    ? 'bg-white text-black border-white font-medium'
+                    : 'bg-white/[0.03] border-white/10 text-white/60 hover:border-white/20 hover:text-white/80'
+                }`}
+              >
+                <span
+                  className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                  style={{ backgroundColor: selectedTag === tag.id ? tag.color : `${tag.color}99` }}
+                />
+                {tag.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Active tag banner */}
+          <AnimatePresence>
+            {selectedTag && activeCulturalTag && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mt-3 overflow-hidden"
+              >
+                <div
+                  className="px-4 py-3 rounded-lg border border-white/10 text-xs text-white/50 leading-relaxed"
+                  style={{ background: `${activeCulturalTag.color}11`, borderColor: `${activeCulturalTag.color}33` }}
+                >
+                  <span style={{ color: activeCulturalTag.color }} className="font-medium">{activeCulturalTag.label}</span>
+                  {' '}stories are highlighted below. Tap any card to enter the story.
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.section>
 
         {/* Search Results */}
@@ -238,7 +325,13 @@ export function ExploreScreen({
               // Vertical list for stories/films/collections
               <div className="space-y-4">
                 {category.items.map(item => (
-                  <div key={item.id} onClick={() => onStoryClick(item.id)} className="cursor-pointer relative">
+                  <div
+                    key={item.id}
+                    onClick={() => onStoryClick(item.id)}
+                    className={`cursor-pointer relative transition-opacity duration-200 ${
+                      selectedTag ? 'opacity-70 hover:opacity-100' : ''
+                    }`}
+                  >
                     <ContentCard
                       id={item.id}
                       title={item.title}
@@ -250,6 +343,19 @@ export function ExploreScreen({
                     <div className="absolute top-3 left-3 px-2 py-1 bg-black/60 backdrop-blur-sm rounded text-xs text-white/90 uppercase tracking-wider border border-white/20">
                       {item.type}
                     </div>
+                    {/* Cultural tag highlight */}
+                    {selectedTag && activeCulturalTag && (
+                      <div
+                        className="absolute bottom-3 right-3 px-2 py-1 rounded text-[10px] tracking-widest uppercase border"
+                        style={{
+                          background: `${activeCulturalTag.color}22`,
+                          borderColor: `${activeCulturalTag.color}44`,
+                          color: activeCulturalTag.color,
+                        }}
+                      >
+                        {activeCulturalTag.label}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
