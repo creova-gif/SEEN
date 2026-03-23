@@ -20,9 +20,8 @@ import type {
 
 export const MUSIC_CONTENT: ContentItem[] = [
   // ── CREOVA Music ─────────────────────────────────────────────
-  // To update audio: replace audioSrc with a Soundcloud embed URL
-  // e.g. "https://soundcloud.com/creova/track-slug"
-  // or a hosted MP3: "https://your-cdn.com/audio/track.mp3"
+  // audioSrc accepts: Spotify embed URL, SoundCloud URL, or direct MP3/OGG
+  // Single → specific track embed; Album/tracks → artist embed (full discography)
   {
     id: 'creova-single-001',
     type: 'music',
@@ -49,7 +48,7 @@ export const MUSIC_CONTENT: ContentItem[] = [
     releaseDate: 'Feb 2026',
     language: ['en', 'fr'],
     mediaSource: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800',
-    // audioSrc: 'REPLACE_WITH_SOUNDCLOUD_OR_DIRECT_URL',
+    audioSrc: 'https://open.spotify.com/embed/artist/2RLqSJtCZ3PcAGY1V8e8HS?utm_source=generator',
     tags: ['creova', 'album', 'cultural', 'storytelling', 'debut'],
     featured: true,
     new: true
@@ -64,7 +63,7 @@ export const MUSIC_CONTENT: ContentItem[] = [
     releaseDate: 'Feb 2026',
     language: ['en', 'fr'],
     mediaSource: 'https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=800',
-    // audioSrc: 'REPLACE_WITH_SOUNDCLOUD_OR_DIRECT_URL',
+    audioSrc: 'https://open.spotify.com/embed/artist/2RLqSJtCZ3PcAGY1V8e8HS?utm_source=generator',
     tags: ['creova', 'heritage', 'bilingual', 'roots', 'percussion'],
     trending: true
   },
@@ -78,7 +77,7 @@ export const MUSIC_CONTENT: ContentItem[] = [
     releaseDate: 'Feb 2026',
     language: ['en', 'fr'],
     mediaSource: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=800',
-    // audioSrc: 'REPLACE_WITH_SOUNDCLOUD_OR_DIRECT_URL',
+    audioSrc: 'https://open.spotify.com/embed/artist/2RLqSJtCZ3PcAGY1V8e8HS?utm_source=generator',
     tags: ['creova', 'instrumental', 'ambient', 'cultural', 'space']
   },
   // ── Other Creators ───────────────────────────────────────────
