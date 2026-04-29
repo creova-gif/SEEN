@@ -2,13 +2,18 @@ import { motion } from "motion/react";
 import { Search, User } from "lucide-react";
 import { useNavigation } from "../navigation/NavigationController";
 
-export function NavigationBar() {
+interface NavigationBarProps {
+  onSearch?: () => void;
+}
+
+export function NavigationBar({ onSearch }: NavigationBarProps) {
   const { navigateToTab } = useNavigation();
 
   const handleSearchTap = () => {
     console.log('[Interaction] Search button tapped');
-    // Search functionality - future implementation
-    // For now, could show toast or navigate to explore with search focus
+    if (onSearch) {
+      onSearch();
+    }
   };
 
   const handleProfileTap = () => {

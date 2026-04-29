@@ -17,6 +17,7 @@ import { ProfilePreferencesScreen } from "./components/ProfilePreferencesScreen"
 import { StoryBuilderScreen } from "./components/StoryBuilderScreen";
 import { ModerationGovernanceSystem } from "./components/ModerationGovernanceSystem";
 import { InstitutionalCollectionScreen } from "./components/InstitutionalCollectionScreen";
+import { SearchScreen } from "./screens/SearchScreen";
 import { useStoryState } from "./contexts/StoryStateContext";
 import type { Language, UserIntent, UserRole } from "./contexts/StoryStateContext";
 import { initializeDemoData } from "./data/demoData";
@@ -24,13 +25,13 @@ import { initializeDemoData } from "./data/demoData";
 // Initialize demo data for testing (only runs once)
 initializeDemoData();
 
-type AppScreen = 
+type AppScreen =
   | "onboarding"
   | "language-selection"
-  | "splash" 
-  | "onboarding-purpose" 
-  | "onboarding-intent" 
-  | "onboarding-accessibility" 
+  | "splash"
+  | "onboarding-purpose"
+  | "onboarding-intent"
+  | "onboarding-accessibility"
   | "home"
   | "for-you"
   | "explore"
@@ -43,7 +44,8 @@ type AppScreen =
   | "settings"
   | "story-builder"
   | "moderation-governance"
-  | "institutional-collection";
+  | "institutional-collection"
+  | "search";
 
 function AppContent() {
   const { state, setLanguage, setIntent, setUserRole, setAccessibilityPreferences, setPersonalizationPreferences, enterStoryWorld } = useStoryState();
@@ -128,6 +130,20 @@ function AppContent() {
   // Handle story click with content ID
   const handleStoryClick = (contentId: string) => {
     enterStoryWorld(contentId);
+    setCurrentScreen("story-preview");
+  };
+
+  // Handle search screen
+  const handleOpenSearch = () => {
+    setCurrentScreen("search");
+  };
+
+  const handleCloseSearch = () => {
+    setCurrentScreen("for-you");
+  };
+
+  const handleSearchSelectStory = (storyId: string) => {
+    enterStoryWorld(storyId);
     setCurrentScreen("story-preview");
   };
 
@@ -273,9 +289,17 @@ function AppContent() {
         )}
 
         {currentScreen === "institutional-collection" && (
-          <InstitutionalCollectionScreen 
+          <InstitutionalCollectionScreen
             key="institutional-collection"
             onBack={() => setCurrentScreen("profile")}
+          />
+        )}
+
+        {currentScreen === "search" && (
+          <SearchScreen
+            key="search"
+            onClose={handleCloseSearch}
+            onSelectStory={handleSearchSelectStory}
           />
         )}
       </AnimatePresence>
