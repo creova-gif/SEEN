@@ -19,6 +19,7 @@ import type { Language } from "../data/storyDatabase";
 interface LibraryScreenProps {
   onStoryClick: (contentId: string) => void;
   onNavigate: (screen: string) => void;
+  onSearch?: () => void;
 }
 
 type LibraryTab = 'inProgress' | 'completed';
@@ -32,9 +33,10 @@ type LibraryTab = 'inProgress' | 'completed';
  * 3. Display with resume/completion info
  * 4. Show empty states if no content
  */
-export function LibraryScreen({ 
-  onStoryClick, 
-  onNavigate 
+export function LibraryScreen({
+  onStoryClick,
+  onNavigate,
+  onSearch
 }: LibraryScreenProps) {
   const [activeTab, setActiveTab] = useState<LibraryTab>('inProgress');
   const { state } = useStoryState();
@@ -55,7 +57,7 @@ export function LibraryScreen({
       transition={{ duration: 0.4 }}
       className="min-h-screen bg-black"
     >
-      <NavigationBar />
+      <NavigationBar onSearch={onSearch} />
 
       {/* Main Content */}
       <main className="pt-20 pb-24 px-5 max-w-[428px] mx-auto">

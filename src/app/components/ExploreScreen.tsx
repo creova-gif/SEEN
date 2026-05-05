@@ -21,6 +21,7 @@ import type { Language } from "../data/storyDatabase";
 interface ExploreScreenProps {
   onStoryClick: (contentId: string) => void;
   onNavigate: (screen: string) => void;
+  onSearch?: () => void;
   language: ContentLanguage;
 }
 
@@ -33,10 +34,11 @@ interface ExploreScreenProps {
  * 3. Search functionality
  * 4. Filter by type
  */
-export function ExploreScreen({ 
-  onStoryClick, 
-  onNavigate, 
-  language 
+export function ExploreScreen({
+  onStoryClick,
+  onNavigate,
+  onSearch,
+  language
 }: ExploreScreenProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState<string | null>(null);
@@ -70,7 +72,7 @@ export function ExploreScreen({
     
     return (
       <div className="min-h-screen bg-black">
-        <NavigationBar />
+        <NavigationBar onSearch={onSearch} />
         <div className="pt-20 pb-24">
           <EmptyState
             icon="Compass"

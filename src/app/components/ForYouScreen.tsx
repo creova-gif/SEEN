@@ -20,6 +20,7 @@ import type { Language } from "../data/storyDatabase";
 interface ForYouScreenProps {
   onStoryClick: (contentId: string) => void;
   onNavigate: (screen: string) => void;
+  onSearch?: () => void;
   userIntent: UserIntent;
   language: ContentLanguage;
   isFirstVisit?: boolean;
@@ -33,10 +34,11 @@ interface ForYouScreenProps {
  * 2. Display stories with multilingual support
  * 3. Show empty state if no content
  */
-export function ForYouScreen({ 
-  onStoryClick, 
-  onNavigate, 
-  userIntent, 
+export function ForYouScreen({
+  onStoryClick,
+  onNavigate,
+  onSearch,
+  userIntent,
   language,
   isFirstVisit
 }: ForYouScreenProps) {
@@ -84,7 +86,7 @@ export function ForYouScreen({
     
     return (
       <div className="min-h-screen bg-black">
-        <NavigationBar />
+        <NavigationBar onSearch={onSearch} />
         <div className="pt-20 pb-24">
           <EmptyState
             icon="Compass"

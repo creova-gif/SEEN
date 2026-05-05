@@ -219,10 +219,11 @@ function AppContent() {
         )}
 
         {currentScreen === "for-you" && (
-          <ForYouScreen 
+          <ForYouScreen
             key="for-you"
             onStoryClick={handleStoryClick}
             onNavigate={handleNavigate}
+            onSearch={handleOpenSearch}
             userIntent={state.intent}
             language={state.language}
             isFirstVisit={isFirstVisit}
@@ -230,26 +231,29 @@ function AppContent() {
         )}
 
         {currentScreen === "explore" && (
-          <ExploreScreen 
+          <ExploreScreen
             key="explore"
             onStoryClick={handleStoryClick}
             onNavigate={handleNavigate}
+            onSearch={handleOpenSearch}
             language={state.language}
           />
         )}
 
         {currentScreen === "library" && (
-          <LibraryScreen 
+          <LibraryScreen
             key="library"
             onStoryClick={handleStoryClick}
             onNavigate={handleNavigate}
+            onSearch={handleOpenSearch}
           />
         )}
 
         {currentScreen === "profile" && (
-          <ProfileScreen 
+          <ProfileScreen
             key="profile"
             onNavigate={handleNavigate}
+            onSearch={handleOpenSearch}
             onOpenSettings={() => setCurrentScreen("settings")}
             onOpenAbout={() => setCurrentScreen("about")}
             onOpenCreatorDashboard={() => setCurrentScreen("story-builder")}

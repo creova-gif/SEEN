@@ -26,6 +26,7 @@ import type { Language } from "../contexts/StoryStateContext";
 
 interface ProfileScreenProps {
   onNavigate: (screen: string) => void;
+  onSearch?: () => void;
   onOpenSettings?: () => void;
   onOpenAbout?: () => void;
   onOpenCreatorDashboard?: () => void;
@@ -35,14 +36,15 @@ interface ProfileScreenProps {
   language: "en" | "fr" | "es";
 }
 
-export function ProfileScreen({ 
-  onNavigate, 
+export function ProfileScreen({
+  onNavigate,
+  onSearch,
   onOpenSettings,
   onOpenAbout,
   onOpenCreatorDashboard,
   onOpenModeration,
   onOpenInstitutional,
-  userIntent = "explore", 
+  userIntent = "explore",
   language = "en" 
 }: ProfileScreenProps) {
   const { state, setUserRole } = useStoryState();
@@ -94,7 +96,7 @@ export function ProfileScreen({
       className="min-h-screen bg-black"
     >
       {/* Navigation */}
-      <NavigationBar />
+      <NavigationBar onSearch={onSearch} />
 
       {/* Main Content */}
       <main className="pt-20 pb-24 px-5 max-w-[428px] mx-auto">
