@@ -1582,6 +1582,31 @@ export const STORY_WORLDS: StoryWorld[] = [
 ];
 
 // ============================================
+// BUILD CHAPTER REGISTRY (Independent Chapter Access)
+// ============================================
+
+/**
+ * Build an independent chapter registry from all story worlds
+ * Enables querying chapters without accessing through story.chapters
+ */
+function buildChapterRegistry(): Map<string, Chapter> {
+  const registry = new Map<string, Chapter>();
+
+  for (const story of STORY_WORLDS) {
+    if (story.chapters && Array.isArray(story.chapters)) {
+      for (const chapter of story.chapters) {
+        registry.set(chapter.id, chapter);
+      }
+    }
+  }
+
+  return registry;
+}
+
+// Pre-built registry for fast lookups
+export const CHAPTERS_REGISTRY = buildChapterRegistry();
+
+// ============================================
 // HELPER FUNCTIONS
 // ============================================
 
@@ -1614,11 +1639,42 @@ export function getStoryWorldById(id: string): StoryWorld | undefined {
 }
 
 /**
- * Get chapter by ID
+ * Get chapters for a specific story (from registry)
+ */
+export function getChaptersForStory(storyWorldId: string): Chapter[] {
+  const story = getStoryWorldById(storyWorldId);
+  if (!story) return [];
+
+  // Return chapters in order by looking them up from registry
+  return story.chapters
+    .map(ch => CHAPTERS_REGISTRY.get(ch.id))
+    .filter((ch): ch is Chapter => ch !== undefined)
+    .sort((a, b) => a.order - b.order);
+}
+
+/**
+ * Get chapter by ID directly from registry (independent query)
+ */
+export function getChapterByIdDirect(chapterId: string): Chapter | undefined {
+  return CHAPTERS_REGISTRY.get(chapterId);
+}
+
+/**
+ * Get chapter by ID from story and chapter ID (backward compatible)
  */
 export function getChapterById(storyWorldId: string, chapterId: string): Chapter | undefined {
-  const story = getStoryWorldById(storyWorldId);
-  return story?.chapters.find(ch => ch.id === chapterId);
+  // Use the independent registry for faster lookup
+  const chapter = CHAPTERS_REGISTRY.get(chapterId);
+
+  // Verify chapter belongs to the requested story
+  if (chapter) {
+    const story = getStoryWorldById(storyWorldId);
+    if (story?.chapters.some(ch => ch.id === chapterId)) {
+      return chapter;
+    }
+  }
+
+  return undefined;
 }
 
 /**
@@ -1640,6 +1696,41 @@ export function getStoriesByLanguage(lang: Language): StoryWorld[] {
  */
 export function getFeaturedStories(): StoryWorld[] {
   return STORY_WORLDS.filter(story => story.featured && story.visibility === 'public');
+}
+
+/**
+ * Get next chapter in story
+ */
+export function getNextChapter(storyWorldId: string, currentChapterId: string): Chapter | undefined {
+  const chapters = getChaptersForStory(storyWorldId);
+  const currentIndex = chapters.findIndex(ch => ch.id === currentChapterId);
+
+  if (currentIndex >= 0 && currentIndex < chapters.length - 1) {
+    return chapters[currentIndex + 1];
+  }
+
+  return undefined;
+}
+
+/**
+ * Get previous chapter in story
+ */
+export function getPreviousChapter(storyWorldId: string, currentChapterId: string): Chapter | undefined {
+  const chapters = getChaptersForStory(storyWorldId);
+  const currentIndex = chapters.findIndex(ch => ch.id === currentChapterId);
+
+  if (currentIndex > 0) {
+    return chapters[currentIndex - 1];
+  }
+
+  return undefined;
+}
+
+/**
+ * Get all chapters for a story with their full data
+ */
+export function getAllChaptersForStory(storyWorldId: string): Chapter[] {
+  return getChaptersForStory(storyWorldId);
 }
 
 /**

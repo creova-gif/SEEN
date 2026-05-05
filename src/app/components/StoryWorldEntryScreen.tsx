@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { ArrowLeft, Play, Volume2, VolumeX } from "lucide-react";
 import { useState } from "react";
 import { useStoryState } from "../contexts/StoryStateContext";
-import { getStoryWorld, getText } from "../data/content";
+import { getStoryWorldById, getLocalizedText } from "../data/storyDatabase";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { useAudioPlayer } from "../hooks/useAudioPlayer";
 
@@ -18,7 +18,7 @@ export function StoryWorldEntryScreen({
   onEnterStory 
 }: StoryWorldEntryScreenProps) {
   const { state, setLanguage, getProgressForStory } = useStoryState();
-  const storyWorld = getStoryWorld(storyWorldId);
+  const storyWorld = getStoryWorldById(storyWorldId);
   const progress = getProgressForStory(storyWorldId);
   const [showDetails, setShowDetails] = useState(false);
   
@@ -49,8 +49,8 @@ export function StoryWorldEntryScreen({
         className="absolute inset-0"
       >
         <img
-          src={storyWorld.imageUrl}
-          alt={getText(storyWorld.title, state.language)}
+          src={storyWorld.coverImage}
+          alt={getLocalizedText(storyWorld.title, state.language)}
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/70 to-black" />
@@ -71,7 +71,7 @@ export function StoryWorldEntryScreen({
             <LanguageSwitcher
               currentLanguage={state.language}
               onLanguageChange={setLanguage}
-              availableLanguages={storyWorld.availableLanguages}
+              availableLanguages={storyWorld.languagesAvailable}
             />
             
             {/* Ambient audio toggle */}
@@ -105,7 +105,7 @@ export function StoryWorldEntryScreen({
             transition={{ delay: 0.7 }}
           >
             <span className="text-xs tracking-[0.3em] uppercase text-white/40">
-              {getText(storyWorld.category, state.language)}
+              {storyWorld.culturalThemes?.[0] || 'Story'}
             </span>
           </motion.div>
 
@@ -116,7 +116,7 @@ export function StoryWorldEntryScreen({
             transition={{ delay: 0.9 }}
             className="text-5xl tracking-tight text-white leading-[1.1]"
           >
-            {getText(storyWorld.title, state.language)}
+            {getLocalizedText(storyWorld.title, state.language)}
           </motion.h1>
 
           {/* Description - poetic */}
@@ -136,12 +136,12 @@ export function StoryWorldEntryScreen({
             transition={{ delay: 1.3 }}
             className="flex flex-wrap gap-2"
           >
-            {storyWorld.themes.map((theme, index) => (
+            {storyWorld.culturalThemes.map((theme, index) => (
               <span
                 key={index}
                 className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-white/60"
               >
-                {getText(theme, state.language)}
+                {theme}
               </span>
             ))}
           </motion.div>
@@ -155,12 +155,12 @@ export function StoryWorldEntryScreen({
           >
             <span className="text-xs text-white/30">Available in:</span>
             <div className="flex gap-1.5">
-              {storyWorld.availableLanguages.map((lang) => (
+              {storyWorld.languagesAvailable.map((lang) => (
                 <span
                   key={lang}
                   className={`text-xs uppercase tracking-wider ${
-                    lang === state.language 
-                      ? 'text-white/60' 
+                    lang === state.language
+                      ? 'text-white/60'
                       : 'text-white/20'
                   }`}
                 >

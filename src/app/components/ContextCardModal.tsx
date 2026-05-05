@@ -1,7 +1,17 @@
 import { motion, AnimatePresence } from "motion/react";
 import { Info, X, ExternalLink } from "lucide-react";
 import { useStoryState } from "../contexts/StoryStateContext";
-import { ContextCard, getText as getTextHelper } from "../data/content";
+import { getLocalizedText, type MultilingualText } from "../data/storyDatabase";
+
+export interface ContextCard {
+  id: string;
+  type: 'artist' | 'cultural' | 'historical' | 'technical' | 'location';
+  title: MultilingualText;
+  content: MultilingualText;
+  imageUrl?: string;
+  externalLink?: string;
+  relatedTags: string[];
+}
 
 interface ContextCardModalProps {
   isOpen: boolean;
@@ -16,8 +26,8 @@ export function ContextCardModal({
 }: ContextCardModalProps) {
   const { state } = useStoryState();
 
-  const getText = (text: { en: string; fr: string; es: string }) => {
-    return getTextHelper(text, state.language);
+  const getText = (text: MultilingualText) => {
+    return getLocalizedText(text, state.language);
   };
 
   const getTypeLabel = () => {

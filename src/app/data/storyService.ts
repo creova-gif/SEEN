@@ -10,6 +10,7 @@ import {
   STORY_WORLDS,
   getStoryWorldById,
   getChapterById,
+  getChaptersForStory,
   getLocalizedText,
   getPublicStories,
   getStoriesByLanguage,
@@ -164,8 +165,9 @@ export function getLibraryStories(
     
     const contentItem = storyWorldToContentItem(story, language);
     
-    // Find chapter index
-    const chapterIndex = story.chapters.findIndex(
+    // Find chapter index using independent registry
+    const chapters = getChaptersForStory(snapshot.storyWorldId);
+    const chapterIndex = chapters.findIndex(
       ch => ch.id === snapshot.lastCompletedChapterId
     );
     
@@ -210,6 +212,8 @@ export function getStoryWorldData(storyWorldId: string, language: Language) {
     return null;
   }
   
+  const chapters = getChaptersForStory(storyWorldId);
+
   return {
     id: story.id,
     title: getLocalizedText(story.title, language),
@@ -220,7 +224,7 @@ export function getStoryWorldData(storyWorldId: string, language: Language) {
     totalDuration: story.totalDuration,
     chapterCount: story.chapterCount,
     culturalThemes: story.culturalThemes,
-    chapters: story.chapters.map(ch => ({
+    chapters: chapters.map(ch => ({
       id: ch.id,
       order: ch.order,
       title: getLocalizedText(ch.title, language),
@@ -269,15 +273,15 @@ export function getNextChapter(
   storyWorldId: string,
   currentChapterId: string
 ): { id: string; title: MultilingualText } | null {
-  const story = getStoryWorldById(storyWorldId);
-  if (!story) return null;
-  
-  const currentIndex = story.chapters.findIndex(ch => ch.id === currentChapterId);
-  if (currentIndex === -1 || currentIndex >= story.chapters.length - 1) {
+  const chapters = getChaptersForStory(storyWorldId);
+  if (chapters.length === 0) return null;
+
+  const currentIndex = chapters.findIndex(ch => ch.id === currentChapterId);
+  if (currentIndex === -1 || currentIndex >= chapters.length - 1) {
     return null; // Last chapter or not found
   }
-  
-  const nextChapter = story.chapters[currentIndex + 1];
+
+  const nextChapter = chapters[currentIndex + 1];
   return {
     id: nextChapter.id,
     title: nextChapter.title,
@@ -291,15 +295,15 @@ export function getPreviousChapter(
   storyWorldId: string,
   currentChapterId: string
 ): { id: string; title: MultilingualText } | null {
-  const story = getStoryWorldById(storyWorldId);
-  if (!story) return null;
-  
-  const currentIndex = story.chapters.findIndex(ch => ch.id === currentChapterId);
+  const chapters = getChaptersForStory(storyWorldId);
+  if (chapters.length === 0) return null;
+
+  const currentIndex = chapters.findIndex(ch => ch.id === currentChapterId);
   if (currentIndex <= 0) {
     return null; // First chapter or not found
   }
-  
-  const prevChapter = story.chapters[currentIndex - 1];
+
+  const prevChapter = chapters[currentIndex - 1];
   return {
     id: prevChapter.id,
     title: prevChapter.title,
@@ -315,26 +319,27 @@ export function getPreviousChapter(
  */
 export function validateStoryWorld(storyWorldId: string): boolean {
   const story = getStoryWorldById(storyWorldId);
-  
+
   if (!story) {
     console.error(`[Validation] Story not found: ${storyWorldId}`);
     return false;
   }
-  
-  // Check all chapters exist
-  if (story.chapters.length === 0) {
+
+  // Check all chapters exist using independent registry
+  const chapters = getChaptersForStory(storyWorldId);
+  if (chapters.length === 0) {
     console.error(`[Validation] Story has no chapters: ${storyWorldId}`);
     return false;
   }
-  
+
   // Check multilingual content
-  for (const chapter of story.chapters) {
+  for (const chapter of chapters) {
     if (!chapter.title.en || !chapter.description.en || !chapter.text.en) {
       console.error(`[Validation] Chapter missing English content: ${chapter.id}`);
       return false;
     }
   }
-  
+
   return true;
 }
 

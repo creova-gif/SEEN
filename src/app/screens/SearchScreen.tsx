@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Search } from 'lucide-react';
-import { useStoryState } from '../context/StoryStateContext';
+import { useStoryState } from '../contexts/StoryStateContext';
 import { searchStories, getSearchSuggestions } from '../data/searchService';
 import type { ContentItem } from '../data/types';
 import { StoryCard } from '../components/StoryCard';

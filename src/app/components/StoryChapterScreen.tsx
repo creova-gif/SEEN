@@ -4,14 +4,12 @@ import { useState, useEffect } from "react";
 import { AudioPlayer } from "./AudioPlayer";
 import { useAudioPlayer } from "../hooks/useAudioPlayer";
 import { useStoryState } from "../contexts/StoryStateContext";
-import { 
-  getChaptersForStory, 
-  getText, 
-  Chapter, 
-  getContextCardsForChapter,
-  getResponsesForChapter,
-  getChapter
-} from "../data/content";
+import {
+  getChaptersForStory,
+  getLocalizedText,
+  type Chapter,
+  getChapterById
+} from "../data/storyDatabase";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ContextCardModal } from "./ContextCardModal";
 import { CommunityResponsesPanel } from "./CommunityResponsesPanel";
@@ -64,8 +62,8 @@ export function StoryChapterScreen({
   }
   
   // Get context cards and responses for current chapter
-  const contextCards = getContextCardsForChapter(currentChapter.id);
-  const communityResponses = getResponsesForChapter(currentChapter.id);
+  const contextCards = currentChapter.contextCards || [];
+  const communityResponses = currentChapter.responses || [];
   const branchChoice = currentChapter.branchChoices?.[0]; // Get first branch choice if available
   
   const audio = useAudioPlayer({ 
@@ -111,7 +109,7 @@ export function StoryChapterScreen({
     
     // If this is a hard branch (impacts outcome), navigate to specific chapter
     if (branchChoice.impactsOutcome && nextChapterId) {
-      const targetChapter = getChapter(nextChapterId);
+      const targetChapter = getChapterById(storyWorldId, nextChapterId);
       if (targetChapter) {
         audio.fadeOut();
         setTimeout(() => {
@@ -176,7 +174,7 @@ export function StoryChapterScreen({
       <div className="absolute inset-0">
         <img
           src={currentChapter.imageUrl}
-          alt={getText(currentChapter.title, state.language)}
+          alt={getLocalizedText(currentChapter.title, state.language)}
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black" />
@@ -289,7 +287,7 @@ export function StoryChapterScreen({
             transition={{ delay: 0.1 }}
             className="text-3xl tracking-tight text-white leading-tight"
           >
-            {getText(currentChapter.title, state.language)}
+            {getLocalizedText(currentChapter.title, state.language)}
           </motion.h1>
 
           {/* Chapter content */}
@@ -300,7 +298,7 @@ export function StoryChapterScreen({
             transition={{ delay: 0.2 }}
             className="text-base text-white/70 leading-relaxed"
           >
-            {getText(currentChapter.content, state.language)}
+            {getLocalizedText(currentChapter.content, state.language)}
           </motion.p>
 
           {/* Captions overlay */}
@@ -335,7 +333,7 @@ export function StoryChapterScreen({
         isOpen={showCommunityResponses}
         onClose={() => setShowCommunityResponses(false)}
         chapterId={currentChapter.id}
-        chapterTitle={getText(currentChapter.title, state.language)}
+        chapterTitle={getLocalizedText(currentChapter.title, state.language)}
         responses={communityResponses.map(r => ({
           id: r.id,
           type: r.responseType,

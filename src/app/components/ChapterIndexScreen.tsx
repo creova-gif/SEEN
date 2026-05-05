@@ -1,7 +1,7 @@
 import { motion } from "motion/react";
 import { ArrowLeft, Play } from "lucide-react";
 import { useStoryState } from "../contexts/StoryStateContext";
-import { getChaptersForStory, getStoryWorld, getText } from "../data/content";
+import { getChaptersForStory, getStoryWorldById, getLocalizedText } from "../data/storyDatabase";
 
 interface ChapterIndexScreenProps {
   onClose: () => void;
@@ -16,7 +16,7 @@ export function ChapterIndexScreen({
 }: ChapterIndexScreenProps) {
   const { state, getProgressForStory } = useStoryState();
   const chapters = getChaptersForStory(storyWorldId);
-  const storyWorld = getStoryWorld(storyWorldId);
+  const storyWorld = getStoryWorldById(storyWorldId);
   const progress = getProgressForStory(storyWorldId);
   
   if (!storyWorld) return null;
@@ -41,7 +41,7 @@ export function ChapterIndexScreen({
               <ArrowLeft className="w-5 h-5 text-white" />
             </button>
             <h2 className="text-base tracking-tight text-white">
-              {getText(storyWorld.title, state.language)}
+              {getLocalizedText(storyWorld.title, state.language)}
             </h2>
             <div className="w-10" /> {/* Spacer */}
           </div>
@@ -56,13 +56,13 @@ export function ChapterIndexScreen({
             className="space-y-3"
           >
             <span className="text-xs tracking-[0.3em] uppercase text-white/40">
-              {getText(storyWorld.category, state.language)}
+              {getLocalizedText(storyWorld.category, state.language)}
             </span>
             <h1 className="text-2xl tracking-tight text-white">
               {state.language === 'en' ? 'Table of Contents' : state.language === 'fr' ? 'Table des Matières' : 'Tabla de Contenidos'}
             </h1>
             <p className="text-sm text-white/50 leading-relaxed">
-              {getText(storyWorld.description, state.language)}
+              {getLocalizedText(storyWorld.description, state.language)}
             </p>
             <div className="flex items-center gap-4 pt-2">
               <span className="text-xs text-white/40">
@@ -103,7 +103,7 @@ export function ChapterIndexScreen({
                   <div className="relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
                     <img
                       src={chapter.imageUrl}
-                      alt={getText(chapter.title, state.language)}
+                      alt={getLocalizedText(chapter.title, state.language)}
                       className="w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 bg-black/20" />
@@ -142,10 +142,10 @@ export function ChapterIndexScreen({
                       )}
                     </div>
                     <h3 className="text-base text-white">
-                      {getText(chapter.title, state.language)}
+                      {getLocalizedText(chapter.title, state.language)}
                     </h3>
                     <p className="text-sm text-white/50">
-                      {getText(chapter.subtitle, state.language)}
+                      {getLocalizedText(chapter.subtitle, state.language)}
                     </p>
                     <span className="text-xs text-white/30">
                       {chapter.duration}

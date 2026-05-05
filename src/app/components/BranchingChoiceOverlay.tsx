@@ -2,7 +2,18 @@ import { motion } from "motion/react";
 import { GitBranch } from "lucide-react";
 import { useState } from "react";
 import { useStoryState } from "../contexts/StoryStateContext";
-import { BranchChoice, getText as getTextHelper } from "../data/content";
+import { getLocalizedText, type MultilingualText } from "../data/storyDatabase";
+
+export interface BranchChoice {
+  questionText: MultilingualText;
+  options: Array<{
+    id: string;
+    text: MultilingualText;
+    nextChapterId?: string;
+    tag?: string;
+  }>;
+  impactsOutcome?: boolean;
+}
 
 interface BranchingChoiceOverlayProps {
   branchChoice: BranchChoice;
