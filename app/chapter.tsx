@@ -1,7 +1,7 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  Animated, Platform,
+  Platform,
 } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -14,12 +14,11 @@ import { useStoryState } from '../contexts/StoryStateContext';
 export default function ChapterScreen() {
   const { storyId, chapterId } = useLocalSearchParams<{ storyId: string; chapterId: string }>();
   const insets = useSafeAreaInsets();
-  const { state, saveProgress, navigateToChapter } = useStoryState();
+  const { state, saveProgress } = useStoryState();
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [activeLanguage, setActiveLanguage] = useState<'en' | 'fr' | 'es'>(state.language as any ?? 'en');
   const [showContext, setShowContext] = useState(false);
-  const progressAnim = useRef(new Animated.Value(0)).current;
 
   const world = getStoryWorld(storyId);
   const chapter = world?.chapters.find(c => c.id === chapterId);

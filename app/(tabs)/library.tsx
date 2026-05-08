@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors } from '../../constants/colors';
-import { STORY_CONTENT, MUSIC_CONTENT } from '../../data/database';
+import { STORY_CONTENT } from '../../data/database';
 
 const TABS = [
   { id: 'progress', label: 'In Progress', icon: 'play-circle-outline' as const, color: Colors.amber },
