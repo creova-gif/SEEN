@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "motion/react";
 import { useState } from "react";
-import { Shield, CheckCircle, XCircle, Clock, AlertTriangle, ChevronDown, BookOpen, Mic, ImageIcon, Eye, BarChart2 } from "lucide-react";
+import { Shield, CheckCircle, XCircle, Clock, AlertTriangle, ArrowLeft, BookOpen, Mic, ImageIcon, BarChart2 } from "lucide-react";
 
 export type ModerationStatus = "pending" | "approved" | "rejected" | "flagged";
 export type UserRole = "contributor" | "creator" | "moderator" | "institutional_admin";
@@ -47,54 +47,10 @@ export interface PermissionMatrix {
 }
 
 export const PERMISSION_MATRIX: PermissionMatrix[] = [
-  {
-    role: "contributor",
-    permissions: {
-      submitResponse: true,
-      createStory: false,
-      moderateOwnStories: false,
-      moderateAllStories: false,
-      manageInstitutionalCollection: false,
-      viewAuditLogs: false,
-      editUserRoles: false
-    }
-  },
-  {
-    role: "creator",
-    permissions: {
-      submitResponse: true,
-      createStory: true,
-      moderateOwnStories: true,
-      moderateAllStories: false,
-      manageInstitutionalCollection: false,
-      viewAuditLogs: false,
-      editUserRoles: false
-    }
-  },
-  {
-    role: "moderator",
-    permissions: {
-      submitResponse: true,
-      createStory: true,
-      moderateOwnStories: true,
-      moderateAllStories: true,
-      manageInstitutionalCollection: false,
-      viewAuditLogs: true,
-      editUserRoles: false
-    }
-  },
-  {
-    role: "institutional_admin",
-    permissions: {
-      submitResponse: true,
-      createStory: true,
-      moderateOwnStories: true,
-      moderateAllStories: false,
-      manageInstitutionalCollection: true,
-      viewAuditLogs: true,
-      editUserRoles: true
-    }
-  }
+  { role: "contributor", permissions: { submitResponse: true, createStory: false, moderateOwnStories: false, moderateAllStories: false, manageInstitutionalCollection: false, viewAuditLogs: false, editUserRoles: false } },
+  { role: "creator", permissions: { submitResponse: true, createStory: true, moderateOwnStories: true, moderateAllStories: false, manageInstitutionalCollection: false, viewAuditLogs: false, editUserRoles: false } },
+  { role: "moderator", permissions: { submitResponse: true, createStory: true, moderateOwnStories: true, moderateAllStories: true, manageInstitutionalCollection: false, viewAuditLogs: true, editUserRoles: false } },
+  { role: "institutional_admin", permissions: { submitResponse: true, createStory: true, moderateOwnStories: true, moderateAllStories: false, manageInstitutionalCollection: true, viewAuditLogs: true, editUserRoles: true } },
 ];
 
 export const MODERATION_GUIDELINES = {
@@ -103,128 +59,96 @@ export const MODERATION_GUIDELINES = {
     "Relates to the story/chapter content",
     "No harassment, hate speech, or threats",
     "No spam or promotional content",
-    "Appropriate language for all ages (if story is family-friendly)"
+    "Appropriate language for all ages (if story is family-friendly)",
   ],
   reject_criteria: [
     "Contains hate speech or discrimination",
     "Harasses or targets individuals",
     "Contains spam or promotional links",
     "Off-topic or unrelated to story",
-    "Violates community guidelines"
+    "Violates community guidelines",
   ],
   flag_criteria: [
     "Requires additional review",
     "Potential cultural sensitivity issue",
     "Unclear intent or context needed",
-    "Language barrier (translation needed)"
+    "Language barrier (translation needed)",
   ],
   response_time: "24-48 hours for initial review",
-  appeal_process: "Contributors can appeal rejected responses via email to moderation team"
+  appeal_process: "Contributors can appeal rejected responses via email to moderation team",
 };
 
 function formatRelativeTime(date: Date): string {
   const now = new Date();
-  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-  if (diffInSeconds < 60) return "just now";
-  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
-  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
-  return `${Math.floor(diffInSeconds / 86400)}d ago`;
+  const diff = Math.floor((now.getTime() - date.getTime()) / 1000);
+  if (diff < 60) return "just now";
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  return `${Math.floor(diff / 86400)}d ago`;
 }
 
 function getInitials(name: string) {
   return name.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
 }
 
-function getAvatarColor(name: string) {
-  const colors = [
-    "from-violet-600/40 to-violet-900/40",
-    "from-amber-600/40 to-amber-900/40",
-    "from-teal-600/40 to-teal-900/40",
-    "from-rose-600/40 to-rose-900/40",
-    "from-sky-600/40 to-sky-900/40",
-  ];
-  const idx = name.charCodeAt(0) % colors.length;
-  return colors[idx];
-}
-
-const TYPE_META = {
-  text:  { icon: BookOpen,  label: "TEXT",  color: "text-emerald-400",  bg: "bg-emerald-500/10 border-emerald-500/20" },
-  audio: { icon: Mic,       label: "AUDIO", color: "text-violet-400",   bg: "bg-violet-500/10 border-violet-500/20" },
-  image: { icon: ImageIcon, label: "IMAGE", color: "text-sky-400",      bg: "bg-sky-500/10 border-sky-500/20" },
-};
+// ─── QUEUE TAB ────────────────────────────────────────────────────────────────
 
 interface ModerationQueueProps {
   responses: CommunityResponse[];
-  onApprove: (responseId: string, notes?: string) => void;
-  onReject: (responseId: string, reason: string) => void;
-  onFlag: (responseId: string, reason: string) => void;
+  onApprove: (id: string, notes?: string) => void;
+  onReject: (id: string, reason: string) => void;
+  onFlag: (id: string, reason: string) => void;
   userRole: UserRole;
 }
 
-export function ModerationQueue({ responses, onApprove, onReject, onFlag, userRole }: ModerationQueueProps) {
-  const pendingResponses = responses.filter(r => r.status === "pending");
-  const flaggedResponses = responses.filter(r => r.status === "flagged");
+export function ModerationQueue({ responses, onApprove, onReject, onFlag }: ModerationQueueProps) {
+  const pending = responses.filter(r => r.status === "pending");
+  const flagged = responses.filter(r => r.status === "flagged");
 
   return (
-    <div className="space-y-8 px-5 pt-6 pb-28">
-      {/* Stats strip */}
-      <div className="grid grid-cols-3 gap-3">
-        {[
-          { label: "PENDING",  value: pendingResponses.length, color: "text-amber-400" },
-          { label: "FLAGGED",  value: flaggedResponses.length, color: "text-red-400" },
-          { label: "TODAY",    value: responses.length,        color: "text-white/60" },
-        ].map(s => (
-          <div key={s.label} className="rounded-xl bg-white/[0.03] border border-white/[0.07] px-3 py-3 text-center">
-            <p className={`text-2xl font-light tabular-nums ${s.color}`}>{s.value}</p>
-            <p className="text-[9px] tracking-widest text-white/30 mt-0.5">{s.label}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* Flagged priority section */}
+    <div className="space-y-6">
+      {/* Flagged — priority */}
       <AnimatePresence>
-        {flaggedResponses.length > 0 && (
+        {flagged.length > 0 && (
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
+            exit={{ opacity: 0 }}
             className="space-y-3"
           >
             <div className="flex items-center gap-2">
-              <AlertTriangle className="w-3.5 h-3.5 text-red-400" />
-              <span className="text-[10px] tracking-widest uppercase text-red-400 font-medium">Flagged · Priority</span>
-              <div className="flex-1 h-px bg-red-500/20" />
+              <AlertTriangle className="w-4 h-4 text-white/40" />
+              <h3 className="text-sm tracking-wider uppercase text-white/40">Flagged · Priority</h3>
             </div>
-            {flaggedResponses.map((r, i) => (
-              <ModerationCard key={r.id} response={r} onApprove={onApprove} onReject={onReject} onFlag={onFlag} index={i} priority />
+            {flagged.map((r, i) => (
+              <ReviewCard key={r.id} response={r} onApprove={onApprove} onReject={onReject} onFlag={onFlag} index={i} priority />
             ))}
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Pending section */}
+      {/* Pending */}
       <div className="space-y-3">
         <div className="flex items-center gap-2">
-          <Clock className="w-3.5 h-3.5 text-white/30" />
-          <span className="text-[10px] tracking-widest uppercase text-white/30">Awaiting Review</span>
-          <div className="flex-1 h-px bg-white/[0.06]" />
+          <Clock className="w-4 h-4 text-white/40" />
+          <h3 className="text-sm tracking-wider uppercase text-white/40">Awaiting Review</h3>
         </div>
 
-        {pendingResponses.length > 0 ? (
-          pendingResponses.map((r, i) => (
-            <ModerationCard key={r.id} response={r} onApprove={onApprove} onReject={onReject} onFlag={onFlag} index={i} />
+        {pending.length > 0 ? (
+          pending.map((r, i) => (
+            <ReviewCard key={r.id} response={r} onApprove={onApprove} onReject={onReject} onFlag={onFlag} index={i} />
           ))
         ) : (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="py-16 flex flex-col items-center gap-4"
+            className="py-14 flex flex-col items-center gap-4"
           >
-            <div className="w-14 h-14 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
-              <CheckCircle className="w-6 h-6 text-emerald-400" strokeWidth={1.5} />
+            <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
+              <CheckCircle className="w-5 h-5 text-white/30" strokeWidth={1.5} />
             </div>
             <div className="text-center">
-              <p className="text-sm text-white/60">Queue is clear</p>
+              <p className="text-sm text-white/50">Queue is clear</p>
               <p className="text-xs text-white/25 mt-1 tracking-wide">All contributions reviewed</p>
             </div>
           </motion.div>
@@ -234,7 +158,9 @@ export function ModerationQueue({ responses, onApprove, onReject, onFlag, userRo
   );
 }
 
-interface ModerationCardProps {
+// ─── REVIEW CARD ──────────────────────────────────────────────────────────────
+
+interface ReviewCardProps {
   response: CommunityResponse;
   onApprove: (id: string, notes?: string) => void;
   onReject: (id: string, reason: string) => void;
@@ -243,215 +169,154 @@ interface ModerationCardProps {
   index: number;
 }
 
-function ModerationCard({ response, onApprove, onReject, onFlag, priority = false, index }: ModerationCardProps) {
-  const [expanded, setExpanded] = useState(false);
+function ReviewCard({ response, onApprove, onReject, onFlag, priority = false, index }: ReviewCardProps) {
+  const [dismissed, setDismissed] = useState(false);
   const [actionMode, setActionMode] = useState<null | "reject" | "flag">(null);
   const [inputValue, setInputValue] = useState("");
-  const [resolved, setResolved] = useState(false);
 
-  const TypeIcon = TYPE_META[response.type].icon;
+  const TypeIcon = response.type === "text" ? BookOpen : response.type === "audio" ? Mic : ImageIcon;
 
   const handleApprove = () => {
-    setResolved(true);
-    setTimeout(() => onApprove(response.id), 400);
+    setDismissed(true);
+    setTimeout(() => onApprove(response.id), 350);
   };
 
-  const handleAction = () => {
+  const handleConfirm = () => {
     if (!inputValue.trim()) return;
-    setResolved(true);
+    setDismissed(true);
     setTimeout(() => {
       if (actionMode === "reject") onReject(response.id, inputValue);
       if (actionMode === "flag") onFlag(response.id, inputValue);
-    }, 400);
+    }, 350);
   };
 
   return (
     <AnimatePresence>
-      {!resolved && (
+      {!dismissed && (
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, x: 40, scale: 0.96 }}
-          transition={{ delay: index * 0.06, duration: 0.3 }}
-          className={`rounded-2xl border overflow-hidden ${
-            priority
-              ? "bg-red-950/20 border-red-500/20"
-              : "bg-white/[0.03] border-white/[0.08]"
+          exit={{ opacity: 0, x: 24, scale: 0.97 }}
+          transition={{ delay: index * 0.05, duration: 0.28 }}
+          className={`rounded-xl border p-4 space-y-4 ${
+            priority ? "bg-white/5 border-white/10" : "bg-white/5 border-white/10"
           }`}
         >
-          {/* Top accent line */}
-          <div className={`h-px w-full ${priority ? "bg-gradient-to-r from-red-500/60 via-red-400/30 to-transparent" : "bg-gradient-to-r from-amber-500/40 via-amber-400/10 to-transparent"}`} />
-
-          <div className="p-4">
-            {/* Row 1: avatar + name + type badge + time */}
-            <div className="flex items-center gap-3 mb-3">
-              <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${getAvatarColor(response.contributorName)} border border-white/10 flex items-center justify-center shrink-0`}>
-                <span className="text-[11px] font-medium text-white/80 tracking-wider">
-                  {getInitials(response.contributorName)}
-                </span>
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <p className="text-sm text-white/90 truncate">{response.contributorName}</p>
-                <div className="flex items-center gap-1.5 mt-0.5">
-                  <span className="text-[10px] text-white/30 tracking-wide">{formatRelativeTime(response.timestamp)}</span>
-                  <span className="text-white/15 text-[10px]">·</span>
-                  <span className="text-[10px] text-white/30 uppercase tracking-widest">{response.language}</span>
-                </div>
-              </div>
-
-              <div className={`flex items-center gap-1 px-2 py-1 rounded-full border text-[10px] tracking-widest uppercase ${TYPE_META[response.type].bg} ${TYPE_META[response.type].color}`}>
-                <TypeIcon className="w-2.5 h-2.5" strokeWidth={2} />
-                {TYPE_META[response.type].label}
+          {/* Contributor row */}
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-white/10 border border-white/10 flex items-center justify-center shrink-0">
+              <span className="text-xs font-medium text-white/70 tracking-wide">
+                {getInitials(response.contributorName)}
+              </span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm text-white/90 truncate">{response.contributorName}</p>
+              <div className="flex items-center gap-2 mt-0.5">
+                <span className="text-xs text-white/30">{formatRelativeTime(response.timestamp)}</span>
+                <span className="text-white/15">·</span>
+                <span className="text-xs text-white/30 uppercase tracking-widest">{response.language}</span>
               </div>
             </div>
-
-            {/* Content preview */}
-            <button
-              onClick={() => setExpanded(v => !v)}
-              className="w-full text-left mb-3 group"
-            >
-              <div className="relative rounded-xl bg-black/30 border border-white/[0.07] px-4 py-3">
-                {response.type === "text" ? (
-                  <p className={`text-sm text-white/70 leading-relaxed ${expanded ? "" : "line-clamp-2"}`}>
-                    {response.content}
-                  </p>
-                ) : response.type === "audio" ? (
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-violet-500/20 border border-violet-400/30 flex items-center justify-center">
-                      <Mic className="w-3.5 h-3.5 text-violet-400" />
-                    </div>
-                    <div>
-                      <p className="text-xs text-white/60">Audio response</p>
-                      <p className="text-[10px] text-white/30 tracking-wide">Tap to expand player</p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-sky-500/20 border border-sky-400/30 flex items-center justify-center">
-                      <Eye className="w-3.5 h-3.5 text-sky-400" />
-                    </div>
-                    <p className="text-xs text-white/60">Image attachment</p>
-                  </div>
-                )}
-
-                <AnimatePresence>
-                  {expanded && response.type === "audio" && (
-                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="mt-3 overflow-hidden">
-                      <audio src={response.content} controls className="w-full" />
-                    </motion.div>
-                  )}
-                  {expanded && response.type === "image" && (
-                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="mt-3 overflow-hidden">
-                      <img src={response.content} alt="Response" className="w-full rounded-lg" />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-
-                {/* Expand chevron */}
-                {response.type === "text" && response.content.length > 80 && (
-                  <motion.div
-                    animate={{ rotate: expanded ? 180 : 0 }}
-                    className="absolute bottom-2 right-3 text-white/20 group-hover:text-white/40 transition-colors"
-                  >
-                    <ChevronDown className="w-3.5 h-3.5" />
-                  </motion.div>
-                )}
-              </div>
-            </button>
-
-            {/* Flag reason if flagged */}
-            <AnimatePresence>
-              {response.flagReason && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="mb-3 flex items-start gap-2 px-3 py-2 rounded-lg bg-amber-500/8 border border-amber-400/15"
-                >
-                  <AlertTriangle className="w-3 h-3 text-amber-400 mt-0.5 shrink-0" />
-                  <p className="text-[11px] text-amber-300/70 leading-relaxed">{response.flagReason}</p>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Action buttons */}
-            <AnimatePresence mode="wait">
-              {actionMode === null ? (
-                <motion.div
-                  key="actions"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="flex gap-2"
-                >
-                  <button
-                    onClick={handleApprove}
-                    className="flex-1 py-2.5 rounded-xl bg-emerald-500/12 border border-emerald-400/25 text-xs tracking-wider uppercase text-emerald-400 hover:bg-emerald-500/20 transition-all duration-200 flex items-center justify-center gap-1.5 active:scale-[0.98]"
-                  >
-                    <CheckCircle className="w-3.5 h-3.5" strokeWidth={2} />
-                    Approve
-                  </button>
-                  <button
-                    onClick={() => { setActionMode("reject"); setInputValue(""); }}
-                    className="flex-1 py-2.5 rounded-xl bg-red-500/12 border border-red-400/25 text-xs tracking-wider uppercase text-red-400 hover:bg-red-500/20 transition-all duration-200 flex items-center justify-center gap-1.5 active:scale-[0.98]"
-                  >
-                    <XCircle className="w-3.5 h-3.5" strokeWidth={2} />
-                    Reject
-                  </button>
-                  <button
-                    onClick={() => { setActionMode("flag"); setInputValue(""); }}
-                    className="px-3 py-2.5 rounded-xl bg-amber-500/12 border border-amber-400/25 text-xs tracking-wider uppercase text-amber-400 hover:bg-amber-500/20 transition-all duration-200 active:scale-[0.98]"
-                  >
-                    Flag
-                  </button>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="input"
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
-                  className="space-y-2"
-                >
-                  <p className="text-[10px] tracking-widest uppercase text-white/30">
-                    {actionMode === "reject" ? "Rejection reason" : "Flag reason"}
-                  </p>
-                  <textarea
-                    value={inputValue}
-                    onChange={e => setInputValue(e.target.value)}
-                    placeholder={actionMode === "reject" ? "Why is this being rejected?" : "What needs review?"}
-                    rows={2}
-                    autoFocus
-                    className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white/80 placeholder-white/20 resize-none focus:outline-none focus:border-white/20 leading-relaxed"
-                  />
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setActionMode(null)}
-                      className="flex-1 py-2 rounded-xl border border-white/10 text-xs text-white/40 hover:text-white/60 transition-colors"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={handleAction}
-                      disabled={!inputValue.trim()}
-                      className={`flex-1 py-2 rounded-xl text-xs tracking-wider uppercase transition-all duration-200 disabled:opacity-30 ${
-                        actionMode === "reject"
-                          ? "bg-red-500/20 border border-red-400/30 text-red-300"
-                          : "bg-amber-500/20 border border-amber-400/30 text-amber-300"
-                      }`}
-                    >
-                      Confirm
-                    </button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-white/5 border border-white/10">
+              <TypeIcon className="w-3 h-3 text-white/40" strokeWidth={1.5} />
+              <span className="text-[10px] tracking-widest uppercase text-white/40">{response.type}</span>
+            </div>
           </div>
+
+          {/* Content */}
+          <div className="rounded-xl bg-black/40 border border-white/5 px-4 py-3">
+            {response.type === "text" ? (
+              <p className="text-sm text-white/70 leading-relaxed line-clamp-3">{response.content}</p>
+            ) : response.type === "audio" ? (
+              <audio src={response.content} controls className="w-full" />
+            ) : (
+              <img src={response.content} alt="Response" className="w-full rounded-lg" />
+            )}
+          </div>
+
+          {/* Flag reason */}
+          {response.flagReason && (
+            <div className="flex items-start gap-2 px-3 py-2.5 rounded-xl bg-white/5 border border-white/10">
+              <AlertTriangle className="w-3.5 h-3.5 text-white/40 mt-0.5 shrink-0" strokeWidth={1.5} />
+              <p className="text-xs text-white/50 leading-relaxed">{response.flagReason}</p>
+            </div>
+          )}
+
+          {/* Actions */}
+          <AnimatePresence mode="wait">
+            {actionMode === null ? (
+              <motion.div
+                key="btns"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="flex gap-2"
+              >
+                <button
+                  onClick={handleApprove}
+                  className="flex-1 py-3 rounded-xl bg-white/5 border border-white/10 text-xs tracking-widest uppercase text-white/60 hover:bg-white/10 hover:text-white/80 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                >
+                  <CheckCircle className="w-3.5 h-3.5" strokeWidth={1.5} />
+                  Approve
+                </button>
+                <button
+                  onClick={() => { setActionMode("reject"); setInputValue(""); }}
+                  className="flex-1 py-3 rounded-xl bg-white/5 border border-white/10 text-xs tracking-widest uppercase text-white/60 hover:bg-white/10 hover:text-white/80 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                >
+                  <XCircle className="w-3.5 h-3.5" strokeWidth={1.5} />
+                  Reject
+                </button>
+                <button
+                  onClick={() => { setActionMode("flag"); setInputValue(""); }}
+                  className="px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-xs tracking-widest uppercase text-white/60 hover:bg-white/10 hover:text-white/80 transition-all active:scale-[0.98]"
+                >
+                  Flag
+                </button>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="input"
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                className="space-y-3"
+              >
+                <p className="text-xs tracking-widest uppercase text-white/30">
+                  {actionMode === "reject" ? "Rejection reason" : "Flag reason"}
+                </p>
+                <textarea
+                  value={inputValue}
+                  onChange={e => setInputValue(e.target.value)}
+                  placeholder={actionMode === "reject" ? "Why is this being rejected?" : "What needs further review?"}
+                  rows={2}
+                  autoFocus
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white/80 placeholder-white/20 resize-none focus:outline-none focus:border-white/20 leading-relaxed"
+                />
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setActionMode(null)}
+                    className="flex-1 py-3 rounded-xl border border-white/10 text-xs tracking-widest uppercase text-white/40 hover:text-white/60 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleConfirm}
+                    disabled={!inputValue.trim()}
+                    className="flex-1 py-3 rounded-xl bg-white/5 border border-white/10 text-xs tracking-widest uppercase text-white/60 hover:bg-white/10 hover:text-white/80 transition-all disabled:opacity-30"
+                  >
+                    Confirm
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       )}
     </AnimatePresence>
   );
 }
+
+// ─── AUDIT LOG ────────────────────────────────────────────────────────────────
 
 interface AuditLogViewerProps {
   actions: ModerationAction[];
@@ -463,183 +328,132 @@ export function AuditLogViewer({ actions, userRole }: AuditLogViewerProps) {
 
   if (!canView) {
     return (
-      <div className="px-5 pt-8 flex flex-col items-center gap-4">
-        <div className="w-14 h-14 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center">
-          <Shield className="w-6 h-6 text-red-400" strokeWidth={1.5} />
+      <div className="py-14 flex flex-col items-center gap-4">
+        <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
+          <Shield className="w-5 h-5 text-white/30" strokeWidth={1.5} />
         </div>
-        <p className="text-sm text-white/40 text-center">Moderator access required</p>
+        <p className="text-sm text-white/40">Moderator access required</p>
       </div>
     );
   }
 
-  const actionMeta = {
-    approve: { icon: CheckCircle, color: "text-emerald-400", border: "border-emerald-500/20", bg: "bg-emerald-500/5", label: "Approved" },
-    reject:  { icon: XCircle,     color: "text-red-400",     border: "border-red-500/20",     bg: "bg-red-500/5",     label: "Rejected" },
-    flag:    { icon: AlertTriangle,color: "text-amber-400",   border: "border-amber-500/20",   bg: "bg-amber-500/5",   label: "Flagged"  },
+  const iconMap = {
+    approve: { Icon: CheckCircle, color: "text-white/60" },
+    reject:  { Icon: XCircle,     color: "text-white/60" },
+    flag:    { Icon: AlertTriangle,color: "text-white/60" },
   };
 
   return (
-    <div className="px-5 pt-6 pb-28 space-y-4">
-      <div className="flex items-center gap-2 mb-6">
-        <BarChart2 className="w-3.5 h-3.5 text-white/30" />
-        <span className="text-[10px] tracking-widest uppercase text-white/30">Action History</span>
-        <div className="flex-1 h-px bg-white/[0.06]" />
-        <span className="text-[10px] text-white/20">{actions.length} entries</span>
+    <div className="space-y-3">
+      <div className="flex items-center gap-2 mb-2">
+        <BarChart2 className="w-4 h-4 text-white/40" />
+        <h3 className="text-sm tracking-wider uppercase text-white/40">Action History</h3>
       </div>
 
       {actions.length === 0 ? (
-        <div className="py-16 flex flex-col items-center gap-3">
+        <div className="py-14 text-center">
           <p className="text-sm text-white/30">No actions recorded yet</p>
         </div>
       ) : (
-        <div className="relative">
-          {/* Timeline line */}
-          <div className="absolute left-[18px] top-2 bottom-2 w-px bg-white/[0.06]" />
-
-          <div className="space-y-4">
-            {actions.map((action, i) => {
-              const meta = actionMeta[action.action];
-              const Icon = meta.icon;
-              return (
-                <motion.div
-                  key={action.id}
-                  initial={{ opacity: 0, x: -12 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.07 }}
-                  className="flex gap-4"
-                >
-                  <div className={`w-9 h-9 rounded-full border shrink-0 flex items-center justify-center ${meta.bg} ${meta.border} z-10`}>
-                    <Icon className={`w-4 h-4 ${meta.color}`} strokeWidth={1.5} />
-                  </div>
-
-                  <div className="flex-1 rounded-xl border border-white/[0.07] bg-white/[0.03] px-4 py-3">
-                    <div className="flex items-start justify-between mb-1">
-                      <p className={`text-sm font-medium ${meta.color}`}>{meta.label}</p>
-                      <span className="text-[10px] text-white/25">{formatRelativeTime(action.timestamp)}</span>
-                    </div>
-                    <p className="text-xs text-white/40 mb-1">by {action.moderatorName}</p>
-                    {action.reason && (
-                      <p className="text-xs text-white/30 mt-1 leading-relaxed">"{action.reason}"</p>
-                    )}
-                    {action.notes && (
-                      <p className="text-xs text-white/25 mt-1 italic leading-relaxed">{action.notes}</p>
-                    )}
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
+        actions.map((action, i) => {
+          const { Icon, color } = iconMap[action.action];
+          return (
+            <motion.div
+              key={action.id}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.06 }}
+              className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-1"
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-2">
+                  <Icon className={`w-4 h-4 ${color}`} strokeWidth={1.5} />
+                  <span className="text-sm text-white/80 capitalize">{action.action}</span>
+                </div>
+                <span className="text-xs text-white/30">{formatRelativeTime(action.timestamp)}</span>
+              </div>
+              <p className="text-xs text-white/40 pl-6">by {action.moderatorName}</p>
+              {action.reason && (
+                <p className="text-xs text-white/30 pl-6 leading-relaxed">"{action.reason}"</p>
+              )}
+              {action.notes && (
+                <p className="text-xs text-white/25 pl-6 italic leading-relaxed">{action.notes}</p>
+              )}
+            </motion.div>
+          );
+        })
       )}
     </div>
   );
 }
 
-export function GovernanceGuidelines() {
-  const [open, setOpen] = useState<string | null>(null);
+// ─── GUIDELINES ───────────────────────────────────────────────────────────────
 
+export function GovernanceGuidelines() {
   const sections = [
     {
-      id: "approve",
       label: "Approval Criteria",
-      icon: CheckCircle,
-      color: "text-emerald-400",
-      borderColor: "border-emerald-500/20",
-      bg: "bg-emerald-500/5",
+      Icon: CheckCircle,
       items: MODERATION_GUIDELINES.approve_criteria,
       marker: "✓",
-      markerColor: "text-emerald-500/60",
     },
     {
-      id: "reject",
       label: "Rejection Criteria",
-      icon: XCircle,
-      color: "text-red-400",
-      borderColor: "border-red-500/20",
-      bg: "bg-red-500/5",
+      Icon: XCircle,
       items: MODERATION_GUIDELINES.reject_criteria,
       marker: "✗",
-      markerColor: "text-red-500/60",
     },
     {
-      id: "flag",
       label: "Flag for Review",
-      icon: AlertTriangle,
-      color: "text-amber-400",
-      borderColor: "border-amber-500/20",
-      bg: "bg-amber-500/5",
+      Icon: AlertTriangle,
       items: MODERATION_GUIDELINES.flag_criteria,
       marker: "·",
-      markerColor: "text-amber-500/60",
     },
   ];
 
   return (
-    <div className="px-5 pt-6 pb-28 space-y-3">
-      <div className="flex items-center gap-2 mb-6">
-        <Shield className="w-3.5 h-3.5 text-white/30" />
-        <span className="text-[10px] tracking-widest uppercase text-white/30">Community Standards</span>
-        <div className="flex-1 h-px bg-white/[0.06]" />
-      </div>
-
-      {sections.map(s => {
-        const Icon = s.icon;
-        const isOpen = open === s.id;
-        return (
-          <div key={s.id} className={`rounded-2xl border overflow-hidden ${s.borderColor} ${s.bg}`}>
-            <button
-              onClick={() => setOpen(isOpen ? null : s.id)}
-              className="w-full flex items-center justify-between px-4 py-4"
-            >
-              <div className="flex items-center gap-3">
-                <Icon className={`w-4 h-4 ${s.color}`} strokeWidth={1.5} />
-                <span className={`text-sm ${s.color}`}>{s.label}</span>
+    <div className="space-y-6">
+      {sections.map(({ label, Icon, items, marker }) => (
+        <div key={label} className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Icon className="w-4 h-4 text-white/40" strokeWidth={1.5} />
+            <h3 className="text-sm tracking-wider uppercase text-white/40">{label}</h3>
+          </div>
+          <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-3">
+            {items.map((item, i) => (
+              <div key={i} className="flex items-start gap-3">
+                <span className="text-xs text-white/30 mt-0.5 shrink-0">{marker}</span>
+                <p className="text-sm text-white/60 leading-relaxed">{item}</p>
               </div>
-              <motion.div animate={{ rotate: isOpen ? 180 : 0 }}>
-                <ChevronDown className={`w-4 h-4 ${s.color} opacity-50`} />
-              </motion.div>
-            </button>
-
-            <AnimatePresence>
-              {isOpen && (
-                <motion.ul
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  className="overflow-hidden"
-                >
-                  <div className="px-4 pb-4 space-y-2">
-                    {s.items.map((item, i) => (
-                      <div key={i} className="flex items-start gap-2">
-                        <span className={`text-xs mt-0.5 shrink-0 ${s.markerColor}`}>{s.marker}</span>
-                        <span className="text-xs text-white/50 leading-relaxed">{item}</span>
-                      </div>
-                    ))}
-                  </div>
-                </motion.ul>
-              )}
-            </AnimatePresence>
+            ))}
           </div>
-        );
-      })}
+        </div>
+      ))}
 
-      <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-4 space-y-3 mt-2">
-        <p className="text-[10px] tracking-widest uppercase text-white/25">Process Notes</p>
-        {[
-          `Response time: ${MODERATION_GUIDELINES.response_time}`,
-          MODERATION_GUIDELINES.appeal_process,
-          "All actions are logged with timestamps and moderator IDs",
-          "Cultural sensitivity training required for moderators",
-        ].map((note, i) => (
-          <div key={i} className="flex items-start gap-2">
-            <span className="text-white/15 text-xs shrink-0 mt-0.5">·</span>
-            <p className="text-xs text-white/35 leading-relaxed">{note}</p>
-          </div>
-        ))}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <Clock className="w-4 h-4 text-white/40" />
+          <h3 className="text-sm tracking-wider uppercase text-white/40">Process Notes</h3>
+        </div>
+        <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-3">
+          {[
+            MODERATION_GUIDELINES.response_time,
+            MODERATION_GUIDELINES.appeal_process,
+            "All actions logged with timestamps and moderator IDs",
+            "Cultural sensitivity training required for moderators",
+          ].map((note, i) => (
+            <div key={i} className="flex items-start gap-3">
+              <span className="text-xs text-white/30 mt-0.5 shrink-0">·</span>
+              <p className="text-sm text-white/60 leading-relaxed">{note}</p>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
 }
+
+// ─── MAIN SCREEN ──────────────────────────────────────────────────────────────
 
 interface ModerationGovernanceSystemProps {
   onBack: () => void;
@@ -659,7 +473,7 @@ export function ModerationGovernanceSystem({ onBack }: ModerationGovernanceSyste
       content: "This chapter reminded me of walking through Tokyo at 3 AM. The silence speaks volumes — the way Oscar Peterson's music fills that quiet is something you feel in your chest, not just your ears.",
       language: "en",
       timestamp: new Date(Date.now() - 3600000),
-      status: "pending"
+      status: "pending",
     },
     {
       id: "resp-2",
@@ -671,7 +485,7 @@ export function ModerationGovernanceSystem({ onBack }: ModerationGovernanceSyste
       content: "La résonance binaurale crée une expérience immersive incroyable. Mon grand-père était pianiste à Montréal dans les années 60.",
       language: "fr",
       timestamp: new Date(Date.now() - 7200000),
-      status: "pending"
+      status: "pending",
     },
     {
       id: "resp-3",
@@ -684,8 +498,8 @@ export function ModerationGovernanceSystem({ onBack }: ModerationGovernanceSyste
       language: "en",
       timestamp: new Date(Date.now() - 1800000),
       status: "flagged",
-      flagReason: "Potential cultural sensitivity — requires second review before approval."
-    }
+      flagReason: "Potential cultural sensitivity — requires second review before approval.",
+    },
   ];
 
   const mockActions: ModerationAction[] = [
@@ -696,7 +510,7 @@ export function ModerationGovernanceSystem({ onBack }: ModerationGovernanceSyste
       moderatorName: "Admin User",
       action: "approve",
       timestamp: new Date(Date.now() - 86400000),
-      notes: "Thoughtful reflection on cultural context"
+      notes: "Thoughtful reflection on cultural context",
     },
     {
       id: "act-2",
@@ -706,17 +520,41 @@ export function ModerationGovernanceSystem({ onBack }: ModerationGovernanceSyste
       action: "reject",
       reason: "Off-topic and promotional content",
       timestamp: new Date(Date.now() - 172800000),
-    }
+    },
   ];
 
   const handleApprove = (id: string, notes?: string) => console.log("Approved:", id, notes);
   const handleReject = (id: string, reason: string) => console.log("Rejected:", id, reason);
   const handleFlag = (id: string, reason: string) => console.log("Flagged:", id, reason);
 
+  const pending = mockResponses.filter(r => r.status === "pending");
+  const flagged = mockResponses.filter(r => r.status === "flagged");
+
   const tabs = [
-    { id: "queue" as const,      label: "Queue",      count: mockResponses.length },
-    { id: "audit" as const,      label: "Audit Log",  count: null },
-    { id: "guidelines" as const, label: "Guidelines", count: null },
+    {
+      id: "queue" as const,
+      Icon: Shield,
+      count: mockResponses.length,
+      label: "submissions to review",
+      glowColor: "bg-amber-400/20",
+      iconColor: "text-amber-200/70",
+    },
+    {
+      id: "audit" as const,
+      Icon: BarChart2,
+      count: mockActions.length,
+      label: "actions logged",
+      glowColor: "bg-white/20",
+      iconColor: "text-white/50",
+    },
+    {
+      id: "guidelines" as const,
+      Icon: CheckCircle,
+      count: MODERATION_GUIDELINES.approve_criteria.length + MODERATION_GUIDELINES.reject_criteria.length,
+      label: "community standards",
+      glowColor: "bg-white/20",
+      iconColor: "text-white/50",
+    },
   ];
 
   return (
@@ -726,70 +564,81 @@ export function ModerationGovernanceSystem({ onBack }: ModerationGovernanceSyste
       exit={{ opacity: 0 }}
       className="min-h-screen bg-black"
     >
-      {/* Header */}
-      <div className="sticky top-0 z-20 bg-black/90 backdrop-blur-2xl border-b border-white/[0.07]">
-        <div className="max-w-[428px] mx-auto px-4 pt-4 pb-0">
-          <div className="flex items-center gap-3 pb-4">
-            <button
-              onClick={onBack}
-              className="w-9 h-9 rounded-full bg-white/[0.04] border border-white/[0.08] flex items-center justify-center hover:bg-white/[0.08] transition-colors active:scale-95"
-            >
-              <span className="text-white/50 text-sm leading-none">←</span>
-            </button>
-            <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <Shield className="w-4 h-4 text-amber-400" strokeWidth={1.5} />
-                <h1 className="text-base text-white tracking-tight">Moderation</h1>
-                <span className="px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-400/25 text-[9px] tracking-widest uppercase text-amber-400 ml-1">
-                  Live
-                </span>
-              </div>
-              <p className="text-[11px] text-white/30 tracking-wide mt-0.5">Community content review</p>
-            </div>
-          </div>
-
-          {/* Tab bar */}
-          <div className="flex">
-            {tabs.map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`relative flex-1 py-3 text-xs tracking-wider transition-all duration-200 ${
-                  activeTab === tab.id ? "text-white" : "text-white/35 hover:text-white/55"
-                }`}
-              >
-                <span className="flex items-center justify-center gap-1.5">
-                  {tab.label}
-                  {tab.count !== null && (
-                    <span className={`text-[9px] px-1.5 py-0.5 rounded-full ${
-                      activeTab === tab.id
-                        ? "bg-amber-500/20 text-amber-400 border border-amber-400/30"
-                        : "bg-white/[0.06] text-white/30"
-                    }`}>
-                      {tab.count}
-                    </span>
-                  )}
-                </span>
-                {activeTab === tab.id && (
-                  <motion.div
-                    layoutId="tab-underline"
-                    className="absolute bottom-0 left-3 right-3 h-px bg-amber-400/70 rounded-full"
-                  />
-                )}
-              </button>
-            ))}
-          </div>
+      {/* Header — matches ProfilePreferencesScreen exactly */}
+      <div className="sticky top-0 z-10 backdrop-blur-xl bg-black/80 border-b border-white/5">
+        <div className="flex items-center justify-between p-5 pt-8 max-w-[428px] mx-auto">
+          <button
+            onClick={onBack}
+            className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5 text-white" strokeWidth={1.5} />
+          </button>
+          <h2 className="text-base tracking-tight text-white">Moderation</h2>
+          <div className="w-10" />
         </div>
       </div>
 
-      {/* Content */}
-      <div className="max-w-[428px] mx-auto">
+      {/* Main content */}
+      <main className="pt-2 pb-24 px-5 max-w-[428px] mx-auto">
+
+        {/* Tab selector — Library-style animated stat rows */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="py-8 space-y-3 border-b border-white/5 mb-8"
+        >
+          {tabs.map(({ id, Icon, count, label, glowColor, iconColor }, i) => (
+            <motion.div
+              key={id}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.15 + i * 0.1, duration: 0.8 }}
+              onClick={() => setActiveTab(id)}
+              className={`flex items-center gap-4 group cursor-pointer transition-opacity duration-300 ${
+                activeTab === id ? "opacity-100" : "opacity-40 hover:opacity-70"
+              }`}
+            >
+              <div className="relative">
+                <Icon className={`w-5 h-5 ${iconColor}`} strokeWidth={1.5} />
+                {activeTab === id && (
+                  <div className={`absolute inset-0 ${glowColor} blur-xl`} />
+                )}
+                <div className={`absolute inset-0 ${glowColor} blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+              </div>
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl font-light text-white/90 tabular-nums">{count}</span>
+                <span className="text-sm text-white/40 font-light tracking-wide">{label}</span>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {/* Flagged alert strip — only on queue tab */}
+        <AnimatePresence>
+          {activeTab === "queue" && flagged.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              className="mb-6 flex items-center gap-3 px-4 py-3 rounded-xl bg-white/5 border border-white/10"
+            >
+              <AlertTriangle className="w-4 h-4 text-white/50 shrink-0" strokeWidth={1.5} />
+              <p className="text-sm text-white/60">
+                <span className="text-white/80">{flagged.length} flagged</span>{" "}
+                {flagged.length === 1 ? "submission needs" : "submissions need"} priority review
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Active tab content */}
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
-            initial={{ opacity: 0, y: 8 }}
+            initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
+            exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.2 }}
           >
             {activeTab === "queue" && (
@@ -807,7 +656,7 @@ export function ModerationGovernanceSystem({ onBack }: ModerationGovernanceSyste
             {activeTab === "guidelines" && <GovernanceGuidelines />}
           </motion.div>
         </AnimatePresence>
-      </div>
+      </main>
     </motion.div>
   );
 }
