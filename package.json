@@ -35,5 +35,9 @@
   "devDependencies": {
     "@types/react": "~19.0.10",
     "typescript": "~5.8.3"
+  },
+  "overrides": {
+    "tar": "^7.5.15",
+    "postcss": "^8.5.14"
   }
 }
