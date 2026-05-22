@@ -23,7 +23,7 @@
     <meta name="format-detection" content="telephone=no, email=no, address=no" />
 
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="apple-touch-icon" href="/icon.svg" />
 
     <style>
       /* Desktop gate — invisible on mobile, full-screen overlay on desktop */
@@ -93,12 +93,17 @@
         text-transform: uppercase;
         color: rgba(255,255,255,0.25);
       }
-      @media (min-width: 768px) {
+      /* Show gate only on devices with a fine pointer (mouse / trackpad) AND
+         a wide viewport. This exempts large phones in landscape, foldables,
+         and touch laptops used as tablets. */
+      @media (min-width: 768px) and (hover: hover) and (pointer: fine) {
         #desktop-gate { display: flex; }
+        /* Block interaction with the underlying app while gate is shown */
+        #root { pointer-events: none; }
       }
 
-      /* Safe-area: all fixed bottom navs automatically clear home indicator */
-      nav[class*="fixed"][class*="bottom-0"] {
+      /* Safe-area: every fixed bottom bar (nav OR div) clears home indicator */
+      [class*="fixed"][class*="bottom-0"] {
         padding-bottom: max(env(safe-area-inset-bottom), 0px);
       }
     </style>
