@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "SEEN",
+    "slug": "seen-by-creova",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "seen",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "splash": {
+      "backgroundColor": "#000000",
+      "resizeMode": "contain"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.creova.seen"
+    },
+    "android": {
+      "package": "com.creova.seen",
+      "adaptiveIcon": {
+        "backgroundColor": "#000000"
+      }
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
