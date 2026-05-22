@@ -1,0 +1,26 @@
+{
+  "name": "SEEN by Creova",
+  "short_name": "SEEN",
+  "description": "Canadian stories from voices that shaped this land — and were never truly heard.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "categories": ["entertainment", "music", "education"],
+  "lang": "en-CA",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
