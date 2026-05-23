@@ -362,7 +362,7 @@ This is the future they imagine. And the future they are building. One podcast. 
         fr: '[Translation pending]',
         es: '[Translation pending]',
       },
-      suggestedAudioTone: 'hopeful',
+      suggestedAudioTone: 'celebratory',
       estimatedReadTime: '4 min',
     },
     {

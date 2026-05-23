@@ -16,6 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Audio, AVPlaybackStatus } from 'expo-av';
+import { WebView } from 'react-native-webview';
 import { LIVE_ITEMS, type UnifiedItem } from '../../data/aggregate';
 
 // Real audio playback is attempted for hosted MP3/OGG/WAV sources only.
@@ -80,6 +81,15 @@ export default function StoryChapter() {
 
   const fallbackDur = useMemo(() => parseDuration(item?.duration), [item]);
   const useRealAudio = isPlayableAudio(item?.audioSrc);
+  const isEmbed = item?.audioSrc && /spotify\.com|soundcloud\.com|youtube\.com|youtu\.be/i.test(item.audioSrc);
+
+  const getEmbedUrl = (src: string) => {
+    if (src.includes('spotify.com/track/')) return src.replace('spotify.com/track/', 'open.spotify.com/embed/track/');
+    if (src.includes('spotify.com/episode/')) return src.replace('spotify.com/episode/', 'open.spotify.com/embed/episode/');
+    if (src.includes('youtube.com/watch?v=')) return src.replace('youtube.com/watch?v=', 'youtube.com/embed/').split('&')[0];
+    if (src.includes('youtu.be/')) return src.replace('youtu.be/', 'youtube.com/embed/').split('?')[0];
+    return src;
+  };
 
   const [language, setLanguage] = useState<LangCode>('en');
   const [langSwitching, setLangSwitching] = useState<LangCode | null>(null);
@@ -381,6 +391,19 @@ export default function StoryChapter() {
             ))}
           </View>
         )}
+
+        {/* Embedded Player */}
+        {isEmbed && item.audioSrc && (
+          <View style={styles.embedContainer}>
+            <WebView
+              source={{ uri: getEmbedUrl(item.audioSrc) }}
+              style={{ flex: 1, backgroundColor: 'transparent' }}
+              scrollEnabled={false}
+              allowsInlineMediaPlayback
+              mediaPlaybackRequiresUserAction={false}
+            />
+          </View>
+        )}
       </ScrollView>
 
       {/* Bottom controls */}
@@ -411,62 +434,66 @@ export default function StoryChapter() {
           })}
         </View>
 
-        {/* Scrubber + reactions overlay */}
-        <View style={styles.scrubberWrap}>
-          {/* Floating reaction emojis at their timestamps */}
-          <View style={styles.reactionsLayer} pointerEvents="none">
-            {reactions.map((r) => (
-              <Text
-                key={r.id}
-                style={[
-                  styles.floatingEmoji,
-                  { left: `${Math.max(0, Math.min(100, r.position * 100))}%` },
-                ]}
+        {/* Scrubber + reactions overlay (only if not an embed) */}
+        {!isEmbed && (
+          <>
+            <View style={styles.scrubberWrap}>
+              {/* Floating reaction emojis at their timestamps */}
+              <View style={styles.reactionsLayer} pointerEvents="none">
+                {reactions.map((r) => (
+                  <Text
+                    key={r.id}
+                    style={[
+                      styles.floatingEmoji,
+                      { left: `${Math.max(0, Math.min(100, r.position * 100))}%` },
+                    ]}
+                  >
+                    {r.emoji}
+                  </Text>
+                ))}
+              </View>
+
+              <View style={styles.scrubberTrack}>
+                <View style={[styles.scrubberFill, { width: `${progress * 100}%` }]} />
+                <View style={[styles.scrubberThumb, { left: `${progress * 100}%` }]} />
+              </View>
+              <View style={styles.scrubberTimes}>
+                <Text style={styles.timeText}>{fmtTime(position)}</Text>
+                <Text style={styles.timeText}>{fmtTime(totalSec)}</Text>
+              </View>
+            </View>
+
+            {/* Transport controls */}
+            <View style={styles.transport}>
+              <Pressable
+                onPress={() => handleSeek(position - 15)}
+                style={styles.transportBtn}
+                accessibilityRole="button"
+                accessibilityLabel="Back 15 seconds"
               >
-                {r.emoji}
-              </Text>
-            ))}
-          </View>
+                <Ionicons name="play-back" size={20} color="#fff" />
+              </Pressable>
 
-          <View style={styles.scrubberTrack}>
-            <View style={[styles.scrubberFill, { width: `${progress * 100}%` }]} />
-            <View style={[styles.scrubberThumb, { left: `${progress * 100}%` }]} />
-          </View>
-          <View style={styles.scrubberTimes}>
-            <Text style={styles.timeText}>{fmtTime(position)}</Text>
-            <Text style={styles.timeText}>{fmtTime(totalSec)}</Text>
-          </View>
-        </View>
+              <Pressable
+                onPress={handleTogglePlay}
+                style={styles.playBtn}
+                accessibilityRole="button"
+                accessibilityLabel={isPlaying ? 'Pause' : 'Play'}
+              >
+                <Ionicons name={isPlaying ? 'pause' : 'play'} size={28} color="#000" style={!isPlaying && { marginLeft: 3 }} />
+              </Pressable>
 
-        {/* Transport controls */}
-        <View style={styles.transport}>
-          <Pressable
-            onPress={() => handleSeek(position - 15)}
-            style={styles.transportBtn}
-            accessibilityRole="button"
-            accessibilityLabel="Back 15 seconds"
-          >
-            <Ionicons name="play-back" size={20} color="#fff" />
-          </Pressable>
-
-          <Pressable
-            onPress={handleTogglePlay}
-            style={styles.playBtn}
-            accessibilityRole="button"
-            accessibilityLabel={isPlaying ? 'Pause' : 'Play'}
-          >
-            <Ionicons name={isPlaying ? 'pause' : 'play'} size={28} color="#000" style={!isPlaying && { marginLeft: 3 }} />
-          </Pressable>
-
-          <Pressable
-            onPress={() => handleSeek(position + 15)}
-            style={styles.transportBtn}
-            accessibilityRole="button"
-            accessibilityLabel="Forward 15 seconds"
-          >
-            <Ionicons name="play-forward" size={20} color="#fff" />
-          </Pressable>
-        </View>
+              <Pressable
+                onPress={() => handleSeek(position + 15)}
+                style={styles.transportBtn}
+                accessibilityRole="button"
+                accessibilityLabel="Forward 15 seconds"
+              >
+                <Ionicons name="play-forward" size={20} color="#fff" />
+              </Pressable>
+            </View>
+          </>
+        )}
 
         {/* Reaction flash */}
         <Animated.View
@@ -609,6 +636,16 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   tagText: { ...typography.microSm, color: colors.textMuted, fontSize: 9 },
+
+  embedContainer: {
+    height: 160,
+    marginTop: spacing.xl,
+    borderRadius: radius.lg,
+    overflow: 'hidden',
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.border,
+  },
 
   bottomBar: {
     position: 'absolute',

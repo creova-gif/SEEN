@@ -12,12 +12,14 @@ import {
   KeyboardAvoidingView,
   Platform,
   Switch,
+  Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { supabase } from '../utils/supabase';
 import { colors, spacing, radius, typography, layout } from '../constants/theme';
 
 // SEEN by CREOVA — Native onboarding flow
@@ -126,6 +128,9 @@ export default function Onboarding() {
         {step === 'account' && (
           <AccountStep
             insets={insets}
+            language={language}
+            role={role}
+            intent={intent}
             onComplete={() => setStep('accessibility')}
             onGuest={() => setStep('accessibility')}
           />
@@ -400,10 +405,16 @@ function IntentStep({
 
 function AccountStep({
   insets,
+  language,
+  role,
+  intent,
   onComplete,
   onGuest,
 }: {
   insets: { top: number; bottom: number };
+  language: Language | null;
+  role: Role | null;
+  intent: Intent | null;
   onComplete: () => void;
   onGuest: () => void;
 }) {
@@ -425,12 +436,42 @@ function AccountStep({
   const submit = async () => {
     if (!formValid) return;
     try {
+      if (mode === 'signup') {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              name,
+              role: role || 'viewer',
+              language: language || 'en',
+              intent: intent || 'explore',
+            },
+          },
+        });
+        if (error) {
+          Alert.alert('Sign up failed', error.message);
+          return;
+        }
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (error) {
+          Alert.alert('Sign in failed', error.message);
+          return;
+        }
+      }
+
       await AsyncStorage.multiSet([
         ['seen_user_name', name || ''],
         ['seen_user_email', email],
       ]);
-    } catch {}
-    onComplete();
+      onComplete();
+    } catch (err: any) {
+      Alert.alert('Error', err.message || 'An unexpected error occurred.');
+    }
   };
 
   return (

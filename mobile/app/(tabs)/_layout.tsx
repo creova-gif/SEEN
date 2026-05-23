@@ -3,6 +3,7 @@ import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, View, Text, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { supabase } from '../../utils/supabase';
 import { colors, layout } from '../../constants/theme';
 import { Header } from '../../components/Header';
 
@@ -75,11 +76,19 @@ export default function TabsLayout() {
   // Read role on mount; default to viewer until storage resolves.
   const [role, setRole] = useState<Role>('viewer');
   useEffect(() => {
-    AsyncStorage.getItem('seen_role')
-      .then((r) => {
+    const fetchRole = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user?.user_metadata?.role) {
+        const r = session.user.user_metadata.role;
         if (r === 'creator' || r === 'moderator') setRole(r);
-      })
-      .catch(() => {});
+        return;
+      }
+      try {
+        const r = await AsyncStorage.getItem('seen_role');
+        if (r === 'creator' || r === 'moderator') setRole(r as Role);
+      } catch {}
+    };
+    fetchRole();
   }, []);
 
   const showCreate = role === 'creator';

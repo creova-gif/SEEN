@@ -23,9 +23,17 @@ const typeLabel = (t: UnifiedItem['type']) =>
 export default function Explore() {
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+
+  const allTags = useMemo(() => {
+    const t = new Set<string>();
+    LIVE_ITEMS.forEach(i => i.tags.forEach(tag => t.add(tag)));
+    return Array.from(t).sort();
+  }, []);
 
   const filtered = useMemo(() => {
-    const base = filter === 'all' ? LIVE_ITEMS : LIVE_ITEMS.filter(i => i.type === filter);
+    let base = filter === 'all' ? LIVE_ITEMS : LIVE_ITEMS.filter(i => i.type === filter);
+    if (selectedTag) base = base.filter(i => i.tags.includes(selectedTag));
     if (!query.trim()) return base;
     const q = query.toLowerCase();
     return base.filter(
@@ -34,7 +42,7 @@ export default function Explore() {
         i.creator.toLowerCase().includes(q) ||
         i.tags.some(t => t.toLowerCase().includes(q)),
     );
-  }, [query, filter]);
+  }, [query, filter, selectedTag]);
 
   const sections = useMemo(() => {
     const trending = filtered.filter(i => i.trending).slice(0, 6);
@@ -62,6 +70,22 @@ export default function Explore() {
           style={styles.searchInput}
         />
       </View>
+
+      {/* Cultural Tag Cloud */}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: spacing.md }} contentContainerStyle={{ gap: spacing.xs, paddingRight: spacing.xl }}>
+        {allTags.map(tag => {
+          const active = selectedTag === tag;
+          return (
+            <Pressable
+              key={tag}
+              onPress={() => setSelectedTag(active ? null : tag)}
+              style={({ pressed }) => [styles.tagChip, active && styles.tagChipActive, pressed && { opacity: 0.7 }]}
+            >
+              <Text style={[styles.tagText, active && styles.tagTextActive]}>#{tag}</Text>
+            </Pressable>
+          );
+        })}
+      </ScrollView>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: spacing.xl }} contentContainerStyle={{ gap: spacing.sm, paddingRight: spacing.xl }}>
         {FILTERS.map(f => {
@@ -146,5 +170,13 @@ const styles = StyleSheet.create({
   filterPillActive: { backgroundColor: colors.textPrimary, borderColor: colors.textPrimary },
   filterText: { ...typography.micro, fontSize: 10, color: colors.textSecondary },
   filterTextActive: { color: '#000' },
+  tagChip: {
+    paddingVertical: 6, paddingHorizontal: 12,
+    borderRadius: radius.full,
+    backgroundColor: colors.surfaceElevated,
+  },
+  tagChipActive: { backgroundColor: colors.textPrimary },
+  tagText: { ...typography.micro, color: colors.textSecondary },
+  tagTextActive: { color: '#000', fontWeight: '500' },
   section: { marginBottom: spacing['2xl'] },
 });

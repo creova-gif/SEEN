@@ -14,7 +14,12 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+<<<<<<< HEAD
 import { LIVE_ITEMS, STORY_ALL, MUSIC_ALL, FILM_ALL, type UnifiedItem } from '../data/aggregate';
+=======
+import { supabase } from '../utils/supabase';
+import { LIVE_ITEMS } from '../data/aggregate';
+>>>>>>> 46941f49e67b0e718b692b82ba49a55732db0ede
 import { colors, spacing, radius, typography, layout } from '../constants/theme';
 
 // SEEN home — a mobile-app home screen, not a marketing site.
@@ -29,6 +34,7 @@ export default function Home() {
   const [onboarded, setOnboarded] = useState(false);
   const [name, setName] = useState<string | null>(null);
   useEffect(() => {
+<<<<<<< HEAD
     AsyncStorage.multiGet(['seen_onboarding_completed', 'seen_user_name'])
       .then((entries) => {
         const map = Object.fromEntries(entries);
@@ -36,6 +42,22 @@ export default function Home() {
         setName(map['seen_user_name'] || null);
       })
       .catch(() => {});
+=======
+    const checkStatus = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        setOnboarded(true);
+        return;
+      }
+      try {
+        const v = await AsyncStorage.getItem('seen_onboarding_completed');
+        setOnboarded(v === 'true');
+      } catch {
+        setOnboarded(false);
+      }
+    };
+    checkStatus();
+>>>>>>> 46941f49e67b0e718b692b82ba49a55732db0ede
   }, []);
 
   // Slow ambient gradient pulse on the hero.
