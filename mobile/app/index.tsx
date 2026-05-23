@@ -1,9 +1,10 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { View, Text, Pressable, StyleSheet, Animated, Easing } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { colors, spacing, radius, typography } from '../constants/theme';
 
 // Splash / welcome screen — matches SplashScreen.tsx in the zip:
@@ -13,6 +14,25 @@ export default function Welcome() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const pulse = useRef(new Animated.Value(0)).current;
+  const [checkingOnboarding, setCheckingOnboarding] = useState(true);
+
+  // If onboarding was completed in a previous session, skip splash entirely.
+  useEffect(() => {
+    let cancelled = false;
+    AsyncStorage.getItem('seen_onboarding_completed')
+      .then((v) => {
+        if (cancelled) return;
+        if (v === 'true') {
+          router.replace('/(tabs)');
+        } else {
+          setCheckingOnboarding(false);
+        }
+      })
+      .catch(() => !cancelled && setCheckingOnboarding(false));
+    return () => {
+      cancelled = true;
+    };
+  }, [router]);
 
   useEffect(() => {
     Animated.loop(
@@ -25,6 +45,10 @@ export default function Welcome() {
 
   const gradientOpacity = pulse.interpolate({ inputRange: [0, 1], outputRange: [0.25, 0.55] });
   const gradientScale = pulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.08] });
+
+  if (checkingOnboarding) {
+    return <View style={[styles.container, { paddingTop: insets.top }]} />;
+  }
 
   return (
     <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom + spacing.xl }]}>
@@ -58,7 +82,7 @@ export default function Welcome() {
       <View style={styles.bottom}>
         <Pressable
           style={({ pressed }) => [styles.cta, pressed && { opacity: 0.6 }]}
-          onPress={() => router.replace('/(tabs)')}
+          onPress={() => router.replace('/onboarding')}
         >
           <Text style={styles.ctaLabel}>Begin Listening</Text>
         </Pressable>
