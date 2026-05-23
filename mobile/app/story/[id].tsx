@@ -15,7 +15,17 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Audio, AVPlaybackStatus } from 'expo-av';
 import { LIVE_ITEMS, type UnifiedItem } from '../../data/aggregate';
+
+// Real audio playback is attempted for hosted MP3/OGG/WAV sources only.
+// Spotify/Soundcloud embeds and items without an audio source fall back
+// to a simulated playback ticker so the UI stays alive.
+const isPlayableAudio = (src?: string): boolean => {
+  if (!src) return false;
+  if (/spotify\.com|soundcloud\.com|youtube\.com|youtu\.be/i.test(src)) return false;
+  return /\.(mp3|ogg|wav|m4a|aac)(\?.*)?$/i.test(src);
+};
 import { colors, spacing, typography, radius, layout } from '../../constants/theme';
 
 type LangCode = 'en' | 'fr' | 'es';
@@ -68,16 +78,25 @@ export default function StoryChapter() {
     };
   }, []);
 
-  const totalSec = useMemo(() => parseDuration(item?.duration), [item]);
+  const fallbackDur = useMemo(() => parseDuration(item?.duration), [item]);
+  const useRealAudio = isPlayableAudio(item?.audioSrc);
 
   const [language, setLanguage] = useState<LangCode>('en');
   const [langSwitching, setLangSwitching] = useState<LangCode | null>(null);
   const [captionsOn, setCaptionsOn] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [position, setPosition] = useState(0); // seconds
+  const [realDuration, setRealDuration] = useState<number | null>(null);
   const [showReactionPicker, setShowReactionPicker] = useState(false);
   const [reactions, setReactions] = useState<Reaction[]>([]);
   const reactionFlash = useRef(new Animated.Value(0)).current;
+  const [soundReady, setSoundReady] = useState(false);
+  const [soundLoadFailed, setSoundLoadFailed] = useState(false);
+  const soundRef = useRef<Audio.Sound | null>(null);
+
+  // Use simulated ticker whenever there is no real, ready audio backing the UI.
+  const useSimulated = !useRealAudio || !soundReady || soundLoadFailed;
+  const totalSec = realDuration ?? fallbackDur;
 
   // Load saved reactions for this story
   useEffect(() => {
@@ -93,9 +112,63 @@ export default function StoryChapter() {
       .catch(() => {});
   }, [id]);
 
-  // Simulated playback ticker (real audio playback will replace this in a follow-up
-  // — keeping the UI alive for both web preview and items without an audio source).
+  // Reset playback state whenever the item/source changes so the previous
+  // item's duration/position can't leak into the new one.
   useEffect(() => {
+    setPosition(0);
+    setIsPlaying(false);
+    setRealDuration(null);
+    setSoundReady(false);
+    setSoundLoadFailed(false);
+  }, [item?.id, item?.audioSrc]);
+
+  // Real audio: load Audio.Sound for hosted MP3/OGG/WAV sources.
+  useEffect(() => {
+    if (!useRealAudio || !item?.audioSrc) return;
+    let cancelled = false;
+    let local: Audio.Sound | null = null;
+    (async () => {
+      try {
+        await Audio.setAudioModeAsync({ playsInSilentModeIOS: true, staysActiveInBackground: false });
+        const { sound } = await Audio.Sound.createAsync(
+          { uri: item.audioSrc! },
+          { shouldPlay: false, progressUpdateIntervalMillis: 500 },
+          (status: AVPlaybackStatus) => {
+            if (cancelled || !status.isLoaded) return;
+            if (typeof status.durationMillis === 'number') {
+              setRealDuration(status.durationMillis / 1000);
+            }
+            setPosition(status.positionMillis / 1000);
+            setIsPlaying(status.isPlaying);
+            if (status.didJustFinish) setIsPlaying(false);
+          },
+        );
+        if (cancelled) {
+          await sound.unloadAsync();
+          return;
+        }
+        local = sound;
+        soundRef.current = sound;
+        setSoundReady(true);
+      } catch {
+        // Network/CORS/codec failure — flip into simulated playback.
+        if (!cancelled) setSoundLoadFailed(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+      soundRef.current = null;
+      setSoundReady(false);
+      if (local) {
+        local.unloadAsync().catch(() => {});
+      }
+    };
+  }, [item?.audioSrc, useRealAudio]);
+
+  // Simulated playback ticker — used when there is no playable real audio
+  // source, or when the real audio failed to load / isn't ready yet.
+  useEffect(() => {
+    if (!useSimulated) return;
     if (!isPlaying) return;
     const t = setInterval(() => {
       setPosition((p) => {
@@ -108,7 +181,29 @@ export default function StoryChapter() {
       });
     }, 500);
     return () => clearInterval(t);
-  }, [isPlaying, totalSec]);
+  }, [isPlaying, totalSec, useSimulated]);
+
+  const handleTogglePlay = async () => {
+    if (!useSimulated && soundRef.current) {
+      try {
+        if (isPlaying) await soundRef.current.pauseAsync();
+        else await soundRef.current.playAsync();
+        return;
+      } catch {}
+    }
+    setIsPlaying((p) => !p);
+  };
+
+  const handleSeek = async (seconds: number) => {
+    const clamped = Math.max(0, Math.min(totalSec, seconds));
+    if (!useSimulated && soundRef.current) {
+      try {
+        await soundRef.current.setPositionAsync(clamped * 1000);
+        return;
+      } catch {}
+    }
+    setPosition(clamped);
+  };
 
   // Pulse the reaction flash whenever a new reaction is added
   const flashReaction = () => {
@@ -346,7 +441,7 @@ export default function StoryChapter() {
         {/* Transport controls */}
         <View style={styles.transport}>
           <Pressable
-            onPress={() => setPosition((p) => Math.max(0, p - 15))}
+            onPress={() => handleSeek(position - 15)}
             style={styles.transportBtn}
             accessibilityRole="button"
             accessibilityLabel="Back 15 seconds"
@@ -355,7 +450,7 @@ export default function StoryChapter() {
           </Pressable>
 
           <Pressable
-            onPress={() => setIsPlaying((p) => !p)}
+            onPress={handleTogglePlay}
             style={styles.playBtn}
             accessibilityRole="button"
             accessibilityLabel={isPlaying ? 'Pause' : 'Play'}
@@ -364,7 +459,7 @@ export default function StoryChapter() {
           </Pressable>
 
           <Pressable
-            onPress={() => setPosition((p) => Math.min(totalSec, p + 15))}
+            onPress={() => handleSeek(position + 15)}
             style={styles.transportBtn}
             accessibilityRole="button"
             accessibilityLabel="Forward 15 seconds"

@@ -484,6 +484,7 @@ function AccountStep({
             />
             {mode === 'signup' && (
               <View style={styles.pwReq}>
+                <Text style={styles.pwReqHeader}>Password must include:</Text>
                 <PwLine ok={validation.length} label="At least 8 characters" />
                 <PwLine ok={validation.upper} label="One uppercase letter" />
                 <PwLine ok={validation.lower} label="One lowercase letter" />
@@ -523,9 +524,21 @@ function AccountStep({
 
           <View style={styles.dividerRow}>
             <View style={styles.divider} />
-            <Text style={styles.dividerLabel}>OR</Text>
+            <Text style={styles.dividerLabel}>or continue with</Text>
             <View style={styles.divider} />
           </View>
+
+          <View style={styles.socialRow}>
+            <View style={styles.socialBtn}>
+              <Ionicons name="logo-google" size={18} color={colors.textFaint} />
+              <Text style={styles.socialBtnLabel}>Google</Text>
+            </View>
+            <View style={styles.socialBtn}>
+              <Ionicons name="logo-github" size={18} color={colors.textFaint} />
+              <Text style={styles.socialBtnLabel}>GitHub</Text>
+            </View>
+          </View>
+          <Text style={styles.socialNote}>Social login coming soon</Text>
 
           <Pressable
             onPress={onGuest}
@@ -906,10 +919,39 @@ const styles = StyleSheet.create({
     color: colors.textHigh,
     fontSize: 14,
   },
-  pwReq: { marginTop: spacing.sm, gap: 6, alignSelf: 'flex-start' },
+  pwReq: { marginTop: spacing.lg, gap: 6, alignItems: 'center', width: '100%' },
+  pwReqHeader: { ...typography.bodySm, color: colors.textMuted, fontSize: 12, marginBottom: 4 },
   pwLine: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   pwMark: { fontSize: 12, width: 14 },
   pwLabel: { fontSize: 12 },
+
+  socialRow: {
+    flexDirection: 'row',
+    gap: spacing.md,
+    width: '100%',
+    marginTop: spacing.lg,
+  },
+  socialBtn: {
+    flex: 1,
+    paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    borderWidth: 1,
+    borderColor: colors.borderSubtle,
+    borderRadius: radius.sm,
+    backgroundColor: 'rgba(255,255,255,0.02)',
+  },
+  socialBtnLabel: { ...typography.bodySm, color: colors.textFaint, fontSize: 13 },
+  socialNote: {
+    ...typography.microSm,
+    color: colors.textWhisper,
+    fontSize: 9,
+    marginTop: spacing.sm,
+    textAlign: 'center',
+    width: '100%',
+  },
 
   primaryBtn: {
     width: '100%',
