@@ -20,7 +20,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '../utils/supabase';
-import { colors, spacing, radius, typography, layout } from '../constants/theme';
+import { colors, spacing, radius, typography, layout, glow } from '../constants/theme';
 
 // SEEN by CREOVA — Native onboarding flow
 // Faithful port of src/app/components/OnboardingSystem.tsx (zip):
@@ -228,7 +228,11 @@ function InvocationStep({
   insets: { top: number; bottom: number };
   onComplete: () => void;
 }) {
+  // Ambient gradient pulse behind everything
   const pulse = useRef(new Animated.Value(0)).current;
+  // Independent halo pulse on the SEEN CTA — faster + tighter for "alive" feel
+  const halo = useRef(new Animated.Value(0)).current;
+
   useEffect(() => {
     Animated.loop(
       Animated.sequence([
@@ -236,14 +240,23 @@ function InvocationStep({
         Animated.timing(pulse, { toValue: 0, duration: 4000, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
       ]),
     ).start();
-  }, [pulse]);
-  const gradOpacity = pulse.interpolate({ inputRange: [0, 1], outputRange: [0.2, 0.45] });
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(halo, { toValue: 1, duration: 2200, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+        Animated.timing(halo, { toValue: 0, duration: 2200, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+      ]),
+    ).start();
+  }, [pulse, halo]);
+
+  const gradOpacity = pulse.interpolate({ inputRange: [0, 1], outputRange: [0.25, 0.55] });
+  const haloOpacity = halo.interpolate({ inputRange: [0, 1], outputRange: [0.35, 0.95] });
+  const haloScale   = halo.interpolate({ inputRange: [0, 1], outputRange: [1, 1.08] });
 
   return (
     <View style={[styles.fullBleed, { paddingTop: insets.top, paddingBottom: insets.bottom + spacing.xl }]}>
       <Animated.View style={[StyleSheet.absoluteFillObject, { opacity: gradOpacity }]}>
         <LinearGradient
-          colors={['rgba(76,29,149,0.40)', '#000000', 'rgba(30,58,138,0.40)']}
+          colors={['rgba(76,29,149,0.55)', '#000000', 'rgba(30,58,138,0.55)']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={StyleSheet.absoluteFillObject}
@@ -262,14 +275,30 @@ function InvocationStep({
           <Text style={styles.invocationLine}>You are entering SEEN.</Text>
         </FadeInRow>
         <FadeInRow delay={2200}>
-          <Pressable
-            onPress={onComplete}
-            accessibilityRole="button"
-            accessibilityLabel="Enter SEEN"
-            style={({ pressed }) => [styles.invocationBtn, pressed && { opacity: 0.7 }]}
-          >
-            <Text style={styles.invocationBtnText}>S · E · E · N</Text>
-          </Pressable>
+          <View style={styles.invocationBtnWrap}>
+            {/* Pulsing violet halo — a soft blurred ring that breathes behind the CTA */}
+            <Animated.View
+              pointerEvents="none"
+              style={[
+                styles.invocationHalo,
+                { opacity: haloOpacity, transform: [{ scale: haloScale }] },
+              ]}
+            />
+            <Pressable
+              onPress={onComplete}
+              accessibilityRole="button"
+              accessibilityLabel="Enter SEEN"
+              style={({ pressed }) => [styles.invocationBtn, pressed && { opacity: 0.85, transform: [{ scale: 0.98 }] }]}
+            >
+              <LinearGradient
+                colors={['rgba(167,139,250,0.18)', 'rgba(124,58,237,0.10)']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={StyleSheet.absoluteFillObject}
+              />
+              <Text style={styles.invocationBtnText}>S · E · E · N</Text>
+            </Pressable>
+          </View>
         </FadeInRow>
       </View>
     </View>
@@ -865,49 +894,76 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing['2xl'],
   },
   invocationTitle: {
-    fontSize: 44,
-    letterSpacing: -1,
+    fontSize: 68,
+    letterSpacing: 6,
     fontWeight: '300',
+    fontFamily: 'Inter_300Light',
     color: colors.textPrimary,
     textAlign: 'center',
+    ...glow.wordmark,
   },
   invocationEyebrow: {
     ...typography.brandEyebrow,
     fontSize: 11,
-    letterSpacing: 4,
-    color: colors.textFaint,
+    letterSpacing: 6,
+    color: colors.textMuted,
     textAlign: 'center',
-    marginTop: 8,
+    marginTop: 12,
     marginBottom: spacing['4xl'],
   },
   invocationTagline: {
     ...typography.body,
-    color: colors.textMuted,
+    color: colors.textHigh,
     textAlign: 'center',
-    fontSize: 15,
-    lineHeight: 22,
+    fontSize: 16,
+    lineHeight: 24,
+    letterSpacing: 0.4,
     marginBottom: spacing['4xl'],
+    ...glow.ambient,
   },
   invocationLine: {
     ...typography.h3,
     color: colors.textHigh,
     textAlign: 'center',
-    fontSize: 18,
+    fontSize: 17,
+    letterSpacing: 0.6,
     marginBottom: spacing['4xl'],
   },
+  invocationBtnWrap: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+    paddingVertical: spacing.lg,
+  },
+  // The animated halo is drawn slightly larger than the button and blurred
+  // via shadowRadius. On Android, elevation provides the same lift.
+  invocationHalo: {
+    position: 'absolute',
+    left: -16,
+    right: -16,
+    top: spacing.lg - 8,
+    bottom: spacing.lg - 8,
+    borderRadius: radius.full,
+    backgroundColor: 'rgba(167,139,250,0.22)',
+    ...glow.cta,
+  },
   invocationBtn: {
-    paddingVertical: 14,
-    paddingHorizontal: spacing['3xl'],
+    paddingVertical: 16,
+    paddingHorizontal: spacing['4xl'],
     borderWidth: 1,
-    borderColor: 'rgba(76,175,80,0.4)',
-    backgroundColor: 'rgba(76,175,80,0.08)',
-    borderRadius: 4,
+    borderColor: 'rgba(167,139,250,0.55)',
+    borderRadius: radius.full,
+    overflow: 'hidden',
+    backgroundColor: 'rgba(0,0,0,0.40)',
   },
   invocationBtnText: {
     ...typography.cta,
-    color: colors.textHigh,
-    fontSize: 13,
-    letterSpacing: 4,
+    color: '#ffffff',
+    fontSize: 14,
+    letterSpacing: 6,
+    textShadowColor: 'rgba(167,139,250,0.9)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 10,
   },
 
   /* Purpose */
@@ -1056,13 +1112,15 @@ const styles = StyleSheet.create({
     marginBottom: spacing['3xl'],
   },
   thresholdTitle: {
-    fontSize: 26,
+    fontSize: 32,
     fontWeight: '300',
-    color: colors.textHigh,
+    fontFamily: 'Inter_300Light',
+    color: colors.textPrimary,
     textAlign: 'center',
     marginBottom: spacing['3xl'],
-    letterSpacing: 0.2,
-    lineHeight: 32,
+    letterSpacing: 1.2,
+    lineHeight: 38,
+    ...glow.wordmark,
   },
   ghostBtn: {
     paddingVertical: 14,

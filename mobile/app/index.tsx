@@ -16,7 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '../utils/supabase';
 import { LIVE_ITEMS, STORY_ALL, MUSIC_ALL, FILM_ALL, type UnifiedItem } from '../data/aggregate';
-import { colors, spacing, radius, typography, layout } from '../constants/theme';
+import { colors, spacing, radius, typography, layout, glow } from '../constants/theme';
 
 // SEEN home — a mobile-app home screen, not a marketing site.
 // Compact hero, content rails (Stories / Music / Film), and quick links
@@ -294,18 +294,21 @@ const styles = StyleSheet.create({
   },
   heroEyebrow: {
     ...typography.brandEyebrow,
-    fontSize: 10,
-    letterSpacing: 3,
-    color: colors.textFaint,
+    fontSize: 11,
+    letterSpacing: 5,
+    color: colors.textMuted,
     marginBottom: spacing.md,
+    ...glow.ambient,
   },
   heroTitle: {
-    fontSize: 26,
-    lineHeight: 32,
+    fontSize: 28,
+    lineHeight: 34,
     fontWeight: '300',
+    fontFamily: 'Inter_300Light',
     color: colors.textPrimary,
-    letterSpacing: -0.4,
+    letterSpacing: -0.3,
     marginBottom: spacing.xl,
+    ...glow.ambient,
   },
   ctaRow: { flexDirection: 'row', gap: spacing.sm },
   primaryCta: {

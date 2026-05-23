@@ -116,3 +116,30 @@ export const layout = {
   headerHeight: 60,
   tabBarHeight: 80,
 };
+
+// Cinematic glow tokens — used for the SEEN wordmark, threshold titles,
+// and the invocation CTA. shadow* fields apply to <View>/<Animated.View>;
+// textShadow* fields apply to <Text>. Values tuned to read on iOS, Android
+// (via elevation) and the Expo web preview alike.
+export const glow = {
+  // Soft violet halo for the SEEN wordmark
+  wordmark: {
+    textShadowColor: 'rgba(167,139,250,0.65)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 18,
+  },
+  // Strong white-violet halo for primary CTAs
+  cta: {
+    shadowColor: '#a78bfa',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.85,
+    shadowRadius: 24,
+    elevation: 14,
+  },
+  // Subtle blue-violet halo for ambient hero text
+  ambient: {
+    textShadowColor: 'rgba(124,58,237,0.45)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 12,
+  },
+};
