@@ -13,7 +13,7 @@ export const STORY_BLACK_WOMENS_ARCHIVE: ExpandedStoryWorld = {
   storyWorldId: 's2-black-womens-archive',
   season: 2,
   title: {
-    en: 'Black Women's Archive: Memory, Resistance, Leadership',
+    en: "Black Women's Archive: Memory, Resistance, Leadership",
     fr: 'Archives des Femmes Noires: Mémoire, Résistance, Leadership',
     es: 'Archivo de Mujeres Negras: Memoria, Resistencia, Liderazgo',
   },
@@ -276,4 +276,4 @@ Not the version that makes people comfortable. But the version that must be told
   ],
 };
 
-console.log('[Season 2] Story 3 (Black Women's Archive) complete: 6 chapters, 26 min');
+console.log("[Season 2] Story 3 (Black Women's Archive) complete: 6 chapters, 26 min");

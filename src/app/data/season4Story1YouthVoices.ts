@@ -221,7 +221,7 @@ And maybe that is okay. Maybe every generation has to remake culture for themsel
       chapterId: 's4-youth-ch4',
       order: 4,
       title: {
-        en: 'When Your Friends Don't Look Like You',
+        en: "When Your Friends Don't Look Like You",
         fr: '[Translation pending]',
         es: '[Translation pending]',
       },
