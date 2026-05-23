@@ -17,10 +17,16 @@ export function Header() {
     <View style={[styles.header, { paddingTop: insets.top + 6 }]}>
       <Container>
         <View style={styles.row}>
-          <View>
+          <Pressable
+            onPress={() => router.push('/')}
+            accessibilityRole="button"
+            accessibilityLabel="Go to SEEN home"
+            style={({ pressed }) => pressed && { opacity: 0.6 }}
+            hitSlop={8}
+          >
             <Text style={styles.title}>SEEN</Text>
             <Text style={styles.sub}>BY CREOVA</Text>
-          </View>
+          </Pressable>
           <View style={styles.actions}>
             <Pressable
               style={({ pressed }) => [styles.iconBtn, pressed && { opacity: 0.6 }]}
