@@ -8,33 +8,37 @@ import {
   Animated,
   Easing,
   Image,
-  Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { LIVE_ITEMS } from '../data/aggregate';
+import { LIVE_ITEMS, STORY_ALL, MUSIC_ALL, FILM_ALL, type UnifiedItem } from '../data/aggregate';
 import { colors, spacing, radius, typography, layout } from '../constants/theme';
 
-// Public landing page at `/` — marketing-style hero, what SEEN is,
-// featured stories pulled from the live catalog, and CTAs that route
-// to onboarding (new visitors) or straight into the tabs (returning users).
-// The SEEN wordmark in the in-app Header navigates back here.
+// SEEN home — a mobile-app home screen, not a marketing site.
+// Compact hero, content rails (Stories / Music / Film), and quick links
+// into the rest of the app. Tapping the SEEN wordmark in the in-app
+// Header brings the user back here from any screen.
 export default function Home() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const pulse = useRef(new Animated.Value(0)).current;
 
-  const [onboarded, setOnboarded] = useState<boolean | null>(null);
+  const [onboarded, setOnboarded] = useState(false);
+  const [name, setName] = useState<string | null>(null);
   useEffect(() => {
-    AsyncStorage.getItem('seen_onboarding_completed')
-      .then((v) => setOnboarded(v === 'true'))
-      .catch(() => setOnboarded(false));
+    AsyncStorage.multiGet(['seen_onboarding_completed', 'seen_user_name'])
+      .then((entries) => {
+        const map = Object.fromEntries(entries);
+        setOnboarded(map['seen_onboarding_completed'] === 'true');
+        setName(map['seen_user_name'] || null);
+      })
+      .catch(() => {});
   }, []);
 
-  // Slow ambient gradient pulse on the hero — matches the splash treatment.
+  // Slow ambient gradient pulse on the hero.
   useEffect(() => {
     Animated.loop(
       Animated.sequence([
@@ -43,29 +47,30 @@ export default function Home() {
       ]),
     ).start();
   }, [pulse]);
-  const gradOpacity = pulse.interpolate({ inputRange: [0, 1], outputRange: [0.25, 0.55] });
+  const gradOpacity = pulse.interpolate({ inputRange: [0, 1], outputRange: [0.30, 0.60] });
 
-  // Pick a small, deterministic set of featured items with cover art.
   const featured = useMemo(
-    () => LIVE_ITEMS.filter((i) => i.coverImage).slice(0, 6),
+    () => LIVE_ITEMS.filter((i) => i.coverImage)[0],
     [],
   );
+  const stories = useMemo(() => STORY_ALL.filter((i) => i.coverImage).slice(0, 8), []);
+  const music = useMemo(() => MUSIC_ALL.filter((i) => i.coverImage).slice(0, 8), []);
+  const films = useMemo(() => FILM_ALL.filter((i) => i.coverImage).slice(0, 6), []);
 
-  const primaryCta = onboarded ? 'Enter SEEN' : 'Begin Listening';
+  const ctaLabel = onboarded ? 'Enter SEEN' : 'Begin Listening';
   const goPrimary = () => router.push(onboarded ? '/(tabs)' : '/onboarding');
-  const goSignIn = () => router.push('/onboarding');
 
   return (
     <ScrollView
-      style={styles.container}
+      style={styles.screen}
       contentContainerStyle={{ paddingBottom: insets.bottom + spacing['4xl'] }}
       showsVerticalScrollIndicator={false}
     >
-      {/* ------------------------------ Hero ------------------------------ */}
-      <View style={[styles.hero, { paddingTop: insets.top + spacing['3xl'] }]}>
+      {/* ---------------- Hero (compact, app-style) ---------------- */}
+      <View style={[styles.hero, { paddingTop: insets.top + spacing.xl }]}>
         <Animated.View style={[StyleSheet.absoluteFillObject, { opacity: gradOpacity }]}>
           <LinearGradient
-            colors={['rgba(76,29,149,0.45)', '#000000', 'rgba(30,58,138,0.40)']}
+            colors={['rgba(76,29,149,0.45)', '#000', 'rgba(30,58,138,0.40)']}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={StyleSheet.absoluteFillObject}
@@ -73,324 +78,283 @@ export default function Home() {
         </Animated.View>
 
         <View style={styles.heroInner}>
-          <View style={styles.eyeRing}>
-            <Ionicons name="eye-outline" size={24} color={colors.textPrimary} />
-          </View>
-          <Text style={styles.heroTitle}>SEEN</Text>
-          <Text style={styles.heroEyebrow}>BY CREOVA</Text>
-          <Text style={styles.heroTagline}>
-            Where stories live,{'\n'}where culture breathes.
-          </Text>
-          <Text style={styles.heroBody}>
-            Canadian stories from voices that shaped this land — and were never truly heard.
-          </Text>
-
+          <Text style={styles.heroEyebrow}>{name ? `Welcome back, ${name}` : 'SEEN · BY CREOVA'}</Text>
+          <Text style={styles.heroTitle}>Where stories live,{'\n'}where culture breathes.</Text>
           <View style={styles.ctaRow}>
             <Pressable
               onPress={goPrimary}
               style={({ pressed }) => [styles.primaryCta, pressed && { opacity: 0.85 }]}
               accessibilityRole="button"
-              accessibilityLabel={primaryCta}
+              accessibilityLabel={ctaLabel}
             >
-              <Text style={styles.primaryCtaLabel}>{primaryCta}</Text>
+              <Text style={styles.primaryCtaLabel}>{ctaLabel}</Text>
               <Ionicons name="arrow-forward" size={14} color="#000" />
             </Pressable>
-            {!onboarded && (
-              <Pressable
-                onPress={goSignIn}
-                style={({ pressed }) => [styles.secondaryCta, pressed && { opacity: 0.6 }]}
-                accessibilityRole="button"
-                accessibilityLabel="Sign in"
-              >
-                <Text style={styles.secondaryCtaLabel}>Sign in</Text>
-              </Pressable>
-            )}
-          </View>
-
-          <View style={styles.statsRow}>
-            <Stat number={`${LIVE_ITEMS.length}+`} label="Live works" />
-            <View style={styles.statDivider} />
-            <Stat number="6" label="Cultures" />
-            <View style={styles.statDivider} />
-            <Stat number="EN · FR" label="First-class" />
+            <Pressable
+              onPress={() => router.push('/(tabs)/explore')}
+              style={({ pressed }) => [styles.ghostCta, pressed && { opacity: 0.6 }]}
+              accessibilityRole="button"
+              accessibilityLabel="Explore"
+            >
+              <Ionicons name="compass-outline" size={14} color={colors.textPrimary} />
+              <Text style={styles.ghostCtaLabel}>Explore</Text>
+            </Pressable>
           </View>
         </View>
       </View>
 
-      {/* --------------------------- What is SEEN --------------------------- */}
-      <Section eyebrow="Manifesto" title="This is not social media">
-        <Text style={styles.body}>
-          SEEN is a cultural operating system — an immersive space for stories, sound,
-          and shared identity. No follower counts. No engagement metrics. Just human
-          connection through art.
-        </Text>
-        <View style={styles.pillarGrid}>
-          <Pillar
-            icon="headset-outline"
-            title="Cinematic audio"
-            desc="Multi-chapter story worlds with captions and music."
-          />
-          <Pillar
-            icon="people-outline"
-            title="Voices first"
-            desc="Indigenous, Black Canadian, francophone, immigrant creators."
-          />
-          <Pillar
-            icon="shield-checkmark-outline"
-            title="CMF compliant"
-            desc="Canada Media Fund eligibility, PIPEDA privacy, French equal-first."
-          />
-        </View>
-      </Section>
-
-      {/* --------------------------- Featured rail -------------------------- */}
-      <Section eyebrow="Featured" title="Begin listening">
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.railContent}
-        >
-          {featured.map((item) => (
-            <Pressable
-              key={item.id}
-              onPress={() => router.push(`/story/${item.id}`)}
-              style={({ pressed }) => [styles.card, pressed && { opacity: 0.85 }]}
-              accessibilityRole="button"
-              accessibilityLabel={`Open ${item.title}`}
-            >
-              {item.coverImage ? (
-                <Image source={{ uri: item.coverImage }} style={styles.cardImg} />
-              ) : (
-                <View style={[styles.cardImg, { backgroundColor: '#111' }]} />
-              )}
-              <View style={styles.cardOverlay}>
-                <LinearGradient
-                  colors={['transparent', 'rgba(0,0,0,0.85)']}
-                  style={StyleSheet.absoluteFillObject}
-                />
+      {/* ---------------- Featured hero card ---------------- */}
+      {featured && (
+        <View style={styles.featuredWrap}>
+          <Pressable
+            onPress={() => router.push(`/story/${featured.id}`)}
+            style={({ pressed }) => [styles.featured, pressed && { opacity: 0.9 }]}
+            accessibilityRole="button"
+            accessibilityLabel={`Featured: ${featured.title}`}
+          >
+            <Image source={{ uri: featured.coverImage! }} style={styles.featuredImg} />
+            <LinearGradient
+              colors={['transparent', 'rgba(0,0,0,0.92)']}
+              style={StyleSheet.absoluteFillObject}
+            />
+            <View style={styles.featuredText}>
+              <Text style={styles.featuredEyebrow}>FEATURED · {featured.type.toUpperCase()}</Text>
+              <Text style={styles.featuredTitle} numberOfLines={2}>{featured.title}</Text>
+              <Text style={styles.featuredMeta} numberOfLines={1}>
+                {featured.creator} · {featured.duration ?? ''}
+              </Text>
+              <View style={styles.featuredPlay}>
+                <Ionicons name="play" size={14} color="#000" style={{ marginLeft: 2 }} />
               </View>
-              <View style={styles.cardText}>
-                <Text style={styles.cardType}>{item.type.toUpperCase()}</Text>
-                <Text style={styles.cardTitle} numberOfLines={2}>{item.title}</Text>
-                <Text style={styles.cardMeta} numberOfLines={1}>{item.creator}</Text>
-              </View>
-            </Pressable>
-          ))}
-        </ScrollView>
-      </Section>
-
-      {/* ------------------------------ For who ------------------------------ */}
-      <Section eyebrow="For everyone in the room" title="A space for three roles">
-        <View style={styles.roleList}>
-          <RoleRow icon="sparkles-outline" label="Viewer" sub="Explore stories, music, and film from Canadian cultures." />
-          <RoleRow icon="brush-outline" label="Creator" sub="Publish work, invite collaborators, check CMF eligibility." />
-          <RoleRow icon="shield-checkmark-outline" label="Moderator" sub="Steward submissions and care for community standards." />
+            </View>
+          </Pressable>
         </View>
-      </Section>
+      )}
 
-      {/* ----------------------------- Footer CTA ---------------------------- */}
-      <View style={styles.footerCta}>
-        <Text style={styles.footerTitle}>You are entering SEEN.</Text>
-        <Pressable
-          onPress={goPrimary}
-          style={({ pressed }) => [styles.footerBtn, pressed && { opacity: 0.7 }]}
-          accessibilityRole="button"
-          accessibilityLabel={primaryCta}
-        >
-          <Text style={styles.footerBtnLabel}>S · E · E · N</Text>
-        </Pressable>
-        <Text style={styles.footerNote}>Mobile native · Expo · Canada Media Fund aligned</Text>
+      {/* ---------------- Rails ---------------- */}
+      <Rail
+        title="Story worlds"
+        sub="Cinematic audio chapters"
+        items={stories}
+        onItem={(i) => router.push(`/story/${i.id}`)}
+        onSeeAll={() => router.push('/(tabs)/explore')}
+        variant="poster"
+      />
+      <Rail
+        title="CREOVA Music"
+        sub="Tracks, EPs, and albums"
+        items={music}
+        onItem={(i) => router.push(`/story/${i.id}`)}
+        onSeeAll={() => router.push('/(tabs)/explore')}
+        variant="square"
+      />
+      <Rail
+        title="Film"
+        sub="Short and feature-length"
+        items={films}
+        onItem={(i) => router.push(`/story/${i.id}`)}
+        onSeeAll={() => router.push('/(tabs)/explore')}
+        variant="wide"
+      />
+
+      {/* ---------------- Quick links ---------------- */}
+      <View style={styles.quickWrap}>
+        <Text style={styles.sectionEyebrow}>SHORTCUTS</Text>
+        <View style={styles.quickGrid}>
+          <Quick icon="sparkles-outline" label="For You"   onPress={() => router.push('/(tabs)')} />
+          <Quick icon="compass-outline"  label="Explore"   onPress={() => router.push('/(tabs)/explore')} />
+          <Quick icon="bookmark-outline" label="Library"   onPress={() => router.push('/(tabs)/library')} />
+          <Quick icon="person-outline"   label="Profile"   onPress={() => router.push('/(tabs)/profile')} />
+        </View>
       </View>
     </ScrollView>
   );
 }
 
-/* ------------------------------- Sub-components ------------------------------- */
+/* ------------------------------ Sub-components ------------------------------ */
 
-function Section({
-  eyebrow,
+function Rail({
   title,
-  children,
+  sub,
+  items,
+  onItem,
+  onSeeAll,
+  variant,
 }: {
-  eyebrow: string;
   title: string;
-  children: React.ReactNode;
+  sub?: string;
+  items: UnifiedItem[];
+  onItem: (i: UnifiedItem) => void;
+  onSeeAll: () => void;
+  variant: 'poster' | 'square' | 'wide';
 }) {
+  if (!items.length) return null;
+  const size = variant === 'poster'
+    ? { w: 140, h: 200 }
+    : variant === 'square'
+    ? { w: 140, h: 140 }
+    : { w: 220, h: 130 };
+
   return (
-    <View style={styles.section}>
-      <View style={styles.sectionInner}>
-        <Text style={styles.sectionEyebrow}>{eyebrow}</Text>
-        <Text style={styles.sectionTitle}>{title}</Text>
-        {children}
+    <View style={styles.rail}>
+      <View style={styles.railHeader}>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.railTitle}>{title}</Text>
+          {sub && <Text style={styles.railSub}>{sub}</Text>}
+        </View>
+        <Pressable onPress={onSeeAll} hitSlop={8} accessibilityRole="button" accessibilityLabel={`See all ${title}`}>
+          <Text style={styles.railSeeAll}>See all</Text>
+        </Pressable>
       </View>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.railContent}
+      >
+        {items.map((item) => (
+          <Pressable
+            key={item.id}
+            onPress={() => onItem(item)}
+            style={({ pressed }) => [
+              styles.card,
+              { width: size.w, height: size.h },
+              pressed && { opacity: 0.85 },
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel={`Open ${item.title}`}
+          >
+            <Image source={{ uri: item.coverImage! }} style={styles.cardImg} />
+            <LinearGradient
+              colors={['transparent', 'rgba(0,0,0,0.88)']}
+              style={StyleSheet.absoluteFillObject}
+            />
+            <View style={styles.cardText}>
+              <Text style={styles.cardTitle} numberOfLines={variant === 'wide' ? 2 : 2}>
+                {item.title}
+              </Text>
+              <Text style={styles.cardMeta} numberOfLines={1}>{item.creator}</Text>
+            </View>
+          </Pressable>
+        ))}
+      </ScrollView>
     </View>
   );
 }
 
-function Stat({ number, label }: { number: string; label: string }) {
-  return (
-    <View style={{ alignItems: 'center', flex: 1 }}>
-      <Text style={styles.statNum}>{number}</Text>
-      <Text style={styles.statLabel}>{label}</Text>
-    </View>
-  );
-}
-
-function Pillar({
-  icon,
-  title,
-  desc,
-}: {
-  icon: keyof typeof Ionicons.glyphMap;
-  title: string;
-  desc: string;
-}) {
-  return (
-    <View style={styles.pillar}>
-      <Ionicons name={icon} size={20} color={colors.violet} />
-      <Text style={styles.pillarTitle}>{title}</Text>
-      <Text style={styles.pillarDesc}>{desc}</Text>
-    </View>
-  );
-}
-
-function RoleRow({
+function Quick({
   icon,
   label,
-  sub,
+  onPress,
 }: {
   icon: keyof typeof Ionicons.glyphMap;
   label: string;
-  sub: string;
+  onPress: () => void;
 }) {
   return (
-    <View style={styles.roleRow}>
-      <View style={styles.roleIcon}>
-        <Ionicons name={icon} size={18} color={colors.textHigh} />
-      </View>
-      <View style={{ flex: 1 }}>
-        <Text style={styles.roleLabel}>{label}</Text>
-        <Text style={styles.roleSub}>{sub}</Text>
-      </View>
-    </View>
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [styles.quick, pressed && { opacity: 0.7 }]}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+    >
+      <Ionicons name={icon} size={20} color={colors.textHigh} />
+      <Text style={styles.quickLabel}>{label}</Text>
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
+  screen: { flex: 1, backgroundColor: colors.background },
 
   /* Hero */
-  hero: { paddingBottom: spacing['4xl'], minHeight: 540, position: 'relative' },
+  hero: { paddingBottom: spacing['2xl'], position: 'relative' },
   heroInner: {
-    paddingHorizontal: spacing['2xl'],
-    paddingTop: spacing['3xl'],
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.xl,
     maxWidth: layout.containerMaxWidth,
     alignSelf: 'center',
     width: '100%',
-    alignItems: 'center',
   },
-  eyeRing: {
-    width: 60, height: 60, borderRadius: 30,
-    borderWidth: 1, borderColor: colors.borderStrong,
-    alignItems: 'center', justifyContent: 'center',
+  heroEyebrow: {
+    ...typography.brandEyebrow,
+    fontSize: 10,
+    letterSpacing: 3,
+    color: colors.textFaint,
+    marginBottom: spacing.md,
+  },
+  heroTitle: {
+    fontSize: 26,
+    lineHeight: 32,
+    fontWeight: '300',
+    color: colors.textPrimary,
+    letterSpacing: -0.4,
     marginBottom: spacing.xl,
   },
-  heroTitle: { fontSize: 48, letterSpacing: -1, fontWeight: '300', color: colors.textPrimary, textAlign: 'center' },
-  heroEyebrow: {
-    ...typography.brandEyebrow, fontSize: 11, letterSpacing: 4,
-    color: colors.textFaint, textAlign: 'center', marginTop: 8, marginBottom: spacing['3xl'],
-  },
-  heroTagline: {
-    fontSize: 22, lineHeight: 30, fontWeight: '300',
-    color: colors.textHigh, textAlign: 'center', marginBottom: spacing.lg,
-    letterSpacing: -0.2,
-  },
-  heroBody: {
-    ...typography.body, color: colors.textMuted, textAlign: 'center',
-    lineHeight: 22, maxWidth: 340, marginBottom: spacing['2xl'],
-  },
-  ctaRow: { flexDirection: 'row', gap: spacing.md, alignItems: 'center', marginBottom: spacing['3xl'] },
+  ctaRow: { flexDirection: 'row', gap: spacing.sm },
   primaryCta: {
     flexDirection: 'row', alignItems: 'center', gap: spacing.sm,
-    paddingVertical: 14, paddingHorizontal: spacing['2xl'],
+    paddingVertical: 12, paddingHorizontal: spacing.xl,
     borderRadius: radius.full, backgroundColor: '#fff',
   },
   primaryCtaLabel: { ...typography.cta, color: '#000', fontSize: 12 },
-  secondaryCta: {
-    paddingVertical: 14, paddingHorizontal: spacing.xl,
+  ghostCta: {
+    flexDirection: 'row', alignItems: 'center', gap: spacing.sm,
+    paddingVertical: 12, paddingHorizontal: spacing.lg,
     borderRadius: radius.full, borderWidth: 1, borderColor: colors.borderStrong,
   },
-  secondaryCtaLabel: { ...typography.cta, color: colors.textPrimary, fontSize: 12 },
+  ghostCtaLabel: { ...typography.cta, color: colors.textPrimary, fontSize: 12 },
 
-  statsRow: {
-    flexDirection: 'row', alignItems: 'center', width: '100%',
-    maxWidth: 340, paddingTop: spacing.lg,
-    borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.borderSubtle,
+  /* Featured card */
+  featuredWrap: {
+    paddingHorizontal: spacing.xl, paddingTop: spacing.lg,
+    maxWidth: layout.containerMaxWidth, alignSelf: 'center', width: '100%',
   },
-  statDivider: { width: 1, height: 24, backgroundColor: colors.borderSubtle },
-  statNum: { ...typography.h3, color: colors.textHigh, fontSize: 16 },
-  statLabel: { ...typography.microSm, color: colors.textFaint, marginTop: 2, fontSize: 9, letterSpacing: 1.5, textTransform: 'uppercase' },
-
-  /* Section shared */
-  section: { paddingVertical: spacing['3xl'], paddingHorizontal: spacing.xl },
-  sectionInner: { maxWidth: layout.containerMaxWidth, alignSelf: 'center', width: '100%' },
-  sectionEyebrow: { ...typography.micro, color: colors.textWhisper, fontSize: 10, marginBottom: spacing.sm },
-  sectionTitle: {
-    ...typography.h1, color: colors.textPrimary, fontSize: 24, marginBottom: spacing.lg,
-    letterSpacing: -0.3,
+  featured: {
+    width: '100%', height: 200, borderRadius: radius.lg,
+    overflow: 'hidden', backgroundColor: '#111',
   },
-  body: { ...typography.body, color: colors.textMuted, lineHeight: 22, marginBottom: spacing.xl },
-
-  /* Pillars */
-  pillarGrid: { gap: spacing.md, marginTop: spacing.sm },
-  pillar: {
-    padding: spacing.lg, borderRadius: radius.lg,
-    backgroundColor: 'rgba(255,255,255,0.03)',
-    borderWidth: 1, borderColor: colors.borderSubtle,
-  },
-  pillarTitle: { ...typography.h3, color: colors.textHigh, fontSize: 15, marginTop: spacing.sm, marginBottom: 4 },
-  pillarDesc: { ...typography.bodySm, color: colors.textFaint, fontSize: 12, lineHeight: 18 },
-
-  /* Featured rail */
-  railContent: { gap: spacing.md, paddingRight: spacing.xl },
-  card: { width: 200, height: 260, borderRadius: radius.lg, overflow: 'hidden', backgroundColor: '#111' },
-  cardImg: { width: '100%', height: '100%' },
-  cardOverlay: { ...StyleSheet.absoluteFillObject as any },
-  cardText: { position: 'absolute', left: 0, right: 0, bottom: 0, padding: spacing.md },
-  cardType: { ...typography.microSm, color: colors.textWhisper, fontSize: 9, letterSpacing: 1.5, marginBottom: 4 },
-  cardTitle: { ...typography.h3, color: '#fff', fontSize: 14, lineHeight: 18 },
-  cardMeta: { ...typography.bodySm, color: 'rgba(255,255,255,0.7)', fontSize: 11, marginTop: 2 },
-
-  /* Roles */
-  roleList: { gap: spacing.sm, marginTop: spacing.sm },
-  roleRow: {
-    flexDirection: 'row', alignItems: 'center', gap: spacing.md,
-    paddingVertical: spacing.lg, paddingHorizontal: spacing.lg,
-    borderRadius: radius.lg,
-    backgroundColor: 'rgba(255,255,255,0.03)',
-    borderWidth: 1, borderColor: colors.borderSubtle,
-  },
-  roleIcon: {
-    width: 36, height: 36, borderRadius: 18,
-    backgroundColor: 'rgba(167,139,250,0.12)',
+  featuredImg: { ...StyleSheet.absoluteFillObject as any, width: '100%', height: '100%' },
+  featuredText: { position: 'absolute', left: 0, right: 0, bottom: 0, padding: spacing.lg },
+  featuredEyebrow: { ...typography.microSm, color: '#fff', fontSize: 9, letterSpacing: 2, marginBottom: 6, opacity: 0.85 },
+  featuredTitle: { ...typography.h2, color: '#fff', fontSize: 20, lineHeight: 24, letterSpacing: -0.2 },
+  featuredMeta: { ...typography.bodySm, color: 'rgba(255,255,255,0.75)', fontSize: 12, marginTop: 4 },
+  featuredPlay: {
+    position: 'absolute', right: spacing.lg, bottom: spacing.lg,
+    width: 40, height: 40, borderRadius: 20, backgroundColor: '#fff',
     alignItems: 'center', justifyContent: 'center',
   },
-  roleLabel: { ...typography.h3, color: colors.textHigh, fontSize: 14 },
-  roleSub: { ...typography.bodySm, color: colors.textFaint, fontSize: 12, marginTop: 2, lineHeight: 16 },
 
-  /* Footer CTA */
-  footerCta: {
-    paddingTop: spacing['4xl'], paddingBottom: spacing['3xl'],
-    paddingHorizontal: spacing['2xl'], alignItems: 'center',
-    borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.borderSubtle,
+  /* Rails */
+  rail: {
+    paddingTop: spacing['2xl'],
+    maxWidth: layout.containerMaxWidth, alignSelf: 'center', width: '100%',
   },
-  footerTitle: { ...typography.h2, color: colors.textHigh, textAlign: 'center', fontSize: 20, marginBottom: spacing['2xl'] },
-  footerBtn: {
-    paddingVertical: 14, paddingHorizontal: spacing['3xl'],
-    borderWidth: 1, borderColor: 'rgba(76,175,80,0.4)',
-    backgroundColor: 'rgba(76,175,80,0.08)',
-    borderRadius: 4,
+  railHeader: {
+    flexDirection: 'row', alignItems: 'flex-end',
+    paddingHorizontal: spacing.xl, marginBottom: spacing.md, gap: spacing.md,
   },
-  footerBtnLabel: { ...typography.cta, color: colors.textHigh, fontSize: 13, letterSpacing: 4 },
-  footerNote: { ...typography.micro, color: colors.textWhisper, fontSize: 9, marginTop: spacing['2xl'] },
+  railTitle: { ...typography.h2, color: colors.textPrimary, fontSize: 17, letterSpacing: -0.2 },
+  railSub: { ...typography.bodySm, color: colors.textFaint, fontSize: 11, marginTop: 2 },
+  railSeeAll: { ...typography.cta, color: colors.textFaint, fontSize: 10, letterSpacing: 2 },
+  railContent: { gap: spacing.md, paddingHorizontal: spacing.xl },
+  card: { borderRadius: radius.md, overflow: 'hidden', backgroundColor: '#111' },
+  cardImg: { width: '100%', height: '100%' },
+  cardText: { position: 'absolute', left: 0, right: 0, bottom: 0, padding: 10 },
+  cardTitle: { ...typography.h3, color: '#fff', fontSize: 12, lineHeight: 16 },
+  cardMeta: { ...typography.bodySm, color: 'rgba(255,255,255,0.65)', fontSize: 10, marginTop: 2 },
+
+  /* Shortcuts */
+  quickWrap: {
+    paddingHorizontal: spacing.xl, paddingTop: spacing['3xl'],
+    maxWidth: layout.containerMaxWidth, alignSelf: 'center', width: '100%',
+  },
+  sectionEyebrow: { ...typography.micro, color: colors.textWhisper, fontSize: 9, letterSpacing: 2, marginBottom: spacing.md },
+  quickGrid: { flexDirection: 'row', gap: spacing.sm },
+  quick: {
+    flex: 1, paddingVertical: spacing.lg, gap: 6,
+    alignItems: 'center', justifyContent: 'center',
+    borderRadius: radius.md, backgroundColor: 'rgba(255,255,255,0.04)',
+    borderWidth: 1, borderColor: colors.borderSubtle,
+  },
+  quickLabel: { ...typography.microSm, color: colors.textHigh, fontSize: 10, letterSpacing: 1 },
 });
