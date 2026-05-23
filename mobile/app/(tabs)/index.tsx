@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { ScrollView, View, StyleSheet } from 'react-native';
+import { useRouter } from 'expo-router';
 import { LIVE_ITEMS, type UnifiedItem } from '../../data/aggregate';
 import { colors, spacing, layout } from '../../constants/theme';
 import { ContentCard } from '../../components/ContentCard';
@@ -11,6 +12,8 @@ const typeLabel = (t: UnifiedItem['type']) =>
   ({ music: 'CREOVA Music', story: 'Story World', film: 'Film', collection: 'Collection', archive: 'Archive' }[t] ?? '');
 
 export default function ForYou() {
+  const router = useRouter();
+  const open = (item: UnifiedItem) => router.push(`/story/${item.id}`);
   const { hero, featuredRail, trendingRail, newRail, archivesRail, voicesRail } = useMemo(() => {
     const live = LIVE_ITEMS;
     const withCover = live.filter(i => i.coverImage);
@@ -37,19 +40,20 @@ export default function ForYou() {
           subtitle={hero.creator}
           category={typeLabel(hero.type)}
           imageUrl={hero.coverImage}
+          onPress={() => open(hero)}
         />
       )}
 
-      <Rail title="Featured" subtitle="Cinematic stories handpicked for you" items={featuredRail} variant="content" />
-      <Rail title="Trending Now" subtitle="What the SEEN community is listening to" items={trendingRail} variant="content" />
-      <Rail title="Just Released" subtitle="New voices, fresh chapters" items={newRail} variant="content" />
-      <Rail title="From the Archive" subtitle="Collections curated by institutions" items={archivesRail} variant="story" />
-      <Rail title="Community Voices" subtitle="Stories from underrepresented creators" items={voicesRail} variant="story" />
+      <Rail title="Featured" subtitle="Cinematic stories handpicked for you" items={featuredRail} variant="content" onOpen={open} />
+      <Rail title="Trending Now" subtitle="What the SEEN community is listening to" items={trendingRail} variant="content" onOpen={open} />
+      <Rail title="Just Released" subtitle="New voices, fresh chapters" items={newRail} variant="content" onOpen={open} />
+      <Rail title="From the Archive" subtitle="Collections curated by institutions" items={archivesRail} variant="story" onOpen={open} />
+      <Rail title="Community Voices" subtitle="Stories from underrepresented creators" items={voicesRail} variant="story" onOpen={open} />
     </ScrollView>
   );
 }
 
-function Rail({ title, subtitle, items, variant }: { title: string; subtitle: string; items: UnifiedItem[]; variant: 'content' | 'story' }) {
+function Rail({ title, subtitle, items, variant, onOpen }: { title: string; subtitle: string; items: UnifiedItem[]; variant: 'content' | 'story'; onOpen: (item: UnifiedItem) => void }) {
   if (items.length === 0) return null;
   return (
     <View style={styles.section}>
@@ -65,6 +69,7 @@ function Rail({ title, subtitle, items, variant }: { title: string; subtitle: st
               imageUrl={item.coverImage}
               category={typeLabel(item.type)}
               badge={item.new ? 'NEW' : item.trending ? 'HOT' : undefined}
+              onPress={() => onOpen(item)}
             />
           ) : (
             <StoryCard
@@ -73,6 +78,7 @@ function Rail({ title, subtitle, items, variant }: { title: string; subtitle: st
               author={item.creator}
               readTime={item.duration}
               imageUrl={item.coverImage}
+              onPress={() => onOpen(item)}
             />
           ),
         )}
