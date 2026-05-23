@@ -5,13 +5,9 @@ import { LIVE_ITEMS, PLANNED_ITEMS, CONTENT_SUMMARY, type UnifiedItem } from '..
 import { colors, spacing, radius, typography, layout } from '../../constants/theme';
 
 const TABS = [
-  { id: 'all', label: 'All', filter: (i: UnifiedItem) => true },
-  { id: 'music', label: 'Music', filter: (i: UnifiedItem) => i.type === 'music' },
-  { id: 'story', label: 'Stories', filter: (i: UnifiedItem) => i.type === 'story' },
-  { id: 'film', label: 'Films', filter: (i: UnifiedItem) => i.type === 'film' },
-  { id: 'collection', label: 'Collections', filter: (i: UnifiedItem) => i.type === 'collection' },
-  { id: 'archive', label: 'Archives', filter: (i: UnifiedItem) => i.type === 'archive' },
-  { id: 'soon', label: 'Coming Soon', filter: (i: UnifiedItem) => i.isPlanned === true },
+  { id: 'saved', label: 'Saved' },
+  { id: 'continue', label: 'Continue Listening' },
+  { id: 'collections', label: 'My Collections' },
 ] as const;
 
 type TabId = (typeof TABS)[number]['id'];
@@ -25,18 +21,19 @@ const TYPE_ICON: Record<string, keyof typeof Ionicons.glyphMap> = {
 };
 
 export default function Library() {
-  const [tab, setTab] = useState<TabId>('all');
+  const [tab, setTab] = useState<TabId>('saved');
   const data = useMemo(() => {
-    const tabDef = TABS.find(t => t.id === tab)!;
-    const pool = tab === 'soon' ? PLANNED_ITEMS : LIVE_ITEMS;
-    return pool.filter(tabDef.filter);
+    if (tab === 'saved') return LIVE_ITEMS.slice(2, 5);
+    if (tab === 'continue') return LIVE_ITEMS.slice(6, 8);
+    if (tab === 'collections') return LIVE_ITEMS.filter(i => i.type === 'collection').slice(0, 3);
+    return [];
   }, [tab]);
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <Text style={styles.heading}>Your Library</Text>
       <Text style={styles.subheading}>
-        {CONTENT_SUMMARY.live} live · {CONTENT_SUMMARY.planned} upcoming · {CONTENT_SUMMARY.total} total
+        Your personal archive
       </Text>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: spacing.xl }} contentContainerStyle={{ gap: spacing.sm, paddingRight: spacing.xl }}>

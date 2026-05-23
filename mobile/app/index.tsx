@@ -15,6 +15,7 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { supabase } from '../utils/supabase';
 import { LIVE_ITEMS } from '../data/aggregate';
 import { colors, spacing, radius, typography, layout } from '../constants/theme';
 
@@ -29,9 +30,20 @@ export default function Home() {
 
   const [onboarded, setOnboarded] = useState<boolean | null>(null);
   useEffect(() => {
-    AsyncStorage.getItem('seen_onboarding_completed')
-      .then((v) => setOnboarded(v === 'true'))
-      .catch(() => setOnboarded(false));
+    const checkStatus = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        setOnboarded(true);
+        return;
+      }
+      try {
+        const v = await AsyncStorage.getItem('seen_onboarding_completed');
+        setOnboarded(v === 'true');
+      } catch {
+        setOnboarded(false);
+      }
+    };
+    checkStatus();
   }, []);
 
   // Slow ambient gradient pulse on the hero — matches the splash treatment.

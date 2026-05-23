@@ -15,6 +15,23 @@ export type SectionContext = 'for_you' | 'explore' | 'library' | 'profile';
 export type UserRole = 'viewer' | 'creator' | 'moderator' | 'admin';
 export type UserIntent = 'explore' | 'create' | 'contribute';
 
+// Legacy Types for mock data
+export type MultilingualText = Record<string, string>;
+export type Language = string;
+export type CurriculumAlignment = string;
+
+export interface ContextCard {
+  [key: string]: any;
+}
+
+export interface Chapter {
+  [key: string]: any;
+}
+
+export interface StoryWorld {
+  [key: string]: any;
+}
+
 // ============================================
 // CONTENT ITEM (REQUIRED SCHEMA)
 // ============================================

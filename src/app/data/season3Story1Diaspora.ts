@@ -332,7 +332,7 @@ This is diaspora. This is cooking for an audience of ghosts. This is keeping hom
         fr: '[Translation pending]',
         es: '[Translation pending]',
       },
-      suggestedAudioTone: 'warm',
+      suggestedAudioTone: 'intimate',
       estimatedReadTime: '4 min',
     },
     {
@@ -388,7 +388,7 @@ This is diaspora. This is building home in translation. This is creating belongi
         fr: '[Translation pending]',
         es: '[Translation pending]',
       },
-      suggestedAudioTone: 'warm',
+      suggestedAudioTone: 'intimate',
       estimatedReadTime: '5 min',
     },
   ],

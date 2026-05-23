@@ -37,7 +37,9 @@ export type CurriculumAlignment =
   | 'Migration Studies'
   | 'Cultural Studies'
   | 'Labour Studies'
-  | 'Women & Gender Studies';
+  | 'Women & Gender Studies'
+  | 'Canadian Literature'
+  | 'Visual Arts';
 
 export interface InstitutionalCollection {
   collectionId: string;

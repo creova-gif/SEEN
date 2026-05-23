@@ -16,7 +16,8 @@ import type { MultilingualText } from './types';
 export interface MusicItem {
   musicId: string;
   artistName: string;
-  titletrack: string; // Track or album title
+  titletrack?: string; // Track or album title
+  title?: string;
   description: MultilingualText;
   culturalContext: MultilingualText;
   

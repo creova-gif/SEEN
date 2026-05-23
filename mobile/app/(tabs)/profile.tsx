@@ -1,5 +1,9 @@
+import { useEffect, useState } from 'react';
 import { ScrollView, View, Text, Pressable, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { supabase } from '../../utils/supabase';
+import { useRouter } from 'expo-router';
 import { CONTENT_SUMMARY } from '../../data/aggregate';
 import { colors, spacing, radius, typography, layout } from '../../constants/theme';
 
@@ -20,20 +24,59 @@ const COMPLIANCE: Row[] = [
 ];
 
 export default function Profile() {
+  const router = useRouter();
+  const [name, setName] = useState('Guest Listener');
+  const [email, setEmail] = useState('Exploring without an account');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        setIsAuthenticated(true);
+        setName(session.user.user_metadata?.name || 'SEEN User');
+        setEmail(session.user.email || '');
+      } else {
+        const storedName = await AsyncStorage.getItem('seen_user_name');
+        const storedEmail = await AsyncStorage.getItem('seen_user_email');
+        if (storedName || storedEmail) {
+          setName(storedName || 'Listener');
+          setEmail(storedEmail || 'Offline User');
+        }
+      }
+    };
+    fetchUser();
+  }, []);
+
+  const handleAuthAction = async () => {
+    if (isAuthenticated) {
+      await supabase.auth.signOut();
+      await AsyncStorage.multiRemove([
+        'seen_role',
+        'seen_user_name',
+        'seen_user_email',
+        'seen_onboarding_completed'
+      ]);
+      router.replace('/');
+    } else {
+      router.replace('/onboarding');
+    }
+  };
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <View style={styles.avatarWrap}>
         <View style={styles.avatar}>
           <Ionicons name="person" size={28} color={colors.textPrimary} />
         </View>
-        <Text style={styles.name}>Guest Listener</Text>
-        <Text style={styles.sub}>Exploring without an account</Text>
+        <Text style={styles.name}>{name}</Text>
+        <Text style={styles.sub}>{email}</Text>
         <Pressable
+          onPress={handleAuthAction}
           style={({ pressed }) => [styles.cta, pressed && { opacity: 0.6 }]}
           accessibilityRole="button"
-          accessibilityLabel="Sign in or create account"
         >
-          <Text style={styles.ctaText}>Sign In or Create Account</Text>
+          <Text style={styles.ctaText}>{isAuthenticated ? 'Sign Out' : 'Sign In or Create Account'}</Text>
         </Pressable>
       </View>
 
