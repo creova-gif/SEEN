@@ -15,8 +15,10 @@ import {
   Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { MotiView } from 'moti';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ArrowRight } from 'lucide-react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '../utils/supabase';
@@ -230,8 +232,7 @@ function InvocationStep({
 }) {
   // Ambient gradient pulse behind everything
   const pulse = useRef(new Animated.Value(0)).current;
-  // Independent halo pulse on the SEEN CTA — faster + tighter for "alive" feel
-  const halo = useRef(new Animated.Value(0)).current;
+  // (The halo on the SEEN CTA is driven natively via MotiView below.)
 
   useEffect(() => {
     Animated.loop(
@@ -240,17 +241,9 @@ function InvocationStep({
         Animated.timing(pulse, { toValue: 0, duration: 4000, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
       ]),
     ).start();
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(halo, { toValue: 1, duration: 2200, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-        Animated.timing(halo, { toValue: 0, duration: 2200, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-      ]),
-    ).start();
-  }, [pulse, halo]);
+  }, [pulse]);
 
   const gradOpacity = pulse.interpolate({ inputRange: [0, 1], outputRange: [0.25, 0.55] });
-  const haloOpacity = halo.interpolate({ inputRange: [0, 1], outputRange: [0.35, 0.95] });
-  const haloScale   = halo.interpolate({ inputRange: [0, 1], outputRange: [1, 1.08] });
 
   return (
     <View style={[styles.fullBleed, { paddingTop: insets.top, paddingBottom: insets.bottom + spacing.xl }]}>
@@ -276,13 +269,20 @@ function InvocationStep({
         </FadeInRow>
         <FadeInRow delay={2200}>
           <View style={styles.invocationBtnWrap}>
-            {/* Pulsing violet halo — a soft blurred ring that breathes behind the CTA */}
-            <Animated.View
+            {/* Pulsing violet halo — native-driven by Reanimated via Moti so the
+                breathing runs at 60fps on device without blocking the JS thread.
+                The Animated.Value-based fallback still works on web. */}
+            <MotiView
               pointerEvents="none"
-              style={[
-                styles.invocationHalo,
-                { opacity: haloOpacity, transform: [{ scale: haloScale }] },
-              ]}
+              from={{ opacity: 0.35, scale: 1 }}
+              animate={{ opacity: 0.95, scale: 1.08 }}
+              transition={{
+                type: 'timing',
+                duration: 2200,
+                loop: true,
+                repeatReverse: true,
+              }}
+              style={styles.invocationHalo}
             />
             <Pressable
               onPress={onComplete}
@@ -350,7 +350,7 @@ function PurposeStep({
             style={({ pressed }) => [styles.purposeBtn, pressed && { opacity: 0.7 }]}
           >
             <Text style={styles.purposeBtnLabel}>Continue</Text>
-            <Ionicons name="arrow-forward" size={16} color={colors.textPrimary} />
+            <ArrowRight size={16} color={colors.textPrimary} strokeWidth={1.5} />
           </Pressable>
         </FadeInRow>
       </View>

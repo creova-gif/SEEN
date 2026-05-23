@@ -13,6 +13,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { ArrowRight, Compass } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '../utils/supabase';
 import { LIVE_ITEMS, STORY_ALL, MUSIC_ALL, FILM_ALL, type UnifiedItem } from '../data/aggregate';
@@ -105,7 +106,7 @@ export default function Home() {
               accessibilityLabel={ctaLabel}
             >
               <Text style={styles.primaryCtaLabel}>{ctaLabel}</Text>
-              <Ionicons name="arrow-forward" size={14} color="#000" />
+              <ArrowRight size={14} color="#000" strokeWidth={2} />
             </Pressable>
             <Pressable
               onPress={() => router.push('/(tabs)/explore')}
@@ -113,7 +114,7 @@ export default function Home() {
               accessibilityRole="button"
               accessibilityLabel="Explore"
             >
-              <Ionicons name="compass-outline" size={14} color={colors.textPrimary} />
+              <Compass size={14} color={colors.textPrimary} strokeWidth={1.5} />
               <Text style={styles.ghostCtaLabel}>Explore</Text>
             </Pressable>
           </View>
