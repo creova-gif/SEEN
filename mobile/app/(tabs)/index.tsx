@@ -28,7 +28,7 @@ export default function ForYou() {
   // Real query from the shared SEEN content database.
   // Same function the web app uses on the For You screen.
   const feed = useMemo<ForYouFeedItem[]>(
-    () => getForYouFeed('en', 'explore', 12),
+    () => getForYouFeed('en', 'explore', 100),
     [],
   );
 
