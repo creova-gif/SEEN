@@ -1,0 +1,53 @@
+Restore the entire application to the exact UI/UX, navigation flow, architecture, styling, logic, animations, layouts, onboarding experience, components, assets, routes, permissions, dashboards, forms, and screen states that existed BEFORE any modifications made today.
+
+This is a full rollback request.
+
+Requirements:
+
+* Revert ALL onboarding flows to their previous versions
+* Restore every deleted, modified, hidden, replaced, or refactored screen
+* Recover previous:
+
+  * layouts
+  * typography
+  * animations
+  * transitions
+  * onboarding steps
+  * buttons
+  * cards
+  * dashboards
+  * navigation structures
+  * authentication flows
+  * API integrations
+  * forms and validations
+  * state management logic
+  * modals/drawers
+  * feature flags
+  * permissions
+  * themes
+  * responsiveness
+  * loading states
+  * empty states
+  * onboarding copy/text
+  * motion interactions
+  * graphs/charts/widgets
+  * icons/images/assets
+* Remove ALL changes, experiments, redesigns, temporary fixes, placeholders, and new implementations introduced today
+* Restore previous component hierarchy and screen sequencing exactly as it was
+* Re-enable any disabled features/screens that existed before today's edits
+* Ensure all restored screens are fully functional and connected to their original routes and backend logic
+* Compare against previous commits, local history, backups, branches, snapshots, caches, or version history to guarantee pixel-accurate restoration
+* Preserve original business logic and user stories from the earlier build
+* Do NOT redesign, modernize, simplify, optimize, or reinterpret anything
+* The goal is exact restoration, not improvement
+
+Critical:
+
+* Restore the original onboarding experience in full detail
+* Restore every screen that existed before today, including hidden/internal/admin flows
+* Ensure no traces of today's modifications remain anywhere in the app
+* Maintain original animations, interactions, timing, and transitions
+* Validate all restored flows end-to-end after rollback
+
+Expected Output:
+A complete restoration of the pre-change application state with every original onboarding flow and screen functioning exactly as before today's modifications.
