@@ -1,113 +1,123 @@
 import { useMemo, useState } from 'react';
-import { ScrollView, View, Text, StyleSheet, Pressable, Image } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ScrollView, View, Text, Pressable, StyleSheet, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, spacing, radius, typography } from '../../constants/theme';
-import {
-  ALL_ITEMS, MUSIC_ALL, STORY_ALL, FILM_ALL, COLLECTION_ALL, ARCHIVE_ALL,
-  PLANNED_ITEMS, CONTENT_SUMMARY, type UnifiedItem,
-} from '../../data/aggregate';
+import { LIVE_ITEMS, PLANNED_ITEMS, CONTENT_SUMMARY, type UnifiedItem } from '../../data/aggregate';
+import { colors, spacing, radius, typography, layout } from '../../constants/theme';
 
-type Tab = 'all' | 'music' | 'story' | 'film' | 'collection' | 'archive' | 'planned';
+const TABS = [
+  { id: 'all', label: 'All', filter: (i: UnifiedItem) => true },
+  { id: 'music', label: 'Music', filter: (i: UnifiedItem) => i.type === 'music' },
+  { id: 'story', label: 'Stories', filter: (i: UnifiedItem) => i.type === 'story' },
+  { id: 'film', label: 'Films', filter: (i: UnifiedItem) => i.type === 'film' },
+  { id: 'collection', label: 'Collections', filter: (i: UnifiedItem) => i.type === 'collection' },
+  { id: 'archive', label: 'Archives', filter: (i: UnifiedItem) => i.type === 'archive' },
+  { id: 'soon', label: 'Coming Soon', filter: (i: UnifiedItem) => i.isPlanned === true },
+] as const;
 
-const TABS: { id: Tab; label: string; data: UnifiedItem[]; accent: string; icon: any }[] = [
-  { id: 'all',         label: 'All',           data: ALL_ITEMS,       accent: colors.textPrimary, icon: 'apps-outline' },
-  { id: 'music',       label: 'Music',         data: MUSIC_ALL,       accent: colors.violet,      icon: 'musical-notes-outline' },
-  { id: 'story',       label: 'Stories',       data: STORY_ALL,       accent: colors.amber,       icon: 'book-outline' },
-  { id: 'film',        label: 'Films',         data: FILM_ALL,        accent: colors.emerald,     icon: 'film-outline' },
-  { id: 'collection',  label: 'Collections',   data: COLLECTION_ALL,  accent: colors.violet,      icon: 'albums-outline' },
-  { id: 'archive',     label: 'Archives',      data: ARCHIVE_ALL,     accent: colors.amber,       icon: 'library-outline' },
-  { id: 'planned',     label: 'Coming Soon',   data: PLANNED_ITEMS,   accent: colors.textMuted,   icon: 'time-outline' },
-];
+type TabId = (typeof TABS)[number]['id'];
 
-const TYPE_ICON: Record<string, any> = {
-  music: 'musical-notes-outline', story: 'book-outline', film: 'film-outline',
-  collection: 'albums-outline', archive: 'library-outline',
-};
-const TYPE_ACCENT: Record<string, string> = {
-  music: colors.violet, story: colors.amber, film: colors.emerald,
-  collection: colors.violet, archive: colors.amber,
+const TYPE_ICON: Record<string, keyof typeof Ionicons.glyphMap> = {
+  music: 'musical-notes-outline',
+  story: 'book-outline',
+  film: 'film-outline',
+  collection: 'albums-outline',
+  archive: 'library-outline',
 };
 
 export default function Library() {
-  const insets = useSafeAreaInsets();
-  const [active, setActive] = useState<Tab>('all');
-  const items = useMemo(() => TABS.find(t => t.id === active)?.data ?? [], [active]);
+  const [tab, setTab] = useState<TabId>('all');
+  const data = useMemo(() => {
+    const tabDef = TABS.find(t => t.id === tab)!;
+    const pool = tab === 'soon' ? PLANNED_ITEMS : LIVE_ITEMS;
+    return pool.filter(tabDef.filter);
+  }, [tab]);
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top + spacing.lg }]}>
-      <View style={styles.header}>
-        <Text style={styles.eyebrow}>
-          Library · {CONTENT_SUMMARY.total} total · {CONTENT_SUMMARY.live} live · {CONTENT_SUMMARY.planned} planned
-        </Text>
-        <Text style={styles.heading}>Every story{'\n'}in one place.</Text>
-      </View>
+    <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <Text style={styles.heading}>Your Library</Text>
+      <Text style={styles.subheading}>
+        {CONTENT_SUMMARY.live} live · {CONTENT_SUMMARY.planned} upcoming · {CONTENT_SUMMARY.total} total
+      </Text>
 
-      <ScrollView horizontal showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ gap: spacing.sm, paddingHorizontal: spacing.xl }}
-        style={styles.tabRail}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: spacing.xl }} contentContainerStyle={{ gap: spacing.sm, paddingRight: spacing.xl }}>
         {TABS.map(t => {
-          const isActive = t.id === active;
+          const active = tab === t.id;
           return (
-            <Pressable key={t.id} onPress={() => setActive(t.id)}
-              style={[styles.tab, isActive && { borderColor: t.accent, backgroundColor: t.accent + '22' }]}>
-              <Ionicons name={t.icon} size={13} color={isActive ? t.accent : colors.textMuted} />
-              <Text style={[styles.tabLabel, isActive && { color: t.accent }]}>{t.label}</Text>
-              <Text style={[styles.tabCount, isActive && { color: t.accent }]}>{t.data.length}</Text>
+            <Pressable
+              key={t.id}
+              onPress={() => setTab(t.id)}
+              style={({ pressed }) => [styles.tab, active && styles.tabActive, pressed && { opacity: 0.7 }]}
+            >
+              <Text style={[styles.tabText, active && styles.tabTextActive]}>{t.label}</Text>
             </Pressable>
           );
         })}
       </ScrollView>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: spacing.xl, paddingBottom: spacing['3xl'] }}>
-        {items.map(item => (
-          <Pressable key={item.id} style={({ pressed }) => [styles.row, pressed && { opacity: 0.7 }]}>
-            {item.coverImage ? (
-              <Image source={{ uri: item.coverImage }} style={styles.thumb} />
-            ) : (
-              <View style={[styles.thumb, styles.thumbFallback]}>
-                <Ionicons name={TYPE_ICON[item.type]} size={20} color={colors.textFaint} />
+      {data.length === 0 ? (
+        <View style={styles.empty}>
+          <Ionicons name="bookmark-outline" size={36} color={colors.textWhisper} />
+          <Text style={styles.emptyText}>Nothing here yet</Text>
+          <Text style={styles.emptySub}>Tap the bookmark icon on any story to save it.</Text>
+        </View>
+      ) : (
+        <View style={{ gap: spacing.md }}>
+          {data.map(item => (
+            <Pressable key={item.id} style={({ pressed }) => [styles.row, pressed && { opacity: 0.7 }]}>
+              {item.coverImage ? (
+                <Image source={{ uri: item.coverImage }} style={styles.thumb} />
+              ) : (
+                <View style={[styles.thumb, styles.thumbFallback]}>
+                  <Ionicons name={TYPE_ICON[item.type]} size={24} color={colors.textFaint} />
+                </View>
+              )}
+              <View style={{ flex: 1 }}>
+                <Text style={styles.rowEyebrow}>
+                  {item.type.toUpperCase()}{item.isPlanned ? ' · COMING SOON' : item.featured ? ' · FEATURED' : item.new ? ' · NEW' : item.trending ? ' · TRENDING' : ''}
+                </Text>
+                <Text style={styles.rowTitle} numberOfLines={2}>{item.title}</Text>
+                <Text style={styles.rowMeta} numberOfLines={1}>{item.creator}{item.duration ? ` · ${item.duration}` : ''}</Text>
               </View>
-            )}
-            <View style={{ flex: 1 }}>
-              <View style={styles.rowTagLine}>
-                <View style={[styles.typeDot, { backgroundColor: TYPE_ACCENT[item.type] }]} />
-                <Text style={styles.rowType}>{item.type.toUpperCase()}</Text>
-                <Text style={styles.rowDot}>·</Text>
-                <Text style={styles.rowDuration}>{item.duration}</Text>
-                {item.isPlanned && (<><Text style={styles.rowDot}>·</Text><Text style={[styles.rowFlag, { color: colors.textMuted }]}>PLANNED</Text></>)}
-                {!item.isPlanned && item.new && (<><Text style={styles.rowDot}>·</Text><Text style={[styles.rowFlag, { color: TYPE_ACCENT[item.type] }]}>NEW</Text></>)}
-                {!item.isPlanned && item.featured && !item.new && (<><Text style={styles.rowDot}>·</Text><Text style={[styles.rowFlag, { color: TYPE_ACCENT[item.type] }]}>FEATURED</Text></>)}
-              </View>
-              <Text style={styles.rowTitle} numberOfLines={2}>{item.title}</Text>
-              <Text style={styles.rowCreator} numberOfLines={1}>{item.creator}{item.releaseDate ? ` · ${item.releaseDate}` : ''}</Text>
-            </View>
-            <Ionicons name={item.isPlanned ? 'time-outline' : 'play-circle-outline'} size={26} color={colors.textSecondary} />
-          </Pressable>
-        ))}
-      </ScrollView>
-    </View>
+              <Ionicons
+                name={item.isPlanned ? 'time-outline' : 'play-circle-outline'}
+                size={28}
+                color={item.isPlanned ? colors.textWhisper : colors.textSecondary}
+              />
+            </Pressable>
+          ))}
+        </View>
+      )}
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
-  header: { paddingHorizontal: spacing.xl, marginBottom: spacing.lg },
-  eyebrow: { ...typography.micro, color: colors.textFaint, marginBottom: spacing.md },
-  heading: { fontSize: 28, fontWeight: '300', color: colors.textPrimary, lineHeight: 36, letterSpacing: 0.5 },
-  tabRail: { marginBottom: spacing.lg, flexGrow: 0 },
-  tab: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 8, paddingHorizontal: 12, borderRadius: 999, borderWidth: 0.5, borderColor: colors.border, backgroundColor: colors.surface },
-  tabLabel: { fontSize: 11, color: colors.textMuted, letterSpacing: 0.5, fontWeight: '500' },
-  tabCount: { fontSize: 10, color: colors.textFaint, letterSpacing: 0.5 },
-  row: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.md, borderBottomWidth: 0.5, borderBottomColor: colors.border },
-  thumb: { width: 56, height: 56, borderRadius: radius.md },
-  thumbFallback: { backgroundColor: colors.surfaceElevated, alignItems: 'center', justifyContent: 'center' },
-  rowTagLine: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 4 },
-  typeDot: { width: 5, height: 5, borderRadius: 3, marginRight: 2 },
-  rowType: { fontSize: 9, color: colors.textFaint, letterSpacing: 1.5, fontWeight: '600' },
-  rowDot: { fontSize: 10, color: colors.textFaint },
-  rowDuration: { fontSize: 10, color: colors.textFaint, letterSpacing: 0.3 },
-  rowFlag: { fontSize: 9, letterSpacing: 1.5, fontWeight: '600' },
-  rowTitle: { fontSize: 14, fontWeight: '500', color: colors.textPrimary, letterSpacing: 0.2, lineHeight: 18 },
-  rowCreator: { fontSize: 11, color: colors.textMuted, marginTop: 2 },
+  content: { paddingHorizontal: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing['4xl'], maxWidth: layout.containerMaxWidth, alignSelf: 'center', width: '100%' },
+  heading: { fontSize: 32, fontWeight: '300', letterSpacing: -0.5, color: colors.textPrimary, marginBottom: 6 },
+  subheading: { ...typography.bodySm, color: colors.textMuted, marginBottom: spacing.xl },
+  tab: {
+    paddingVertical: 8, paddingHorizontal: 14,
+    borderRadius: radius.full,
+    backgroundColor: colors.surface,
+    borderWidth: StyleSheet.hairlineWidth, borderColor: colors.border,
+  },
+  tabActive: { backgroundColor: colors.textPrimary, borderColor: colors.textPrimary },
+  tabText: { ...typography.micro, fontSize: 10, color: colors.textSecondary },
+  tabTextActive: { color: '#000' },
+  row: {
+    flexDirection: 'row', alignItems: 'center', gap: spacing.md,
+    padding: spacing.md,
+    borderRadius: radius.lg,
+    backgroundColor: colors.surface,
+    borderWidth: StyleSheet.hairlineWidth, borderColor: colors.border,
+  },
+  thumb: { width: 60, height: 60, borderRadius: radius.md },
+  thumbFallback: { backgroundColor: 'rgba(255,255,255,0.04)', alignItems: 'center', justifyContent: 'center' },
+  rowEyebrow: { ...typography.microSm, color: colors.textFaint, fontSize: 9, marginBottom: 4 },
+  rowTitle: { fontSize: 14, color: colors.textPrimary, fontWeight: '500', letterSpacing: 0.2 },
+  rowMeta: { ...typography.bodySm, color: colors.textFaint, fontSize: 11, marginTop: 2 },
+  empty: { alignItems: 'center', paddingTop: spacing['4xl'], gap: spacing.md },
+  emptyText: { fontSize: 16, color: colors.textMuted, fontWeight: '400' },
+  emptySub: { ...typography.bodySm, color: colors.textWhisper, textAlign: 'center', maxWidth: 280 },
 });

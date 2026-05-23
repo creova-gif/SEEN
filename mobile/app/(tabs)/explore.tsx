@@ -1,139 +1,150 @@
 import { useMemo, useState } from 'react';
-import { ScrollView, View, Text, StyleSheet, Pressable, Image } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ScrollView, View, Text, Pressable, TextInput, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, spacing, radius, typography } from '../../constants/theme';
-import {
-  MUSIC_ALL, STORY_ALL, FILM_ALL, COLLECTION_ALL, ARCHIVE_ALL,
-  LIVE_ITEMS, PLANNED_ITEMS, CONTENT_SUMMARY, type UnifiedItem,
-} from '../../data/aggregate';
+import { LIVE_ITEMS, PLANNED_ITEMS, type UnifiedItem } from '../../data/aggregate';
+import { colors, spacing, radius, typography, layout } from '../../constants/theme';
+import { ContentCard } from '../../components/ContentCard';
+import { StoryCard } from '../../components/StoryCard';
+import { SectionHeader } from '../../components/SectionHeader';
 
-const TYPE_ACCENT: Record<string, string> = {
-  music: colors.violet, story: colors.amber, film: colors.emerald,
-  collection: colors.violet, archive: colors.amber,
-};
-const TYPE_ICON: Record<string, any> = {
-  music: 'musical-notes-outline', story: 'book-outline', film: 'film-outline',
-  collection: 'albums-outline', archive: 'library-outline',
-};
+type Filter = 'all' | 'music' | 'story' | 'film' | 'collection' | 'archive';
+const FILTERS: { id: Filter; label: string; icon: keyof typeof Ionicons.glyphMap }[] = [
+  { id: 'all', label: 'All', icon: 'globe-outline' },
+  { id: 'music', label: 'Music', icon: 'musical-notes-outline' },
+  { id: 'story', label: 'Stories', icon: 'book-outline' },
+  { id: 'film', label: 'Films', icon: 'film-outline' },
+  { id: 'collection', label: 'Collections', icon: 'albums-outline' },
+  { id: 'archive', label: 'Archives', icon: 'library-outline' },
+];
 
-const SECTIONS = [
-  { id: 'featured',     name: 'Featured & Trending',    items: LIVE_ITEMS.filter(i => i.featured || i.trending), desc: 'Editor picks across all media' },
-  { id: 'new',          name: 'New Releases',           items: LIVE_ITEMS.filter(i => i.new),                    desc: 'Just landed on SEEN' },
-  { id: 'stories',      name: 'Stories',                items: STORY_ALL.filter(i => !i.isPlanned),              desc: 'Multi-chapter audio experiences' },
-  { id: 'music',        name: 'Music',                  items: MUSIC_ALL.filter(i => !i.isPlanned),              desc: 'Independent Canadian artists' },
-  { id: 'films',        name: 'Films',                  items: FILM_ALL.filter(i => !i.isPlanned),               desc: 'Documentaries & short films' },
-  { id: 'collections',  name: 'Curated Collections',    items: COLLECTION_ALL,                                    desc: 'Themed groupings of work' },
-  { id: 'archives',     name: 'Institutional Archives', items: ARCHIVE_ALL,                                       desc: 'Cultural heritage partners' },
-  { id: 'planned',      name: 'Coming Soon',            items: PLANNED_ITEMS,                                    desc: 'In production for upcoming seasons' },
-].filter(s => s.items.length > 0);
+const typeLabel = (t: UnifiedItem['type']) =>
+  ({ music: 'Music', story: 'Story', film: 'Film', collection: 'Collection', archive: 'Archive' }[t] ?? '');
 
 export default function Explore() {
-  const insets = useSafeAreaInsets();
-  const [activeCat, setActiveCat] = useState<string>(SECTIONS[0]?.id ?? '');
+  const [query, setQuery] = useState('');
+  const [filter, setFilter] = useState<Filter>('all');
+
+  const filtered = useMemo(() => {
+    const base = filter === 'all' ? LIVE_ITEMS : LIVE_ITEMS.filter(i => i.type === filter);
+    if (!query.trim()) return base;
+    const q = query.toLowerCase();
+    return base.filter(
+      i =>
+        i.title.toLowerCase().includes(q) ||
+        i.creator.toLowerCase().includes(q) ||
+        i.tags.some(t => t.toLowerCase().includes(q)),
+    );
+  }, [query, filter]);
+
+  const sections = useMemo(() => {
+    const trending = filtered.filter(i => i.trending).slice(0, 6);
+    const featured = filtered.filter(i => i.featured && !i.trending).slice(0, 6);
+    const indigenous = filtered.filter(i => i.tags.some(t => /indigenous|first nation|métis|cree|inuit|anishinaabe/i.test(t))).slice(0, 6);
+    const black = filtered.filter(i => i.tags.some(t => /black|africville|afro|caribbean/i.test(t))).slice(0, 6);
+    const francophone = filtered.filter(i => i.language.includes('fr')).slice(0, 6);
+    const films = filtered.filter(i => i.type === 'film').slice(0, 6);
+    const planned = PLANNED_ITEMS.slice(0, 6);
+    return { trending, featured, indigenous, black, francophone, films, planned };
+  }, [filtered]);
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={{ paddingTop: insets.top + spacing.lg, paddingBottom: spacing['3xl'] }}
-      showsVerticalScrollIndicator={false}
-    >
-      <View style={styles.header}>
-        <Text style={styles.eyebrow}>Explore · {CONTENT_SUMMARY.total} items total</Text>
-        <Text style={styles.heading}>The full catalogue.</Text>
+    <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <Text style={styles.heading}>Explore</Text>
+      <Text style={styles.subheading}>Discover curated stories, films & music from across Canada</Text>
+
+      <View style={styles.searchWrap}>
+        <Ionicons name="search-outline" size={16} color={colors.textFaint} />
+        <TextInput
+          value={query}
+          onChangeText={setQuery}
+          placeholder="Search stories, creators, themes…"
+          placeholderTextColor={colors.textWhisper}
+          style={styles.searchInput}
+        />
       </View>
 
-      <ScrollView
-        horizontal showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ gap: spacing.sm, paddingRight: spacing.xl }}
-        style={styles.chipRail}
-      >
-        {SECTIONS.map(cat => {
-          const active = cat.id === activeCat;
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: spacing.xl }} contentContainerStyle={{ gap: spacing.sm, paddingRight: spacing.xl }}>
+        {FILTERS.map(f => {
+          const active = filter === f.id;
           return (
-            <Pressable key={cat.id} onPress={() => setActiveCat(cat.id)} style={[styles.chip, active && styles.chipActive]}>
-              <Text style={[styles.chipText, active && styles.chipTextActive]}>{cat.name} · {cat.items.length}</Text>
+            <Pressable
+              key={f.id}
+              onPress={() => setFilter(f.id)}
+              style={({ pressed }) => [styles.filterPill, active && styles.filterPillActive, pressed && { opacity: 0.7 }]}
+            >
+              <Ionicons name={f.icon} size={13} color={active ? '#000' : colors.textSecondary} />
+              <Text style={[styles.filterText, active && styles.filterTextActive]}>{f.label}</Text>
             </Pressable>
           );
         })}
       </ScrollView>
 
-      {SECTIONS.map(cat => (
-        <View key={cat.id} style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.sectionTitle}>{cat.name}</Text>
-              <Text style={styles.sectionDesc}>{cat.desc}</Text>
-            </View>
-            <Text style={styles.sectionCount}>{cat.items.length}</Text>
-          </View>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: spacing.md, paddingRight: spacing.xl }}>
-            {cat.items.map(item => <ExploreCard key={item.id} item={item} />)}
-          </ScrollView>
-        </View>
-      ))}
+      <Rail title="Trending" subtitle="Most-listened across Canada" items={sections.trending} variant="content" />
+      <Rail title="Editor's Picks" subtitle="Featured collections" items={sections.featured} variant="content" />
+      <Rail title="Indigenous Voices" subtitle="First Nations, Métis & Inuit creators" items={sections.indigenous} variant="story" />
+      <Rail title="Black Canadian Stories" subtitle="From Africville to today" items={sections.black} variant="story" />
+      <Rail title="Voix francophones" subtitle="French-language stories from across Canada" items={sections.francophone} variant="content" />
+      <Rail title="Films & Documentaries" subtitle="NFB and independent works" items={sections.films} variant="content" />
+      <Rail title="Coming Soon" subtitle="Stories in production" items={sections.planned} variant="story" planned />
     </ScrollView>
   );
 }
 
-function ExploreCard({ item }: { item: UnifiedItem }) {
-  const accent = TYPE_ACCENT[item.type];
+function Rail({ title, subtitle, items, variant, planned }: { title: string; subtitle: string; items: UnifiedItem[]; variant: 'content' | 'story'; planned?: boolean }) {
+  if (items.length === 0) return null;
   return (
-    <Pressable style={({ pressed }) => [styles.card, pressed && { opacity: 0.75 }, item.isPlanned && styles.cardPlanned]}>
-      {item.coverImage ? (
-        <Image source={{ uri: item.coverImage }} style={styles.cardImage} />
-      ) : (
-        <View style={[styles.cardImage, { backgroundColor: colors.surfaceElevated, alignItems: 'center', justifyContent: 'center' }]}>
-          <Ionicons name={TYPE_ICON[item.type]} size={32} color={colors.textFaint} />
-        </View>
-      )}
-      {item.isPlanned && (
-        <View style={styles.plannedRibbon}>
-          <Text style={styles.plannedRibbonText}>PLANNED</Text>
-        </View>
-      )}
-      <View style={styles.cardBody}>
-        <View style={styles.cardTagRow}>
-          <View style={[styles.typeDot, { backgroundColor: accent }]} />
-          <Text style={styles.cardType}>{item.type.toUpperCase()}</Text>
-          {item.new && <Text style={[styles.flag, { color: accent }]}>· NEW</Text>}
-          {item.trending && !item.new && <Text style={[styles.flag, { color: accent }]}>· TRENDING</Text>}
-        </View>
-        <Text style={styles.cardTitle} numberOfLines={2}>{item.title}</Text>
-        <Text style={styles.cardMeta} numberOfLines={1}>{item.creator}</Text>
-        <Text style={styles.cardDuration}>{item.duration}</Text>
-      </View>
-    </Pressable>
+    <View style={styles.section}>
+      <SectionHeader title={title} subtitle={subtitle} />
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: spacing.md, paddingRight: spacing.xl }}>
+        {items.map(item =>
+          variant === 'content' ? (
+            <ContentCard
+              key={item.id}
+              title={item.title}
+              creator={item.creator}
+              duration={item.duration}
+              imageUrl={item.coverImage}
+              category={typeLabel(item.type)}
+              badge={planned ? 'SOON' : item.new ? 'NEW' : undefined}
+            />
+          ) : (
+            <StoryCard
+              key={item.id}
+              title={item.title}
+              author={planned ? 'In production' : item.creator}
+              readTime={item.duration || (planned ? 'Coming soon' : undefined)}
+              imageUrl={item.coverImage}
+            />
+          ),
+        )}
+      </ScrollView>
+    </View>
   );
 }
 
-const CARD_W = 168;
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background, paddingHorizontal: spacing.xl },
-  header: { marginBottom: spacing.xl },
-  eyebrow: { ...typography.micro, color: colors.textFaint, marginBottom: spacing.md },
-  heading: { fontSize: 28, fontWeight: '300', color: colors.textPrimary, lineHeight: 36, letterSpacing: 0.5 },
-  chipRail: { marginBottom: spacing.xl, marginHorizontal: -spacing.xl, paddingHorizontal: spacing.xl },
-  chip: { paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, borderWidth: 0.5, borderColor: colors.border, backgroundColor: colors.surface },
-  chipActive: { borderColor: colors.textPrimary, backgroundColor: colors.textPrimary },
-  chipText: { ...typography.micro, color: colors.textMuted, fontSize: 10 },
-  chipTextActive: { color: colors.background },
-  section: { marginBottom: spacing.xl, marginHorizontal: -spacing.xl, paddingLeft: spacing.xl },
-  sectionHeader: { flexDirection: 'row', alignItems: 'flex-end', marginBottom: spacing.md, paddingRight: spacing.xl },
-  sectionTitle: { fontSize: 16, fontWeight: '500', color: colors.textPrimary, letterSpacing: 0.3 },
-  sectionDesc: { fontSize: 11, color: colors.textFaint, letterSpacing: 0.5, marginTop: 2 },
-  sectionCount: { ...typography.micro, color: colors.textFaint, fontSize: 10 },
-  card: { width: CARD_W, borderRadius: radius.lg, overflow: 'hidden', backgroundColor: colors.surface, borderWidth: 0.5, borderColor: colors.border },
-  cardPlanned: { opacity: 0.78, borderStyle: 'dashed' },
-  cardImage: { width: CARD_W, height: CARD_W * 0.62 },
-  plannedRibbon: { position: 'absolute', top: 8, right: 8, paddingHorizontal: 6, paddingVertical: 3, borderRadius: 4, backgroundColor: 'rgba(0,0,0,0.7)' },
-  plannedRibbonText: { fontSize: 8, color: colors.textPrimary, letterSpacing: 1.2, fontWeight: '700' },
-  cardBody: { padding: spacing.md, gap: 4 },
-  cardTagRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 },
-  typeDot: { width: 5, height: 5, borderRadius: 3 },
-  cardType: { fontSize: 9, color: colors.textFaint, letterSpacing: 1.5, fontWeight: '600' },
-  flag: { fontSize: 9, letterSpacing: 1.5, fontWeight: '600' },
-  cardTitle: { fontSize: 13, fontWeight: '500', color: colors.textPrimary, letterSpacing: 0.2, lineHeight: 17 },
-  cardMeta: { fontSize: 11, color: colors.textMuted },
-  cardDuration: { fontSize: 10, color: colors.textFaint, letterSpacing: 0.5, marginTop: 2 },
+  container: { flex: 1, backgroundColor: colors.background },
+  content: { paddingHorizontal: spacing.xl, paddingTop: spacing.lg, paddingBottom: spacing['4xl'], maxWidth: layout.containerMaxWidth, alignSelf: 'center', width: '100%' },
+  heading: { fontSize: 32, fontWeight: '300', letterSpacing: -0.5, color: colors.textPrimary, marginBottom: 6 },
+  subheading: { ...typography.body, color: colors.textMuted, marginBottom: spacing.xl },
+  searchWrap: {
+    flexDirection: 'row', alignItems: 'center', gap: spacing.sm,
+    backgroundColor: colors.surface,
+    borderWidth: StyleSheet.hairlineWidth, borderColor: colors.border,
+    borderRadius: radius.full,
+    paddingHorizontal: spacing.lg, paddingVertical: 12,
+    marginBottom: spacing.lg,
+  },
+  searchInput: { flex: 1, color: colors.textPrimary, fontSize: 14, padding: 0 },
+  filterPill: {
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    paddingVertical: 8, paddingHorizontal: 14,
+    borderRadius: radius.full,
+    backgroundColor: colors.surface,
+    borderWidth: StyleSheet.hairlineWidth, borderColor: colors.border,
+  },
+  filterPillActive: { backgroundColor: colors.textPrimary, borderColor: colors.textPrimary },
+  filterText: { ...typography.micro, fontSize: 10, color: colors.textSecondary },
+  filterTextActive: { color: '#000' },
+  section: { marginBottom: spacing['2xl'] },
 });
