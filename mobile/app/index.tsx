@@ -14,12 +14,8 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-<<<<<<< HEAD
-import { LIVE_ITEMS, STORY_ALL, MUSIC_ALL, FILM_ALL, type UnifiedItem } from '../data/aggregate';
-=======
 import { supabase } from '../utils/supabase';
-import { LIVE_ITEMS } from '../data/aggregate';
->>>>>>> 46941f49e67b0e718b692b82ba49a55732db0ede
+import { LIVE_ITEMS, STORY_ALL, MUSIC_ALL, FILM_ALL, type UnifiedItem } from '../data/aggregate';
 import { colors, spacing, radius, typography, layout } from '../constants/theme';
 
 // SEEN home — a mobile-app home screen, not a marketing site.
@@ -34,30 +30,29 @@ export default function Home() {
   const [onboarded, setOnboarded] = useState(false);
   const [name, setName] = useState<string | null>(null);
   useEffect(() => {
-<<<<<<< HEAD
-    AsyncStorage.multiGet(['seen_onboarding_completed', 'seen_user_name'])
-      .then((entries) => {
-        const map = Object.fromEntries(entries);
-        setOnboarded(map['seen_onboarding_completed'] === 'true');
-        setName(map['seen_user_name'] || null);
-      })
-      .catch(() => {});
-=======
     const checkStatus = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        setOnboarded(true);
-        return;
-      }
+      // Prefer an active Supabase session as the source of truth.
+      let isOnboarded = false;
       try {
-        const v = await AsyncStorage.getItem('seen_onboarding_completed');
-        setOnboarded(v === 'true');
-      } catch {
-        setOnboarded(false);
-      }
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) isOnboarded = true;
+      } catch {}
+
+      // Always read the cached flag + display name from AsyncStorage so
+      // we can fall back when offline and still greet the user.
+      try {
+        const entries = await AsyncStorage.multiGet([
+          'seen_onboarding_completed',
+          'seen_user_name',
+        ]);
+        const map = Object.fromEntries(entries);
+        if (!isOnboarded) isOnboarded = map['seen_onboarding_completed'] === 'true';
+        setName(map['seen_user_name'] || null);
+      } catch {}
+
+      setOnboarded(isOnboarded);
     };
     checkStatus();
->>>>>>> 46941f49e67b0e718b692b82ba49a55732db0ede
   }, []);
 
   // Slow ambient gradient pulse on the hero.
