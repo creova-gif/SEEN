@@ -24,8 +24,6 @@ function TabIcon({
 }) {
   return (
     <View style={styles.iconWrap}>
-      {/* Active indicator: 32x2 white rounded line at the TOP of the tab item, above the icon. */}
-      {focused && <View style={styles.activeIndicator} />}
       <Icon
         size={20}
         color={focused ? colors.textPrimary : colors.textFaint}
@@ -184,15 +182,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     height: 24,
     width: 40,
-  },
-  activeIndicator: {
-    position: 'absolute',
-    top: -10,
-    left: '50%',
-    marginLeft: -16,
-    width: 32,
-    height: 2,
-    borderRadius: 1,
-    backgroundColor: '#fff',
   },
 });
