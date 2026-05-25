@@ -91,6 +91,34 @@ export default function Profile() {
       <Section title="Preferences" rows={PREFERENCES} />
       <Section title="CMF / PIPEDA Compliance" rows={COMPLIANCE} />
 
+      <Text style={styles.sectionTitle}>More</Text>
+      <View style={styles.card}>
+        <Pressable
+          style={({ pressed }) => [styles.rowItem, styles.rowDivider, pressed && { opacity: 0.6 }]}
+          onPress={() => router.push('/settings')}
+          accessibilityRole="button"
+        >
+          <Ionicons name="settings-outline" size={18} color={colors.textSecondary} />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.rowLabel}>Settings</Text>
+            <Text style={styles.rowValue}>Language, audio, accessibility, data</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={16} color={colors.textWhisper} />
+        </Pressable>
+        <Pressable
+          style={({ pressed }) => [styles.rowItem, pressed && { opacity: 0.6 }]}
+          onPress={() => router.push('/about')}
+          accessibilityRole="button"
+        >
+          <Ionicons name="information-circle-outline" size={18} color={colors.textSecondary} />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.rowLabel}>About SEEN</Text>
+            <Text style={styles.rowValue}>Manifesto, CREOVA, funding</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={16} color={colors.textWhisper} />
+        </Pressable>
+      </View>
+
       <View style={styles.footer}>
         <Text style={styles.brand}>SEEN</Text>
         <Text style={styles.brandSub}>BY CREOVA</Text>

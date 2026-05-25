@@ -118,9 +118,29 @@ The `audioSrc` field on a `ContentItem` accepts:
 - `seen_collab_invites` — creator collaboration invites
 - `seen_social_links` — creator social profile links (max 5)
 
-## Development
+## Mobile App (Expo SDK 52)
+
+Native iOS/Android port under `/mobile`. Aligned to the web design system in 5 focused passes (all complete):
+
+- **Pass 1 — Onboarding**: Sage-green Invocation CTA with expanding ring, left-aligned lists, white-pill purpose button, no violet glow.
+- **Pass 2 — Tabs**: Lucide bottom-nav (Home/Compass/Library/User + Plus/ShieldCheck), 32×2 white indicator bar, Explore cultural-identity tag rail with 14-colour dot palette, Library presence-indicator grid + 16:9 content cards, Profile soft `rgba(255,255,255,0.04)` cards.
+- **Pass 3 — Story player**: `mobile/app/story/[id].tsx` — eyebrow at 4pt tracking, 30pt cinematic title, white/70 body, top controls now `white/15` (was violet), language pills uppercase tracking, reactions-overlay on white scrubber.
+- **Pass 4 — Creator + Moderator**: `mobile/app/(tabs)/create.tsx` (4-step wizard), `mobile/app/(tabs)/moderate.tsx` (queue/flagged/approved), `mobile/app/admin.tsx` (5-tab admin). All Switch toggles use neutral white-track/dark-thumb (no violet).
+- **Pass 5 — Settings, About, Chapters, Institutional**:
+  - `mobile/app/settings.tsx` — language radio cards, audio segmented control, accessibility toggles, CMF compliance dots, PIPEDA export + delete chips
+  - `mobile/app/about.tsx` — hero, manifesto, 2×2 principles grid, CREOVA + funding sections, quote card, email/website pills
+  - `mobile/app/chapters/[id].tsx` — sticky header, ToC title, 6 chapter cards with playing/done indicators, white "RESUME STORY" pill footer
+  - `mobile/app/institutional/[id].tsx` — 40vh hero with scrim, floating logo, italic curator note, 96px-thumb content cards, partnership note
+  - Entry points wired: profile → settings + about (More section); story player → chapters (list icon in top controls)
+
+## Web Development
 - Dev server: `npm run dev` (port 5000, host 0.0.0.0)
 - Build: `npm run build`
 
+## Mobile Development
+- Dev server: `cd mobile && REACT_NATIVE_PACKAGER_HOSTNAME=$REPLIT_DEV_DOMAIN npx expo start --port 5000 --clear`
+- Workflow `Start application` runs this automatically
+
 ## Deployment
-- Static deployment using `dist/` directory after build
+- Web: Static deployment using `dist/` directory after build
+- Mobile: Expo build → App Store / Play Store (not a web app)

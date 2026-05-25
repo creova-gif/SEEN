@@ -307,6 +307,14 @@ export default function StoryChapter() {
 
         <View style={styles.topRight}>
           <Pressable
+            onPress={() => router.push(`/chapters/${id}`)}
+            style={styles.iconBtn}
+            accessibilityRole="button"
+            accessibilityLabel="View chapter index"
+          >
+            <Ionicons name="list-outline" size={18} color="#fff" />
+          </Pressable>
+          <Pressable
             onPress={() => setCaptionsOn((v) => !v)}
             style={[styles.iconBtn, captionsOn && styles.iconBtnActive]}
             accessibilityRole="button"
