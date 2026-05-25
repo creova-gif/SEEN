@@ -24,14 +24,14 @@ function TabIcon({
 }) {
   return (
     <View style={styles.iconWrap}>
+      {/* Active indicator: 32x2 white rounded line at the TOP of the tab item, above the icon. */}
+      {focused && <View style={styles.activeIndicator} />}
       <Icon
         size={20}
         color={focused ? colors.textPrimary : colors.textFaint}
         strokeWidth={focused ? 2 : 1.5}
         style={focused ? activeGlowStyle : undefined}
       />
-      {/* Active indicator: 32x2 white rounded line below the icon (matches `-bottom-4` in source) */}
-      {focused && <View style={styles.activeIndicator} />}
     </View>
   );
 }
@@ -58,14 +58,19 @@ function CreateTabIcon({ focused }: { focused: boolean }) {
 function TabLabel({ label, focused }: { label: string; focused: boolean }) {
   return (
     <Text
+      numberOfLines={1}
+      allowFontScaling={false}
       style={{
         fontSize: 10,
-        letterSpacing: 3,
+        letterSpacing: 2,
         textTransform: 'uppercase',
         fontWeight: focused ? '500' : '300',
         color: focused ? colors.textPrimary : colors.textFaint,
         opacity: focused ? 1 : 0.4,
-        marginTop: 4,
+        marginTop: 6,
+        // Offset trailing letterSpacing so the text optically centers under the icon.
+        paddingLeft: 2,
+        textAlign: 'center',
       }}
     >
       {label}
@@ -170,19 +175,19 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.95)',
     borderTopColor: 'rgba(255,255,255,0.1)',
     borderTopWidth: StyleSheet.hairlineWidth,
-    height: 82,
-    paddingBottom: 20,
+    height: 84,
+    paddingBottom: 22,
     paddingTop: 0,
   },
   iconWrap: {
     alignItems: 'center',
     justifyContent: 'center',
     height: 24,
-    width: 32,
+    width: 40,
   },
   activeIndicator: {
     position: 'absolute',
-    bottom: -14,
+    top: -10,
     left: '50%',
     marginLeft: -16,
     width: 32,
