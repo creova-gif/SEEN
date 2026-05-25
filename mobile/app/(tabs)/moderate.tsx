@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.borderSubtle,
   },
-  tabPillActive: { backgroundColor: 'rgba(167,139,250,0.18)', borderColor: colors.violet },
+  tabPillActive: { backgroundColor: 'rgba(255,255,255,0.12)', borderColor: 'rgba(255,255,255,0.25)' },
   tabPillText: { ...typography.micro, color: colors.textMuted, fontSize: 10 },
   tabPillTextActive: { color: colors.textPrimary },
 

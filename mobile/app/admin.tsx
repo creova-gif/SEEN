@@ -107,8 +107,8 @@ function FeatureTogglesPane() {
           <Switch
             value={!!preferences[t.key]}
             onValueChange={(v) => updatePreferences({ [t.key]: v } as Partial<FeaturePreferences>)}
-            trackColor={{ true: colors.violet, false: colors.borderStrong }}
-            thumbColor="#fff"
+            trackColor={{ true: 'rgba(255,255,255,0.45)', false: colors.borderStrong }}
+            thumbColor={preferences[t.key] ? '#fff' : '#666'}
           />
         </View>
       ))}

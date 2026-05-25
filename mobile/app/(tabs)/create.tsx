@@ -116,7 +116,7 @@ export default function Create() {
               <Ionicons
                 name={t.icon}
                 size={22}
-                color={active ? colors.violet : colors.textFaint}
+                color={active ? colors.textPrimary : colors.textFaint}
               />
               <Text style={[styles.typeLabel, active && { color: colors.textPrimary }]}>{t.label}</Text>
               <Text style={styles.typeSub}>{t.sub}</Text>
@@ -252,8 +252,8 @@ export default function Create() {
               <Text style={styles.primaryBtnLabel}>Continue</Text>
             </Pressable>
           ) : (
-            <Pressable style={[styles.primaryBtn, { backgroundColor: colors.violet }]} onPress={handlePublish}>
-              <Text style={[styles.primaryBtnLabel, { color: '#fff' }]}>Publish</Text>
+            <Pressable style={styles.primaryBtn} onPress={handlePublish}>
+              <Text style={styles.primaryBtnLabel}>Publish</Text>
             </Pressable>
           )}
         </View>
@@ -290,8 +290,8 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   typeCardActive: {
-    backgroundColor: 'rgba(167,139,250,0.08)',
-    borderColor: colors.violet,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    borderColor: 'rgba(255,255,255,0.25)',
   },
   typeLabel: { ...typography.h3, color: colors.textHigh, fontSize: 15, marginTop: 4 },
   typeSub: { ...typography.bodySm, color: colors.textFaint, fontSize: 12 },

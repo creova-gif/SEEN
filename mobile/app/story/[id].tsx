@@ -553,8 +553,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   iconBtnActive: {
-    backgroundColor: 'rgba(167,139,250,0.25)',
-    borderColor: colors.violet,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    borderColor: 'rgba(255,255,255,0.25)',
   },
 
   reactionPicker: {
@@ -605,10 +605,10 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     width: '100%',
   },
-  eyebrow: { ...typography.micro, color: colors.textWhisper, marginBottom: spacing.sm },
-  title: { ...typography.h1, color: colors.textPrimary, fontSize: 32, lineHeight: 38, marginBottom: spacing.sm },
-  byline: { ...typography.body, color: colors.textMuted, marginBottom: spacing.xl },
-  body: { ...typography.body, color: colors.textSecondary, lineHeight: 22 },
+  eyebrow: { ...typography.micro, color: 'rgba(255,255,255,0.4)', fontSize: 11, letterSpacing: 4, textTransform: 'uppercase', marginBottom: spacing.md },
+  title: { ...typography.h1, color: colors.textPrimary, fontSize: 30, lineHeight: 36, letterSpacing: -0.5, fontWeight: '400', marginBottom: spacing.sm },
+  byline: { ...typography.body, color: 'rgba(255,255,255,0.5)', fontSize: 14, marginBottom: spacing.xl },
+  body: { ...typography.body, color: 'rgba(255,255,255,0.7)', lineHeight: 24, fontSize: 15 },
 
   captionCard: {
     marginTop: spacing.xl,
@@ -673,10 +673,10 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   langPillActive: {
-    backgroundColor: 'rgba(167,139,250,0.20)',
-    borderColor: colors.violet,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    borderColor: 'rgba(255,255,255,0.25)',
   },
-  langPillText: { ...typography.micro, color: colors.textMuted, fontSize: 10 },
+  langPillText: { ...typography.micro, color: colors.textMuted, fontSize: 9, letterSpacing: 2, textTransform: 'uppercase' },
   langPillTextActive: { color: colors.textPrimary },
 
   scrubberWrap: { marginBottom: spacing.lg, position: 'relative' },
@@ -752,9 +752,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: 4,
     borderRadius: radius.full,
-    backgroundColor: 'rgba(167,139,250,0.20)',
+    backgroundColor: 'rgba(0,0,0,0.7)',
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.violet,
+    borderColor: 'rgba(255,255,255,0.2)',
   },
-  reactionFlashText: { ...typography.microSm, color: colors.violet, fontSize: 9 },
+  reactionFlashText: { ...typography.microSm, color: '#fff', fontSize: 9, letterSpacing: 1 },
 });
