@@ -118,7 +118,10 @@ The `audioSrc` field on a `ContentItem` accepts:
 - `seen_collab_invites` — creator collaboration invites
 - `seen_social_links` — creator social profile links (max 5)
 
-## Mobile App (Expo SDK 52)
+## Mobile App (Expo SDK 56)
+
+Stack: Expo SDK 56, React 19.2, React Native 0.85, Reanimated 4 (with `react-native-worklets`).
+Babel plugin: `react-native-worklets/plugin` (replaces `react-native-reanimated/plugin` from RNR 3).
 
 Native iOS/Android port under `/mobile`. Aligned to the web design system in 5 focused passes (all complete):
 

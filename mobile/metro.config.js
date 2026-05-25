@@ -21,4 +21,11 @@ config.resolver.nodeModulesPaths = [
 
 config.resolver.disableHierarchicalLookup = true;
 
+// Don't watch platform-managed transient dirs (workflow logs rotate frequently
+// and trigger ENOENT in Metro's file watcher under Nix).
+config.resolver.blockList = [
+  /\/\.local\/state\/.*/,
+  /\/\.cache\/.*/,
+];
+
 module.exports = config;
