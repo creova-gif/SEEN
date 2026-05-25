@@ -67,7 +67,8 @@ function TabLabel({ label, focused }: { label: string; focused: boolean }) {
           fontWeight: focused ? '500' : '300',
           color: focused ? colors.textPrimary : colors.textFaint,
           opacity: focused ? 1 : 0.4,
-          marginTop: 6,
+          marginTop: 4,
+          paddingBottom: 2,
           // Offset trailing letterSpacing so the text optically centers under the icon.
           paddingLeft: 2,
           textAlign: 'center',
@@ -111,7 +112,7 @@ export default function TabsLayout() {
         tabBarStyle: styles.tabBar,
         tabBarLabelPosition: 'below-icon',
         tabBarItemStyle: [
-          { paddingTop: 8, paddingBottom: 4 },
+          { paddingTop: 8, paddingBottom: 12 },
           // Kill the browser focus ring and link underline on web so the active
           // tab doesn't show a tiny dash under the label.
           Platform.OS === 'web' && ({ outlineStyle: 'none', textDecorationLine: 'none' } as any),
@@ -187,8 +188,8 @@ const styles = StyleSheet.create({
     borderTopWidth: StyleSheet.hairlineWidth,
     // Native safe-area bottom is added by react-navigation automatically on iOS.
     // Keep the bar tall enough that icon (20) + gap (6) + label (~14) fits with breathing room.
-    height: Platform.OS === 'web' ? 72 : 88,
-    paddingBottom: Platform.OS === 'web' ? 8 : 20,
+    height: Platform.OS === 'web' ? 88 : 96,
+    paddingBottom: Platform.OS === 'web' ? 12 : 24,
     paddingTop: 0,
   },
   iconWrap: {
