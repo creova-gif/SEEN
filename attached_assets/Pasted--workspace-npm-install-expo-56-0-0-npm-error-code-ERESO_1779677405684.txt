@@ -1,0 +1,74 @@
+~/workspace$ npm install expo@^56.0.0
+npm error code ERESOLVE
+npm error ERESOLVE could not resolve
+npm error
+npm error While resolving: react-native@0.85.3
+npm error Found: react@18.3.1
+npm error node_modules/react
+npm error   peer react@">=16.8.0" from @emotion/react@11.14.0
+npm error   node_modules/@emotion/react
+npm error     peer @emotion/react@"^11.0.0-rc.0" from @emotion/styled@11.14.1
+npm error     node_modules/@emotion/styled
+npm error       peerOptional @emotion/styled@"^11.3.0" from @mui/material@7.3.5
+npm error       node_modules/@mui/material
+npm error         peer @mui/material@"^7.3.5" from @mui/icons-material@7.3.5
+npm error         node_modules/@mui/icons-material
+npm error         1 more (the root project)
+npm error       3 more (@mui/styled-engine, @mui/system, the root project)
+npm error     peerOptional @emotion/react@"^11.5.0" from @mui/material@7.3.5
+npm error     node_modules/@mui/material
+npm error       peer @mui/material@"^7.3.5" from @mui/icons-material@7.3.5
+npm error       node_modules/@mui/icons-material
+npm error         @mui/icons-material@"7.3.5" from the root project
+npm error       1 more (the root project)
+npm error     3 more (@mui/styled-engine, @mui/system, the root project)
+npm error   peer react@">=16.8.0" from @emotion/styled@11.14.1
+npm error   node_modules/@emotion/styled
+npm error     peerOptional @emotion/styled@"^11.3.0" from @mui/material@7.3.5
+npm error     node_modules/@mui/material
+npm error       peer @mui/material@"^7.3.5" from @mui/icons-material@7.3.5
+npm error       node_modules/@mui/icons-material
+npm error         @mui/icons-material@"7.3.5" from the root project
+npm error       1 more (the root project)
+npm error     peerOptional @emotion/styled@"^11.3.0" from @mui/styled-engine@7.3.7
+npm error     node_modules/@mui/styled-engine
+npm error       @mui/styled-engine@"^7.3.7" from @mui/system@7.3.7
+npm error       node_modules/@mui/system
+npm error         @mui/system@"^7.3.5" from @mui/material@7.3.5
+npm error         node_modules/@mui/material
+npm error     2 more (@mui/system, the root project)
+npm error   91 more (@emotion/use-insertion-effect-with-fallbacks, ...)
+npm error
+npm error Could not resolve dependency:
+npm error peer react@"^19.2.3" from react-native@0.85.3
+npm error node_modules/react-native
+npm error   peer react-native@"*" from expo@56.0.4
+npm error   node_modules/expo
+npm error     expo@"^56.0.0" from the root project
+npm error     10 more (@expo/cli, @expo/dom-webview, @expo/log-box, ...)
+npm error   peerOptional react-native@"*" from @expo/cli@56.1.11
+npm error   node_modules/expo/node_modules/@expo/cli
+npm error     @expo/cli@"^56.1.11" from expo@56.0.4
+npm error   10 more (@expo/devtools, @expo/dom-webview, @expo/log-box, ...)
+npm error
+npm error Conflicting peer dependency: react@19.2.6
+npm error node_modules/react
+npm error   peer react@"^19.2.3" from react-native@0.85.3
+npm error   node_modules/react-native
+npm error     peer react-native@"*" from expo@56.0.4
+npm error     node_modules/expo
+npm error       expo@"^56.0.0" from the root project
+npm error       10 more (@expo/cli, @expo/dom-webview, @expo/log-box, ...)
+npm error     peerOptional react-native@"*" from @expo/cli@56.1.11
+npm error     node_modules/expo/node_modules/@expo/cli
+npm error       @expo/cli@"^56.1.11" from expo@56.0.4
+npm error     10 more (@expo/devtools, @expo/dom-webview, @expo/log-box, ...)
+npm error
+npm error Fix the upstream dependency conflict, or retry
+npm error this command with --force or --legacy-peer-deps
+npm error to accept an incorrect (and potentially broken) dependency resolution.
+npm error
+npm error
+npm error For a full report see:
+npm error /home/runner/.npm/_logs/2026-05-25T02_49_38_872Z-eresolve-report.txt
+npm error A complete log of this run can be found in: /home/runner/.npm/_logs/2026-05-25T02_49_38_872Z-debug-0.log
