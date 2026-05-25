@@ -58,18 +58,23 @@ function TabLabel({ label, focused }: { label: string; focused: boolean }) {
     <Text
       numberOfLines={1}
       allowFontScaling={false}
-      style={{
-        fontSize: 10,
-        letterSpacing: 2,
-        textTransform: 'uppercase',
-        fontWeight: focused ? '500' : '300',
-        color: focused ? colors.textPrimary : colors.textFaint,
-        opacity: focused ? 1 : 0.4,
-        marginTop: 6,
-        // Offset trailing letterSpacing so the text optically centers under the icon.
-        paddingLeft: 2,
-        textAlign: 'center',
-      }}
+      style={[
+        {
+          fontSize: 10,
+          letterSpacing: 2,
+          textTransform: 'uppercase',
+          fontWeight: focused ? '500' : '300',
+          color: focused ? colors.textPrimary : colors.textFaint,
+          opacity: focused ? 1 : 0.4,
+          marginTop: 6,
+          // Offset trailing letterSpacing so the text optically centers under the icon.
+          paddingLeft: 2,
+          textAlign: 'center',
+        },
+        // Suppress browser default text decoration / focus underline that bleeds
+        // through the active tab's <a> wrapper in the web preview only.
+        Platform.OS === 'web' && ({ textDecorationLine: 'none' } as any),
+      ]}
     >
       {label}
     </Text>
@@ -103,7 +108,12 @@ export default function TabsLayout() {
         header: () => <Header />,
         tabBarStyle: styles.tabBar,
         tabBarLabelPosition: 'below-icon',
-        tabBarItemStyle: { paddingTop: 10 },
+        tabBarItemStyle: [
+          { paddingTop: 10 },
+          // Kill the browser focus ring and link underline on web so the active
+          // tab doesn't show a tiny dash under the label.
+          Platform.OS === 'web' && ({ outlineStyle: 'none', textDecorationLine: 'none' } as any),
+        ] as any,
         tabBarActiveTintColor: colors.textPrimary,
         tabBarInactiveTintColor: colors.textFaint,
       }}
