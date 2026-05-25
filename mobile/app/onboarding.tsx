@@ -15,14 +15,13 @@ import {
   Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { MotiView } from 'moti';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ArrowRight } from 'lucide-react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '../utils/supabase';
-import { colors, spacing, radius, typography, layout, glow } from '../constants/theme';
+import { colors, spacing, radius, typography, layout } from '../constants/theme';
 
 // SEEN by CREOVA — Native onboarding flow
 // Faithful port of src/app/components/OnboardingSystem.tsx (zip):
@@ -230,9 +229,13 @@ function InvocationStep({
   insets: { top: number; bottom: number };
   onComplete: () => void;
 }) {
-  // Ambient gradient pulse behind everything
+  // Ambient subtle purple/blue gradient — matches the zip's
+  // `bg-gradient-to-br from-purple-900/10 via-black to-blue-900/10`
+  // animated at opacity 0.2 → 0.3 over 8s (intentionally restrained).
   const pulse = useRef(new Animated.Value(0)).current;
-  // (The halo on the SEEN CTA is driven natively via MotiView below.)
+  // Green sage pulse ring on the CTA — mirrors the source's
+  // boxShadow keyframes: '0 0 0 0 rgba(76,175,80,0.4)' → '0 0 0 8px rgba(76,175,80,0)'
+  const ring = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     Animated.loop(
@@ -241,15 +244,24 @@ function InvocationStep({
         Animated.timing(pulse, { toValue: 0, duration: 4000, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
       ]),
     ).start();
-  }, [pulse]);
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(ring, { toValue: 1, duration: 2000, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+        Animated.delay(1000),
+        Animated.timing(ring, { toValue: 0, duration: 0, useNativeDriver: true }),
+      ]),
+    ).start();
+  }, [pulse, ring]);
 
-  const gradOpacity = pulse.interpolate({ inputRange: [0, 1], outputRange: [0.25, 0.55] });
+  const gradOpacity = pulse.interpolate({ inputRange: [0, 1], outputRange: [0.2, 0.3] });
+  const ringScale = ring.interpolate({ inputRange: [0, 1], outputRange: [1, 1.12] });
+  const ringOpacity = ring.interpolate({ inputRange: [0, 1], outputRange: [0.6, 0] });
 
   return (
     <View style={[styles.fullBleed, { paddingTop: insets.top, paddingBottom: insets.bottom + spacing.xl }]}>
       <Animated.View style={[StyleSheet.absoluteFillObject, { opacity: gradOpacity }]}>
         <LinearGradient
-          colors={['rgba(76,29,149,0.55)', '#000000', 'rgba(30,58,138,0.55)']}
+          colors={['rgba(76,29,149,0.4)', '#000000', 'rgba(30,58,138,0.4)']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={StyleSheet.absoluteFillObject}
@@ -269,20 +281,13 @@ function InvocationStep({
         </FadeInRow>
         <FadeInRow delay={2200}>
           <View style={styles.invocationBtnWrap}>
-            {/* Pulsing violet halo — native-driven by Reanimated via Moti so the
-                breathing runs at 60fps on device without blocking the JS thread.
-                The Animated.Value-based fallback still works on web. */}
-            <MotiView
+            {/* Sage green expanding pulse ring */}
+            <Animated.View
               pointerEvents="none"
-              from={{ opacity: 0.35, scale: 1 }}
-              animate={{ opacity: 0.95, scale: 1.08 }}
-              transition={{
-                type: 'timing',
-                duration: 2200,
-                loop: true,
-                repeatReverse: true,
-              }}
-              style={styles.invocationHalo}
+              style={[
+                styles.invocationRing,
+                { opacity: ringOpacity, transform: [{ scale: ringScale }] },
+              ]}
             />
             <Pressable
               onPress={onComplete}
@@ -291,12 +296,12 @@ function InvocationStep({
               style={({ pressed }) => [styles.invocationBtn, pressed && { opacity: 0.85, transform: [{ scale: 0.98 }] }]}
             >
               <LinearGradient
-                colors={['rgba(167,139,250,0.18)', 'rgba(124,58,237,0.10)']}
+                colors={[colors.sageBg, colors.sageBgFaint]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={StyleSheet.absoluteFillObject}
               />
-              <Text style={styles.invocationBtnText}>S · E · E · N</Text>
+              <Text style={styles.invocationBtnText}>S.E.E.N</Text>
             </Pressable>
           </View>
         </FadeInRow>
@@ -347,10 +352,9 @@ function PurposeStep({
             onPress={onNext}
             accessibilityRole="button"
             accessibilityLabel="Continue"
-            style={({ pressed }) => [styles.purposeBtn, pressed && { opacity: 0.7 }]}
+            style={({ pressed }) => [styles.purposeBtn, pressed && { opacity: 0.85, transform: [{ scale: 0.98 }] }]}
           >
             <Text style={styles.purposeBtnLabel}>Continue</Text>
-            <ArrowRight size={16} color={colors.textPrimary} strokeWidth={1.5} />
           </Pressable>
         </FadeInRow>
       </View>
@@ -865,16 +869,17 @@ const styles = StyleSheet.create({
   stack: { width: '100%' },
   formStack: { width: '100%', gap: spacing.md },
 
+  // List item: `w-full py-5 text-left border-b border-white/10` — left aligned, no h-padding.
   listItem: {
     width: '100%',
     paddingVertical: spacing.xl,
-    paddingHorizontal: spacing.lg,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
+    alignItems: 'flex-start',
   },
   listItemPressed: { backgroundColor: 'rgba(255,255,255,0.03)' },
-  listLabel: { ...typography.h3, color: colors.textHigh, fontSize: 17 },
-  listSub: { ...typography.bodySm, color: colors.textFaint, marginTop: 4 },
+  listLabel: { ...typography.h3, color: 'rgba(255,255,255,0.90)', fontSize: 16, textAlign: 'left' },
+  listSub:   { ...typography.bodySm, color: colors.textFaint, marginTop: 4, fontSize: 13, textAlign: 'left' },
 
   whisper: {
     ...typography.bodySm,
@@ -893,77 +898,89 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: spacing['2xl'],
   },
+  // Wordmark: matches web `text-4xl tracking-tight` (≈36px, tight tracking).
   invocationTitle: {
-    fontSize: 68,
-    letterSpacing: 6,
-    fontWeight: '300',
-    fontFamily: 'Inter_300Light',
+    fontSize: 36,
+    letterSpacing: -0.5,
+    fontWeight: '500',
+    fontFamily: 'Inter_500Medium',
     color: colors.textPrimary,
     textAlign: 'center',
-    ...glow.wordmark,
   },
+  // Eyebrow: `text-xs tracking-[0.4em] uppercase text-white/30`.
   invocationEyebrow: {
-    ...typography.brandEyebrow,
     fontSize: 11,
-    letterSpacing: 6,
-    color: colors.textMuted,
+    letterSpacing: 4.4,
+    fontWeight: '400',
+    fontFamily: 'Inter_400Regular',
+    color: colors.textWhisper,
     textAlign: 'center',
-    marginTop: 12,
+    textTransform: 'uppercase',
+    marginTop: 6,
     marginBottom: spacing['4xl'],
   },
+  // Tagline: `text-base text-white/60` plain — no glow.
   invocationTagline: {
-    ...typography.body,
-    color: colors.textHigh,
-    textAlign: 'center',
     fontSize: 16,
     lineHeight: 24,
-    letterSpacing: 0.4,
-    marginBottom: spacing['4xl'],
-    ...glow.ambient,
-  },
-  invocationLine: {
-    ...typography.h3,
-    color: colors.textHigh,
+    fontWeight: '400',
+    fontFamily: 'Inter_400Regular',
+    color: colors.textMuted,
     textAlign: 'center',
-    fontSize: 17,
-    letterSpacing: 0.6,
+    marginBottom: spacing['4xl'],
+  },
+  // "You are entering SEEN." — `text-lg text-white/80`.
+  invocationLine: {
+    fontSize: 18,
+    lineHeight: 26,
+    fontWeight: '400',
+    fontFamily: 'Inter_400Regular',
+    color: 'rgba(255,255,255,0.80)',
+    textAlign: 'center',
     marginBottom: spacing['4xl'],
   },
   invocationBtnWrap: {
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
-    paddingVertical: spacing.lg,
+    paddingVertical: spacing.md,
   },
-  // The animated halo is drawn slightly larger than the button and blurred
-  // via shadowRadius. On Android, elevation provides the same lift.
-  invocationHalo: {
+  // Sage green pulse ring — emulates the source's expanding box-shadow ring.
+  invocationRing: {
     position: 'absolute',
-    left: -16,
-    right: -16,
-    top: spacing.lg - 8,
-    bottom: spacing.lg - 8,
-    borderRadius: radius.full,
-    backgroundColor: 'rgba(167,139,250,0.22)',
-    ...glow.cta,
+    left: -2,
+    right: -2,
+    top: spacing.md - 2,
+    bottom: spacing.md - 2,
+    borderRadius: 2,
+    borderWidth: 2,
+    borderColor: colors.sageRing,
   },
+  // CTA: square (2px radius), sage green tinted bg + border. Matches the
+  // source's `borderRadius: '2px'`, `border: 1px solid rgba(76,175,80,0.3)`.
   invocationBtn: {
-    paddingVertical: 16,
-    paddingHorizontal: spacing['4xl'],
+    paddingVertical: 12,
+    paddingHorizontal: spacing['3xl'],
     borderWidth: 1,
-    borderColor: 'rgba(167,139,250,0.55)',
-    borderRadius: radius.full,
+    borderColor: colors.sageBorder,
+    borderRadius: 2,
     overflow: 'hidden',
-    backgroundColor: 'rgba(0,0,0,0.40)',
+    backgroundColor: 'transparent',
+    // Soft sage drop-shadow — matches '0 4px 20px rgba(76,175,80,0.1)'.
+    shadowColor: colors.sage,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.10,
+    shadowRadius: 20,
+    elevation: 2,
   },
   invocationBtnText: {
-    ...typography.cta,
-    color: '#ffffff',
-    fontSize: 14,
-    letterSpacing: 6,
-    textShadowColor: 'rgba(167,139,250,0.9)',
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 10,
+    fontSize: 13,
+    letterSpacing: 4,
+    fontWeight: '700',
+    fontFamily: 'Inter_600SemiBold',
+    color: 'rgba(255,255,255,0.95)',
+    textAlign: 'center',
+    textTransform: 'uppercase',
   },
 
   /* Purpose */
@@ -990,19 +1007,17 @@ const styles = StyleSheet.create({
     fontSize: 15,
     maxWidth: 320,
   },
+  // Web: `w-full py-4 rounded-full bg-white text-black` — solid pill.
   purposeBtn: {
     marginTop: spacing['3xl'],
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    alignSelf: 'flex-start',
-    paddingVertical: spacing.lg,
-    paddingHorizontal: spacing.xl,
-    borderWidth: 1,
-    borderColor: colors.borderStrong,
+    width: '100%',
+    paddingVertical: 16,
+    backgroundColor: '#ffffff',
     borderRadius: radius.full,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  purposeBtnLabel: { ...typography.cta, color: colors.textPrimary, fontSize: 12 },
+  purposeBtnLabel: { ...typography.cta, color: '#000000', fontSize: 12 },
 
   /* Account */
   input: {
@@ -1111,16 +1126,16 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     marginBottom: spacing['3xl'],
   },
+  // Threshold heading: web uses `text-2xl text-white/90` — restrained.
   thresholdTitle: {
-    fontSize: 32,
-    fontWeight: '300',
-    fontFamily: 'Inter_300Light',
-    color: colors.textPrimary,
+    fontSize: 22,
+    lineHeight: 32,
+    fontWeight: '400',
+    fontFamily: 'Inter_400Regular',
+    color: 'rgba(255,255,255,0.90)',
     textAlign: 'center',
     marginBottom: spacing['3xl'],
-    letterSpacing: 1.2,
-    lineHeight: 38,
-    ...glow.wordmark,
+    letterSpacing: 0.2,
   },
   ghostBtn: {
     paddingVertical: 14,

@@ -17,7 +17,7 @@ import { ArrowRight, Compass } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '../utils/supabase';
 import { LIVE_ITEMS, STORY_ALL, MUSIC_ALL, FILM_ALL, type UnifiedItem } from '../data/aggregate';
-import { colors, spacing, radius, typography, layout, glow } from '../constants/theme';
+import { colors, spacing, radius, typography, layout } from '../constants/theme';
 
 // SEEN home — a mobile-app home screen, not a marketing site.
 // Compact hero, content rails (Stories / Music / Film), and quick links
@@ -296,20 +296,18 @@ const styles = StyleSheet.create({
   heroEyebrow: {
     ...typography.brandEyebrow,
     fontSize: 11,
-    letterSpacing: 5,
-    color: colors.textMuted,
+    letterSpacing: 4.4,
+    color: colors.textWhisper,
     marginBottom: spacing.md,
-    ...glow.ambient,
   },
   heroTitle: {
     fontSize: 28,
     lineHeight: 34,
-    fontWeight: '300',
-    fontFamily: 'Inter_300Light',
+    fontWeight: '500',
+    fontFamily: 'Inter_500Medium',
     color: colors.textPrimary,
     letterSpacing: -0.3,
     marginBottom: spacing.xl,
-    ...glow.ambient,
   },
   ctaRow: { flexDirection: 'row', gap: spacing.sm },
   primaryCta: {

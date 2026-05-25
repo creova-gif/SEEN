@@ -25,6 +25,13 @@ export const colors = {
   emerald: '#10b981',
   rose: '#fb7185',
   blue: '#60a5fa',
+  // Sage green — used for the invocation CTA per the zip design
+  // (rgba(76, 175, 80) family in OnboardingSystem InvocationLayer).
+  sage: '#4caf50',
+  sageBg: 'rgba(76,175,80,0.15)',
+  sageBgFaint: 'rgba(76,175,80,0.05)',
+  sageBorder: 'rgba(76,175,80,0.30)',
+  sageRing: 'rgba(76,175,80,0.40)',
 
   // Semantic tokens ported from the web theme (theme.css)
   primary: '#ffffff',
