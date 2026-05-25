@@ -20,6 +20,14 @@ const FILTERS: { id: Filter; label: string; icon: keyof typeof Ionicons.glyphMap
 const typeLabel = (t: UnifiedItem['type']) =>
   ({ music: 'Music', story: 'Story', film: 'Film', collection: 'Collection', archive: 'Archive' }[t] ?? '');
 
+// Cultural identity palette (matches the editorial source: each tag gets a distinct dot colour)
+const TAG_PALETTE = ['#7C6FCD', '#E89B6E', '#6FCDB8', '#CD6F8E', '#6F9BCD', '#CDC06F', '#9BCD6F', '#CD6F6F', '#6FCD9B', '#B86FCD', '#CD8E6F', '#6FCDCD', '#CD6FB8', '#8ECD6F'];
+const colorForTag = (tag: string) => {
+  let h = 0;
+  for (let i = 0; i < tag.length; i++) h = (h * 31 + tag.charCodeAt(i)) >>> 0;
+  return TAG_PALETTE[h % TAG_PALETTE.length];
+};
+
 export default function Explore() {
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
@@ -71,21 +79,35 @@ export default function Explore() {
         />
       </View>
 
-      {/* Cultural Tag Cloud */}
+      {/* Cultural Tag Cloud — each tag has a distinct identity colour dot */}
+      <Text style={styles.railLabel}>Cultural Identities</Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: spacing.md }} contentContainerStyle={{ gap: spacing.xs, paddingRight: spacing.xl }}>
         {allTags.map(tag => {
           const active = selectedTag === tag;
+          const dot = colorForTag(tag);
           return (
             <Pressable
               key={tag}
               onPress={() => setSelectedTag(active ? null : tag)}
               style={({ pressed }) => [styles.tagChip, active && styles.tagChipActive, pressed && { opacity: 0.7 }]}
             >
-              <Text style={[styles.tagText, active && styles.tagTextActive]}>#{tag}</Text>
+              <View style={[styles.tagDot, { backgroundColor: active ? '#000' : dot }]} />
+              <Text style={[styles.tagText, active && styles.tagTextActive]}>{tag}</Text>
             </Pressable>
           );
         })}
       </ScrollView>
+
+      {/* Active tag context banner */}
+      {selectedTag && (
+        <View style={[styles.tagBanner, { borderColor: colorForTag(selectedTag) + '55', backgroundColor: colorForTag(selectedTag) + '14' }]}>
+          <View style={[styles.tagDot, { backgroundColor: colorForTag(selectedTag) }]} />
+          <Text style={styles.tagBannerText}>Showing stories tagged <Text style={{ color: colors.textPrimary }}>{selectedTag}</Text></Text>
+          <Pressable onPress={() => setSelectedTag(null)} hitSlop={8}>
+            <Text style={styles.tagBannerClear}>CLEAR</Text>
+          </Pressable>
+        </View>
+      )}
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: spacing.xl }} contentContainerStyle={{ gap: spacing.sm, paddingRight: spacing.xl }}>
         {FILTERS.map(f => {
@@ -153,9 +175,9 @@ const styles = StyleSheet.create({
   subheading: { ...typography.body, color: colors.textMuted, marginBottom: spacing.xl },
   searchWrap: {
     flexDirection: 'row', alignItems: 'center', gap: spacing.sm,
-    backgroundColor: colors.surface,
-    borderWidth: StyleSheet.hairlineWidth, borderColor: colors.border,
-    borderRadius: radius.full,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderWidth: StyleSheet.hairlineWidth, borderColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 12,
     paddingHorizontal: spacing.lg, paddingVertical: 12,
     marginBottom: spacing.lg,
   },
@@ -164,19 +186,33 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', gap: 6,
     paddingVertical: 8, paddingHorizontal: 14,
     borderRadius: radius.full,
-    backgroundColor: colors.surface,
-    borderWidth: StyleSheet.hairlineWidth, borderColor: colors.border,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderWidth: StyleSheet.hairlineWidth, borderColor: 'rgba(255,255,255,0.1)',
   },
   filterPillActive: { backgroundColor: colors.textPrimary, borderColor: colors.textPrimary },
   filterText: { ...typography.micro, fontSize: 10, color: colors.textSecondary },
   filterTextActive: { color: '#000' },
   tagChip: {
+    flexDirection: 'row', alignItems: 'center', gap: 6,
     paddingVertical: 6, paddingHorizontal: 12,
     borderRadius: radius.full,
-    backgroundColor: colors.surfaceElevated,
+    backgroundColor: 'rgba(255,255,255,0.03)',
+    borderWidth: StyleSheet.hairlineWidth, borderColor: 'rgba(255,255,255,0.08)',
   },
-  tagChipActive: { backgroundColor: colors.textPrimary },
+  tagChipActive: { backgroundColor: colors.textPrimary, borderColor: colors.textPrimary },
+  tagDot: { width: 6, height: 6, borderRadius: 3 },
   tagText: { ...typography.micro, color: colors.textSecondary },
   tagTextActive: { color: '#000', fontWeight: '500' },
+  tagBanner: {
+    flexDirection: 'row', alignItems: 'center', gap: spacing.sm,
+    paddingVertical: 10, paddingHorizontal: 14,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255,255,255,0.04)',
+    borderWidth: StyleSheet.hairlineWidth, borderColor: 'rgba(255,255,255,0.08)',
+    marginBottom: spacing.lg,
+  },
+  tagBannerText: { flex: 1, ...typography.bodySm, color: colors.textMuted, fontSize: 12 },
+  tagBannerClear: { ...typography.micro, fontSize: 10, color: colors.textPrimary },
+  railLabel: { ...typography.micro, fontSize: 10, letterSpacing: 2, textTransform: 'uppercase', color: colors.textFaint, marginBottom: spacing.sm, marginLeft: 2 },
   section: { marginBottom: spacing['2xl'] },
 });
