@@ -34,6 +34,10 @@ localPort = 5000
 externalPort = 80
 
 [[ports]]
+localPort = 5001
+externalPort = 3001
+
+[[ports]]
 localPort = 8081
 externalPort = 8081
 
@@ -42,9 +46,8 @@ localPort = 8082
 externalPort = 3000
 
 [deployment]
-deploymentTarget = "static"
+deploymentTarget = "cloudrun"
 build = ["npm", "run", "build"]
-publicDir = "dist"
 
 [postMerge]
 path = "scripts/post-merge.sh"
