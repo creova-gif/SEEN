@@ -1,0 +1,20 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "1SO67IsnrxtwHNicHY6bf"
+uri = "file://docs/PRD.md"
+type = "text"
+title = "Product Requirements Document (PRD)"
+
+[[outputs]]
+id = "EQXZUJOfSvd7UZYjFYqcn"
+uri = "file://docs/USER-STORIES.md"
+type = "text"
+title = "User Stories"
+
+[[outputs]]
+id = "IwEbUv44u3Ml4oVM16Dlu"
+uri = "file://docs/FEATURE-SPECIFICATIONS.md"
+type = "text"
+title = "Feature Specifications"
