@@ -10,7 +10,9 @@
 
 SEEN is CREOVA's interactive storytelling platform — readers move through branching narrative "story worlds" delivered as audio and film content, in English, French, and Spanish. It's built for depth over distraction: intentional engagement and reflection rather than passive scrolling, while giving creators a way to share authentic, culturally grounded narratives. The codebase spans a web app (story builder, content library, navigation flow tooling) and a mobile companion app (chapters, explore, create, moderate, admin).
 
-[ADD SCREENSHOT HERE]
+![SEEN home feed](docs/screenshots/dashboard.png)
+
+**Try it live:** [replit.com/@ayoubjustin2/SEEN](https://replit.com/@ayoubjustin2/SEEN)
 
 ## Status: In active development
 
