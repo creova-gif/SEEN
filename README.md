@@ -1,6 +1,6 @@
 # SEEN
 
-**An interactive, branching narrative app exploring identity and "soft power" through story — chapters, reader choices, and a companion mobile app.**
+**An interactive digital storytelling platform delivering immersive, multilingual story worlds through audio and film — CREOVA's flagship digital product.**
 
 ![Status](https://img.shields.io/badge/status-active_development-yellow)
 ![License](https://img.shields.io/badge/license-proprietary-red)
@@ -8,18 +8,18 @@
 
 ## What this is
 
-SEEN began as CREOVA's clothing line concept ("A Season of Soft Power") and has grown into an interactive storytelling app: readers move through chapters with branching choices, a story builder, a content library, and admin/moderation tooling for managing submitted content. It spans both a web app and a mobile (Expo) companion app.
+SEEN is CREOVA's interactive storytelling platform — readers move through branching narrative "story worlds" delivered as audio and film content, in English, French, and Spanish. It's built for depth over distraction: intentional engagement and reflection rather than passive scrolling, while giving creators a way to share authentic, culturally grounded narratives. The codebase spans a web app (story builder, content library, navigation flow tooling) and a mobile companion app (chapters, explore, create, moderate, admin).
 
 [ADD SCREENSHOT HERE]
 
 ## Status: In active development
 
-This is the largest and most feature-complete of CREOVA's early-stage prototypes (100+ custom screens/components), but it has not been through a content-moderation or user-testing pass yet, and the relationship between the original clothing-line concept and the current interactive-story direction should be clarified before external use.
+This is the most feature-complete prototype in the CREOVA portfolio (100+ custom screens/components across web and mobile). Institutional partnerships (universities, school boards, cultural organizations) are the near-term go-to-market target rather than direct consumer subscriptions.
 
 ### Roadmap
-- Clarify product direction (clothing line vs. narrative app vs. both)
-- Content moderation review before any public-facing use
-- Backend wiring for user-generated story content
+- Institutional pilot partnerships (universities, school boards)
+- Content moderation review ahead of any creator-submitted content going live
+- Backend wiring for user-generated story content at scale
 
 ## Quickstart
 
