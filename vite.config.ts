@@ -19,4 +19,46 @@ export default defineConfig({
 
   // File types to support raw imports. Never add .css, .tsx, or .ts files to this.
   assetsInclude: ['**/*.svg', '**/*.csv'],
+
+  // Build optimization for production
+  build: {
+    // Increase chunk size warning limit (our app is legitimately large)
+    chunkSizeWarningLimit: 600,
+
+    // Use default Vite minification (esbuild is faster and built-in)
+    minify: 'esbuild',
+
+    // Code splitting strategy
+    rollupOptions: {
+      output: {
+        manualChunks: (id) => {
+          // Vendor chunks
+          if (id.includes('node_modules/react')) {
+            return 'react-vendor';
+          }
+          if (id.includes('node_modules/motion')) {
+            return 'motion-vendor';
+          }
+          if (id.includes('node_modules/@radix-ui')) {
+            return 'radix-vendor';
+          }
+
+          // Data layer chunk
+          if (id.includes('/data/')) {
+            return 'data-layer';
+          }
+
+          // Context chunk
+          if (id.includes('/contexts/')) {
+            return 'contexts';
+          }
+        },
+
+        // Optimize chunk naming for caching
+        chunkFileNames: 'chunks/[name]-[hash].js',
+        entryFileNames: '[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash][extname]',
+      },
+    },
+  },
 })
