@@ -75,7 +75,7 @@ export function SearchScreen({ onClose, onSelectStory }: SearchScreenProps) {
                 <X className="w-4 h-4 text-white/70" />
               </motion.button>
               <h2 className="text-white text-lg font-light tracking-tight">
-                {language === 'en' ? 'Search Stories' : language === 'fr' ? 'Rechercher des Histoires' : 'Buscar Historias'}
+                {language === 'en' ? 'Search Stories' : language === 'fr' ? 'Rechercher des Histoires' : language === 'es' ? 'Buscar Historias' : 'Search Stories'}
               </h2>
             </div>
 
@@ -84,7 +84,7 @@ export function SearchScreen({ onClose, onSelectStory }: SearchScreenProps) {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/40" />
               <input
                 type="text"
-                placeholder={language === 'en' ? 'Search by title, author, or theme...' : language === 'fr' ? 'Rechercher par titre, auteur ou thème...' : 'Buscar por título, autor o tema...'}
+                placeholder={language === 'en' ? 'Search by title, author, or theme...' : language === 'fr' ? 'Rechercher par titre, auteur ou thème...' : language === 'es' ? 'Buscar por título, autor o tema...' : 'Search by title, author, or theme...'}
                 value={query}
                 onChange={e => setQuery(e.target.value)}
                 autoFocus
@@ -106,7 +106,7 @@ export function SearchScreen({ onClose, onSelectStory }: SearchScreenProps) {
                 {!isSearching && results.length === 0 && (
                   <div className="text-center py-8">
                     <p className="text-white/40 text-sm">
-                      {language === 'en' ? 'No stories found' : language === 'fr' ? 'Aucune histoire trouvée' : 'No se encontraron historias'}
+                      {language === 'en' ? 'No stories found' : language === 'fr' ? 'Aucune histoire trouvée' : language === 'es' ? 'No se encontraron historias' : 'No stories found'}
                     </p>
                   </div>
                 )}
@@ -135,7 +135,7 @@ export function SearchScreen({ onClose, onSelectStory }: SearchScreenProps) {
             {!query.trim() && (
               <div className="px-5 py-8 text-center">
                 <p className="text-white/40 text-sm mb-4">
-                  {language === 'en' ? 'Start typing to search...' : language === 'fr' ? 'Commencez à taper pour rechercher...' : 'Comience a escribir para buscar...'}
+                  {language === 'en' ? 'Start typing to search...' : language === 'fr' ? 'Commencez à taper pour rechercher...' : language === 'es' ? 'Comience a escribir para buscar...' : 'Start typing to search...'}
                 </p>
               </div>
             )}
@@ -144,7 +144,7 @@ export function SearchScreen({ onClose, onSelectStory }: SearchScreenProps) {
           {/* Footer Info */}
           <div className="px-5 py-4 border-t border-white/5 text-center">
             <p className="text-white/30 text-xs">
-              {results.length > 0 && `${results.length} ${language === 'en' ? 'result' : language === 'fr' ? 'résultat' : 'resultado'}${results.length !== 1 ? 's' : ''}`}
+              {results.length > 0 && `${results.length} ${language === 'en' ? 'result' : language === 'fr' ? 'résultat' : language === 'es' ? 'resultado' : 'result'}${results.length !== 1 ? 's' : ''}`}
             </p>
           </div>
         </motion.div>
