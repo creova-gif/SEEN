@@ -138,6 +138,47 @@ export function getModerationQueue(): QueuedResponse[] {
   return seedModerationQueueIfEmpty();
 }
 
+/**
+ * Submit a new community response for moderation review. Used by
+ * SubmitResponseModal — real user submissions land here as 'pending',
+ * visible to moderators via ModerationGovernanceSystem / getModerationQueue.
+ */
+export function submitCommunityResponse(params: {
+  chapterId: string;
+  storyId: string;
+  contributorId: string;
+  contributorName: string;
+  type: 'text' | 'audio' | 'image';
+  content: string;
+  language: 'en' | 'fr' | 'es';
+}): QueuedResponse {
+  const queue = seedModerationQueueIfEmpty();
+  const response: QueuedResponse = {
+    id: `resp_${crypto.randomUUID()}`,
+    chapterId: params.chapterId,
+    storyId: params.storyId,
+    contributorId: params.contributorId,
+    contributorName: params.contributorName,
+    type: params.type,
+    content: params.content,
+    language: params.language,
+    timestamp: new Date().toISOString(),
+    status: 'pending',
+  };
+  queue.unshift(response);
+  save(MODERATION_KEY, queue);
+  return response;
+}
+
+/**
+ * Approved responses for a specific chapter — what CommunityResponsesPanel
+ * should actually display to readers (pending/rejected/flagged stay
+ * invisible to the public until a moderator approves them).
+ */
+export function getApprovedResponsesForChapter(chapterId: string): QueuedResponse[] {
+  return seedModerationQueueIfEmpty().filter(r => r.chapterId === chapterId && r.status === 'approved');
+}
+
 function logModerationAction(action: Omit<ModerationActionRecord, 'id' | 'timestamp'>) {
   const actions = load<ModerationActionRecord[]>(MODERATION_ACTIONS_KEY, []);
   actions.unshift({ ...action, id: `act_${crypto.randomUUID()}`, timestamp: new Date().toISOString() });

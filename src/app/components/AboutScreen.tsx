@@ -55,16 +55,16 @@ export function AboutScreen({ onClose }: AboutScreenProps) {
       },
       funding: {
         en: {
-          title: "Funding & Ethics",
-          body: "SEEN is supported by the Canada Media Fund and institutional partnerships. We never sell user data, never surveil behavior, and never optimize for addiction. Our business model centers creator sustainability, not extraction."
+          title: "Our Commitment",
+          body: "We never sell user data, never surveil behavior, and never optimize for addiction. Our business model centers creator sustainability, not extraction."
         },
         fr: {
-          title: "Financement et Éthique",
-          body: "SEEN est soutenu par le Fonds des médias du Canada et des partenariats institutionnels. Nous ne vendons jamais de données d'utilisateurs, ne surveillons jamais le comportement et n'optimisons jamais pour la dépendance. Notre modèle économique se concentre sur la durabilité des créateurs, pas sur l'extraction."
+          title: "Notre Engagement",
+          body: "Nous ne vendons jamais de données d'utilisateurs, ne surveillons jamais le comportement et n'optimisons jamais pour la dépendance. Notre modèle économique se concentre sur la durabilité des créateurs, pas sur l'extraction."
         },
         es: {
-          title: "Financiación y Ética",
-          body: "SEEN cuenta con el apoyo del Fondo de Medios de Canadá y asociaciones institucionales. Nunca vendemos datos de usuarios, nunca vigilamos el comportamiento y nunca optimizamos para la adicción. Nuestro modelo de negocio se centra en la sostenibilidad del creador, no en la extracción."
+          title: "Nuestro Compromiso",
+          body: "Nunca vendemos datos de usuarios, nunca vigilamos el comportamiento y nunca optimizamos para la adicción. Nuestro modelo de negocio se centra en la sostenibilidad del creador, no en la extracción."
         }
       }
     };
@@ -211,7 +211,7 @@ export function AboutScreen({ onClose }: AboutScreenProps) {
             </p>
           </motion.section>
 
-          {/* Funding */}
+          {/* Our Commitment (ethics & privacy) */}
           <motion.section
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -221,26 +221,9 @@ export function AboutScreen({ onClose }: AboutScreenProps) {
             <h3 className="text-lg tracking-tight text-white">
               {getText('funding', 'title')}
             </h3>
-            <p className="text-base text-white/70 leading-relaxed mb-6">
+            <p className="text-base text-white/70 leading-relaxed">
               {getText('funding', 'body')}
             </p>
-
-            {/* CMF logo placeholder */}
-            <div className="p-5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
-              <div className="text-center">
-                <div className="w-16 h-16 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center mx-auto mb-3">
-                  <span className="text-white/60 text-xs font-medium">CMF</span>
-                </div>
-                <p className="text-xs text-white/50">
-                  {state.language === 'en' 
-                    ? 'Supported by Canada Media Fund'
-                    : state.language === 'fr'
-                    ? 'Soutenu par le Fonds des médias du Canada'
-                    : 'Apoyado por el Fondo de Medios de Canadá'
-                  }
-                </p>
-              </div>
-            </div>
           </motion.section>
 
           {/* Quote */}

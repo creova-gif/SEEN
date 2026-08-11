@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { AudioPlayer } from "./AudioPlayer";
 import { useAudioPlayer } from "../hooks/useAudioPlayer";
 import { useStoryState } from "../contexts/StoryStateContext";
+import { useAuth } from "../contexts/AuthContext";
 import {
   getChaptersForStory,
   getLocalizedText,
@@ -15,6 +16,8 @@ import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ContextCardModal } from "./ContextCardModal";
 import { CommunityResponsesPanel } from "./CommunityResponsesPanel";
 import { BranchingChoiceOverlay } from "./BranchingChoiceOverlay";
+import { SubmitResponseModal } from "./SubmitResponseModal";
+import { submitCommunityResponse, getApprovedResponsesForChapter } from "../data/adminService";
 
 interface StoryChapterScreenProps {
   onClose: () => void;
@@ -28,6 +31,7 @@ export function StoryChapterScreen({
   storyWorldId = 'midnight-resonance'
 }: StoryChapterScreenProps) {
   const { state, navigateToChapter, updateAudioState, saveProgress, setLanguage, recordBranchChoice } = useStoryState();
+  const { state: authState } = useAuth();
   const chapters = getChaptersForStory(storyWorldId);
   const storyWorld = getStoryWorldById(storyWorldId);
   
@@ -43,6 +47,7 @@ export function StoryChapterScreen({
   // NEW: State for context cards, community responses, and branching
   const [selectedContextCardIndex, setSelectedContextCardIndex] = useState<number | null>(null);
   const [showCommunityResponses, setShowCommunityResponses] = useState(false);
+  const [showSubmitResponse, setShowSubmitResponse] = useState(false);
   const [showBranchChoice, setShowBranchChoice] = useState(false);
   const [hasMadeBranchChoice, setHasMadeBranchChoice] = useState(false);
   
@@ -63,9 +68,19 @@ export function StoryChapterScreen({
     );
   }
   
-  // Get context cards and responses for current chapter
+  // Get context cards and responses for current chapter.
+  // Community responses come from the real moderation queue — only
+  // moderator-approved submissions are shown to readers.
   const contextCards = currentChapter.contextCards || [];
-  const communityResponses = currentChapter.responses || [];
+  const approvedResponses = getApprovedResponsesForChapter(currentChapter.id);
+  const communityResponses = approvedResponses.map(r => ({
+    id: r.id,
+    type: r.type,
+    content: r.content,
+    authorName: r.contributorName,
+    timestamp: r.timestamp,
+    language: r.language,
+  }));
   const branchChoice = currentChapter.branchChoices?.[0]; // Get first branch choice if available
   
   const audio = useAudioPlayer({
@@ -122,11 +137,26 @@ export function StoryChapterScreen({
     // For soft branches, just continue normally
   };
 
-  // NEW: Handler for community response submission
+  // Handler for community response submission
   const handleSubmitResponse = () => {
-    // This would open the submit response modal
-    // For now, just close the panel
     setShowCommunityResponses(false);
+    setShowSubmitResponse(true);
+  };
+
+  const [submissionForceRefresh, setSubmissionForceRefresh] = useState(0);
+
+  const handleActualSubmit = (type: "text" | "audio" | "image", content: string, isAnonymous: boolean) => {
+    submitCommunityResponse({
+      chapterId: currentChapter.id,
+      storyId: storyWorldId,
+      contributorId: authState.user?.id ?? "anonymous",
+      contributorName: isAnonymous ? "Anonymous" : (authState.user?.name ?? "Anonymous"),
+      type,
+      content,
+      language: state.language,
+    });
+    setShowSubmitResponse(false);
+    setSubmissionForceRefresh(n => n + 1); // re-render so any future approved response shows
   };
 
   // Show branch choice automatically when chapter loads (if not already made)
@@ -336,15 +366,16 @@ export function StoryChapterScreen({
         onClose={() => setShowCommunityResponses(false)}
         chapterId={currentChapter.id}
         chapterTitle={getLocalizedText(currentChapter.title, state.language)}
-        responses={communityResponses.map(r => ({
-          id: r.id,
-          type: r.responseType,
-          content: r.content,
-          authorName: r.userName,
-          timestamp: r.timestamp,
-          language: state.language
-        }))}
+        responses={communityResponses}
         onSubmitResponse={handleSubmitResponse}
+      />
+
+      <SubmitResponseModal
+        isOpen={showSubmitResponse}
+        onClose={() => setShowSubmitResponse(false)}
+        chapterId={currentChapter.id}
+        chapterTitle={getLocalizedText(currentChapter.title, state.language)}
+        onSubmit={handleActualSubmit}
       />
 
       {/* Branching Choice Overlay */}

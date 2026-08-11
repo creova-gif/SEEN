@@ -23,6 +23,7 @@ import {
 import { useStoryState } from "../contexts/StoryStateContext";
 import { useAuth } from "../contexts/AuthContext";
 import type { Language } from "../contexts/StoryStateContext";
+import { getStoryWorldById, getLocalizedText } from "../data/storyDatabase";
 
 interface ProfileScreenProps {
   onNavigate: (screen: string) => void;
@@ -69,31 +70,45 @@ export function ProfileScreen({
     }
   };
   
-  // User profile data
+  // User profile data — sourced from the real authenticated account.
+  // No stock photo or fabricated bio: a brand-new account genuinely has
+  // neither yet, so the UI shows honest empty states for those instead.
   const user = {
-    name: authState.user?.name || "Alex Rivera",
-    email: authState.user?.email || "alex.rivera@example.com",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwb3J0cmFpdCUyMG1hbiUyMHByb2Zlc3Npb25hbHxlbnwxfHx8fDE3Mzg3MTEyMDB8MA&ixlib=rb-4.1.0&q=80&w=400",
-    bio: "Music lover, storyteller, cultural explorer",
-    joinDate: "January 2026",
+    name: authState.user?.name || "Guest",
+    email: authState.user?.email || "",
+    bio: "", // no bio-authoring feature exists yet — empty is honest, not "fake filled in"
+    joinDate: authState.user?.createdAt
+      ? new Date(authState.user.createdAt).toLocaleDateString(undefined, { month: "long", year: "numeric" })
+      : null,
     role: state.userRole // Use role from global state
   };
 
-  // User stats
+  // Real usage stats, derived from this device's actual reading history —
+  // not fabricated. "Hours Listened" is a real (if approximate) sum of
+  // tracked playback position across stories, not a placeholder number.
+  const storiesCompleted = state.progressSnapshots.filter(s => s.completed).length;
+  const minutesListened = Math.round(
+    state.progressSnapshots.reduce((sum, s) => sum + (s.playbackPosition || 0), 0) / 60
+  );
   const stats = {
-    storiesCompleted: 12,
-    hoursListened: 28,
-    contributionsMade: 5,
-    followersCount: 124,
-    followingCount: 89
+    storiesCompleted,
+    minutesListened,
   };
 
-  // Recent activity
-  const recentActivity = [
-    { action: "Completed", title: "Midnight Resonance", date: "Feb 3, 2026" },
-    { action: "Bookmarked", title: "Echoes of Light", date: "Feb 2, 2026" },
-    { action: "Contributed", title: "Community Response", date: "Feb 1, 2026" }
-  ];
+  // Recent activity, derived from real progress snapshots (most recent first).
+  // No follow graph exists yet, so followers/following are not shown here
+  // rather than displaying invented numbers.
+  const recentActivity = [...state.progressSnapshots]
+    .sort((a, b) => new Date(b.lastAccessDate).getTime() - new Date(a.lastAccessDate).getTime())
+    .slice(0, 5)
+    .map(snapshot => {
+      const story = getStoryWorldById(snapshot.storyWorldId);
+      return {
+        action: snapshot.completed ? "Completed" : "Started",
+        title: story ? getLocalizedText(story.title, state.language) : snapshot.storyWorldId,
+        date: new Date(snapshot.lastAccessDate).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }),
+      };
+    });
 
   return (
     <motion.div
@@ -116,11 +131,12 @@ export function ProfileScreen({
           className="mb-8"
         >
           <div className="flex items-start gap-4 mb-6">
-            {/* Avatar */}
-            <div 
-              className="w-20 h-20 rounded-full bg-cover bg-center border-2 border-white/10"
-              style={{ backgroundImage: `url(${user.avatar})` }}
-            />
+            {/* Avatar — initials placeholder; no photo-upload feature exists yet */}
+            <div className="w-20 h-20 rounded-full border-2 border-white/10 bg-white/5 flex items-center justify-center flex-shrink-0">
+              <span className="text-2xl text-white/60 font-light">
+                {user.name.trim().charAt(0).toUpperCase() || "?"}
+              </span>
+            </div>
             {/* User Info */}
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
@@ -129,13 +145,17 @@ export function ProfileScreen({
                   <Moon className="w-4 h-4 text-purple-400" />
                 )}
               </div>
-              <p className="text-sm text-white/60 mb-2">{user.email}</p>
-              <p className="text-xs text-white/40">Member since {user.joinDate}</p>
+              {user.email && <p className="text-sm text-white/60 mb-2">{user.email}</p>}
+              {user.joinDate && <p className="text-xs text-white/40">Member since {user.joinDate}</p>}
             </div>
           </div>
 
-          {/* Bio */}
-          <p className="text-sm text-white/80 mb-4">{user.bio}</p>
+          {/* Bio — honest empty state; no bio-authoring feature exists yet */}
+          {user.bio ? (
+            <p className="text-sm text-white/80 mb-4">{user.bio}</p>
+          ) : (
+            <p className="text-sm text-white/30 italic mb-4">No bio yet.</p>
+          )}
 
           {/* Edit Profile Button */}
           <button
@@ -154,33 +174,17 @@ export function ProfileScreen({
           transition={{ delay: 0.2 }}
           className="mb-8"
         >
-          <div className="grid grid-cols-3 gap-3">
-            <StatCard value={stats.storiesCompleted} label="Stories" />
-            <StatCard value={stats.hoursListened} label="Hours" />
-            <StatCard value={stats.contributionsMade} label="Contributions" />
+          <div className="grid grid-cols-2 gap-3">
+            <StatCard value={stats.storiesCompleted} label="Stories Completed" />
+            <StatCard value={stats.minutesListened} label="Minutes Listened" />
           </div>
         </motion.section>
 
-        {/* Following Stats */}
-        <motion.section
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25 }}
-          className="mb-8"
-        >
-          <div className="grid grid-cols-2 gap-3">
-            {/* Non-interactive: the follow graph isn't built yet, so this is
-                shown as a stat, not a button pretending to navigate somewhere. */}
-            <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-left">
-              <div className="text-lg font-bold text-white mb-1">{stats.followersCount}</div>
-              <div className="text-xs text-white/50">Followers</div>
-            </div>
-            <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-left">
-              <div className="text-lg font-bold text-white mb-1">{stats.followingCount}</div>
-              <div className="text-xs text-white/50">Following</div>
-            </div>
-          </div>
-        </motion.section>
+        {/* Note: a Followers/Following section previously lived here showing
+            hardcoded numbers (124/89) for every account. There is no follow
+            graph implemented, so it was removed rather than displaying
+            fabricated social-proof numbers. Reintroduce once following is
+            a real feature backed by real data. */}
 
         {/* Development Testing - Switch Role */}
         {process.env.NODE_ENV === 'development' && (
@@ -327,22 +331,30 @@ export function ProfileScreen({
           className="mb-8"
         >
           <h2 className="text-sm tracking-wider uppercase text-white/40 mb-4">Recent Activity</h2>
-          <div className="space-y-3">
-            {recentActivity.map((item, index) => (
-              <div 
-                key={index}
-                className="bg-white/5 border border-white/10 rounded-xl p-4 flex items-center justify-between hover:bg-white/10 transition-colors cursor-pointer"
-              >
-                <div>
-                  <div className="text-sm text-white mb-1">
-                    <span className="text-purple-400">{item.action}</span> {item.title}
+          {recentActivity.length === 0 ? (
+            <div className="bg-white/5 border border-white/10 rounded-xl p-6 text-center">
+              <p className="text-sm text-white/40 mb-1">No activity yet</p>
+              <p className="text-xs text-white/30">Start a story to see your progress here.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {recentActivity.map((item, index) => (
+                <div
+                  key={index}
+                  className="bg-white/5 border border-white/10 rounded-xl p-4 flex items-center justify-between hover:bg-white/10 transition-colors cursor-pointer"
+                  onClick={() => onNavigate("library")}
+                >
+                  <div>
+                    <div className="text-sm text-white mb-1">
+                      <span className="text-purple-400">{item.action}</span> {item.title}
+                    </div>
+                    <div className="text-xs text-white/40">{item.date}</div>
                   </div>
-                  <div className="text-xs text-white/40">{item.date}</div>
+                  <ChevronRight className="w-4 h-4 text-white/30" />
                 </div>
-                <ChevronRight className="w-4 h-4 text-white/30" />
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </motion.section>
 
         {/* Preferences & Settings */}
@@ -369,7 +381,13 @@ export function ProfileScreen({
             <SettingItem
               icon={<Eye className="w-5 h-5" />}
               label="Accessibility"
-              value="Customized"
+              value={
+                state.accessibilityPreferences.captionsEnabled ||
+                state.accessibilityPreferences.highContrast ||
+                state.accessibilityPreferences.reducedMotion
+                  ? "Customized"
+                  : "Default"
+              }
               onClick={onOpenSettings}
             />
             <SettingItem
@@ -397,7 +415,6 @@ export function ProfileScreen({
             <SettingItem
               icon={<Heart className="w-5 h-5" />}
               label="Your Contributions"
-              value={`${stats.contributionsMade} responses`}
               onClick={() => onNavigate("library")}
             />
             <SettingItem
