@@ -53,7 +53,14 @@ export function OnboardingSystem({
   };
   
   const [currentLayer, setCurrentLayer] = useState<OnboardingLayer>(getInitialLayer());
-  const [currentStep, setCurrentStep] = useState<OrientationStep>("purpose");
+  // Resume at the saved step, but only up through "role" — steps from
+  // "account" onward depend on selectedRole/selectedIntent, which live only
+  // in this component's memory and are lost on reload. Resuming further
+  // would silently break the account-creation submit (it no-ops without a
+  // role/intent), so we cap the resumable range to what's actually safe.
+  const ORIENTATION_STEPS: OrientationStep[] = ["purpose", "role", "intent", "account", "accessibility", "presence", "threshold"];
+  const safeInitialStep = ORIENTATION_STEPS[Math.min(initialStep, 1)] ?? "purpose";
+  const [currentStep, setCurrentStep] = useState<OrientationStep>(safeInitialStep);
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
   const [selectedIntent, setSelectedIntent] = useState<UserIntent | null>(null);
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);

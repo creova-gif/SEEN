@@ -8,7 +8,8 @@ import {
   getChaptersForStory,
   getLocalizedText,
   type Chapter,
-  getChapterById
+  getChapterById,
+  getStoryWorldById
 } from "../data/storyDatabase";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ContextCardModal } from "./ContextCardModal";
@@ -28,6 +29,7 @@ export function StoryChapterScreen({
 }: StoryChapterScreenProps) {
   const { state, navigateToChapter, updateAudioState, saveProgress, setLanguage, recordBranchChoice } = useStoryState();
   const chapters = getChaptersForStory(storyWorldId);
+  const storyWorld = getStoryWorldById(storyWorldId);
   
   const [currentChapter, setCurrentChapter] = useState<Chapter>(() => {
     // Resume from saved progress or start at first chapter
@@ -66,9 +68,9 @@ export function StoryChapterScreen({
   const communityResponses = currentChapter.responses || [];
   const branchChoice = currentChapter.branchChoices?.[0]; // Get first branch choice if available
   
-  const audio = useAudioPlayer({ 
-    src: currentChapter.audioSrc,
-    autoPlay: false 
+  const audio = useAudioPlayer({
+    src: currentChapter.media?.narration?.url,
+    autoPlay: false
   });
 
   // Sync audio state with global state
@@ -173,7 +175,7 @@ export function StoryChapterScreen({
       {/* Background image */}
       <div className="absolute inset-0">
         <img
-          src={currentChapter.imageUrl}
+          src={currentChapter.media?.images?.[0] || storyWorld?.coverImage}
           alt={getLocalizedText(currentChapter.title, state.language)}
           className="w-full h-full object-cover"
         />
@@ -262,7 +264,7 @@ export function StoryChapterScreen({
             className="flex items-center gap-3"
           >
             <span className="text-xs tracking-[0.3em] uppercase text-white/40">
-              Chapter {currentChapter.number} of {chapters.length}
+              Chapter {currentChapter.order} of {chapters.length}
             </span>
             {/* Soft progress indicator */}
             <div className="flex gap-1">
@@ -298,7 +300,7 @@ export function StoryChapterScreen({
             transition={{ delay: 0.2 }}
             className="text-base text-white/70 leading-relaxed"
           >
-            {getLocalizedText(currentChapter.content, state.language)}
+            {getLocalizedText(currentChapter.text, state.language)}
           </motion.p>
 
           {/* Captions overlay */}
@@ -369,6 +371,8 @@ export function StoryChapterScreen({
             onSeek={audio.seek}
             showCaptions={showCaptions}
             onToggleCaptions={() => setShowCaptions(!showCaptions)}
+            title={getLocalizedText(currentChapter.title, state.language)}
+            artist={storyWorld ? getLocalizedText(storyWorld.creator, state.language) : undefined}
           />
 
           {/* Chapter navigation */}

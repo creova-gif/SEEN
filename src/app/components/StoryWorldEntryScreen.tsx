@@ -1,10 +1,14 @@
 import { motion, AnimatePresence } from "motion/react";
-import { ArrowLeft, Play, Volume2, VolumeX } from "lucide-react";
+import { ArrowLeft, Play, Volume2, VolumeX, Lock } from "lucide-react";
 import { useState } from "react";
 import { useStoryState } from "../contexts/StoryStateContext";
+import { useAuth } from "../contexts/AuthContext";
 import { getStoryWorldById, getLocalizedText } from "../data/storyDatabase";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { useAudioPlayer } from "../hooks/useAudioPlayer";
+import { PaywallModal } from "./PaywallModal";
+import { hasAccessToContent, creatorIdFromName } from "../data/monetizationService";
+import { getContentPricing } from "../data/monetizationService";
 
 interface StoryWorldEntryScreenProps {
   storyWorldId: string;
@@ -18,10 +22,12 @@ export function StoryWorldEntryScreen({
   onEnterStory 
 }: StoryWorldEntryScreenProps) {
   const { state, setLanguage, getProgressForStory } = useStoryState();
+  const { state: authState } = useAuth();
   const storyWorld = getStoryWorldById(storyWorldId);
   const progress = getProgressForStory(storyWorldId);
   const [showDetails, setShowDetails] = useState(false);
-  
+  const [paywallOpen, setPaywallOpen] = useState(false);
+
   // Ambient audio for story world
   const ambientAudio = useAudioPlayer({
     src: undefined, // Would be actual ambient audio URL
@@ -32,6 +38,18 @@ export function StoryWorldEntryScreen({
   if (!storyWorld) return null;
 
   const hasProgress = !!progress;
+  const creatorName = storyWorld.creator.en;
+  const creatorId = creatorIdFromName(creatorName);
+  const pricing = getContentPricing(storyWorld.id);
+  const isLocked = pricing.accessTier !== "free" && !hasAccessToContent(storyWorld.id, authState.user?.id ?? null, creatorId);
+
+  const handleEnterClick = () => {
+    if (isLocked) {
+      setPaywallOpen(true);
+      return;
+    }
+    onEnterStory();
+  };
 
   return (
     <motion.div
@@ -126,7 +144,7 @@ export function StoryWorldEntryScreen({
             transition={{ delay: 1.1 }}
             className="text-lg text-white/70 leading-relaxed max-w-md"
           >
-            {getText(storyWorld.description, state.language)}
+            {getLocalizedText(storyWorld.description, state.language)}
           </motion.p>
 
           {/* Themes */}
@@ -178,10 +196,17 @@ export function StoryWorldEntryScreen({
             className="pt-4 space-y-3"
           >
             <button
-              onClick={onEnterStory}
+              onClick={handleEnterClick}
               className="w-full py-5 rounded-full bg-white text-black text-sm tracking-wider uppercase hover:bg-white/90 transition-all flex items-center justify-center gap-3 group"
             >
-              {hasProgress ? (
+              {isLocked ? (
+                <>
+                  <span>
+                    {state.language === 'en' ? 'Unlock Story' : state.language === 'fr' ? 'Débloquer l\'Histoire' : 'Desbloquear Historia'}
+                  </span>
+                  <Lock className="w-4 h-4" />
+                </>
+              ) : hasProgress ? (
                 <>
                   <span>
                     {state.language === 'en' ? 'Continue Your Journey' : state.language === 'fr' ? 'Continuez Votre Voyage' : 'Continúa Tu Viaje'}
@@ -255,6 +280,18 @@ export function StoryWorldEntryScreen({
           </span>
         </motion.div>
       )}
+
+      <PaywallModal
+        isOpen={paywallOpen}
+        onClose={() => setPaywallOpen(false)}
+        onUnlocked={() => {
+          setPaywallOpen(false);
+          onEnterStory();
+        }}
+        contentId={storyWorld.id}
+        contentTitle={getLocalizedText(storyWorld.title, state.language)}
+        creatorName={creatorName}
+      />
     </motion.div>
   );
 }

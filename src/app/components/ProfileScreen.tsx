@@ -32,6 +32,10 @@ interface ProfileScreenProps {
   onOpenCreatorDashboard?: () => void;
   onOpenModeration?: () => void;
   onOpenInstitutional?: () => void;
+  onOpenMonetization?: () => void;
+  onOpenEarnings?: () => void;
+  onOpenSubscriptions?: () => void;
+  onOpenAdmin?: () => void;
   userIntent?: "explore" | "create" | "contribute";
   language: "en" | "fr" | "es";
 }
@@ -44,8 +48,12 @@ export function ProfileScreen({
   onOpenCreatorDashboard,
   onOpenModeration,
   onOpenInstitutional,
+  onOpenMonetization,
+  onOpenEarnings,
+  onOpenSubscriptions,
+  onOpenAdmin,
   userIntent = "explore",
-  language = "en" 
+  language = "en"
 }: ProfileScreenProps) {
   const { state, setUserRole } = useStoryState();
   const { state: authState, signOut } = useAuth();
@@ -130,7 +138,10 @@ export function ProfileScreen({
           <p className="text-sm text-white/80 mb-4">{user.bio}</p>
 
           {/* Edit Profile Button */}
-          <button className="w-full py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm hover:bg-white/10 transition-colors flex items-center justify-center gap-2">
+          <button
+            onClick={onOpenSettings}
+            className="w-full py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm hover:bg-white/10 transition-colors flex items-center justify-center gap-2"
+          >
             <User className="w-4 h-4" />
             Edit Profile
           </button>
@@ -158,14 +169,16 @@ export function ProfileScreen({
           className="mb-8"
         >
           <div className="grid grid-cols-2 gap-3">
-            <button className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-colors text-left">
+            {/* Non-interactive: the follow graph isn't built yet, so this is
+                shown as a stat, not a button pretending to navigate somewhere. */}
+            <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-left">
               <div className="text-lg font-bold text-white mb-1">{stats.followersCount}</div>
               <div className="text-xs text-white/50">Followers</div>
-            </button>
-            <button className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-colors text-left">
+            </div>
+            <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-left">
               <div className="text-lg font-bold text-white mb-1">{stats.followingCount}</div>
               <div className="text-xs text-white/50">Following</div>
-            </button>
+            </div>
           </div>
         </motion.section>
 
@@ -190,18 +203,32 @@ export function ProfileScreen({
             className="mb-8"
           >
             <h2 className="text-sm tracking-wider uppercase text-white/40 mb-4">
-              {state.userRole === 'creator' ? 'Creator Tools' : 
-               state.userRole === 'moderator' ? 'Moderation Tools' : 
+              {state.userRole === 'creator' ? 'Creator Tools' :
+               state.userRole === 'moderator' ? 'Moderation Tools' :
                'Admin Tools'}
             </h2>
             <div className="space-y-2">
               {state.userRole === 'creator' && (
-                <SettingItem
-                  icon={<Moon className="w-5 h-5 text-purple-400" />}
-                  label="Creator Dashboard"
-                  value="Build stories"
-                  onClick={onOpenCreatorDashboard}
-                />
+                <>
+                  <SettingItem
+                    icon={<Moon className="w-5 h-5 text-purple-400" />}
+                    label="Creator Dashboard"
+                    value="Build stories"
+                    onClick={onOpenCreatorDashboard}
+                  />
+                  <SettingItem
+                    icon={<BarChart3 className="w-5 h-5 text-amber-400" />}
+                    label="Monetization"
+                    value="Pricing & tiers"
+                    onClick={onOpenMonetization}
+                  />
+                  <SettingItem
+                    icon={<BarChart3 className="w-5 h-5 text-green-400" />}
+                    label="Earnings"
+                    value="Revenue & payouts"
+                    onClick={onOpenEarnings}
+                  />
+                </>
               )}
               {(state.userRole === 'moderator' || state.userRole === 'admin') && (
                 <SettingItem
@@ -212,12 +239,20 @@ export function ProfileScreen({
                 />
               )}
               {state.userRole === 'admin' && (
-                <SettingItem
-                  icon={<Building2 className="w-5 h-5 text-green-400" />}
-                  label="Institutional Collections"
-                  value="Manage archives"
-                  onClick={onOpenInstitutional}
-                />
+                <>
+                  <SettingItem
+                    icon={<Building2 className="w-5 h-5 text-green-400" />}
+                    label="Institutional Collections"
+                    value="Manage archives"
+                    onClick={onOpenInstitutional}
+                  />
+                  <SettingItem
+                    icon={<Shield className="w-5 h-5 text-purple-400" />}
+                    label="Platform Dashboard"
+                    value="Users, revenue & config"
+                    onClick={onOpenAdmin}
+                  />
+                </>
               )}
             </div>
           </motion.section>
@@ -238,11 +273,17 @@ export function ProfileScreen({
               </div>
               <p className="text-sm text-white/70 mb-4">Manage your stories and view analytics</p>
               <div className="flex gap-3">
-                <button className="flex-1 py-2.5 rounded-lg bg-purple-600 text-white text-sm hover:bg-purple-700 transition-colors flex items-center justify-center gap-2">
+                <button
+                  onClick={onOpenCreatorDashboard}
+                  className="flex-1 py-2.5 rounded-lg bg-purple-600 text-white text-sm hover:bg-purple-700 transition-colors flex items-center justify-center gap-2"
+                >
                   <Plus className="w-4 h-4" />
                   New Story
                 </button>
-                <button className="flex-1 py-2.5 rounded-lg bg-white/10 border border-white/20 text-white text-sm hover:bg-white/20 transition-colors flex items-center justify-center gap-2">
+                <button
+                  onClick={onOpenEarnings}
+                  className="flex-1 py-2.5 rounded-lg bg-white/10 border border-white/20 text-white text-sm hover:bg-white/20 transition-colors flex items-center justify-center gap-2"
+                >
                   <BarChart3 className="w-4 h-4" />
                   Analytics
                 </button>
@@ -317,24 +358,29 @@ export function ProfileScreen({
               icon={<Globe className="w-5 h-5" />}
               label="Language"
               value={language === "en" ? "English" : language === "fr" ? "Français" : "Español"}
-              onClick={() => {}}
+              onClick={onOpenSettings}
             />
             <SettingItem
               icon={<Moon className="w-5 h-5" />}
               label="Intent"
               value={userIntent === "create" ? "Create" : userIntent === "contribute" ? "Contribute" : "Explore"}
-              onClick={() => {}}
+              onClick={onOpenSettings}
             />
             <SettingItem
               icon={<Eye className="w-5 h-5" />}
               label="Accessibility"
               value="Customized"
-              onClick={() => {}}
+              onClick={onOpenSettings}
             />
             <SettingItem
               icon={<Settings className="w-5 h-5" />}
               label="Settings"
               onClick={onOpenSettings}
+            />
+            <SettingItem
+              icon={<BarChart3 className="w-5 h-5" />}
+              label="Subscriptions & Billing"
+              onClick={onOpenSubscriptions}
             />
           </div>
         </motion.section>
@@ -352,12 +398,12 @@ export function ProfileScreen({
               icon={<Heart className="w-5 h-5" />}
               label="Your Contributions"
               value={`${stats.contributionsMade} responses`}
-              onClick={() => {}}
+              onClick={() => onNavigate("library")}
             />
             <SettingItem
               icon={<MessageCircle className="w-5 h-5" />}
               label="Community Guidelines"
-              onClick={() => {}}
+              onClick={onOpenAbout}
             />
             <SettingItem
               icon={<Info className="w-5 h-5" />}

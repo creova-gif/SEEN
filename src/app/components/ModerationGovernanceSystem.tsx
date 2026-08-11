@@ -1,6 +1,14 @@
 import { motion } from "motion/react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Shield, CheckCircle, XCircle, Clock, User, AlertTriangle } from "lucide-react";
+import { useAuth } from "../contexts/AuthContext";
+import {
+  getModerationQueue,
+  getModerationActions,
+  moderateResponse,
+  type QueuedResponse,
+  type ModerationActionRecord,
+} from "../data/adminService";
 
 /**
  * MODERATION & GOVERNANCE SYSTEM
@@ -515,57 +523,39 @@ interface ModerationGovernanceSystemProps {
 
 export function ModerationGovernanceSystem({ onBack }: ModerationGovernanceSystemProps) {
   const [activeTab, setActiveTab] = useState<"queue" | "audit" | "guidelines">("queue");
-  
-  // Mock data for demonstration
-  const mockResponses: CommunityResponse[] = [
-    {
-      id: "resp-1",
-      chapterId: "ch-1",
-      storyId: "midnight-resonance",
-      contributorId: "user-1",
-      contributorName: "Maria Santos",
-      type: "text",
-      content: "This chapter reminded me of walking through Tokyo at 3 AM. The silence speaks volumes.",
-      language: "en",
-      timestamp: new Date(Date.now() - 3600000), // 1 hour ago
-      status: "pending"
-    },
-    {
-      id: "resp-2",
-      chapterId: "ch-2",
-      storyId: "midnight-resonance",
-      contributorId: "user-2",
-      contributorName: "Jean Dubois",
-      type: "text",
-      content: "La résonance binaurale crée une expérience immersive incroyable.",
-      language: "fr",
-      timestamp: new Date(Date.now() - 7200000), // 2 hours ago
-      status: "pending"
-    }
-  ];
+  const [refreshKey, setRefreshKey] = useState(0);
+  const { state: authState } = useAuth();
 
-  const mockActions: ModerationAction[] = [
-    {
-      id: "act-1",
-      responseId: "resp-3",
-      moderatorId: "mod-1",
-      moderatorName: "Admin User",
-      action: "approve",
-      timestamp: new Date(Date.now() - 86400000),
-      notes: "Thoughtful reflection on cultural context"
-    }
-  ];
+  const moderatorId = authState.user?.id ?? "mod-demo";
+  const moderatorName = authState.user?.name ?? "Moderator";
 
-  const handleApprove = (id: string, notes?: string) => {
-    console.log("Approved response:", id, notes);
+  // Persisted queue (localStorage-backed, seeded with sample submissions on first load)
+  const queuedResponses = useMemo<QueuedResponse[]>(() => getModerationQueue(), [refreshKey]);
+  const queuedActions = useMemo<ModerationActionRecord[]>(() => getModerationActions(), [refreshKey]);
+
+  // Adapt string timestamps -> Date for the presentational components below
+  const responses: CommunityResponse[] = queuedResponses.map(r => ({
+    ...r,
+    timestamp: new Date(r.timestamp),
+  }));
+  const actions: ModerationAction[] = queuedActions.map(a => ({
+    ...a,
+    timestamp: new Date(a.timestamp),
+  }));
+
+  const handleApprove = (id: string) => {
+    moderateResponse(id, "approve", moderatorId, moderatorName);
+    setRefreshKey(k => k + 1);
   };
 
-  const handleReject = (id: string, reason: string, notes?: string) => {
-    console.log("Rejected response:", id, reason, notes);
+  const handleReject = (id: string, reason: string) => {
+    moderateResponse(id, "reject", moderatorId, moderatorName, reason);
+    setRefreshKey(k => k + 1);
   };
 
-  const handleFlag = (id: string, reason: string, notes?: string) => {
-    console.log("Flagged response:", id, reason, notes);
+  const handleFlag = (id: string, reason: string) => {
+    moderateResponse(id, "flag", moderatorId, moderatorName, reason);
+    setRefreshKey(k => k + 1);
   };
 
   return (
@@ -613,7 +603,7 @@ export function ModerationGovernanceSystem({ onBack }: ModerationGovernanceSyste
                   : "text-white/50 hover:text-white/70"
               }`}
             >
-              Queue ({mockResponses.length})
+              Queue ({responses.length})
             </button>
             <button
               onClick={() => setActiveTab("audit")}
@@ -643,7 +633,7 @@ export function ModerationGovernanceSystem({ onBack }: ModerationGovernanceSyste
       <div className="max-w-[428px] mx-auto pb-20">
         {activeTab === "queue" && (
           <ModerationQueue
-            responses={mockResponses}
+            responses={responses}
             onApprove={handleApprove}
             onReject={handleReject}
             onFlag={handleFlag}
@@ -652,7 +642,7 @@ export function ModerationGovernanceSystem({ onBack }: ModerationGovernanceSyste
         )}
         {activeTab === "audit" && (
           <AuditLogViewer
-            actions={mockActions}
+            actions={actions}
             userRole="moderator"
           />
         )}

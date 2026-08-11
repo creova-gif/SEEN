@@ -56,7 +56,7 @@ export function ChapterIndexScreen({
             className="space-y-3"
           >
             <span className="text-xs tracking-[0.3em] uppercase text-white/40">
-              {getLocalizedText(storyWorld.category, state.language)}
+              {storyWorld.culturalThemes?.[0] || 'Story'}
             </span>
             <h1 className="text-2xl tracking-tight text-white">
               {state.language === 'en' ? 'Table of Contents' : state.language === 'fr' ? 'Table des Matières' : 'Tabla de Contenidos'}
@@ -66,7 +66,7 @@ export function ChapterIndexScreen({
             </p>
             <div className="flex items-center gap-4 pt-2">
               <span className="text-xs text-white/40">
-                {chapters.reduce((total, ch) => total + parseInt(ch.duration), 0)} min total
+                {chapters.reduce((total, ch) => total + (ch.estimatedDuration || 0), 0)} min total
               </span>
               <span className="text-xs text-white/40">
                 • {chapters.length} chapters
@@ -102,7 +102,7 @@ export function ChapterIndexScreen({
                   {/* Chapter image */}
                   <div className="relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
                     <img
-                      src={chapter.imageUrl}
+                      src={chapter.media?.images?.[0] || storyWorld.coverImage}
                       alt={getLocalizedText(chapter.title, state.language)}
                       className="w-full h-full object-cover"
                     />
@@ -128,7 +128,7 @@ export function ChapterIndexScreen({
                   <div className="flex-1 min-w-0 space-y-1">
                     <div className="flex items-center gap-2">
                       <span className="text-xs tracking-wider uppercase text-white/40">
-                        Chapter {chapter.number}
+                        Chapter {chapter.order}
                       </span>
                       {isCompleted && !isCurrent && (
                         <span className="text-xs text-white/30">
@@ -145,10 +145,10 @@ export function ChapterIndexScreen({
                       {getLocalizedText(chapter.title, state.language)}
                     </h3>
                     <p className="text-sm text-white/50">
-                      {getLocalizedText(chapter.subtitle, state.language)}
+                      {getLocalizedText(chapter.description, state.language)}
                     </p>
                     <span className="text-xs text-white/30">
-                      {chapter.duration}
+                      {chapter.estimatedDuration} min
                     </span>
                   </div>
                 </div>

@@ -1,9 +1,12 @@
 import { motion } from "motion/react";
-import { ArrowLeft, Play, Volume2, Share2, Bookmark } from "lucide-react";
+import { ArrowLeft, Play, Volume2, Share2, Bookmark, Lock } from "lucide-react";
 import { useState } from "react";
 import { useStoryState } from "../contexts/StoryStateContext";
+import { useAuth } from "../contexts/AuthContext";
 import { getStoryWorldData } from "../data/storyService";
 import type { Language } from "../data/storyDatabase";
+import { PaywallModal } from "./PaywallModal";
+import { hasAccessToContent, getContentPricing, creatorIdFromName } from "../data/monetizationService";
 
 interface FeaturedStoryPreviewProps {
   onClose: () => void;
@@ -12,19 +15,29 @@ interface FeaturedStoryPreviewProps {
 
 export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPreviewProps) {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [paywallOpen, setPaywallOpen] = useState(false);
   const { state } = useStoryState();
-  
+  const { state: authState } = useAuth();
+
   // Get story data from current story world ID
-  const storyData = state.currentStoryWorldId 
+  const storyData = state.currentStoryWorldId
     ? getStoryWorldData(state.currentStoryWorldId, state.language as Language)
     : null;
-  
+
   if (!storyData) {
     console.error('[FeaturedStoryPreview] No story data found for:', state.currentStoryWorldId);
     return null;
   }
 
+  const creatorId = creatorIdFromName(storyData.creator);
+  const pricing = getContentPricing(storyData.id);
+  const isLocked = pricing.accessTier !== "free" && !hasAccessToContent(storyData.id, authState.user?.id ?? null, creatorId);
+
   const handleEnterStory = () => {
+    if (isLocked) {
+      setPaywallOpen(true);
+      return;
+    }
     if (onEnterStory) {
       onEnterStory();
     }
@@ -130,11 +143,17 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
           className="p-6 pb-8 space-y-4"
         >
           {/* Category badge */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="text-xs tracking-[0.2em] uppercase text-white/60 backdrop-blur-sm bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
-              CREOVA Music
+              {storyData.culturalThemes?.[0] || 'Story'}
             </span>
-            <span className="text-xs text-white/40">• 24 min</span>
+            <span className="text-xs text-white/40">• {storyData.totalDuration}</span>
+            {isLocked && (
+              <span className="text-xs text-amber-300 flex items-center gap-1 backdrop-blur-sm bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-400/20">
+                <Lock className="w-3 h-3" />
+                {pricing.accessTier === "one-time-purchase" ? "Premium" : "Subscriber-only"}
+              </span>
+            )}
           </div>
 
           {/* Title and description */}
@@ -150,10 +169,10 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
           {/* Credits */}
           <div className="pt-2 space-y-1">
             <p className="text-sm text-white/50">
-              Produced by <span className="text-white/80">CREOVA Studio</span>
+              Created by <span className="text-white/80">{storyData.creator}</span>
             </p>
             <p className="text-xs text-white/40">
-              Released February 2026
+              Released {storyData.releaseDate}
             </p>
           </div>
 
@@ -165,8 +184,8 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
               onClick={handleEnterStory}
               className="flex-1 py-4 rounded-full bg-white text-black text-sm tracking-wider uppercase hover:bg-white/90 transition-colors flex items-center justify-center gap-2"
             >
-              Enter Story
-              <Play className="w-4 h-4 fill-black" />
+              {isLocked ? "Unlock Story" : "Enter Story"}
+              {isLocked ? <Lock className="w-4 h-4" /> : <Play className="w-4 h-4 fill-black" />}
             </motion.button>
             
             <button 
@@ -191,6 +210,18 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
           </motion.div>
         </motion.div>
       </div>
+
+      <PaywallModal
+        isOpen={paywallOpen}
+        onClose={() => setPaywallOpen(false)}
+        onUnlocked={() => {
+          setPaywallOpen(false);
+          onEnterStory?.();
+        }}
+        contentId={storyData.id}
+        contentTitle={storyData.title}
+        creatorName={storyData.creator}
+      />
     </motion.div>
   );
 }

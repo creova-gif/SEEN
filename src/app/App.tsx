@@ -18,6 +18,10 @@ import { StoryBuilderScreen } from "./components/StoryBuilderScreen";
 import { ModerationGovernanceSystem } from "./components/ModerationGovernanceSystem";
 import { InstitutionalCollectionScreen } from "./components/InstitutionalCollectionScreen";
 import { SearchScreen } from "./screens/SearchScreen";
+import { CreatorMonetizationScreen } from "./components/CreatorMonetizationScreen";
+import { CreatorEarningsScreen } from "./components/CreatorEarningsScreen";
+import { SubscriptionManagementScreen } from "./components/SubscriptionManagementScreen";
+import { AdminDashboardScreen } from "./components/AdminDashboardScreen";
 import { useStoryState } from "./contexts/StoryStateContext";
 import type { Language, UserIntent, UserRole } from "./contexts/StoryStateContext";
 import { initializeDemoData } from "./data/demoData";
@@ -45,7 +49,11 @@ type AppScreen =
   | "story-builder"
   | "moderation-governance"
   | "institutional-collection"
-  | "search";
+  | "search"
+  | "creator-monetization"
+  | "creator-earnings"
+  | "subscription-management"
+  | "admin-dashboard";
 
 function AppContent() {
   const { state, setLanguage, setIntent, setUserRole, setAccessibilityPreferences, setPersonalizationPreferences, enterStoryWorld } = useStoryState();
@@ -98,6 +106,22 @@ function AppContent() {
   
   const [currentScreen, setCurrentScreen] = useState<AppScreen>(getInitialScreen());
   const [isFirstVisit, setIsFirstVisit] = useState(!hasCompletedOnboarding);
+
+  // getInitialScreen() runs once on first render, before the async auth
+  // session finishes loading (authState.isLoading starts true). Without this,
+  // every returning authenticated user who already completed onboarding gets
+  // stuck redoing it on every page load, because currentScreen never
+  // re-syncs once auth resolves.
+  useEffect(() => {
+    if (
+      !authState.isLoading &&
+      authState.isAuthenticated &&
+      hasCompletedOnboarding &&
+      currentScreen === "onboarding"
+    ) {
+      setCurrentScreen("for-you");
+    }
+  }, [authState.isLoading, authState.isAuthenticated, hasCompletedOnboarding, currentScreen]);
 
   // Handle onboarding completion
   const handleOnboardingComplete = (data: { role: UserRole; intent: UserIntent }) => {
@@ -259,9 +283,29 @@ function AppContent() {
             onOpenCreatorDashboard={() => setCurrentScreen("story-builder")}
             onOpenModeration={() => setCurrentScreen("moderation-governance")}
             onOpenInstitutional={() => setCurrentScreen("institutional-collection")}
+            onOpenMonetization={() => setCurrentScreen("creator-monetization")}
+            onOpenEarnings={() => setCurrentScreen("creator-earnings")}
+            onOpenSubscriptions={() => setCurrentScreen("subscription-management")}
+            onOpenAdmin={() => setCurrentScreen("admin-dashboard")}
             userIntent={state.intent}
             language={state.language}
           />
+        )}
+
+        {currentScreen === "creator-monetization" && (
+          <CreatorMonetizationScreen key="creator-monetization" onClose={() => setCurrentScreen("profile")} />
+        )}
+
+        {currentScreen === "creator-earnings" && (
+          <CreatorEarningsScreen key="creator-earnings" onClose={() => setCurrentScreen("profile")} />
+        )}
+
+        {currentScreen === "subscription-management" && (
+          <SubscriptionManagementScreen key="subscription-management" onClose={() => setCurrentScreen("profile")} />
+        )}
+
+        {currentScreen === "admin-dashboard" && (
+          <AdminDashboardScreen key="admin-dashboard" onClose={() => setCurrentScreen("profile")} />
         )}
 
         {currentScreen === "about" && (
