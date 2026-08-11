@@ -24,6 +24,7 @@ import { useStoryState } from "../contexts/StoryStateContext";
 import { useAuth } from "../contexts/AuthContext";
 import type { Language } from "../contexts/StoryStateContext";
 import { getStoryWorldById, getLocalizedText } from "../data/storyDatabase";
+import { listStoriesForCreator } from "../data/userStoriesService";
 
 interface ProfileScreenProps {
   onNavigate: (screen: string) => void;
@@ -37,6 +38,7 @@ interface ProfileScreenProps {
   onOpenEarnings?: () => void;
   onOpenSubscriptions?: () => void;
   onOpenAdmin?: () => void;
+  onOpenStory?: (storyId: string) => void;
   userIntent?: "explore" | "create" | "contribute";
   language: "en" | "fr" | "es";
 }
@@ -53,6 +55,7 @@ export function ProfileScreen({
   onOpenEarnings,
   onOpenSubscriptions,
   onOpenAdmin,
+  onOpenStory,
   userIntent = "explore",
   language = "en"
 }: ProfileScreenProps) {
@@ -109,6 +112,8 @@ export function ProfileScreen({
         date: new Date(snapshot.lastAccessDate).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }),
       };
     });
+
+  const myStories = authState.user ? listStoriesForCreator(authState.user.id) : [];
 
   return (
     <motion.div
@@ -292,6 +297,33 @@ export function ProfileScreen({
                   Analytics
                 </button>
               </div>
+            </div>
+          </motion.section>
+        )}
+
+        {/* My Stories (if creator has published any) */}
+        {user.role === "creator" && myStories.length > 0 && (
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.32 }}
+            className="mb-8"
+          >
+            <h2 className="text-sm tracking-wider uppercase text-white/40 mb-4">My Stories</h2>
+            <div className="space-y-2">
+              {myStories.map(story => (
+                <div
+                  key={story.id}
+                  onClick={() => onOpenStory?.(story.id)}
+                  className="bg-white/5 border border-white/10 rounded-xl p-4 flex items-center justify-between hover:bg-white/10 transition-colors cursor-pointer"
+                >
+                  <div className="min-w-0">
+                    <p className="text-sm text-white truncate">{story.title.en}</p>
+                    <p className="text-xs text-white/40 capitalize">{story.visibility} · {story.chapterCount} chapter{story.chapterCount !== 1 ? "s" : ""}</p>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-white/30 flex-shrink-0" />
+                </div>
+              ))}
             </div>
           </motion.section>
         )}

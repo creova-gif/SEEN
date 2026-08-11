@@ -14,7 +14,7 @@ import { StoryChapterScreen } from "./components/StoryChapterScreen";
 import { ChapterIndexScreen } from "./components/ChapterIndexScreen";
 import { AboutScreen } from "./components/AboutScreen";
 import { ProfilePreferencesScreen } from "./components/ProfilePreferencesScreen";
-import { StoryBuilderScreen } from "./components/StoryBuilderScreen";
+import { CreatorPublishFlow } from "./components/CreatorPublishFlow";
 import { ModerationGovernanceSystem } from "./components/ModerationGovernanceSystem";
 import { InstitutionalCollectionScreen } from "./components/InstitutionalCollectionScreen";
 import { SearchScreen } from "./screens/SearchScreen";
@@ -46,7 +46,7 @@ type AppScreen =
   | "chapter-index"
   | "about"
   | "settings"
-  | "story-builder"
+  | "creator-publish"
   | "moderation-governance"
   | "institutional-collection"
   | "search"
@@ -280,13 +280,14 @@ function AppContent() {
             onSearch={handleOpenSearch}
             onOpenSettings={() => setCurrentScreen("settings")}
             onOpenAbout={() => setCurrentScreen("about")}
-            onOpenCreatorDashboard={() => setCurrentScreen("story-builder")}
+            onOpenCreatorDashboard={() => setCurrentScreen("creator-publish")}
             onOpenModeration={() => setCurrentScreen("moderation-governance")}
             onOpenInstitutional={() => setCurrentScreen("institutional-collection")}
             onOpenMonetization={() => setCurrentScreen("creator-monetization")}
             onOpenEarnings={() => setCurrentScreen("creator-earnings")}
             onOpenSubscriptions={() => setCurrentScreen("subscription-management")}
             onOpenAdmin={() => setCurrentScreen("admin-dashboard")}
+            onOpenStory={handleStoryClick}
             userIntent={state.intent}
             language={state.language}
           />
@@ -322,10 +323,16 @@ function AppContent() {
           />
         )}
 
-        {currentScreen === "story-builder" && (
-          <StoryBuilderScreen 
-            key="story-builder"
-            onBack={() => setCurrentScreen("profile")}
+        {currentScreen === "creator-publish" && (
+          <CreatorPublishFlow
+            key="creator-publish"
+            onClose={() => setCurrentScreen("profile")}
+            onViewStory={storyId => {
+              enterStoryWorld(storyId);
+              setCurrentScreen("story-preview");
+            }}
+            onGoToLibrary={() => setCurrentScreen("library")}
+            onViewEarnings={() => setCurrentScreen("creator-earnings")}
           />
         )}
 

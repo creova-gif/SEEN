@@ -88,6 +88,10 @@ import {
   workWorthChapters,
 } from './generateMissingChapters';
 
+// userStoriesService only imports *types* from this file (erased at build
+// time), so this doesn't create a real runtime circular dependency.
+import { getUserStoryWorldById } from './userStoriesService';
+
 // ============================================
 // STORY DATABASE
 // ============================================
@@ -1632,18 +1636,32 @@ export function getLocalizedText(text: MultilingualText, preferredLang: Language
 }
 
 /**
- * Get story world by ID
+ * Get story world by ID. Falls back to creator-published stories
+ * (userStoriesService, a separate localStorage-backed store) when the id
+ * isn't in the static curated catalog — those are always prefixed
+ * "user_", so the fallback check is cheap for the common case.
  */
 export function getStoryWorldById(id: string): StoryWorld | undefined {
-  return STORY_WORLDS.find(story => story.id === id);
+  const curated = STORY_WORLDS.find(story => story.id === id);
+  if (curated) return curated;
+  if (id.startsWith('user_')) {
+    return getUserStoryWorldById(id);
+  }
+  return undefined;
 }
 
 /**
- * Get chapters for a specific story (from registry)
+ * Get chapters for a specific story. Curated stories store chapters as
+ * registry references (resolved via CHAPTERS_REGISTRY); creator-published
+ * stories embed full Chapter objects directly, so they're returned as-is.
  */
 export function getChaptersForStory(storyWorldId: string): Chapter[] {
   const story = getStoryWorldById(storyWorldId);
   if (!story) return [];
+
+  if (storyWorldId.startsWith('user_')) {
+    return [...story.chapters].sort((a, b) => a.order - b.order);
+  }
 
   // Return chapters in order by looking them up from registry
   return story.chapters
@@ -1653,7 +1671,9 @@ export function getChaptersForStory(storyWorldId: string): Chapter[] {
 }
 
 /**
- * Get chapter by ID directly from registry (independent query)
+ * Get chapter by ID directly from registry (independent query).
+ * Curated catalog only — creator-published chapters aren't registered
+ * here since they're embedded directly in their StoryWorld.
  */
 export function getChapterByIdDirect(chapterId: string): Chapter | undefined {
   return CHAPTERS_REGISTRY.get(chapterId);
@@ -1663,6 +1683,11 @@ export function getChapterByIdDirect(chapterId: string): Chapter | undefined {
  * Get chapter by ID from story and chapter ID (backward compatible)
  */
 export function getChapterById(storyWorldId: string, chapterId: string): Chapter | undefined {
+  if (storyWorldId.startsWith('user_')) {
+    const story = getStoryWorldById(storyWorldId);
+    return story?.chapters.find(ch => ch.id === chapterId);
+  }
+
   // Use the independent registry for faster lookup
   const chapter = CHAPTERS_REGISTRY.get(chapterId);
 
