@@ -1,7 +1,7 @@
 /**
  * ANALYTICS SCHEMA
- * SEEN by CREOVA — CMF-Compliant, Non-Extractive Analytics
- * 
+ * SEEN by CREOVA — Non-Extractive Analytics
+ *
  * Tracks cultural engagement without exploitative surveillance
  * Privacy-first, transparent, aggregate data only
  */
@@ -133,59 +133,6 @@ export interface AggregateMetrics {
   /** NO emotional inference */
 }
 
-export interface CMFReport {
-  /** Reporting period */
-  period: {
-    start: string;
-    end: string;
-    fiscal_year: string;
-  };
-  
-  /** Engagement metrics */
-  engagement: {
-    total_story_views: number;
-    total_chapter_completions: number;
-    total_audio_plays: number;
-    average_completion_rate: number;
-  };
-  
-  /** Language metrics */
-  language_distribution: {
-    english_percentage: number;
-    french_percentage: number;
-    spanish_percentage: number;
-  };
-  
-  /** Cultural impact */
-  cultural_impact: {
-    stories_published: number;
-    themes_covered: string[];
-    community_contributions: number;
-    institutional_partnerships: number;
-  };
-  
-  /** Accessibility */
-  accessibility: {
-    transcripts_provided: number;
-    wcag_compliance_rate: number;
-    multilingual_coverage: number;
-  };
-  
-  /** Canadian content */
-  canadian_content: {
-    stories_by_canadian_creators: number;
-    narration_by_canadian_talent: number;
-    canadian_talent_budget_percentage: number;
-  };
-  
-  /** Community growth */
-  community: {
-    total_contributors: number;
-    contributions_approved: number;
-    moderation_response_time: number; // hours
-  };
-}
-
 // ============================================
 // ANALYTICS CONFIGURATION
 // ============================================
@@ -211,9 +158,6 @@ export const AnalyticsConfig = {
   
   /** Export format */
   exportFormat: 'csv',
-  
-  /** CMF reporting frequency */
-  cmfReportingFrequency: 'quarterly',
 };
 
 // ============================================
@@ -476,108 +420,6 @@ export function calculateAggregateMetrics(
       approvalRate: 0, // Would calculate from contribution data
     },
   };
-}
-
-// ============================================
-// CMF REPORTING
-// ============================================
-
-/**
- * Generate CMF-compliant report
- */
-export function generateCMFReport(
-  startDate: string,
-  endDate: string,
-  fiscalYear: string
-): CMFReport {
-  const metrics = calculateAggregateMetrics(startDate, endDate);
-  
-  const totalLanguageEvents = metrics.language.en + metrics.language.fr + metrics.language.es;
-  
-  return {
-    period: {
-      start: startDate,
-      end: endDate,
-      fiscal_year: fiscalYear,
-    },
-    engagement: {
-      total_story_views: metrics.stories.totalStarts,
-      total_chapter_completions: metrics.chapters.totalCompletions,
-      total_audio_plays: metrics.audio.totalPlays,
-      average_completion_rate: metrics.stories.completionRate,
-    },
-    language_distribution: {
-      english_percentage: totalLanguageEvents > 0 ? (metrics.language.en / totalLanguageEvents) * 100 : 0,
-      french_percentage: totalLanguageEvents > 0 ? (metrics.language.fr / totalLanguageEvents) * 100 : 0,
-      spanish_percentage: totalLanguageEvents > 0 ? (metrics.language.es / totalLanguageEvents) * 100 : 0,
-    },
-    cultural_impact: {
-      stories_published: 12, // Would pull from story database
-      themes_covered: [
-        'Migration & Diaspora',
-        'Identity & Belonging',
-        'Family & Separation',
-        'Cultural Heritage',
-        'Labor & Economics',
-        'Healing & Resilience',
-      ],
-      community_contributions: metrics.contributions.total,
-      institutional_partnerships: 3, // Example
-    },
-    accessibility: {
-      transcripts_provided: 57, // All chapters
-      wcag_compliance_rate: 100,
-      multilingual_coverage: 3, // EN/FR/ES
-    },
-    canadian_content: {
-      stories_by_canadian_creators: 12,
-      narration_by_canadian_talent: 6, // 3 languages × 2 narrators
-      canadian_talent_budget_percentage: 85, // Target 80%+
-    },
-    community: {
-      total_contributors: 0, // Would pull from contributor data
-      contributions_approved: 0, // Would pull from moderation data
-      moderation_response_time: 48, // hours (target < 72)
-    },
-  };
-}
-
-/**
- * Export CMF report to CSV
- */
-export function exportCMFReportToCSV(report: CMFReport): string {
-  const rows = [
-    ['SEEN by CREOVA — CMF Quarterly Report'],
-    ['Period', `${report.period.start} to ${report.period.end}`],
-    ['Fiscal Year', report.period.fiscal_year],
-    [],
-    ['ENGAGEMENT METRICS'],
-    ['Total Story Views', report.engagement.total_story_views.toString()],
-    ['Total Chapter Completions', report.engagement.total_chapter_completions.toString()],
-    ['Total Audio Plays', report.engagement.total_audio_plays.toString()],
-    ['Average Completion Rate', `${report.engagement.average_completion_rate.toFixed(2)}%`],
-    [],
-    ['LANGUAGE DISTRIBUTION'],
-    ['English', `${report.language_distribution.english_percentage.toFixed(2)}%`],
-    ['French', `${report.language_distribution.french_percentage.toFixed(2)}%`],
-    ['Spanish', `${report.language_distribution.spanish_percentage.toFixed(2)}%`],
-    [],
-    ['CULTURAL IMPACT'],
-    ['Stories Published', report.cultural_impact.stories_published.toString()],
-    ['Community Contributions', report.cultural_impact.community_contributions.toString()],
-    ['Institutional Partnerships', report.cultural_impact.institutional_partnerships.toString()],
-    [],
-    ['ACCESSIBILITY'],
-    ['Transcripts Provided', report.accessibility.transcripts_provided.toString()],
-    ['WCAG Compliance Rate', `${report.accessibility.wcag_compliance_rate}%`],
-    ['Multilingual Coverage', `${report.accessibility.multilingual_coverage} languages`],
-    [],
-    ['CANADIAN CONTENT'],
-    ['Stories by Canadian Creators', report.canadian_content.stories_by_canadian_creators.toString()],
-    ['Canadian Talent Budget %', `${report.canadian_content.canadian_talent_budget_percentage}%`],
-  ];
-  
-  return rows.map(row => row.join(',')).join('\n');
 }
 
 // ============================================

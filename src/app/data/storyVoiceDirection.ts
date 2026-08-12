@@ -207,42 +207,6 @@ export const POST_RECORDING_CHECKLIST = [
 ] as const;
 
 // ============================================
-// CMF PRODUCTION STANDARDS COMPLIANCE
-// ============================================
-
-export const CMF_COMPLIANCE_MARKERS = {
-  professionalProduction: [
-    'Studio-quality recording',
-    'Consistent technical specs across all episodes',
-    'No amateur recording artifacts',
-  ],
-
-  accessibilityAwareness: [
-    'Clear articulation at all playback speeds',
-    'No reliance on vocal performance tricks',
-    'Intelligible to non-native speakers',
-  ],
-
-  culturalRespect: [
-    'Pronunciation review for cultural terms',
-    'Language-specific rhythm adjustments',
-    'No appropriation of cultural vocal styles',
-  ],
-
-  institutionalReadiness: [
-    'Scalable production workflow',
-    'Documented quality standards',
-    'Archival-quality audio files',
-  ],
-
-  contentIntegrity: [
-    'Audio designed as content, not decoration',
-    'Narration serves story, not brand',
-    'Educational value maintained in delivery',
-  ],
-} as const;
-
-// ============================================
 // HELPER FUNCTIONS
 // ============================================
 

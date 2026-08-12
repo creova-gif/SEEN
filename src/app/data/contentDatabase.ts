@@ -8,7 +8,6 @@
  * WHY THIS EXISTS:
  * - Prevents content duplication across sections
  * - Enables proper filtering by type, language, user state
- * - Supports CMF grant requirements for diverse cultural content
  */
 
 export type ContentType = 'music' | 'story' | 'film' | 'collection' | 'archive';
@@ -26,7 +25,7 @@ export interface ContentItem {
   mediaSource: string; // Image URL
   tags: string[]; // For filtering
   featured?: boolean;
-  institutional?: boolean; // CMF institutional content
+  institutional?: boolean;
 }
 
 /**
@@ -157,7 +156,7 @@ export const FILM_CONTENT: ContentItem[] = [
 ];
 
 /**
- * INSTITUTIONAL COLLECTIONS (CMF Grant Content)
+ * INSTITUTIONAL COLLECTIONS
  */
 export const INSTITUTIONAL_CONTENT: ContentItem[] = [
   {

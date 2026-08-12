@@ -9,8 +9,8 @@
  * - Archives (Library and Archives Canada, provincial archives)
  * - Cultural institutions (community centers, research institutes)
  * - Public education programs
- * 
- * CMF-compliant, academically rigorous, citation-ready
+ *
+ * Academically rigorous, citation-ready
  */
 
 import type { MultilingualText } from './types';
@@ -74,7 +74,7 @@ export interface InstitutionalCollection {
     criticalThinkingPrompts: MultilingualText[];
   };
   
-  /** CMF-safe editorial rationale */
+  /** Editorial rationale */
   editorialRationale: MultilingualText;
   
   /** Target audiences */

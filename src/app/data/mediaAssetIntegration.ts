@@ -263,7 +263,7 @@ export const AUDIO_KEYBOARD_SHORTCUTS = {
 /**
  * Privacy-first audio engagement tracking
  * NO user identification, NO behavioral surveillance
- * Local storage only, aggregate statistics for CMF reporting
+ * Local storage only, aggregate statistics
  */
 export interface AudioEngagementMetrics {
   // Chapter-level (no user tracking)
@@ -281,7 +281,6 @@ export interface AudioEngagementMetrics {
   };
   
   // NO timestamps, NO user IDs, NO session tracking
-  // This data is for CMF reporting only (engagement with cultural content)
 }
 
 /**
@@ -295,8 +294,8 @@ export function recordAudioEngagement(
 ): void {
   // Implementation would use localStorage only
   // No network requests, no user tracking
-  // Data aggregated locally for CMF compliance reporting
-  
+  // Data aggregated locally
+
   const storageKey = `audio_engagement_${chapterId}_${language}`;
   // ... local storage logic
 }

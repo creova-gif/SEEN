@@ -570,7 +570,7 @@ export const SAMPLE_CONTENT_RIGHTS: ContentRights[] = [
     contentType: 'story',
     rightsHolder: 'CREOVA Collective',
     rightsHolderContact: 'rights@creova.ca',
-    licenseType: 'CMF-grant-compliant',
+    licenseType: 'educational-use-only',
     licenseStartDate: '2026-01-01',
     licenseEndDate: undefined, // Perpetual
     allowedUsage: {
@@ -581,14 +581,12 @@ export const SAMPLE_CONTENT_RIGHTS: ContentRights[] = [
       archivalPreservation: true,
     },
     attributionText: {
-      en: 'Story by CREOVA Collective. Funded by Canada Media Fund.',
-      fr: 'Histoire de CREOVA Collective. Financé par le Fonds des médias du Canada.',
-      es: 'Historia de CREOVA Collective. Financiado por Canada Media Fund.',
+      en: 'Story by CREOVA Collective.',
+      fr: 'Histoire de CREOVA Collective.',
+      es: 'Historia de CREOVA Collective.',
     },
     attributionRequired: true,
     geographicRestrictions: [], // Worldwide
-    cmfFunded: true,
-    cmfReportingRequired: true,
     createdAt: '2026-01-15T00:00:00Z',
     lastReviewedAt: '2026-01-15T00:00:00Z',
   },
@@ -597,7 +595,7 @@ export const SAMPLE_CONTENT_RIGHTS: ContentRights[] = [
     contentType: 'story',
     rightsHolder: 'CREOVA Collective',
     rightsHolderContact: 'rights@creova.ca',
-    licenseType: 'CMF-grant-compliant',
+    licenseType: 'educational-use-only',
     licenseStartDate: '2026-02-01',
     allowedUsage: {
       platformPlayback: true,
@@ -607,13 +605,11 @@ export const SAMPLE_CONTENT_RIGHTS: ContentRights[] = [
       archivalPreservation: true,
     },
     attributionText: {
-      en: 'Story by CREOVA Collective. Funded by Canada Media Fund.',
-      fr: 'Histoire de CREOVA Collective. Financé par le Fonds des médias du Canada.',
-      es: 'Historia de CREOVA Collective. Financiado por Canada Media Fund.',
+      en: 'Story by CREOVA Collective.',
+      fr: 'Histoire de CREOVA Collective.',
+      es: 'Historia de CREOVA Collective.',
     },
     attributionRequired: true,
-    cmfFunded: true,
-    cmfReportingRequired: true,
     createdAt: '2026-02-01T00:00:00Z',
     lastReviewedAt: '2026-02-01T00:00:00Z',
   },
