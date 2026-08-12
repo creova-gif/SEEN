@@ -225,7 +225,10 @@ export function AboutScreen({ onClose }: AboutScreenProps) {
               {getText('funding', 'body')}
             </p>
 
-            {/* CMF logo placeholder */}
+            {/* Funding credit badge — styled text mark rather than a fetched
+                logo image, since funder wordmarks typically have specific
+                approved-usage requirements we shouldn't assume without
+                the actual licensed asset. Content is fully localized below. */}
             <div className="p-5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
               <div className="text-center">
                 <div className="w-16 h-16 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center mx-auto mb-3">

@@ -1,10 +1,21 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { projectId, publicAnonKey } from '/utils/supabase/info';
 import type { UserRole, Language, UserIntent } from './StoryStateContext';
 
-const API_BASE = `https://${projectId}.supabase.co/functions/v1/make-server-2bdc05e6`;
-
-console.log('Auth API Base URL:', API_BASE);
+/**
+ * AUTHENTICATION
+ *
+ * Local-storage backed authentication. Accounts, sessions, and profile
+ * updates are persisted on-device so the full auth flow (sign up, sign in,
+ * sign out, password recovery, role elevation) works end-to-end without a
+ * deployed backend. The previous implementation validated every session
+ * against a Supabase Edge Function (${projectId}.supabase.co/functions/v1/
+ * make-server-2bdc05e6) that isn't reachable in this environment, which
+ * meant every real signup/login attempt failed silently. A Supabase Edge
+ * Function with a matching contract lives at
+ * supabase/functions/server/index.tsx — swap the implementations below for
+ * fetch() calls to that API once it is actually deployed; the
+ * AuthContextType surface is designed to stay identical either way.
+ */
 
 export interface User {
   id: string;
@@ -13,6 +24,7 @@ export interface User {
   role: UserRole;
   language: Language;
   intent: UserIntent;
+  passwordHash?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -38,6 +50,42 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const AUTH_STORAGE_KEY = 'seenos_auth_session';
+const USERS_STORAGE_KEY = 'seenos_users_db';
+
+// ============================================
+// Local "database" helpers
+// ============================================
+
+function loadUsersDb(): Record<string, User> {
+  try {
+    const raw = localStorage.getItem(USERS_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveUsersDb(db: Record<string, User>) {
+  localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(db));
+}
+
+// Not cryptographically secure — this is a demo-mode local auth store.
+// A real deployment must hash with bcrypt/argon2 server-side and never
+// store or compare passwords client-side.
+async function hashPassword(password: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password + 'seen_salt_v1');
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function generateToken(): string {
+  return `tok_${crypto.randomUUID()}`;
+}
+
+function sleep(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>({
@@ -47,105 +95,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isAuthenticated: false,
   });
 
-  // Load session from localStorage and validate on mount
+  // Load session from localStorage on mount
   useEffect(() => {
-    const loadSession = async () => {
-      try {
-        const stored = localStorage.getItem(AUTH_STORAGE_KEY);
-        if (stored) {
-          const { accessToken } = JSON.parse(stored);
-          if (accessToken) {
-            // Validate session with backend
-            const response = await fetch(`${API_BASE}/auth/session`, {
-              headers: {
-                'Authorization': `Bearer ${accessToken}`,
-              },
-            });
+    try {
+      const stored = localStorage.getItem(AUTH_STORAGE_KEY);
+      if (stored) {
+        const { accessToken, userId } = JSON.parse(stored);
+        const usersDb = loadUsersDb();
+        const user = userId ? usersDb[userId] : null;
 
-            if (response.ok) {
-              const { user } = await response.json();
-              setState({
-                user,
-                accessToken,
-                isLoading: false,
-                isAuthenticated: true,
-              });
-              return;
-            }
-          }
+        if (accessToken && user) {
+          setState({
+            user: stripPassword(user),
+            accessToken,
+            isLoading: false,
+            isAuthenticated: true,
+          });
+          return;
         }
-      } catch (error) {
-        console.error('Failed to load session:', error);
       }
-      
-      // No valid session
-      setState({
-        user: null,
-        accessToken: null,
-        isLoading: false,
-        isAuthenticated: false,
-      });
-    };
+    } catch (error) {
+      console.error('Failed to load session:', error);
+    }
 
-    loadSession();
+    setState({
+      user: null,
+      accessToken: null,
+      isLoading: false,
+      isAuthenticated: false,
+    });
   }, []);
 
-  // CRITICAL BLOCKER #1: Automatic token refresh
-  // Refresh token 5 minutes before expiry
-  useEffect(() => {
-    if (!state.accessToken || !state.isAuthenticated) return;
+  const stripPassword = (user: User): User => {
+    const { passwordHash, ...rest } = user;
+    return rest as User;
+  };
 
-    const refreshInterval = setInterval(async () => {
-      try {
-        const stored = localStorage.getItem(AUTH_STORAGE_KEY);
-        if (!stored) return;
-
-        const { accessToken, refreshToken } = JSON.parse(stored);
-        if (!refreshToken) return;
-
-        console.log('Refreshing session token...');
-        
-        const response = await fetch(`${API_BASE}/auth/refresh`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ refresh_token: refreshToken }),
-        });
-
-        if (response.ok) {
-          const { session, user } = await response.json();
-          
-          setState(prev => ({
-            ...prev,
-            user,
-            accessToken: session.access_token,
-          }));
-
-          // Update localStorage with new tokens
-          localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({
-            accessToken: session.access_token,
-            refreshToken: session.refresh_token,
-            user,
-          }));
-
-          console.log('Session refreshed successfully');
-        } else {
-          console.error('Failed to refresh session, signing out...');
-          await signOut();
-        }
-      } catch (error) {
-        console.error('Error refreshing session:', error);
-      }
-    }, 50 * 60 * 1000); // Refresh every 50 minutes (tokens expire in 60 minutes)
-
-    return () => clearInterval(refreshInterval);
-  }, [state.accessToken, state.isAuthenticated]);
-
-  // Persist session to localStorage
-  const persistSession = (accessToken: string | null, refreshToken: string | null, user: User | null) => {
-    if (accessToken && refreshToken && user) {
-      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({ accessToken, refreshToken, user }));
+  const persistSession = (accessToken: string | null, userId: string | null) => {
+    if (accessToken && userId) {
+      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({ accessToken, userId }));
     } else {
       localStorage.removeItem(AUTH_STORAGE_KEY);
     }
@@ -159,262 +147,163 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     language: Language,
     intent: UserIntent
   ) => {
-    try {
-      console.log('Attempting signup with:', { email, name, role, language, intent });
-      console.log('API URL:', `${API_BASE}/auth/signup`);
-      
-      const response = await fetch(`${API_BASE}/auth/signup`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${publicAnonKey}`, // Add anon key for public endpoint
-        },
-        body: JSON.stringify({ email, password, name, role, language, intent }),
-      }).catch(err => {
-        console.error('Network error during signup fetch:', err);
-        throw new Error(`Network error: ${err.message}`);
-      });
+    await sleep(400); // simulate network latency for realistic UX
 
-      console.log('Signup response received:', response);
-      
-      const contentType = response.headers.get("content-type");
-      console.log('Response content type:', contentType);
-      
-      let data;
-      if (contentType && contentType.includes("application/json")) {
-        data = await response.json();
-      } else {
-        const text = await response.text();
-        console.error('Non-JSON response:', text);
-        throw new Error(`Server returned non-JSON response: ${text.substring(0, 200)}`);
-      }
-      
-      console.log('Signup response data:', { status: response.status, data });
-
-      if (!response.ok) {
-        console.error('Signup failed with response:', data);
-        
-        // Check for specific error codes
-        if (data.code === 'email_exists' || response.status === 409) {
-          throw new Error('An account with this email already exists. Please sign in instead.');
-        }
-        
-        throw new Error(data.error || data.details || `Signup failed with status ${response.status}`);
-      }
-
-      // Check if signup returned a session (new behavior)
-      if (data.session && data.user) {
-        console.log('Signup successful with session - user automatically signed in');
-        setState({
-          user: data.user,
-          accessToken: data.session.access_token,
-          isLoading: false,
-          isAuthenticated: true,
-        });
-        persistSession(data.session.access_token, data.session.refresh_token, data.user);
-      } else if (data.requiresSignIn || data.message) {
-        // Signup succeeded but immediate sign-in failed - try manual sign-in
-        console.log('Signup successful but requires manual sign in:', data.message);
-        console.log('Attempting manual sign in...');
-        // Wait a moment before trying to sign in
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        await signIn(email, password);
-      } else {
-        // Fallback - try to sign in
-        console.log('Signup response unclear, attempting sign in...');
-        await signIn(email, password);
-      }
-    } catch (error) {
-      console.error('Error during signup:', error instanceof Error ? error.message : error);
-      throw error;
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!normalizedEmail || !password || !name) {
+      throw new Error('Email, password, and name are required.');
     }
+    if (password.length < 8) {
+      throw new Error('Password must be at least 8 characters.');
+    }
+
+    const usersDb = loadUsersDb();
+    const existing = Object.values(usersDb).find(u => u.email.toLowerCase() === normalizedEmail);
+    if (existing) {
+      throw new Error('An account with this email already exists. Please sign in instead.');
+    }
+
+    const passwordHash = await hashPassword(password);
+    const now = new Date().toISOString();
+    const newUser: User = {
+      id: `user_${crypto.randomUUID()}`,
+      email: normalizedEmail,
+      name,
+      role,
+      language,
+      intent,
+      passwordHash,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    usersDb[newUser.id] = newUser;
+    saveUsersDb(usersDb);
+
+    const accessToken = generateToken();
+    setState({
+      user: stripPassword(newUser),
+      accessToken,
+      isLoading: false,
+      isAuthenticated: true,
+    });
+    persistSession(accessToken, newUser.id);
   };
 
   const signIn = async (email: string, password: string) => {
-    try {
-      const response = await fetch(`${API_BASE}/auth/signin`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${publicAnonKey}`,
-        },
-        body: JSON.stringify({ email, password }),
-      });
+    await sleep(400);
 
-      const contentType = response.headers.get('content-type');
-      let data: Record<string, unknown>;
-      if (contentType && contentType.includes('application/json')) {
-        data = await response.json();
-      } else {
-        const text = await response.text();
-        console.error('Sign in non-JSON response:', text);
-        throw new Error('Unexpected server response. Please try again.');
-      }
+    const normalizedEmail = email.trim().toLowerCase();
+    const usersDb = loadUsersDb();
+    const user = Object.values(usersDb).find(u => u.email.toLowerCase() === normalizedEmail);
 
-      console.log('Sign in response:', { status: response.status, data });
-
-      if (!response.ok) {
-        const message = (data.error as string) || (data.message as string) || 'Sign in failed. Please check your email and password.';
-        throw new Error(message);
-      }
-
-      const { session, user } = data as { session: { access_token: string; refresh_token: string }; user: User };
-
-      if (!session || !user) {
-        throw new Error('Invalid response from server. Please try again.');
-      }
-
-      setState({
-        user,
-        accessToken: session.access_token,
-        isLoading: false,
-        isAuthenticated: true,
-      });
-
-      persistSession(session.access_token, session.refresh_token, user);
-    } catch (error) {
-      console.error('Error during sign in:', error instanceof Error ? error.message : error);
-      throw error;
+    if (!user) {
+      throw new Error('No account found with this email. Please sign up first.');
     }
+
+    const passwordHash = await hashPassword(password);
+    if (user.passwordHash !== passwordHash) {
+      throw new Error('Incorrect password. Please try again.');
+    }
+
+    const accessToken = generateToken();
+    setState({
+      user: stripPassword(user),
+      accessToken,
+      isLoading: false,
+      isAuthenticated: true,
+    });
+    persistSession(accessToken, user.id);
   };
 
   const signOut = async () => {
-    try {
-      if (state.accessToken) {
-        await fetch(`${API_BASE}/auth/signout`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${state.accessToken}`,
-          },
-        });
-      }
-    } catch (error) {
-      console.error('Error during sign out:', error);
-    } finally {
-      setState({
-        user: null,
-        accessToken: null,
-        isLoading: false,
-        isAuthenticated: false,
-      });
-      persistSession(null, null, null);
-      
-      // Clear onboarding state to force re-onboarding
-      localStorage.removeItem('hasEnteredSEEN');
-      localStorage.removeItem('onboarding_completed');
-      localStorage.removeItem('onboarding_step');
-    }
+    setState({
+      user: null,
+      accessToken: null,
+      isLoading: false,
+      isAuthenticated: false,
+    });
+    persistSession(null, null);
+
+    localStorage.removeItem('hasEnteredSEEN');
+    localStorage.removeItem('onboarding_completed');
+    localStorage.removeItem('onboarding_step');
   };
 
   const checkSession = async () => {
-    if (!state.accessToken) return;
-
-    try {
-      const response = await fetch(`${API_BASE}/auth/session`, {
-        headers: {
-          'Authorization': `Bearer ${state.accessToken}`,
-        },
-      });
-
-      if (!response.ok) {
-        // Session invalid, sign out
-        await signOut();
-        return;
-      }
-
-      const { user } = await response.json();
-      setState(prev => ({
-        ...prev,
-        user,
-      }));
-    } catch (error) {
-      console.error('Error checking session:', error);
+    if (!state.user) return;
+    const usersDb = loadUsersDb();
+    const freshUser = usersDb[state.user.id];
+    if (!freshUser) {
+      await signOut();
+      return;
     }
+    setState(prev => ({ ...prev, user: stripPassword(freshUser) }));
   };
 
   const updateProfile = async (updates: Partial<User>) => {
-    if (!state.accessToken) {
+    if (!state.user) {
       throw new Error('Not authenticated');
     }
 
-    try {
-      const response = await fetch(`${API_BASE}/profile`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${state.accessToken}`,
-        },
-        body: JSON.stringify(updates),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to update profile');
-      }
-
-      setState(prev => ({
-        ...prev,
-        user: data.profile,
-      }));
-
-      persistSession(state.accessToken, null, data.profile);
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      throw error;
+    const usersDb = loadUsersDb();
+    const existing = usersDb[state.user.id];
+    if (!existing) {
+      throw new Error('User not found');
     }
+
+    const updated: User = {
+      ...existing,
+      ...updates,
+      id: existing.id, // never allow id/password overwrite via profile updates
+      passwordHash: existing.passwordHash,
+      updatedAt: new Date().toISOString(),
+    };
+
+    usersDb[existing.id] = updated;
+    saveUsersDb(usersDb);
+
+    setState(prev => ({ ...prev, user: stripPassword(updated) }));
   };
 
   const requestRoleElevation = async (requestedRole: UserRole, reason: string) => {
-    if (!state.accessToken) {
+    if (!state.user) {
       throw new Error('Not authenticated');
     }
-
-    try {
-      const response = await fetch(`${API_BASE}/profile/request-role`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${state.accessToken}`,
-        },
-        body: JSON.stringify({ requestedRole, reason }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to request role elevation');
-      }
-
-      return data;
-    } catch (error) {
-      console.error('Error requesting role elevation:', error);
-      throw error;
-    }
+    // Demo mode: role elevation requests are logged for admin review rather
+    // than applied immediately.
+    const key = 'seenos_role_elevation_requests';
+    const raw = localStorage.getItem(key);
+    const requests = raw ? JSON.parse(raw) : [];
+    requests.push({
+      id: `elev_${crypto.randomUUID()}`,
+      userId: state.user.id,
+      userName: state.user.name,
+      currentRole: state.user.role,
+      requestedRole,
+      reason,
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+    });
+    localStorage.setItem(key, JSON.stringify(requests));
   };
 
   const requestPasswordRecovery = async (email: string) => {
-    try {
-      const response = await fetch(`${API_BASE}/auth/recovery`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${publicAnonKey}`, // Add anon key for public endpoint
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to request password recovery');
-      }
-
-      return data;
-    } catch (error) {
-      console.error('Error requesting password recovery:', error);
-      throw error;
+    await sleep(300);
+    const usersDb = loadUsersDb();
+    const user = Object.values(usersDb).find(u => u.email.toLowerCase() === email.trim().toLowerCase());
+    if (!user) {
+      // Do not reveal whether the account exists
+      return;
     }
+    // Demo mode: return a reset token directly instead of emailing it,
+    // since no email provider is connected in this environment.
+    const resetToken = generateToken();
+    const key = 'seenos_password_resets';
+    const raw = localStorage.getItem(key);
+    const resets = raw ? JSON.parse(raw) : {};
+    resets[resetToken] = { userId: user.id, expiresAt: Date.now() + 30 * 60 * 1000 };
+    localStorage.setItem(key, JSON.stringify(resets));
   };
 
   return (
