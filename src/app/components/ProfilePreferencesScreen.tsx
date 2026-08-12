@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { ArrowLeft, Globe, Volume2, Eye, Bookmark, Download, Shield, ChevronRight, Trash2, FileDown, Flag, User, Zap } from "lucide-react";
+import { ArrowLeft, Globe, Volume2, Eye, Bookmark, Download, Shield, ChevronRight, Trash2, FileDown, User, Zap } from "lucide-react";
 import { useState } from "react";
 import { useStoryState } from "../contexts/StoryStateContext";
 
@@ -436,50 +436,6 @@ export function ProfilePreferencesScreen({
               <button className="text-xs text-white/50 hover:text-white/70 transition-colors underline">
                 {state.language === 'en' ? 'Read full privacy policy' : state.language === 'fr' ? 'Lire la politique complète' : 'Leer política completa'}
               </button>
-            </div>
-          </motion.section>
-
-          {/* CMF Compliance */}
-          <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.65 }}
-            className="space-y-3"
-          >
-            <div className="flex items-center gap-2">
-              <Flag className="w-4 h-4 text-white/40" />
-              <h3 className="text-sm tracking-wider uppercase text-white/40">
-                {state.language === 'en' ? 'CMF Compliance' : state.language === 'fr' ? 'Conformité FMC' : 'Cumplimiento CMF'}
-              </h3>
-            </div>
-
-            <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-3">
-              <div className="flex items-start gap-3">
-                <div className="w-2 h-2 rounded-full bg-green-400 mt-1.5 flex-shrink-0" />
-                <div>
-                  <p className="text-xs text-white/80 font-medium">
-                    {state.language === 'fr' ? 'Français langue prioritaire' : 'French as first-class language'}
-                  </p>
-                  <p className="text-xs text-white/40 mt-0.5">
-                    {state.language === 'fr'
-                      ? 'Toutes les histoires ont une piste audio et des sous-titres en français.'
-                      : 'All stories have French audio tracks and subtitle support.'}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-2 h-2 rounded-full bg-green-400 mt-1.5 flex-shrink-0" />
-                <div>
-                  <p className="text-xs text-white/80 font-medium">
-                    {state.language === 'fr' ? 'Certification CAVCON' : 'CAVCON Certification'}
-                  </p>
-                  <p className="text-xs text-white/40 mt-0.5">
-                    {state.language === 'fr'
-                      ? 'Contenu certifié pour les productions canadiennes éligibles.'
-                      : 'Content certified for eligible Canadian productions.'}
-                  </p>
-                </div>
-              </div>
             </div>
           </motion.section>
 
