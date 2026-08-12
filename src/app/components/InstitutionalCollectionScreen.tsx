@@ -15,20 +15,20 @@ interface CollectionStory {
 
 interface InstitutionalCollectionScreenProps {
   onClose: () => void;
-  institutionName: string;
+  institutionName?: string;
   institutionLogo?: string;
-  description: {
+  description?: {
     en: string;
     fr: string;
     es: string;
   };
-  curatorNote: {
+  curatorNote?: {
     en: string;
     fr: string;
     es: string;
   };
-  stories: CollectionStory[];
-  onStoryClick: (storyId: string) => void;
+  stories?: CollectionStory[];
+  onStoryClick?: (storyId: string) => void;
 }
 
 export function InstitutionalCollectionScreen({
@@ -45,6 +45,35 @@ export function InstitutionalCollectionScreen({
   const getText = (text: { en: string; fr: string; es: string }) => {
     return text[state.language] || text.en;
   };
+
+  if (!institutionName || !description || !curatorNote || !stories || !onStoryClick) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black z-50 overflow-auto"
+      >
+        <div className="min-h-full max-w-[428px] mx-auto flex flex-col items-center justify-center px-6 text-center gap-4">
+          <button
+            onClick={onClose}
+            className="absolute top-8 left-5 w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors"
+            aria-label="Close"
+          >
+            <ArrowLeft className="w-5 h-5 text-white" />
+          </button>
+          <GraduationCap className="w-8 h-8 text-white/30" />
+          <p className="text-white/60 text-sm">
+            {state.language === 'en'
+              ? 'No institutional collections are configured yet.'
+              : state.language === 'fr'
+              ? 'Aucune collection institutionnelle n\'est encore configurée.'
+              : 'Aún no hay colecciones institucionales configuradas.'}
+          </p>
+        </div>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div

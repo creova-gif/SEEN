@@ -105,6 +105,21 @@ function AppContent() {
   const [currentScreen, setCurrentScreen] = useState<AppScreen>(getInitialScreen());
   const [isFirstVisit, setIsFirstVisit] = useState(!hasCompletedOnboarding);
 
+  // getInitialScreen() runs before AuthContext's async session check resolves, so
+  // authState.isAuthenticated is always false at that point and a returning user
+  // with a valid session lands on onboarding. Once the session check finishes,
+  // correct course if we're still sitting on onboarding.
+  useEffect(() => {
+    if (
+      !authState.isLoading &&
+      authState.isAuthenticated &&
+      hasCompletedOnboarding &&
+      currentScreen === "onboarding"
+    ) {
+      setCurrentScreen("for-you");
+    }
+  }, [authState.isLoading, authState.isAuthenticated, hasCompletedOnboarding, currentScreen]);
+
   const handleOnboardingComplete = (data: { role: UserRole; intent: UserIntent }) => {
     setUserRole(data.role);
     setIntent(data.intent);
@@ -309,9 +324,9 @@ function AppContent() {
         )}
 
         {currentScreen === "about" && (
-          <AboutScreen 
+          <AboutScreen
             key="about"
-            onBack={() => setCurrentScreen("profile")}
+            onClose={() => setCurrentScreen("profile")}
           />
         )}
 
@@ -338,9 +353,9 @@ function AppContent() {
         )}
 
         {currentScreen === "institutional-collection" && (
-          <InstitutionalCollectionScreen 
+          <InstitutionalCollectionScreen
             key="institutional-collection"
-            onBack={() => setCurrentScreen("profile")}
+            onClose={() => setCurrentScreen("profile")}
           />
         )}
       </AnimatePresence>

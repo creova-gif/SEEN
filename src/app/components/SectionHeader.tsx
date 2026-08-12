@@ -4,9 +4,10 @@ import { ChevronRight } from "lucide-react";
 interface SectionHeaderProps {
   title: string;
   subtitle?: string;
+  onViewAll?: () => void;
 }
 
-export function SectionHeader({ title, subtitle }: SectionHeaderProps) {
+export function SectionHeader({ title, subtitle, onViewAll }: SectionHeaderProps) {
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
@@ -24,10 +25,15 @@ export function SectionHeader({ title, subtitle }: SectionHeaderProps) {
           </p>
         )}
       </div>
-      <button className="flex items-center gap-1 text-xs tracking-wider uppercase text-white/50 hover:text-white/80 transition-colors">
-        See All
-        <ChevronRight className="w-3 h-3" />
-      </button>
+      {onViewAll && (
+        <button
+          onClick={onViewAll}
+          className="flex items-center gap-1 text-xs tracking-wider uppercase text-white/50 hover:text-white/80 transition-colors"
+        >
+          See All
+          <ChevronRight className="w-3 h-3" />
+        </button>
+      )}
     </motion.div>
   );
 }
