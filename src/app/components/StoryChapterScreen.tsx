@@ -4,14 +4,14 @@ import { useState, useEffect } from "react";
 import { AudioPlayer } from "./AudioPlayer";
 import { useAudioPlayer } from "../hooks/useAudioPlayer";
 import { useStoryState } from "../contexts/StoryStateContext";
-import { 
-  getChaptersForStory, 
-  getText, 
-  Chapter, 
+import {
+  getChaptersForStory,
+  getText,
+  Chapter,
   getContextCardsForChapter,
   getResponsesForChapter,
   getChapter
-} from "../data/content";
+} from "../data/storyReader";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ContextCardModal } from "./ContextCardModal";
 import { CommunityResponsesPanel } from "./CommunityResponsesPanel";

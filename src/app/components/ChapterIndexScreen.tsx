@@ -1,7 +1,7 @@
 import { motion } from "motion/react";
 import { ArrowLeft, Play } from "lucide-react";
 import { useStoryState } from "../contexts/StoryStateContext";
-import { getChaptersForStory, getStoryWorld, getText } from "../data/content";
+import { getChaptersForStory, getStoryWorld, getText } from "../data/storyReader";
 
 interface ChapterIndexScreenProps {
   onClose: () => void;

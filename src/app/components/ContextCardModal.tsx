@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from "motion/react";
 import { Info, X, ExternalLink } from "lucide-react";
 import { useStoryState } from "../contexts/StoryStateContext";
-import { ContextCard, getText as getTextHelper } from "../data/content";
+import { ContextCard, getText as getTextHelper } from "../data/storyReader";
 
 interface ContextCardModalProps {
   isOpen: boolean;

@@ -2,7 +2,7 @@ import { motion } from "motion/react";
 import { GitBranch } from "lucide-react";
 import { useState } from "react";
 import { useStoryState } from "../contexts/StoryStateContext";
-import { BranchChoice, getText as getTextHelper } from "../data/content";
+import { BranchChoice, getText as getTextHelper } from "../data/storyReader";
 
 interface BranchingChoiceOverlayProps {
   branchChoice: BranchChoice;
