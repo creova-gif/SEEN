@@ -34,7 +34,11 @@ export function useDialogA11y(isOpen: boolean, onClose: () => void) {
       const container = containerRef.current;
       if (!container) return;
       const focusable = Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR));
-      if (focusable.length === 0) return;
+      if (focusable.length === 0) {
+        e.preventDefault();
+        container.focus();
+        return;
+      }
 
       const firstEl = focusable[0];
       const lastEl = focusable[focusable.length - 1];

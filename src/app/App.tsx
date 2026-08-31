@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { AnimatePresence } from "motion/react";
+import { AnimatePresence, MotionConfig } from "motion/react";
 import { StoryStateProvider } from "./contexts/StoryStateContext";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { NavigationProvider } from "./navigation/NavigationController";
@@ -365,12 +365,14 @@ function AppContent() {
 
 export default function App() {
   return (
-    <StoryStateProvider>
-      <AuthProvider>
-        <NavigationProvider>
-          <AppContent />
-        </NavigationProvider>
-      </AuthProvider>
-    </StoryStateProvider>
+    <MotionConfig reducedMotion="user">
+      <StoryStateProvider>
+        <AuthProvider>
+          <NavigationProvider>
+            <AppContent />
+          </NavigationProvider>
+        </AuthProvider>
+      </StoryStateProvider>
+    </MotionConfig>
   );
 }

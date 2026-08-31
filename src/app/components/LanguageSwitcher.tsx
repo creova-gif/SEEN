@@ -36,7 +36,7 @@ export function LanguageSwitcher({
         onClick={() => setIsOpen(!isOpen)}
         className="w-10 h-10 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 flex items-center justify-center transition-colors"
         aria-label="Change language"
-        aria-haspopup="menu"
+        aria-haspopup="dialog"
         aria-expanded={isOpen}
       >
         <Globe className="w-5 h-5 text-white/70" />
@@ -58,7 +58,8 @@ export function LanguageSwitcher({
             {/* Menu */}
             <motion.div
               ref={menuRef}
-              role="menu"
+              role="dialog"
+              aria-modal="true"
               aria-label="Select language"
               tabIndex={-1}
               initial={{ opacity: 0, y: -10, scale: 0.95 }}
