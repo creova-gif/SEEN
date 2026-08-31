@@ -83,7 +83,7 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
 
   // Normalise to a common shape
   const storyData = storyDbData
-    ? storyDbData
+    ? { ...storyDbData, audioSrc: undefined as string | undefined }
     : contentDbItem
       ? {
           id: contentDbItem.id,

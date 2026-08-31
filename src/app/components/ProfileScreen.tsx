@@ -219,7 +219,7 @@ export function ProfileScreen({
       transition={{ duration: 0.4 }}
       className="min-h-screen bg-black"
     >
-      <NavigationBar />
+      <NavigationBar onProfileTap={() => onNavigate("profile")} />
 
       <main className="pt-20 pb-24 px-5 max-w-[428px] mx-auto">
 

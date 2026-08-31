@@ -23,7 +23,7 @@ export function ExploreScreenCreator({
   onNavigate,
   onContentSelect 
 }: ExploreScreenCreatorProps) {
-  const categories = getExploreCategories(activeLanguage);
+  const categories = getExploreCategories();
   const openCalls = getCreatorOpenCalls(activeLanguage);
   const trendingFormats = getTrendingFormats();
   const opportunities = getInstitutionalOpportunities(activeLanguage);
@@ -31,10 +31,11 @@ export function ExploreScreenCreator({
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Navigation */}
-      <NavigationBar 
+      <NavigationBar
         title="Explore"
         showBack={false}
         onBack={() => {}}
+        onProfileTap={() => onNavigate("profile")}
       />
 
       {/* Scrollable Content */}
@@ -220,11 +221,10 @@ export function ExploreScreenCreator({
             className="mb-8"
           >
             <SectionHeader
-              title={category.title}
-              subtitle={category.subtitle}
-              onViewAll={category.onViewAll}
+              title={category.name}
+              subtitle={category.description}
             />
-            
+
             <div className="flex gap-4 px-5 overflow-x-auto scrollbar-hide snap-x snap-mandatory">
               {category.items.map((item) => (
                 <div key={item.id} className="flex-shrink-0 w-[280px] snap-start">
@@ -233,8 +233,8 @@ export function ExploreScreenCreator({
                     title={item.title}
                     creator={item.creator}
                     duration={item.duration}
-                    imageUrl={item.imageUrl}
-                    category={item.category}
+                    imageUrl={item.mediaSource}
+                    category={item.creator}
                     onSelect={onContentSelect}
                   />
                 </div>

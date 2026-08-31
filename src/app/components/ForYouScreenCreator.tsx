@@ -33,10 +33,11 @@ export function ForYouScreenCreator({
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Navigation */}
-      <NavigationBar 
+      <NavigationBar
         title="For You"
         showBack={false}
         onBack={() => {}}
+        onProfileTap={() => onNavigate("profile")}
       />
 
       {/* Scrollable Content */}

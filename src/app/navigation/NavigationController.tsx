@@ -104,15 +104,16 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
 
   const navigate = useCallback(
     (screen: ScreenName, params: Record<string, any> = {}) => {
-      setState((prev) => ({
-        ...prev,
-        currentScreen: screen,
-        history: [...prev.history, prev.currentScreen],
-        params,
-      }));
-
-      // Log navigation for analytics (if opted in)
-      console.log(`[Navigation] ${prev.currentScreen} → ${screen}`, params);
+      setState((prev) => {
+        // Log navigation for analytics (if opted in)
+        console.log(`[Navigation] ${prev.currentScreen} → ${screen}`, params);
+        return {
+          ...prev,
+          currentScreen: screen,
+          history: [...prev.history, prev.currentScreen],
+          params,
+        };
+      });
     },
     [],
   );

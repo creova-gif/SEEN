@@ -150,7 +150,7 @@ export function LibraryScreenCreator({
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Navigation */}
-      <NavigationBar 
+      <NavigationBar
         title="Library"
         showBack={false}
         onBack={() => {}}
@@ -159,6 +159,7 @@ export function LibraryScreenCreator({
           icon: Plus,
           onClick: () => onNavigate("create")
         }}
+        onProfileTap={() => onNavigate("profile")}
       />
 
       {/* Tab Navigation */}

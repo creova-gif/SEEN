@@ -156,7 +156,7 @@ export function ProfileScreenCreator({ onNavigate, onOpenSettings, onOpenAbout }
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Navigation */}
-      <NavigationBar 
+      <NavigationBar
         title="Profile"
         showBack={false}
         onBack={() => {}}
@@ -165,6 +165,7 @@ export function ProfileScreenCreator({ onNavigate, onOpenSettings, onOpenAbout }
           icon: Settings,
           onClick: () => onOpenSettings?.()
         }}
+        onProfileTap={() => onNavigate("profile")}
       />
 
       {/* Scrollable Content */}

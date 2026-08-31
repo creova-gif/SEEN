@@ -27,7 +27,7 @@ export function ProfilePreferencesScreen({
   savedStories = [], // Default to empty array
   onStoryClick
 }: ProfilePreferencesScreenProps) {
-  const { state, dispatch, setUserRole } = useStoryState();
+  const { state, setLanguage, setUserRole } = useStoryState();
   const [downloadedStories, setDownloadedStories] = useState<string[]>([]);
   
   // Use onBack if onClose is not provided
@@ -135,7 +135,7 @@ export function ProfilePreferencesScreen({
               {languageOptions.map((lang) => (
                 <button
                   key={lang.code}
-                  onClick={() => dispatch({ type: 'SET_LANGUAGE', language: lang.code as any })}
+                  onClick={() => setLanguage(lang.code as any)}
                   className={`
                     w-full p-4 rounded-xl text-left transition-all border
                     ${state.language === lang.code
