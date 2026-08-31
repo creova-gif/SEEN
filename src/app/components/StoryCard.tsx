@@ -1,19 +1,26 @@
 import { motion } from "motion/react";
+import { prefersReducedMotion } from "../utils/motion";
 
 interface StoryCardProps {
+  id: string;
   title: string;
   author: string;
   imageUrl: string;
   readTime: string;
+  onSelect: (id: string) => void;
 }
 
-export function StoryCard({ title, author, imageUrl, readTime }: StoryCardProps) {
+export function StoryCard({ id, title, author, imageUrl, readTime, onSelect }: StoryCardProps) {
+  const reducedMotion = prefersReducedMotion();
+
   return (
-    <motion.div
+    <motion.button
+      type="button"
+      onClick={() => onSelect(id)}
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5 }}
-      className="relative w-[280px] flex-shrink-0 overflow-hidden rounded-xl group cursor-pointer"
+      transition={{ duration: reducedMotion ? 0 : 0.5 }}
+      className="relative w-[280px] flex-shrink-0 overflow-hidden rounded-xl group cursor-pointer text-left"
     >
       {/* Image */}
       <div className="relative aspect-[3/4] overflow-hidden">
@@ -37,6 +44,6 @@ export function StoryCard({ title, author, imageUrl, readTime }: StoryCardProps)
           by {author}
         </p>
       </div>
-    </motion.div>
+    </motion.button>
   );
 }

@@ -312,12 +312,14 @@ export function ExploreScreen({
               // Horizontal scroll for music
               <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-5 px-5">
                 {category.items.map(item => (
-                  <div key={item.id} onClick={() => onStoryClick(item.id)} className="flex-shrink-0">
+                  <div key={item.id} className="flex-shrink-0">
                     <StoryCard
+                      id={item.id}
                       title={item.title}
                       author={item.creator}
                       readTime={item.duration}
                       imageUrl={item.mediaSource}
+                      onSelect={onStoryClick}
                     />
                   </div>
                 ))}
