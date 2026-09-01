@@ -335,6 +335,7 @@ export function ProfilePreferencesScreen({
                 </button>
               )}
 
+              {onOpenChangePassword && (
               <button
                 onClick={onOpenChangePassword}
                 className="w-full p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-left flex items-center gap-3"
@@ -349,6 +350,7 @@ export function ProfilePreferencesScreen({
                 </div>
                 <ChevronRight className="w-4 h-4 text-white/30" />
               </button>
+              )}
             </div>
           </motion.section>
 

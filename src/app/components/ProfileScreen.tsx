@@ -193,7 +193,7 @@ export function ProfileScreen({
     name: authState.user?.name || "Alex Rivera",
     email: authState.user?.email || "alex.rivera@example.com",
     avatar: authState.user?.avatarUrl || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwb3J0cmFpdCUyMG1hbiUyMHByb2Zlc3Npb25hbHxlbnwxfHx8fDE3Mzg3MTEyMDB8MA&ixlib=rb-4.1.0&q=80&w=400",
-    bio: authState.user?.bio || "Music lover, storyteller, cultural explorer",
+    bio: authState.user?.bio ?? "Music lover, storyteller, cultural explorer",
     location: authState.user?.location || "",
     joinDate: "January 2026",
     role: state.userRole

@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { projectId, publicAnonKey } from '/utils/supabase/info';
+import { getStoryWorldById } from '../data/storyDatabase';
 
 const API_BASE = `https://${projectId}.supabase.co/functions/v1/make-server-2bdc05e6`;
 
@@ -209,11 +210,16 @@ export function StoryStateProvider({ children }: { children: ReactNode }) {
   const saveProgress = useCallback(() => {
     if (!state.currentStoryWorldId || !state.currentChapterId) return;
 
+    const story = getStoryWorldById(state.currentStoryWorldId);
+    const chapterIndex = story?.chapters.findIndex(ch => ch.id === state.currentChapterId) ?? -1;
+    const isFinalChapter = !!story && chapterIndex >= 0 && chapterIndex + 1 >= story.chapterCount;
+
     const snapshot: ProgressSnapshot = {
       storyWorldId: state.currentStoryWorldId,
       lastCompletedChapterId: state.currentChapterId,
       lastAccessDate: new Date().toISOString(),
       playbackPosition: state.audioState.playbackPosition,
+      completed: isFinalChapter,
     };
 
     setState(prev => {

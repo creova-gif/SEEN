@@ -11,6 +11,8 @@ const FOCUSABLE_SELECTOR =
 export function useDialogA11y(isOpen: boolean, onClose: () => void) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const previouslyFocused = useRef<HTMLElement | null>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   useEffect(() => {
     if (!isOpen) return;
@@ -26,7 +28,7 @@ export function useDialogA11y(isOpen: boolean, onClose: () => void) {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.stopPropagation();
-        onClose();
+        onCloseRef.current();
         return;
       }
       if (e.key !== 'Tab') return;
@@ -58,7 +60,7 @@ export function useDialogA11y(isOpen: boolean, onClose: () => void) {
       document.removeEventListener('keydown', handleKeyDown);
       previouslyFocused.current?.focus?.();
     };
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   return containerRef;
 }

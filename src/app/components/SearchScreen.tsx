@@ -124,7 +124,7 @@ export function SearchScreen({ onBack, onStoryClick }: SearchScreenProps) {
                       creator={item.creator}
                       duration={item.duration}
                       imageUrl={item.mediaSource}
-                      category={item.creator}
+                      category={item.tags[0] ?? item.creator}
                       index={index}
                       onSelect={handleSelectResult}
                     />
@@ -166,7 +166,7 @@ export function SearchScreen({ onBack, onStoryClick }: SearchScreenProps) {
                           creator={item.creator}
                           duration={item.duration}
                           imageUrl={item.mediaSource}
-                          category={item.creator}
+                          category={item.tags[0] ?? item.creator}
                           index={index}
                           onSelect={handleSelectResult}
                         />

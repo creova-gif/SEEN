@@ -44,9 +44,15 @@ function formatRelative(timestamp: number, language: string) {
   const diffMs = Date.now() - timestamp;
   const hours = Math.floor(diffMs / (1000 * 60 * 60));
   if (hours < 1) return language === "fr" ? "À l'instant" : language === "es" ? "Ahora mismo" : "Just now";
-  if (hours < 24) return `${hours}h ${language === "fr" ? "" : "ago"}`.trim();
+  if (hours < 24) {
+    if (language === "fr") return `${hours}h`;
+    if (language === "es") return `Hace ${hours}h`;
+    return `${hours}h ago`;
+  }
   const days = Math.floor(hours / 24);
-  return `${days}d ${language === "fr" ? "" : "ago"}`.trim();
+  if (language === "fr") return `${days}j`;
+  if (language === "es") return `Hace ${days}d`;
+  return `${days}d ago`;
 }
 
 export function NotificationsScreen({ onBack }: NotificationsScreenProps) {

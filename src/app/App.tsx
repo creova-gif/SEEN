@@ -112,6 +112,7 @@ function AppContent() {
   
   const [currentScreen, setCurrentScreen] = useState<AppScreen>(getInitialScreen());
   const [isFirstVisit, setIsFirstVisit] = useState(!hasCompletedOnboarding);
+  const [searchOrigin, setSearchOrigin] = useState<AppScreen>("for-you");
 
   // getInitialScreen() runs before AuthContext's async session check resolves, so
   // authState.isAuthenticated is always false at that point and a returning user
@@ -189,6 +190,7 @@ function AppContent() {
         setCurrentScreen("moderation-queue");
         break;
       case "search":
+        setSearchOrigin(currentScreen);
         setCurrentScreen("search");
         break;
       case "notifications":
@@ -383,7 +385,7 @@ function AppContent() {
         {currentScreen === "search" && (
           <SearchScreen
             key="search"
-            onBack={() => setCurrentScreen("for-you")}
+            onBack={() => setCurrentScreen(searchOrigin)}
             onStoryClick={handleStoryClick}
           />
         )}
