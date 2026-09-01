@@ -29,7 +29,8 @@ import {
   ExternalLink,
   Check,
   X,
-  Pencil
+  Pencil,
+  Bell
 } from "lucide-react";
 import { useState, useCallback } from "react";
 import { useStoryState } from "../contexts/StoryStateContext";
@@ -191,8 +192,9 @@ export function ProfileScreen({
   const user = {
     name: authState.user?.name || "Alex Rivera",
     email: authState.user?.email || "alex.rivera@example.com",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwb3J0cmFpdCUyMG1hbiUyMHByb2Zlc3Npb25hbHxlbnwxfHx8fDE3Mzg3MTEyMDB8MA&ixlib=rb-4.1.0&q=80&w=400",
-    bio: "Music lover, storyteller, cultural explorer",
+    avatar: authState.user?.avatarUrl || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwb3J0cmFpdCUyMG1hbiUyMHByb2Zlc3Npb25hbHxlbnwxfHx8fDE3Mzg3MTEyMDB8MA&ixlib=rb-4.1.0&q=80&w=400",
+    bio: authState.user?.bio || "Music lover, storyteller, cultural explorer",
+    location: authState.user?.location || "",
     joinDate: "January 2026",
     role: state.userRole
   };
@@ -219,7 +221,7 @@ export function ProfileScreen({
       transition={{ duration: 0.4 }}
       className="min-h-screen bg-black"
     >
-      <NavigationBar onProfileTap={() => onNavigate("profile")} />
+      <NavigationBar onProfileTap={() => onNavigate("profile")} onSearchTap={() => onNavigate("search")} />
 
       <main className="pt-20 pb-24 px-5 max-w-[428px] mx-auto">
 
@@ -251,7 +253,10 @@ export function ProfileScreen({
 
           {/* Edit Profile + Share Profile row */}
           <div className="flex gap-2 mb-4">
-            <button className="flex-1 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm hover:bg-white/10 transition-colors flex items-center justify-center gap-2">
+            <button
+              onClick={() => onNavigate("edit-profile")}
+              className="flex-1 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm hover:bg-white/10 transition-colors flex items-center justify-center gap-2"
+            >
               <User className="w-4 h-4" />
               {language === 'fr' ? 'Modifier le profil' : 'Edit Profile'}
             </button>
@@ -602,6 +607,11 @@ export function ProfileScreen({
               label="Accessibility"
               value="Customized"
               onClick={onOpenSettings}
+            />
+            <SettingItem
+              icon={<Bell className="w-5 h-5" />}
+              label={language === 'fr' ? 'Notifications' : language === 'es' ? 'Notificaciones' : 'Notifications'}
+              onClick={() => onNavigate("notifications")}
             />
             <SettingItem
               icon={<Settings className="w-5 h-5" />}

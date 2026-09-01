@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { ArrowLeft, Globe, Volume2, Eye, Bookmark, Download, Shield, ChevronRight, Trash2, FileDown, User, Zap } from "lucide-react";
+import { ArrowLeft, Globe, Volume2, Eye, Bookmark, Download, Shield, ChevronRight, Trash2, FileDown, User, Zap, Lock } from "lucide-react";
 import { useState } from "react";
 import { useStoryState } from "../contexts/StoryStateContext";
 
@@ -15,6 +15,7 @@ interface ProfilePreferencesScreenProps {
   onBack?: () => void;
   onOpenAccessibility?: () => void;
   onOpenAbout?: () => void;
+  onOpenChangePassword?: () => void;
   savedStories?: SavedStory[];
   onStoryClick?: (storyId: string) => void;
 }
@@ -24,6 +25,7 @@ export function ProfilePreferencesScreen({
   onBack,
   onOpenAccessibility,
   onOpenAbout,
+  onOpenChangePassword,
   savedStories = [], // Default to empty array
   onStoryClick
 }: ProfilePreferencesScreenProps) {
@@ -332,6 +334,21 @@ export function ProfilePreferencesScreen({
                     : (state.language === 'fr' ? 'Passer en Créateur' : state.language === 'es' ? 'Cambiar a Creador' : 'Switch to Creator')}
                 </button>
               )}
+
+              <button
+                onClick={onOpenChangePassword}
+                className="w-full p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-left flex items-center gap-3"
+              >
+                <div className="w-9 h-9 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center flex-shrink-0">
+                  <Lock className="w-4 h-4 text-white/70" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm text-white">
+                    {state.language === 'fr' ? 'Changer le mot de passe' : state.language === 'es' ? 'Cambiar contraseña' : 'Change Password'}
+                  </p>
+                </div>
+                <ChevronRight className="w-4 h-4 text-white/30" />
+              </button>
             </div>
           </motion.section>
 

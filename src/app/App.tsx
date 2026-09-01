@@ -22,6 +22,10 @@ import { ProfilePreferencesScreen } from "./components/ProfilePreferencesScreen"
 import { StoryBuilderScreen } from "./components/StoryBuilderScreen";
 import { ModerationGovernanceSystem } from "./components/ModerationGovernanceSystem";
 import { InstitutionalCollectionScreen } from "./components/InstitutionalCollectionScreen";
+import { SearchScreen } from "./components/SearchScreen";
+import { NotificationsScreen } from "./components/NotificationsScreen";
+import { EditProfileScreen } from "./components/EditProfileScreen";
+import { ChangePasswordScreen } from "./components/ChangePasswordScreen";
 import { useStoryState } from "./contexts/StoryStateContext";
 import type { Language, UserIntent, UserRole } from "./contexts/StoryStateContext";
 import { initializeDemoData } from "./data/demoData";
@@ -50,7 +54,11 @@ type AppScreen =
   | "settings"
   | "story-builder"
   | "moderation-governance"
-  | "institutional-collection";
+  | "institutional-collection"
+  | "search"
+  | "notifications"
+  | "edit-profile"
+  | "change-password";
 
 function AppContent() {
   const { state, setLanguage, setIntent, setUserRole, setAccessibilityPreferences, setPersonalizationPreferences, enterStoryWorld } = useStoryState();
@@ -179,6 +187,18 @@ function AppContent() {
         break;
       case "moderation-queue":
         setCurrentScreen("moderation-queue");
+        break;
+      case "search":
+        setCurrentScreen("search");
+        break;
+      case "notifications":
+        setCurrentScreen("notifications");
+        break;
+      case "edit-profile":
+        setCurrentScreen("edit-profile");
+        break;
+      case "change-password":
+        setCurrentScreen("change-password");
         break;
       default:
         break;
@@ -331,9 +351,10 @@ function AppContent() {
         )}
 
         {currentScreen === "settings" && (
-          <ProfilePreferencesScreen 
+          <ProfilePreferencesScreen
             key="settings"
             onBack={() => setCurrentScreen("profile")}
+            onOpenChangePassword={() => setCurrentScreen("change-password")}
           />
         )}
 
@@ -356,6 +377,35 @@ function AppContent() {
           <InstitutionalCollectionScreen
             key="institutional-collection"
             onClose={() => setCurrentScreen("profile")}
+          />
+        )}
+
+        {currentScreen === "search" && (
+          <SearchScreen
+            key="search"
+            onBack={() => setCurrentScreen("for-you")}
+            onStoryClick={handleStoryClick}
+          />
+        )}
+
+        {currentScreen === "notifications" && (
+          <NotificationsScreen
+            key="notifications"
+            onBack={() => setCurrentScreen("profile")}
+          />
+        )}
+
+        {currentScreen === "edit-profile" && (
+          <EditProfileScreen
+            key="edit-profile"
+            onBack={() => setCurrentScreen("profile")}
+          />
+        )}
+
+        {currentScreen === "change-password" && (
+          <ChangePasswordScreen
+            key="change-password"
+            onBack={() => setCurrentScreen("settings")}
           />
         )}
       </AnimatePresence>

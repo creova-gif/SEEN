@@ -13,13 +13,12 @@ interface NavigationBarProps {
   onBack?: () => void;
   action?: NavigationBarAction;
   onProfileTap?: () => void;
+  onSearchTap?: () => void;
 }
 
-export function NavigationBar({ title, showBack, onBack, action, onProfileTap }: NavigationBarProps) {
+export function NavigationBar({ title, showBack, onBack, action, onProfileTap, onSearchTap }: NavigationBarProps) {
   const handleSearchTap = () => {
-    console.log('[Interaction] Search button tapped');
-    // Search functionality - future implementation
-    // For now, could show toast or navigate to explore with search focus
+    if (onSearchTap) onSearchTap();
   };
 
   const handleProfileTap = () => {

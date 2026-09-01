@@ -16,7 +16,7 @@ import {
 
 interface ForYouScreenCreatorProps {
   activeLanguage: ContentLanguage;
-  onNavigate: (screen: "for-you" | "explore" | "library" | "profile" | "create") => void;
+  onNavigate: (screen: "for-you" | "explore" | "library" | "profile" | "create" | "search") => void;
   onContentSelect: (contentId: string) => void;
 }
 
@@ -38,6 +38,7 @@ export function ForYouScreenCreator({
         showBack={false}
         onBack={() => {}}
         onProfileTap={() => onNavigate("profile")}
+        onSearchTap={() => onNavigate("search")}
       />
 
       {/* Scrollable Content */}
