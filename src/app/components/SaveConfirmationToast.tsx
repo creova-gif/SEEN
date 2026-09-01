@@ -25,8 +25,8 @@ interface SaveConfirmationToastProps {
    */
   primaryAction?: SaveConfirmationAction;
   secondaryAction?: SaveConfirmationAction;
-  /** Called when the toast is dismissed: backdrop tap, Escape (rich card only), or the auto-hide timer elapsing (compact pill only). */
-  onDismiss?: () => void;
+  /** Called when the toast is dismissed: backdrop tap, Escape (rich card only), the auto-hide timer elapsing (compact pill only), or a rich-card action being chosen. */
+  onDismiss: () => void;
   /**
    * Auto-hide delay in ms for the compact pill. Defaults to 2000, matching
    * the existing `setTimeout(() => setSaved(false), 2000)` convention in
@@ -55,13 +55,23 @@ export function SaveConfirmationToast({
   autoHideMs = 2000,
 }: SaveConfirmationToastProps) {
   const isRichCard = Boolean(primaryAction || secondaryAction);
-  const dialogRef = useDialogA11y(visible && isRichCard, onDismiss ?? (() => {}));
+  const dialogRef = useDialogA11y(visible && isRichCard, onDismiss);
 
   useEffect(() => {
-    if (!visible || isRichCard || !onDismiss) return;
+    if (!visible || isRichCard) return;
     const timer = setTimeout(onDismiss, autoHideMs);
     return () => clearTimeout(timer);
   }, [visible, isRichCard, onDismiss, autoHideMs]);
+
+  const handlePrimaryAction = () => {
+    primaryAction?.onClick();
+    onDismiss();
+  };
+
+  const handleSecondaryAction = () => {
+    secondaryAction?.onClick();
+    onDismiss();
+  };
 
   return (
     <AnimatePresence>
@@ -100,7 +110,7 @@ export function SaveConfirmationToast({
               <div className="space-y-2">
                 {primaryAction && (
                   <button
-                    onClick={primaryAction.onClick}
+                    onClick={handlePrimaryAction}
                     className="w-full py-3.5 rounded-full bg-amber-400 text-black text-sm tracking-wider uppercase hover:bg-amber-300 transition-colors"
                   >
                     {primaryAction.label}
@@ -108,7 +118,7 @@ export function SaveConfirmationToast({
                 )}
                 {secondaryAction && (
                   <button
-                    onClick={secondaryAction.onClick}
+                    onClick={handleSecondaryAction}
                     className="w-full py-3.5 rounded-full bg-white/5 border border-white/10 text-white text-sm tracking-wider uppercase hover:bg-white/10 transition-colors"
                   >
                     {secondaryAction.label}

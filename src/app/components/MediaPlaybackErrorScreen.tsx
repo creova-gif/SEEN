@@ -2,6 +2,7 @@ import { useEffect, useState, type RefObject } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { ArrowLeft, AlertTriangle } from "lucide-react";
 import { useStoryState } from "../contexts/StoryStateContext";
+import { useDialogA11y } from "../hooks/useDialogA11y";
 
 interface MediaPlaybackErrorScreenProps {
   /** Ref to the actual `HTMLAudioElement` (a rendered `<audio>` tag, or a `new Audio()`
@@ -101,6 +102,10 @@ export function MediaPlaybackErrorScreen({
     onSwitchToTextMode?.();
   };
 
+  // Escape closes like the header Back button when available, otherwise
+  // falls back to the same "keep reading" dismissal as Switch to Text Mode.
+  const dialogRef = useDialogA11y(visible, onBack ?? handleSwitchToTextMode);
+
   const handleRetry = () => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -123,11 +128,15 @@ export function MediaPlaybackErrorScreen({
     <AnimatePresence>
       {visible && (
         <motion.div
+          ref={dialogRef}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black z-50 overflow-auto"
-          role="alert"
+          className="fixed inset-0 bg-black z-50 overflow-auto outline-none"
+          role="dialog"
+          aria-modal="true"
+          aria-label={getText("title")}
+          tabIndex={-1}
         >
           <div className="min-h-full max-w-[428px] mx-auto flex flex-col">
             {onBack && (

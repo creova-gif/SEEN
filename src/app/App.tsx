@@ -481,7 +481,7 @@ function AppContent() {
         )}
       </AnimatePresence>
 
-      <OfflineBanner />
+      <OfflineBanner className="fixed inset-x-0 top-0 z-[60]" />
       <AppUpdateModal isOpen={showUpdateModal} onDismiss={() => setShowUpdateModal(false)} />
     </div>
   );

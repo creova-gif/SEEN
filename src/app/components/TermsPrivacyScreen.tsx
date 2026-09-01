@@ -77,18 +77,18 @@ const PRIVACY_SECTIONS: LegalSection[] = [
     id: "how-we-use-data",
     title: { en: "2. How We Use Data", fr: "2. Utilisation des Données", es: "2. Cómo Usamos los Datos" },
     body: {
-      en: "We use your data only to operate the app: syncing your saved stories, remembering your language, and letting creators see aggregate, non-identifying engagement with their work. We do not build advertising profiles.",
-      fr: "Nous utilisons vos données uniquement pour faire fonctionner l'application : synchroniser vos histoires sauvegardées, mémoriser votre langue et permettre aux créateurs de voir l'engagement agrégé et non identifiant. Nous ne créons pas de profils publicitaires.",
-      es: "Utilizamos tus datos únicamente para operar la aplicación: sincronizar tus historias guardadas, recordar tu idioma y permitir que los creadores vean el compromiso agregado y no identificable. No creamos perfiles publicitarios.",
+      en: "We use your data only to operate the app on this device: remembering your language, tracking your reading progress, and applying your accessibility preferences. This all happens locally — SEEN does not currently sync data to a server or build advertising profiles.",
+      fr: "Nous utilisons vos données uniquement pour faire fonctionner l'application sur cet appareil : mémoriser votre langue, suivre votre progression de lecture et appliquer vos préférences d'accessibilité. Tout cela se passe localement — SEEN ne synchronise pas actuellement vos données avec un serveur et ne crée pas de profils publicitaires.",
+      es: "Utilizamos tus datos únicamente para operar la aplicación en este dispositivo: recordar tu idioma, seguir tu progreso de lectura y aplicar tus preferencias de accesibilidad. Todo esto ocurre localmente — SEEN no sincroniza actualmente tus datos con un servidor ni crea perfiles publicitarios.",
     },
   },
   {
     id: "data-sharing",
     title: { en: "3. Data Sharing", fr: "3. Partage des Données", es: "3. Compartición de Datos" },
     body: {
-      en: "We never sell personal data. Limited data may be shared with infrastructure providers (hosting, authentication) strictly to operate SEEN, under contracts requiring the same protections described here.",
-      fr: "Nous ne vendons jamais de données personnelles. Des données limitées peuvent être partagées avec des fournisseurs d'infrastructure (hébergement, authentification) strictement pour faire fonctionner SEEN, sous contrat exigeant les mêmes protections.",
-      es: "Nunca vendemos datos personales. Se pueden compartir datos limitados con proveedores de infraestructura (alojamiento, autenticación) estrictamente para operar SEEN, bajo contratos que exigen las mismas protecciones aquí descritas.",
+      en: "We do not share your data with anyone. SEEN currently has no backend server, hosting provider, or third party that receives your information — everything is stored only in this browser's local storage on this device.",
+      fr: "Nous ne partageons vos données avec personne. SEEN n'a actuellement aucun serveur, hébergeur ou tiers qui reçoit vos informations — tout est stocké uniquement dans le stockage local de ce navigateur, sur cet appareil.",
+      es: "No compartimos tus datos con nadie. SEEN actualmente no tiene ningún servidor, proveedor de alojamiento ni tercero que reciba tu información — todo se almacena únicamente en el almacenamiento local de este navegador, en este dispositivo.",
     },
   },
   {
@@ -104,9 +104,9 @@ const PRIVACY_SECTIONS: LegalSection[] = [
     id: "data-retention",
     title: { en: "5. Data Retention", fr: "5. Conservation des Données", es: "5. Retención de Datos" },
     body: {
-      en: "We keep account data for as long as your account is active. Deletion requests are processed within 30 days, after which associated personal data is permanently removed from our systems.",
-      fr: "Nous conservons les données du compte tant que votre compte est actif. Les demandes de suppression sont traitées sous 30 jours, après quoi les données personnelles associées sont définitivement supprimées de nos systèmes.",
-      es: "Conservamos los datos de la cuenta mientras esté activa. Las solicitudes de eliminación se procesan en un plazo de 30 días, tras lo cual los datos personales asociados se eliminan permanentemente de nuestros sistemas.",
+      en: "Your data stays in this browser's local storage for as long as you keep it there — SEEN has no central server to retain or delete it from. Uninstalling the app, clearing this browser's site data for SEEN, or using the options in Profile → Preferences → Your Data Rights removes it from this device.",
+      fr: "Vos données restent dans le stockage local de ce navigateur tant que vous les y conservez — SEEN n'a pas de serveur central où les conserver ou les supprimer. Désinstaller l'application, effacer les données de site de ce navigateur pour SEEN, ou utiliser les options dans Profil → Préférences → Vos Droits les supprime de cet appareil.",
+      es: "Tus datos permanecen en el almacenamiento local de este navegador mientras los conserves allí — SEEN no tiene un servidor central donde retenerlos ni eliminarlos. Desinstalar la aplicación, borrar los datos del sitio de este navegador para SEEN, o usar las opciones en Perfil → Preferencias → Tus Derechos los elimina de este dispositivo.",
     },
   },
 ];
