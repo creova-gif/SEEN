@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { projectId, publicAnonKey } from '/utils/supabase/info';
+import { projectId, publicAnonKey } from '../../../utils/supabase/info';
 
 const API_BASE = `https://${projectId}.supabase.co/functions/v1/make-server-2bdc05e6`;
 
@@ -92,6 +92,7 @@ interface StoryStateContextType {
   updateAudioState: (audioState: Partial<AudioState>) => void;
   saveProgress: () => void;
   getProgressForStory: (storyWorldId: string) => ProgressSnapshot | undefined;
+  removeProgress: (storyWorldId: string) => void;
   exitStory: () => void;
   recordBranchChoice: (chapterId: string, choiceId: string, selectedOption: string) => void;
   getChoicesForStory: (storyWorldId: string) => BranchChoice[];
@@ -239,6 +240,13 @@ export function StoryStateProvider({ children }: { children: ReactNode }) {
     return state.progressSnapshots.find(s => s.storyWorldId === storyWorldId);
   }, [state.progressSnapshots]);
 
+  const removeProgress = useCallback((storyWorldId: string) => {
+    setState(prev => ({
+      ...prev,
+      progressSnapshots: prev.progressSnapshots.filter(s => s.storyWorldId !== storyWorldId),
+    }));
+  }, []);
+
   const exitStory = useCallback(() => {
     saveProgress();
     setState(prev => ({
@@ -283,6 +291,7 @@ export function StoryStateProvider({ children }: { children: ReactNode }) {
     updateAudioState,
     saveProgress,
     getProgressForStory,
+    removeProgress,
     exitStory,
     recordBranchChoice,
     getChoicesForStory,

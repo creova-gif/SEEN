@@ -537,6 +537,7 @@ export function ModerationGovernanceSystem({ onBack }: ModerationGovernanceSyste
   const responses: CommunityResponse[] = queuedResponses.map(r => ({
     ...r,
     timestamp: new Date(r.timestamp),
+    reviewedAt: r.reviewedAt ? new Date(r.reviewedAt) : undefined,
   }));
   const actions: ModerationAction[] = queuedActions.map(a => ({
     ...a,

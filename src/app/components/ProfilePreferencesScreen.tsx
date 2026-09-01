@@ -1,7 +1,7 @@
 import { motion } from "motion/react";
 import { ArrowLeft, Globe, Volume2, Eye, Bookmark, Download, Shield, ChevronRight } from "lucide-react";
 import { useState } from "react";
-import { useStoryState } from "../contexts/StoryStateContext";
+import { useStoryState, type Language } from "../contexts/StoryStateContext";
 
 interface SavedStory {
   id: string;
@@ -27,7 +27,7 @@ export function ProfilePreferencesScreen({
   savedStories = [], // Default to empty array
   onStoryClick
 }: ProfilePreferencesScreenProps) {
-  const { state, dispatch } = useStoryState();
+  const { state, setLanguage } = useStoryState();
   const [downloadedStories, setDownloadedStories] = useState<string[]>([]);
   
   // Use onBack if onClose is not provided
@@ -135,7 +135,7 @@ export function ProfilePreferencesScreen({
               {languageOptions.map((lang) => (
                 <button
                   key={lang.code}
-                  onClick={() => dispatch({ type: 'SET_LANGUAGE', language: lang.code as any })}
+                  onClick={() => setLanguage(lang.code as Language)}
                   className={`
                     w-full p-4 rounded-xl text-left transition-all border
                     ${state.language === lang.code

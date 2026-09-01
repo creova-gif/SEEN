@@ -491,19 +491,19 @@ export function ProfileScreen({
             type="button"
             onClick={() => onNavigate("for-you")}
             className={`flex flex-col items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
-              'for-you' === 'profile' ? 'text-white' : 'text-white/40 hover:text-white/60'
+              false ? 'text-white' : 'text-white/40 hover:text-white/60'
             }`}
           >
             <Home 
               className={`w-5 h-5 transition-all duration-300 ${
-                'for-you' === 'profile' 
+                false 
                   ? 'drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]' 
                   : 'group-hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.2)]'
               }`}
-              strokeWidth={'for-you' === 'profile' ? 2 : 1.5}
+              strokeWidth={false ? 2 : 1.5}
             />
             <span className={`text-[10px] tracking-widest uppercase transition-all duration-300 ${
-              'for-you' === 'profile' ? 'font-medium' : 'font-light'
+              false ? 'font-medium' : 'font-light'
             }`}>
               For You
             </span>
@@ -512,19 +512,19 @@ export function ProfileScreen({
             type="button"
             onClick={() => onNavigate("explore")}
             className={`flex flex-col items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
-              'explore' === 'profile' ? 'text-white' : 'text-white/40 hover:text-white/60'
+              false ? 'text-white' : 'text-white/40 hover:text-white/60'
             }`}
           >
             <Compass 
               className={`w-5 h-5 transition-all duration-300 ${
-                'explore' === 'profile' 
+                false 
                   ? 'drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]' 
                   : 'group-hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.2)]'
               }`}
-              strokeWidth={'explore' === 'profile' ? 2 : 1.5}
+              strokeWidth={false ? 2 : 1.5}
             />
             <span className={`text-[10px] tracking-widest uppercase transition-all duration-300 ${
-              'explore' === 'profile' ? 'font-medium' : 'font-light'
+              false ? 'font-medium' : 'font-light'
             }`}>
               Explore
             </span>
@@ -533,19 +533,19 @@ export function ProfileScreen({
             type="button"
             onClick={() => onNavigate("library")}
             className={`flex flex-col items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
-              'library' === 'profile' ? 'text-white' : 'text-white/40 hover:text-white/60'
+              false ? 'text-white' : 'text-white/40 hover:text-white/60'
             }`}
           >
             <Library 
               className={`w-5 h-5 transition-all duration-300 ${
-                'library' === 'profile' 
+                false 
                   ? 'drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]' 
                   : 'group-hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.2)]'
               }`}
-              strokeWidth={'library' === 'profile' ? 2 : 1.5}
+              strokeWidth={false ? 2 : 1.5}
             />
             <span className={`text-[10px] tracking-widest uppercase transition-all duration-300 ${
-              'library' === 'profile' ? 'font-medium' : 'font-light'
+              false ? 'font-medium' : 'font-light'
             }`}>
               Library
             </span>
@@ -554,19 +554,19 @@ export function ProfileScreen({
             type="button"
             onClick={() => onNavigate("profile")}
             className={`flex flex-col items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
-              'profile' === 'profile' ? 'text-white' : 'text-white/40 hover:text-white/60'
+              true ? 'text-white' : 'text-white/40 hover:text-white/60'
             }`}
           >
             <User 
               className={`w-5 h-5 transition-all duration-300 ${
-                'profile' === 'profile' 
+                true 
                   ? 'drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]' 
                   : 'group-hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.2)]'
               }`}
-              strokeWidth={'profile' === 'profile' ? 2 : 1.5}
+              strokeWidth={true ? 2 : 1.5}
             />
             <span className={`text-[10px] tracking-widest uppercase transition-all duration-300 ${
-              'profile' === 'profile' ? 'font-medium' : 'font-light'
+              true ? 'font-medium' : 'font-light'
             }`}>
               Profile
             </span>

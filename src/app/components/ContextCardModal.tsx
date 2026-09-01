@@ -1,16 +1,12 @@
 import { motion, AnimatePresence } from "motion/react";
 import { Info, X, ExternalLink } from "lucide-react";
 import { useStoryState } from "../contexts/StoryStateContext";
-import { getLocalizedText, type MultilingualText } from "../data/storyDatabase";
+import { getLocalizedText, type MultilingualText, type ContextCard as StoredContextCard } from "../data/storyDatabase";
 
-export interface ContextCard {
-  id: string;
-  type: 'artist' | 'cultural' | 'historical' | 'technical' | 'location';
-  title: MultilingualText;
-  content: MultilingualText;
+export interface ContextCard extends StoredContextCard {
   imageUrl?: string;
   externalLink?: string;
-  relatedTags: string[];
+  relatedTags?: string[];
 }
 
 interface ContextCardModalProps {
@@ -120,10 +116,10 @@ export function ContextCardModal({
                 )}
 
                 {/* Tags */}
-                {contextCard.relatedTags.length > 0 && (
+                {(contextCard.relatedTags?.length ?? 0) > 0 && (
                   <div className="mt-4 pt-4 border-t border-white/5">
                     <div className="flex flex-wrap gap-2">
-                      {contextCard.relatedTags.map(tag => (
+                      {contextCard.relatedTags!.map(tag => (
                         <span
                           key={tag}
                           className="px-3 py-1 text-xs rounded-full bg-white/5 text-white/60"
