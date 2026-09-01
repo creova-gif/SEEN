@@ -1,7 +1,13 @@
 import { motion, AnimatePresence } from "motion/react";
 import { Info, X, ExternalLink } from "lucide-react";
 import { useStoryState } from "../contexts/StoryStateContext";
-import { ContextCard, getText as getTextHelper } from "../data/storyReader";
+import { getLocalizedText, type MultilingualText, type ContextCard as StoredContextCard } from "../data/storyDatabase";
+
+export interface ContextCard extends StoredContextCard {
+  imageUrl?: string;
+  externalLink?: string;
+  relatedTags?: string[];
+}
 
 interface ContextCardModalProps {
   isOpen: boolean;
@@ -16,8 +22,8 @@ export function ContextCardModal({
 }: ContextCardModalProps) {
   const { state } = useStoryState();
 
-  const getText = (text: { en: string; fr: string; es: string }) => {
-    return getTextHelper(text, state.language);
+  const getText = (text: MultilingualText) => {
+    return getLocalizedText(text, state.language);
   };
 
   const getTypeLabel = () => {
@@ -110,10 +116,10 @@ export function ContextCardModal({
                 )}
 
                 {/* Tags */}
-                {contextCard.relatedTags.length > 0 && (
+                {(contextCard.relatedTags?.length ?? 0) > 0 && (
                   <div className="mt-4 pt-4 border-t border-white/5">
                     <div className="flex flex-wrap gap-2">
-                      {contextCard.relatedTags.map(tag => (
+                      {contextCard.relatedTags!.map(tag => (
                         <span
                           key={tag}
                           className="px-3 py-1 text-xs rounded-full bg-white/5 text-white/60"

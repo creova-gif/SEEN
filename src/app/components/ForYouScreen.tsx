@@ -12,16 +12,15 @@ import { ContentCard } from "./ContentCard";
 import { StoryCard } from "./StoryCard";
 import { SectionHeader } from "./SectionHeader";
 import { EmptyState } from "./EmptyState";
-import { Play, TrendingUp, Music, Film, BookOpen, Archive, Folder, Home, Compass, Library, User, Shield } from "lucide-react";
-import { useStoryState } from "../contexts/StoryStateContext";
+import { Play, TrendingUp, Music, Film, BookOpen, Archive, Folder, Home, Compass, Library, User } from "lucide-react";
 import type { ContentLanguage, UserIntent } from "../data/types";
 import { getForYouFeed } from "../data/storyService";
 import type { Language } from "../data/storyDatabase";
-import { MUSIC_CONTENT } from "../data/database";
 
 interface ForYouScreenProps {
   onStoryClick: (contentId: string) => void;
   onNavigate: (screen: string) => void;
+  onSearch?: () => void;
   userIntent: UserIntent;
   language: ContentLanguage;
   isFirstVisit?: boolean;
@@ -35,10 +34,11 @@ interface ForYouScreenProps {
  * 2. Display stories with multilingual support
  * 3. Show empty state if no content
  */
-export function ForYouScreen({ 
-  onStoryClick, 
-  onNavigate, 
-  userIntent, 
+export function ForYouScreen({
+  onStoryClick,
+  onNavigate,
+  onSearch,
+  userIntent,
   language,
   isFirstVisit
 }: ForYouScreenProps) {
@@ -86,7 +86,7 @@ export function ForYouScreen({
     
     return (
       <div className="min-h-screen bg-black">
-        <NavigationBar />
+        <NavigationBar onSearch={onSearch} />
         <div className="pt-20 pb-24">
           <EmptyState
             icon="Compass"
@@ -233,43 +233,6 @@ export function ForYouScreen({
           </div>
         </motion.div>
 
-        {/* CREOVA Music — always on top */}
-        {(() => {
-          const creovaItems = MUSIC_CONTENT.filter(i => i.creator === 'CREOVA Music');
-          if (creovaItems.length === 0) return null;
-          return (
-            <motion.section
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.25 }}
-              className="mb-12"
-            >
-              <SectionHeader
-                title="CREOVA Music"
-                subtitle={language === 'fr' ? 'Notre musique' : 'Our music'}
-              />
-              <div className="space-y-4">
-                {creovaItems.map(item => (
-                  <div key={item.id} onClick={() => onStoryClick(item.id)} className="cursor-pointer relative">
-                    <ContentCard
-                      id={item.id}
-                      title={item.title}
-                      creator={item.creator}
-                      imageUrl={item.mediaSource}
-                      category="Music"
-                      onSelect={onStoryClick}
-                    />
-                    <div className="absolute top-3 left-3 px-2 py-1 bg-black/60 backdrop-blur-sm rounded text-xs text-white/90 uppercase tracking-wider border border-white/20 flex items-center gap-1.5">
-                      <Music className="w-3 h-3" />
-                      Music
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </motion.section>
-          );
-        })()}
-
         {/* Featured Content */}
         {featuredContent.length > 0 && (
           <motion.section
@@ -390,8 +353,6 @@ function BottomNav({
   onNavigate: (screen: string) => void;
   activeTab: string;
 }) {
-  const { state } = useStoryState();
-  const isModerator = state.userRole === 'moderator' || state.userRole === 'admin';
   return (
     <nav className="fixed bottom-0 left-0 right-0 backdrop-blur-xl bg-black/60 border-t border-white/5 z-50 pointer-events-auto">
       <div className="max-w-[428px] mx-auto px-5 py-4 flex justify-around">
@@ -458,32 +419,6 @@ function BottomNav({
             Library
           </span>
         </button>
-        {isModerator && (
-          <button
-            type="button"
-            onClick={() => onNavigate("moderation-queue")}
-            className={`flex flex-col items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
-              activeTab === 'moderation-queue' ? 'text-amber-400' : 'text-amber-500/50 hover:text-amber-400/70'
-            }`}
-          >
-            <div className="relative">
-              <Shield 
-                className={`w-5 h-5 transition-all duration-300 ${
-                  activeTab === 'moderation-queue' 
-                    ? 'drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]' 
-                    : 'group-hover:drop-shadow-[0_0_4px_rgba(251,191,36,0.3)]'
-                }`}
-                strokeWidth={activeTab === 'moderation-queue' ? 2 : 1.5}
-              />
-              <div className="absolute -top-0.5 -right-1 w-1.5 h-1.5 rounded-full bg-amber-400" />
-            </div>
-            <span className={`text-[10px] tracking-widest uppercase transition-all duration-300 ${
-              activeTab === 'moderation-queue' ? 'font-medium' : 'font-light'
-            }`}>
-              Queue
-            </span>
-          </button>
-        )}
         <button
           type="button"
           onClick={() => onNavigate("profile")}

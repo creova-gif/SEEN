@@ -125,7 +125,7 @@ export interface InstitutionalCollection {
 }
 
 // ============================================================================
-// FEATURE SET D: CULTURAL IMPACT ANALYTICS
+// FEATURE SET D: CULTURAL IMPACT ANALYTICS (CMF-COMPLIANT)
 // ============================================================================
 
 /**
@@ -133,6 +133,7 @@ export interface InstitutionalCollection {
  * All metrics are AGGREGATE ONLY
  * NO individual user tracking
  * NO attention surveillance
+ * CMF grant reporting compliant
  */
 
 export interface AggregateStoryMetrics {
@@ -183,7 +184,7 @@ export interface PlatformWideMetrics {
     es: number;
   };
   
-  // Reporting period
+  // CMF reporting period
   reportingPeriod: {
     start: string;
     end: string;
@@ -411,10 +412,11 @@ export interface StoryWorldHistory {
 // FEATURE SET J: RIGHTS & ATTRIBUTION (BACKEND ONLY)
 // ============================================================================
 
-export type LicenseType =
-  | 'CREOVA-exclusive'
-  | 'non-exclusive-limited'
-  | 'educational-use-only';
+export type LicenseType = 
+  | 'CREOVA-exclusive' 
+  | 'non-exclusive-limited' 
+  | 'educational-use-only' 
+  | 'CMF-grant-compliant';
 
 export interface ContentRights {
   contentId: string; // Story World ID, Film ID, Music ID
@@ -445,6 +447,10 @@ export interface ContentRights {
   // Restrictions
   geographicRestrictions?: string[]; // ISO country codes (empty = worldwide)
   ageRestrictions?: string; // e.g., "13+", "18+"
+  
+  // CMF compliance
+  cmfFunded: boolean;
+  cmfReportingRequired: boolean;
   
   // Metadata
   createdAt: string;
@@ -514,35 +520,33 @@ export interface ModerationQueue {
   lastUpdated: string;
 }
 
-// ============================================================================
-// EXPORTS
-// ============================================================================
-
-export type {
-  MultilingualText,
-  InstitutionSource,
-  EnhancedContextCard,
-  ConsumptionMode,
-  UserReadingPreferences,
-  ChapterConsumptionState,
-  DiscussionPrompt,
-  InstitutionalCollection,
-  AggregateStoryMetrics,
-  PlatformWideMetrics,
-  CreatorNote,
-  ReflectionFormat,
-  ModerationStatus,
-  CommunityReflection,
-  ReflectionPrompt,
-  OfflineCulturalPack,
-  UserDownload,
-  NarratorProfile,
-  ChapterNarrationTrack,
-  ChapterVersion,
-  StoryWorldHistory,
-  LicenseType,
-  ContentRights,
-  SeasonalEditorialFraming,
-  UserFeaturePreferences,
-  ModerationQueue,
-};
+export interface CMFReport {
+  reportPeriod: {
+    start: string;
+    end: string;
+  };
+  
+  // Platform metrics
+  platformMetrics: PlatformWideMetrics;
+  
+  // Story-level metrics
+  storyMetrics: AggregateStoryMetrics[];
+  
+  // Language diversity
+  multilingualEngagement: {
+    totalBilingualSessions: number; // Sessions where user switched languages
+    frenchEngagement: number; // % of sessions with FR content
+    spanishEngagement: number; // % of sessions with ES content
+  };
+  
+  // Institutional reach
+  institutionalUsers: number; // Approximate
+  institutionalCollections: number;
+  
+  // Cultural impact indicators
+  themesDiversity: string[]; // Themes engaged with
+  geographicReach?: string[]; // Country codes (if tracked)
+  
+  generatedAt: string;
+  generatedBy: string; // Admin ID
+}

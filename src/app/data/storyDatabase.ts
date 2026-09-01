@@ -47,6 +47,18 @@ export interface ChapterMedia {
   };
 }
 
+export interface ChapterBranchChoice {
+  id: string;
+  questionText: MultilingualText;
+  options: Array<{
+    id: string;
+    text: MultilingualText;
+    nextChapterId?: string;
+    tag?: string;
+  }>;
+  impactsOutcome?: boolean;
+}
+
 export interface Chapter {
   id: string;
   order: number;
@@ -56,6 +68,7 @@ export interface Chapter {
   media: ChapterMedia;
   estimatedDuration: number; // minutes
   contextCards?: ContextCard[];
+  branchChoices?: ChapterBranchChoice[];
 }
 
 export interface StoryWorld {
@@ -76,6 +89,21 @@ export interface StoryWorld {
   trending?: boolean;
   institutionalPartner?: string;
 }
+
+// ============================================
+// IMPORT MISSING CHAPTERS
+// ============================================
+
+import {
+  blackAtlanticCanadaChapters,
+  whatWeCarryChapters,
+  smallHistoriesChapters,
+  workWorthChapters,
+} from './generateMissingChapters';
+
+// userStoriesService only imports *types* from this file (erased at build
+// time), so this doesn't create a real runtime circular dependency.
+import { getUserStoryWorldById } from './userStoriesService';
 
 // ============================================
 // STORY DATABASE
@@ -1473,164 +1501,13 @@ export const STORY_WORLDS: StoryWorld[] = [
     releaseDate: 'Nov 2025',
     languagesAvailable: ['en', 'fr', 'es'],
     culturalThemes: ['Migration & Diaspora', 'Identity & Belonging', 'Black Canadian Experience'],
-    totalDuration: '30 min',
+    totalDuration: '63 min',
     chapterCount: 6,
     featured: false,
     new: false,
     trending: false,
     visibility: 'public',
-    chapters: [
-      {
-        id: 'black-atlantic-ch1',
-        order: 1,
-        title: {
-          en: 'Saltwater Memory',
-          fr: 'Mémoire d\'Eau Salée',
-          es: 'Memoria de Agua Salada',
-        },
-        description: {
-          en: 'The ocean connects and divides us from our histories.',
-          fr: 'L\'océan nous connecte et nous divise de nos histoires.',
-          es: 'El océano nos conecta y nos divide de nuestras historias.',
-        },
-        text: {
-          en: 'My grandmother was born in Jamaica. Died in Halifax. Never lost her island accent. Never stopped missing the warmth. She used to stand on the Halifax waterfront in winter, looking out at the grey Atlantic. \"Same ocean,\" she would say. \"Different shore.\" The Atlantic connects the Caribbean to Canada. But it also divides. Every wave that touches Halifax also touches Jamaica. The same salt. The same water. But between there and here: three thousand kilometers. Caribbean people have always been Atlantic people. We crossed these waters centuries ago. The Atlantic is our history. Our highway. Our grief. My grandmother taught me that the ocean has memory. That it carries the stories of everyone who crossed it.',
-          fr: 'Ma grand-mère est née en Jamaïque. Morte à Halifax. \"Même océan,\" disait-elle. \"Rivage différent.\" L\'Atlantique relie les Caraïbes au Canada. Mais il divise aussi. Entre là-bas et ici: trois mille kilomètres. L\'océan a de la mémoire. Il porte les histoires de tous ceux qui l\'ont traversé.',
-          es: 'Mi abuela nació en Jamaica. Murió en Halifax. \"Mismo océano,\" decía. \"Orilla diferente.\" El Atlántico conecta el Caribe con Canadá. Pero también divide. Entre allá y aquí: tres mil kilómetros. El océano tiene memoria. Lleva las historias de todos los que lo cruzaron.',
-        },
-        media: {
-          ambient: {
-            url: '/media/ambient/ocean-waves.mp3',
-          },
-        },
-        estimatedDuration: 5,
-      },
-      {
-        id: 'black-atlantic-ch2',
-        order: 2,
-        title: {
-          en: 'Double Displacement',
-          fr: 'Double Déplacement',
-          es: 'Doble Desplazamiento',
-        },
-        description: {
-          en: 'Being Caribbean in Canada, being Canadian in the Caribbean.',
-          fr: 'Être caribéen au Canada, être canadien aux Caraïbes.',
-          es: 'Ser caribeño en Canadá, ser canadiense en el Caribe.',
-        },
-        text: {
-          en: 'I was born in Toronto. My parents were born in Trinidad. I am Canadian. But not really. Not to white Canadians who ask where I am really from. Not to other Caribbean people who call me whitewashed. I am too Canadian for Trinidad. Too Trinidadian for Canada. This is double displacement. Being from nowhere. Belonging to neither. I exist in the hyphen. Caribbean-Canadian. Neither one nor the other. Both and neither. This is the Black Atlantic experience. Always in motion. Always displaced. Carrying multiple identities that never quite fit.',
-          fr: 'Je suis né à Toronto. Mes parents sont nés à Trinidad. Je suis canadien. Mais pas vraiment. Je suis trop canadien pour Trinidad. Trop trinidadien pour le Canada. C\'est le double déplacement. J\'existe dans le trait d\'union. Caribéen-canadien.',
-          es: 'Nací en Toronto. Mis padres nacieron en Trinidad. Soy canadiense. Pero no realmente. Soy demasiado canadiense para Trinidad. Demasiado trinitario para Canadá. Esto es doble desplazamiento. Existo en el guion. Caribeño-canadiense.',
-        },
-        media: {
-          ambient: {
-            url: '/media/ambient/identity-tension.mp3',
-          },
-        },
-        estimatedDuration: 5,
-      },
-      {
-        id: 'black-atlantic-ch3',
-        order: 3,
-        title: {
-          en: 'Carnival in Snow',
-          fr: 'Carnaval Dans la Neige',
-          es: 'Carnaval en la Nieve',
-        },
-        description: {
-          en: 'How culture survives in impossible climates.',
-          fr: 'Comment la culture survit dans des climats impossibles.',
-          es: 'Cómo sobrevive la cultura en climas imposibles.',
-        },
-        text: {
-          en: 'Every year in Toronto, there is Caribana. Caribbean carnival. Steel pan. Soca music. Costumes covered in feathers and sequins. Dancing in the streets. It happens in August. Carnival was born in the Caribbean. Heat and sweat and freedom. Bringing it to Canada is an act of cultural preservation. And also cultural transformation. Caribana is not Trinidad carnival. It is Caribbean-Canadian carnival. Adapted. Translated. This is how culture survives. Not by staying pure. But by adapting. Changing. Becoming something new. Carnival in snow is impossible. And yet, every year, we make it happen.',
-          fr: 'Chaque année à Toronto, il y a Caribana. Carnaval caribéen. Le carnaval est né dans les Caraïbes. L\'apporter au Canada est un acte de préservation culturelle. Et aussi de transformation culturelle. Caribana n\'est pas le carnaval de Trinidad. C\'est le carnaval caribéen-canadien. C\'est comme ça que la culture survit. En s\'adaptant.',
-          es: 'Cada año en Toronto, está Caribana. Carnaval caribeño. El carnaval nació en el Caribe. Traerlo a Canadá es un acto de preservación cultural. Y también de transformación cultural. Caribana no es el carnaval de Trinidad. Es el carnaval caribeño-canadiense. Así es como sobrevive la cultura. Adaptándose.',
-        },
-        media: {
-          ambient: {
-            url: '/media/ambient/carnival-drums.mp3',
-          },
-        },
-        estimatedDuration: 5,
-      },
-      {
-        id: 'black-atlantic-ch4',
-        order: 4,
-        title: {
-          en: 'The Barbershop',
-          fr: 'Le Salon de Coiffure',
-          es: 'La Barbería',
-        },
-        description: {
-          en: 'Where community is built one haircut at a time.',
-          fr: 'Où la communauté se construit une coupe de cheveux à la fois.',
-          es: 'Donde se construye comunidad un corte de pelo a la vez.',
-        },
-        text: {
-          en: 'The barbershop on Eglinton West is more than a barbershop. It is a community center. A gathering place. A piece of home. Everyone goes there. Not just for haircuts. For conversation. For connection. The barbers are from Jamaica, Trinidad, Grenada. The customers are from everywhere. We all come for the same thing. To be in a space where Blackness is normal. Where Caribbean culture is default. The conversations range from politics to sports to family. This is what the Caribbean brought to Canada. Community as default. Connection as survival. In a city that can be cold, the barbershop is warm. Familiar. Home.',
-          fr: 'Le salon de coiffure sur Eglinton West est plus qu\'un salon. C\'est un centre communautaire. Tout le monde y va. Pour la conversation. Pour la connexion. Dans une ville qui peut être froide, le salon est chaleureux. Familier. Maison.',
-          es: 'La barbería en Eglinton West es más que una barbería. Es un centro comunitario. Todos van allí. Para conversación. Para conexión. En una ciudad que puede ser fría, la barbería es cálida. Familiar. Hogar.',
-        },
-        media: {
-          ambient: {
-            url: '/media/ambient/barbershop-talk.mp3',
-          },
-        },
-        estimatedDuration: 5,
-      },
-      {
-        id: 'black-atlantic-ch5',
-        order: 5,
-        title: {
-          en: 'Anti-Black Racism',
-          fr: 'Racisme Anti-Noir',
-          es: 'Racismo Anti-Negro',
-        },
-        description: {
-          en: 'What they did not tell us about Canada before we came.',
-          fr: 'Ce qu\'ils ne nous ont pas dit sur le Canada avant notre arrivée.',
-          es: 'Lo que no nos dijeron sobre Canadá antes de que viniéramos.',
-        },
-        text: {
-          en: 'Canada sold itself as better than America. No slavery. No segregation. Multicultural. Caribbean immigrants believed it. Came here for opportunity. For safety. They did not expect the racism. Subtle. Systemic. Persistent. My father has a PhD. Could not get a job in his field. Ended up driving a taxi. My mother is a nurse. Gets mistaken for a cleaner. This is anti-Black racism. Not loud. Not obvious. But constant. In hiring. In housing. In education. In policing. Caribbean immigrants came here expecting equality. Found hierarchy. We are here now. Building lives. But we are also naming what Canada refuses to see. That racism is not just American. It is Canadian too.',
-          fr: 'Le Canada s\'est vendu comme meilleur que l\'Amérique. Les immigrants caribéens l\'ont cru. Ils ne s\'attendaient pas au racisme. Subtil. Systémique. Mon père a un doctorat. Ne pouvait pas obtenir un emploi. Le racisme n\'est pas seulement américain. Il est aussi canadien.',
-          es: 'Canadá se vendió como mejor que América. Los inmigrantes caribeños lo creyeron. No esperaban el racismo. Sutil. Sistémico. Mi padre tiene un doctorado. No pudo conseguir trabajo. El racismo no es solo estadounidense. También es canadiense.',
-        },
-        media: {
-          ambient: {
-            url: '/media/ambient/city-tension.mp3',
-          },
-        },
-        estimatedDuration: 5,
-      },
-      {
-        id: 'black-atlantic-ch6',
-        order: 6,
-        title: {
-          en: 'Atlantic Futures',
-          fr: 'Avenirs Atlantiques',
-          es: 'Futuros Atlánticos',
-        },
-        description: {
-          en: 'Building new worlds between the islands and the snow.',
-          fr: 'Construire de nouveaux mondes entre les îles et la neige.',
-          es: 'Construyendo nuevos mundos entre las islas y la nieve.',
-        },
-        text: {
-          en: 'We are creating something new. Not Caribbean. Not Canadian. Caribbean-Canadian. A hybrid identity. A third space. We take what our parents brought. Language. Food. Music. Values. And we mix it with what we found here. The Atlantic connects us to our past. But it also opens to the future. A future where Black Atlantic Canada is recognized. Valued. We are not just immigrants. We are nation-builders. Contributing to Canadian culture. Shaping it. Making it ours. This is our Atlantic. Our Canada. Our future. And we are building it.',
-          fr: 'Nous créons quelque chose de nouveau. Pas caribéen. Pas canadien. Caribéen-canadien. Une identité hybride. L\'Atlantique nous connecte à notre passé. Mais il s\'ouvre aussi vers l\'avenir. Nous ne sommes pas seulement des immigrants. Nous sommes des bâtisseurs de nation. C\'est notre Atlantique. Notre Canada.',
-          es: 'Estamos creando algo nuevo. No caribeño. No canadiense. Caribeño-canadiense. Una identidad híbrida. El Atlántico nos conecta con nuestro pasado. Pero también se abre al futuro. No somos solo inmigrantes. Somos constructores de nación. Este es nuestro Atlántico. Nuestro Canadá.',
-        },
-        media: {
-          ambient: {
-            url: '/media/ambient/hopeful-future.mp3',
-          },
-        },
-        estimatedDuration: 5,
-      },
-    ],
+    chapters: blackAtlanticCanadaChapters,
   },
   {
     id: 'what-we-carry',
@@ -1653,139 +1530,13 @@ export const STORY_WORLDS: StoryWorld[] = [
     releaseDate: 'Dec 2025',
     languagesAvailable: ['en', 'fr', 'es'],
     culturalThemes: ['Family & Separation', 'Identity & Belonging', 'Healing & Resilience'],
-    totalDuration: '22 min',
+    totalDuration: '53 min',
     chapterCount: 5,
     featured: false,
     new: false,
     trending: false,
     visibility: 'public',
-    chapters: [
-      {
-        id: 'carry-ch1',
-        order: 1,
-        title: {
-          en: 'Inheritance',
-          fr: 'Héritage',
-          es: 'Herencia',
-        },
-        description: {
-          en: 'What gets passed down that no one talks about.',
-          fr: 'Ce qui se transmet dont personne ne parle.',
-          es: 'Lo que se transmite de lo que nadie habla.',
-        },
-        text: {
-          en: 'My grandmother never talked about the war. Never spoke about what happened. What she saw. What she survived. But I carry it anyway. In my anxiety. In my hypervigilance. In the way I cannot sit with my back to a door. In the way loud noises make me freeze. In the way I hoard food even when there is plenty. I carry trauma that is not mine. That happened before I was born. To someone else. In another country. But it lives in my body. Scientists call it epigenetic inheritance. Trauma passed through DNA. Through parenting. Through silence. My grandmother survived genocide. I was born in Canada. Safe. Comfortable. Free. But her survival lives in me. Her fear. Her loss. Her grief. She never told me the stories. But my body knows them anyway. This is what we carry. Not just culture. Not just language. Not just recipes and traditions. We carry pain. We carry survival. We carry what could not be spoken. And we carry it forward. Until someone is strong enough to put it down.',
-          fr: 'Ma grand-mère n\'a jamais parlé de la guerre. Jamais parlé de ce qui s\'est passé. Ce qu\'elle a vu. Ce à quoi elle a survécu. Mais je le porte quand même. Dans mon anxiété. Dans mon hypervigilance. Je porte un traumatisme qui n\'est pas le mien. Qui s\'est produit avant ma naissance. À quelqu\'un d\'autre. Dans un autre pays. Mais il vit dans mon corps. Ma grand-mère a survécu au génocide. Je suis né au Canada. Mais sa survie vit en moi. C\'est ce que nous portons. Pas seulement la culture. Nous portons la douleur. Nous portons la survie.',
-          es: 'Mi abuela nunca habló de la guerra. Nunca habló de lo que pasó. Lo que vio. A lo que sobrevivió. Pero lo llevo de todos modos. En mi ansiedad. En mi hipervigilancia. Llevo trauma que no es mío. Que sucedió antes de que naciera. A otra persona. En otro país. Pero vive en mi cuerpo. Mi abuela sobrevivió al genocidio. Nací en Canadá. Pero su supervivencia vive en mí. Esto es lo que llevamos. No solo cultura. Llevamos dolor. Llevamos supervivencia.',
-        },
-        media: {
-          ambient: {
-            url: '/media/ambient/quiet-tension.mp3',
-          },
-        },
-        estimatedDuration: 4,
-      },
-      {
-        id: 'carry-ch2',
-        order: 2,
-        title: {
-          en: 'Silence',
-          fr: 'Silence',
-          es: 'Silencio',
-        },
-        description: {
-          en: 'What happens when the stories stay untold.',
-          fr: 'Ce qui se passe quand les histoires restent non dites.',
-          es: 'Lo que sucede cuando las historias quedan sin contar.',
-        },
-        text: {
-          en: 'My father does not talk about his childhood. When I ask, he changes the subject. Gets quiet. Walks away. There is a wall around those years. Impenetrable. Solid. I know fragments. From aunts. From cousins. From what is not said. He grew up poor. Very poor. In a village with no running water. No electricity. No school past grade six. He left at fourteen. Worked. Sent money home. Raised his siblings. Sacrificed his youth. But he never tells these stories. Never shares the details. Never acknowledges the pain. The silence is his protection. If he does not speak it, it did not happen. If he does not remember, it cannot hurt. But silence does not erase trauma. It preserves it. Keeps it fresh. Unprocessed. Unhealed. And it passes to the next generation. I am obsessed with his childhood. With filling in the gaps. With understanding what shaped him. But he will not let me in. The silence is a wall between us. Built to protect him. But also isolating him. Keeping him alone with ghosts he will not name.',
-          fr: 'Mon père ne parle pas de son enfance. Quand je demande, il change de sujet. Devient silencieux. S\'en va. Il y a un mur autour de ces années. Je connais des fragments. De tantes. De cousins. De ce qui n\'est pas dit. Le silence est sa protection. S\'il ne le dit pas, ce n\'est pas arrivé. Mais le silence n\'efface pas le traumatisme. Il le préserve. Le silence est un mur entre nous.',
-          es: 'Mi padre no habla de su infancia. Cuando pregunto, cambia de tema. Se queda callado. Se va. Hay un muro alrededor de esos años. Conozco fragmentos. De tías. De primos. De lo que no se dice. El silencio es su protección. Si no lo dice, no sucedió. Pero el silencio no borra el trauma. Lo preserva. El silencio es un muro entre nosotros.',
-        },
-        media: {
-          ambient: {
-            url: '/media/ambient/uncomfortable-quiet.mp3',
-          },
-        },
-        estimatedDuration: 4,
-      },
-      {
-        id: 'carry-ch3',
-        order: 3,
-        title: {
-          en: 'Breaking Patterns',
-          fr: 'Briser les Modèles',
-          es: 'Rompiendo Patrones',
-        },
-        description: {
-          en: 'Choosing not to pass it forward.',
-          fr: 'Choisir de ne pas le transmettre.',
-          es: 'Elegir no transmitirlo.',
-        },
-        text: {
-          en: 'My mother was raised with corporal punishment. Her parents beat her. Not abuse. Discipline. That is what they called it. Normal. Expected. The way children were raised. She swore she would never do that to us. And she did not. She broke the pattern. Chose differently. Parented with words instead of hands. It was not easy. When we misbehaved, her instinct was to hit. She had to fight against years of conditioning. Against what felt natural. Against what her body remembered as normal. But she did it. She stopped the cycle. Refused to pass the violence forward. This is the work of healing. Not just processing your own trauma. But deciding what you will and will not carry forward. What you will transform. What you will release. My mother carries the trauma of being hit. But my children will not. She absorbed it. Held it. Stopped it. That is her gift to us. And it cost her something. The work of not repeating. Of choosing differently. Of being better than what was done to you. That work is hard. Constant. Worthy. And it changes everything.',
-          fr: 'Ma mère a été élevée avec des châtiments corporels. Ses parents la frappaient. Pas de l\'abus. De la discipline. C\'est ce qu\'ils appelaient ça. Normal. Elle a juré qu\'elle ne nous ferait jamais ça. Et elle ne l\'a pas fait. Elle a brisé le modèle. A choisi différemment. Ce n\'était pas facile. Mais elle l\'a fait. Elle a arrêté le cycle. C\'est le travail de guérison. Décider ce que vous allez et n\'allez pas transmettre. Ma mère porte le traumatisme. Mais mes enfants non. Elle l\'a absorbé. Arrêté.',
-          es: 'Mi madre fue criada con castigo corporal. Sus padres la golpeaban. No abuso. Disciplina. Así lo llamaban. Normal. Juró que nunca nos haría eso. Y no lo hizo. Rompió el patrón. Eligió diferente. No fue fácil. Pero lo hizo. Detuvo el ciclo. Este es el trabajo de sanación. Decidir qué transmitirás y qué no. Mi madre lleva el trauma. Pero mis hijos no. Lo absorbió. Lo detuvo.',
-        },
-        media: {
-          ambient: {
-            url: '/media/ambient/gentle-resolution.mp3',
-          },
-        },
-        estimatedDuration: 5,
-      },
-      {
-        id: 'carry-ch4',
-        order: 4,
-        title: {
-          en: 'Therapy as Resistance',
-          fr: 'La Thérapie comme Résistance',
-          es: 'Terapia como Resistencia',
-        },
-        description: {
-          en: 'Healing what your ancestors could not.',
-          fr: 'Guérir ce que vos ancêtres ne pouvaient pas.',
-          es: 'Sanar lo que tus ancestros no pudieron.',
-        },
-        text: {
-          en: 'I am the first person in my family to go to therapy. The first to name trauma. The first to seek help. My parents think it is self-indulgent. Western. Unnecessary. In their culture, you do not talk about feelings. You do not pay strangers to listen. You endure. You survive. You move forward. But I cannot do that. I cannot carry what they carried and stay silent. I cannot survive the way they survived. I need different tools. So I go to therapy. I name the anxiety. The depression. The inherited trauma. I process what they could not. I speak what they would not. I heal what they survived. This is resistance. Against silence. Against endurance. Against the idea that suffering is noble. My healing is not just for me. It is for them. For my grandmother who could not afford therapy. For my father who did not have the language. For my mother who was taught that feelings do not matter. I am healing the family line. Backward and forward. Releasing what they carried. So my children will not have to.',
-          fr: 'Je suis la première personne de ma famille à aller en thérapie. La première à nommer le traumatisme. La première à chercher de l\'aide. Mes parents pensent que c\'est auto-indulgent. Occidental. Inutile. Dans leur culture, on ne parle pas de sentiments. Mais je ne peux pas faire ça. Je vais en thérapie. Je nomme l\'anxiété. La dépression. Le traumatisme hérité. C\'est de la résistance. Contre le silence. Je guéris la lignée familiale. En arrière et en avant.',
-          es: 'Soy la primera persona en mi familia en ir a terapia. La primera en nombrar el trauma. La primera en buscar ayuda. Mis padres piensan que es autoindulgente. Occidental. Innecesario. En su cultura, no hablas de sentimientos. Pero no puedo hacer eso. Voy a terapia. Nombro la ansiedad. La depresión. El trauma heredado. Esto es resistencia. Contra el silencio. Estoy sanando la línea familiar. Hacia atrás y hacia adelante.',
-        },
-        media: {
-          ambient: {
-            url: '/media/ambient/healing-space.mp3',
-          },
-        },
-        estimatedDuration: 5,
-      },
-      {
-        id: 'carry-ch5',
-        order: 5,
-        title: {
-          en: 'Carrying Forward',
-          fr: 'Porter en Avant',
-          es: 'Llevando Adelante',
-        },
-        description: {
-          en: 'What we choose to keep and what we choose to release.',
-          fr: 'Ce que nous choisissons de garder et ce que nous choisissons de libérer.',
-          es: 'Lo que elegimos guardar y lo que elegimos liberar.',
-        },
-        text: {
-          en: 'I will carry forward my grandmother\'s resilience. Her strength. Her ability to survive impossible things. I will carry forward my father\'s work ethic. His dedication. His sacrifice for family. I will carry forward my mother\'s kindness. Her generosity. Her capacity to love fiercely. But I will not carry forward their trauma. Their silence. Their survival at the cost of joy. I am making choices about inheritance. Taking what serves. Releasing what harms. Transforming what remains. This is the work of my generation. To honor where we came from. While choosing where we go. To respect the sacrifices made. While refusing to repeat the pain. To carry forward love. And leave behind suffering. My children will inherit stories. Not silence. They will inherit healing. Not trauma. They will inherit pride in where they came from. Without shame about who they are. This is what I am building. A new inheritance. One that honors the past. While choosing the future. This is what we carry forward. And what we finally put down.',
-          fr: 'Je porterai en avant la résilience de ma grand-mère. Sa force. Je porterai en avant l\'éthique de travail de mon père. Je porterai en avant la gentillesse de ma mère. Mais je ne porterai pas en avant leur traumatisme. Leur silence. Je fais des choix sur l\'héritage. Prendre ce qui sert. Libérer ce qui nuit. C\'est le travail de ma génération. Honorer d\'où nous venons. Tout en choisissant où nous allons. Mes enfants hériteront d\'histoires. Pas de silence. C\'est ce que nous portons en avant. Et ce que nous déposons enfin.',
-          es: 'Llevaré adelante la resiliencia de mi abuela. Su fuerza. Llevaré adelante la ética de trabajo de mi padre. Llevaré adelante la bondad de mi madre. Pero no llevaré adelante su trauma. Su silencio. Estoy haciendo elecciones sobre herencia. Tomar lo que sirve. Liberar lo que daña. Este es el trabajo de mi generación. Honrar de dónde venimos. Mientras elegimos a dónde vamos. Mis hijos heredarán historias. No silencio. Esto es lo que llevamos adelante. Y lo que finalmente dejamos.',
-        },
-        media: {
-          ambient: {
-            url: '/media/ambient/peaceful-resolve.mp3',
-          },
-        },
-        estimatedDuration: 4,
-      },
-    ],
+    chapters: whatWeCarryChapters,
   },
   {
     id: 'small-histories',
@@ -1808,164 +1559,13 @@ export const STORY_WORLDS: StoryWorld[] = [
     releaseDate: 'Oct 2025',
     languagesAvailable: ['en', 'fr', 'es'],
     culturalThemes: ['Place & Memory', 'Family & Separation', 'Preservation & Loss'],
-    totalDuration: '18 min',
+    totalDuration: '63 min',
     chapterCount: 6,
     featured: false,
     new: false,
     trending: false,
     visibility: 'public',
-    chapters: [
-      {
-        id: 'small-ch1',
-        order: 1,
-        title: {
-          en: 'The Corner Store',
-          fr: 'Le Dépanneur du Coin',
-          es: 'La Tienda de la Esquina',
-        },
-        description: {
-          en: 'Before gentrification, there was Mr. Kim.',
-          fr: 'Avant la gentrification, il y avait M. Kim.',
-          es: 'Antes de la gentrificación, estaba el Sr. Kim.',
-        },
-        text: {
-          en: 'The corner store is gone now. Replaced by a boutique selling twelve-dollar lattes. But for thirty years, it was Mr. Kim\'s. Open 6 AM to midnight. Seven days a week. He sold everything. Milk. Bread. Lottery tickets. Cigarettes. But what he really sold was community. He knew everyone\'s names. Knew their kids. Knew their habits. He let people run a tab when money was tight. Held packages when deliveries came. Called mothers when teenagers bought cigarettes. This was before big box stores. Before Amazon. When corner stores were community hubs. Mr. Kim immigrated from Korea in 1985. Bought the store in 1987. Worked it until 2018. Raised three kids. Sent them to university. Paid for everything from that small shop. He retired. Sold to developers. Now there is luxury condos. Craft coffee. No corner stores. No Mr. Kim. No memory of what was there. Except in those of us who remember. This is a small history. Not important. Not recorded. Just one man. One store. One neighborhood. But to us, it mattered.',
-          fr: 'Le dépanneur du coin a disparu maintenant. Remplacé par une boutique vendant des cafés à douze dollars. Mais pendant trente ans, c\'était celui de M. Kim. Ouvert de 6h à minuit. Sept jours par semaine. Il connaissait les noms de tout le monde. Il a immigré de Corée en 1985. A acheté le magasin en 1987. L\'a travaillé jusqu\'en 2018. Maintenant il y a des condos de luxe. Pas de dépanneurs. Pas de M. Kim. C\'est une petite histoire. Pas importante. Pas enregistrée. Mais pour nous, ça comptait.',
-          es: 'La tienda de la esquina ya no está. Reemplazada por una boutique que vende cafés de doce dólares. Pero durante treinta años, fue del Sr. Kim. Abierto de 6 AM a medianoche. Siete días a la semana. Conocía los nombres de todos. Inmigró de Corea en 1985. Compró la tienda en 1987. La trabajó hasta 2018. Ahora hay condominios de lujo. No tiendas de esquina. No Sr. Kim. Esta es una pequeña historia. No importante. No registrada. Pero para nosotros, importaba.',
-        },
-        media: {
-          ambient: {
-            url: '/media/ambient/store-bell.mp3',
-          },
-        },
-        estimatedDuration: 3,
-      },
-      {
-        id: 'small-ch2',
-        order: 2,
-        title: {
-          en: 'Community Center Dance',
-          fr: 'Danse du Centre Communautaire',
-          es: 'Baile del Centro Comunitario',
-        },
-        description: {
-          en: 'Where immigrant parents found each other.',
-          fr: 'Où les parents immigrants se sont trouvés.',
-          es: 'Donde los padres inmigrantes se encontraron.',
-        },
-        text: {
-          en: 'Every Saturday night in the 1990s, the Portuguese Community Center held dances. Adults only. Nine PM to one AM. Five dollars at the door. This is where my parents met. Where most of the Portuguese immigrants met their spouses. The men stood on one side. The women on the other. Formal. Nervous. Hoping. Someone would cross the floor. Ask to dance. Maybe start a conversation. Maybe start a life. It was not romantic by modern standards. No apps. No profiles. No matching algorithms. Just people. In a room. Taking chances. My parents danced three times that first night. My father asked. My mother said yes. Six months later, they were married. This happened hundreds of times. In that community center. On those Saturday nights. Whole families exist because of those dances. Whole lives built from five-dollar tickets and courage. The dances ended in 2005. Not enough young people attending. The community center still exists. But the dances are gone. And with them, a way of meeting. A ritual of connection. A small history of how love happened. Before the internet changed everything.',
-          fr: 'Chaque samedi soir dans les années 1990, le Centre Communautaire Portugais organisait des danses. Adultes seulement. 21h à 1h. Cinq dollars à la porte. C\'est là que mes parents se sont rencontrés. Les hommes se tenaient d\'un côté. Les femmes de l\'autre. Quelqu\'un traverserait le plancher. Demanderait de danser. Mes parents ont dansé trois fois cette première nuit. Six mois plus tard, ils étaient mariés. Les danses ont pris fin en 2005. C\'est une petite histoire de comment l\'amour se passait. Avant qu\'Internet change tout.',
-          es: 'Cada sábado por la noche en los años 1990, el Centro Comunitario Portugués realizaba bailes. Solo adultos. 9 PM a 1 AM. Cinco dólares en la puerta. Ahí es donde mis padres se conocieron. Los hombres estaban de un lado. Las mujeres del otro. Alguien cruzaría el piso. Pediría bailar. Mis padres bailaron tres veces esa primera noche. Seis meses después, estaban casados. Los bailes terminaron en 2005. Esta es una pequeña historia de cómo sucedía el amor. Antes de que internet cambiara todo.',
-        },
-        media: {
-          ambient: {
-            url: '/media/ambient/distant-music.mp3',
-          },
-        },
-        estimatedDuration: 3,
-      },
-      {
-        id: 'small-ch3',
-        order: 3,
-        title: {
-          en: 'The Seamstress',
-          fr: 'La Couturière',
-          es: 'La Costurera',
-        },
-        description: {
-          en: 'Invisible labor in a basement workshop.',
-          fr: 'Travail invisible dans un atelier au sous-sol.',
-          es: 'Labor invisible en un taller de sótano.',
-        },
-        text: {
-          en: 'Mrs. Nguyen ran a sewing business from her basement. Nothing official. No business license. No taxes. Just word of mouth and survival. Immigrant women knew. If you needed alterations. If you needed repairs. If you needed something made. You went to Mrs. Nguyen. She charged less than half what stores charged. Worked faster. Did better work. She sewed wedding dresses. Hemmed pants. Fixed torn coats. Made curtains. Altered suits. She worked twelve hours a day. Seven days a week. On a machine older than her children. In a basement with poor lighting and no ventilation. This was invisible labor. Undocumented. Unrecorded. Essential. How many weddings happened because of her? How many job interviews succeeded because a suit fit properly? How many homes felt complete because of her curtains? Uncountable. She died in 2019. Seventy-eight years old. Still sewing. Her children found orders she had not finished. Dresses half-made. Repairs half-done. People waiting. There was no one to take over. The business died with her. And with it, a service. A skill. A small history of invisible work that kept a community clothed.',
-          fr: 'Mme Nguyen dirigeait une entreprise de couture depuis son sous-sol. Rien d\'officiel. Pas de licence commerciale. Juste le bouche-à-oreille et la survie. Les femmes immigrantes savaient. Elle cousait des robes de mariée. Ourlet de pantalons. Réparait des manteaux déchirés. Elle travaillait douze heures par jour. Dans un sous-sol avec un mauvais éclairage. C\'était du travail invisible. Non documenté. Essentiel. Elle est morte en 2019. Soixante-dix-huit ans. L\'entreprise est morte avec elle. Une petite histoire de travail invisible.',
-          es: 'La Sra. Nguyen dirigía un negocio de costura desde su sótano. Nada oficial. Sin licencia comercial. Solo boca a boca y supervivencia. Las mujeres inmigrantes sabían. Cosía vestidos de novia. Hacía dobladillos de pantalones. Reparaba abrigos rotos. Trabajaba doce horas al día. En un sótano con poca iluminación. Esto era labor invisible. Indocumentado. Esencial. Murió en 2019. Setenta y ocho años. El negocio murió con ella. Una pequeña historia de trabajo invisible.',
-        },
-        media: {
-          ambient: {
-            url: '/media/ambient/sewing-machine.mp3',
-          },
-        },
-        estimatedDuration: 3,
-      },
-      {
-        id: 'small-ch4',
-        order: 4,
-        title: {
-          en: 'Rooming House',
-          fr: 'Maison de Chambres',
-          es: 'Casa de Huéspedes',
-        },
-        description: {
-          en: 'Where everyone started when they first arrived.',
-          fr: 'Où tout le monde a commencé quand ils sont arrivés.',
-          es: 'Donde todos empezaron cuando llegaron.',
-        },
-        text: {
-          en: 'The rooming house on Dundas was where everyone stayed when they first arrived. Cheap. Central. No questions asked. Eight rooms. Shared bathroom. Shared kitchen. Fifteen people living in a house meant for four. It was temporary. Everyone said that. Just until I save money. Just until I find a job. Just until I get my papers. Just until. For some, just until was three months. For others, three years. The house was a ecosystem. Lebanese family in room one. Tamil man in room two. Polish woman in room three. Guatemalan brothers in room four. Everyone else rotating through. Strangers became family. Shared food. Shared advice. Shared resources. Taught each other English. Helped each other find work. Watched each other\'s children. The rooming house was demolished in 2015. Sold to developers. Luxury condos now. No plaques. No memory. No record of the hundreds of people who passed through. Who started their Canadian lives in those eight rooms. This is a small history. Of provisional homes. Of survival. Of how people help people. In spaces that no longer exist.',
-          fr: 'La maison de chambres sur Dundas était où tout le monde restait quand ils arrivaient. Pas cher. Central. Huit chambres. Salle de bain partagée. Quinze personnes vivant dans une maison pour quatre. C\'était temporaire. Juste jusqu\'à. Les étrangers sont devenus famille. Partageaient la nourriture. S\'entraidaient. La maison de chambres a été démolie en 2015. Condos de luxe maintenant. C\'est une petite histoire. De maisons provisoires. De survie.',
-          es: 'La casa de huéspedes en Dundas era donde todos se quedaban cuando llegaban. Barato. Central. Ocho habitaciones. Baño compartido. Quince personas viviendo en una casa para cuatro. Era temporal. Solo hasta. Los extraños se volvieron familia. Compartían comida. Se ayudaban. La casa de huéspedes fue demolida en 2015. Condominios de lujo ahora. Esta es una pequeña historia. De hogares provisionales. De supervivencia.',
-        },
-        media: {
-          ambient: {
-            url: '/media/ambient/shared-space.mp3',
-          },
-        },
-        estimatedDuration: 3,
-      },
-      {
-        id: 'small-ch5',
-        order: 5,
-        title: {
-          en: 'The Phone Call Home',
-          fr: 'L\'Appel Téléphonique à la Maison',
-          es: 'La Llamada Telefónica a Casa',
-        },
-        description: {
-          en: 'Before the internet, connection was expensive.',
-          fr: 'Avant Internet, la connexion coûtait cher.',
-          es: 'Antes de internet, la conexión era cara.',
-        },
-        text: {
-          en: 'In the 1990s, calling home meant calling cards. Ten dollars for thirty minutes. Maybe. Depending on the country. You bought them at convenience stores. Scratched off the code. Dialed seventeen numbers. Hoped it connected. Waited through static. Through delays. Through garbled voices. You planned what to say. No time for small talk. Just the important things. I got a job. I am healthy. I miss you. Send more money. We are pregnant. Grandma died. Each call was precious. Expensive. Brief. You saved them. Rationed them. Made them last. Now we video chat for free. Anytime. Anywhere. We take connection for granted. But there was a time when hearing your mother\'s voice cost a week\'s groceries. When seeing your children\'s faces was impossible. When staying connected required sacrifice. The calling cards are obsolete now. Replaced by WhatsApp. By Zoom. By instant everything. But for a generation of immigrants, those cards were lifelines. Small rectangles of connection. Archives of expensive love. This is a small history. Of how we stayed connected. Before it became easy.',
-          fr: 'Dans les années 1990, appeler chez soi signifiait cartes téléphoniques. Dix dollars pour trente minutes. Peut-être. Vous planifiez quoi dire. Pas de temps pour bavardage. Juste l\'important. Chaque appel était précieux. Cher. Maintenant nous discutons en vidéo gratuitement. Mais il y avait un temps où entendre la voix de votre mère coûtait l\'épicerie d\'une semaine. C\'est une petite histoire. De comment nous restions connectés. Avant que ça devienne facile.',
-          es: 'En los años 1990, llamar a casa significaba tarjetas telefónicas. Diez dólares por treinta minutos. Quizás. Planeabas qué decir. Sin tiempo para charla. Solo lo importante. Cada llamada era preciosa. Costosa. Ahora videollamamos gratis. Pero hubo un tiempo cuando escuchar la voz de tu madre costaba las compras de una semana. Esta es una pequeña historia. De cómo nos mantuvimos conectados. Antes de que se volviera fácil.',
-        },
-        media: {
-          ambient: {
-            url: '/media/ambient/phone-static.mp3',
-          },
-        },
-        estimatedDuration: 3,
-      },
-      {
-        id: 'small-ch6',
-        order: 6,
-        title: {
-          en: 'Preserving Small Histories',
-          fr: 'Préserver les Petites Histoires',
-          es: 'Preservando Pequeñas Historias',
-        },
-        description: {
-          en: 'Why we remember what official history forgets.',
-          fr: 'Pourquoi nous nous souvenons de ce que l\'histoire officielle oublie.',
-          es: 'Por qué recordamos lo que la historia oficial olvida.',
-        },
-        text: {
-          en: 'Official history records big events. Wars. Elections. Treaties. Policy changes. But it forgets the small. The corner stores. The basement businesses. The rooming houses. The phone calls. These are not in textbooks. Not in archives. Not in museums. But they are the real history. The lived history. The everyday survival of ordinary people doing extraordinary things. Building lives. Raising families. Creating communities. In spaces that no longer exist. We preserve small histories by telling them. By recording them. By refusing to let them disappear. Because this is how we honor the people who came before. Not just the famous. The regular. The unknown. The forgotten. This is how we teach the next generation. Not just dates and names. But how people lived. How they survived. How they loved. Small histories matter. Because they are ours. Because they are true. Because they are what actually happened. And because if we do not preserve them, no one will.',
-          fr: 'L\'histoire officielle enregistre les grands événements. Guerres. Élections. Mais elle oublie le petit. Les dépanneurs. Les entreprises de sous-sol. Les maisons de chambres. Ce ne sont pas dans les manuels. Pas dans les archives. Mais c\'est la vraie histoire. L\'histoire vécue. Nous préservons les petites histoires en les racontant. Parce que c\'est comme ça que nous honorons les gens qui sont venus avant. Les petites histoires comptent. Parce qu\'elles sont à nous. Parce qu\'elles sont vraies.',
-          es: 'La historia oficial registra grandes eventos. Guerras. Elecciones. Pero olvida lo pequeño. Las tiendas de esquina. Los negocios de sótano. Las casas de huéspedes. No están en libros de texto. No en archivos. Pero es la historia real. La historia vivida. Preservamos pequeñas historias contándolas. Porque así es como honramos a las personas que vinieron antes. Las pequeñas historias importan. Porque son nuestras. Porque son verdaderas.',
-        },
-        media: {
-          ambient: {
-            url: '/media/ambient/memory-echo.mp3',
-          },
-        },
-        estimatedDuration: 3,
-      },
-    ],
+    chapters: smallHistoriesChapters,
   },
   {
     id: 'work-worth',
@@ -1988,512 +1588,40 @@ export const STORY_WORLDS: StoryWorld[] = [
     releaseDate: 'Jan 2026',
     languagesAvailable: ['en', 'fr', 'es'],
     culturalThemes: ['Labor & Economics', 'Justice & Rights', 'Identity & Belonging'],
-    totalDuration: '15 min',
+    totalDuration: '52 min',
     chapterCount: 5,
     featured: false,
     new: true,
     trending: false,
     visibility: 'public',
-    chapters: [
-      {
-        id: 'work-ch1',
-        order: 1,
-        title: {
-          en: 'Essential',
-          fr: 'Essentiel',
-          es: 'Esencial',
-        },
-        description: {
-          en: 'The pandemic revealed who we cannot live without.',
-          fr: 'La pandémie a révélé sans qui nous ne pouvons pas vivre.',
-          es: 'La pandemia reveló sin quién no podemos vivir.',
-        },
-        text: {
-          en: 'March 2020. The world locked down. Non-essential workers stayed home. Essential workers went to work. The essential workers were cashiers. Delivery drivers. Cleaners. Care workers. The underpaid. The undervalued. The invisible. Suddenly visible. Suddenly essential. Suddenly risking their lives so others could stay safe. My mother is a care worker. Essential. She went to work every day during lockdown. No choice. If she stayed home, elderly people would not eat. Would not get medication. Would not be cared for. She was essential. But she was not valued. Still minimum wage. Still no benefits. Still no sick days. Still treated as replaceable. The pandemic revealed who society actually depends on. Not CEOs. Not politicians. Not office workers. Care workers. Grocery clerks. Transit operators. The people we pay the least. The people we value the least. The people who keep everything running. They call us essential. But they do not treat us as valuable. They call us heroes. But they do not pay us like heroes. They call us necessary. But they do not protect us. Essential means you cannot be spared. Not that you are appreciated.',
-          fr: 'Mars 2020. Le monde s\'est confiné. Les travailleurs non essentiels sont restés chez eux. Les travailleurs essentiels sont allés travailler. Les travailleurs essentiels étaient caissiers. Chauffeurs-livreurs. Nettoyeurs. Travailleurs de soins. Les sous-payés. Les sous-évalués. Ma mère est travailleuse de soins. Essentielle. Elle allait travailler chaque jour pendant le confinement. Pas de choix. La pandémie a révélé de qui la société dépend réellement. Les gens que nous payons le moins. Ils nous appellent essentiels. Mais ils ne nous traitent pas comme précieux.',
-          es: 'Marzo 2020. El mundo se confinó. Los trabajadores no esenciales se quedaron en casa. Los trabajadores esenciales fueron a trabajar. Los trabajadores esenciales eran cajeros. Conductores de entrega. Limpiadores. Trabajadores de cuidado. Los mal pagados. Los subvalorados. Mi madre es trabajadora de cuidado. Esencial. Fue a trabajar cada día durante el confinamiento. Sin opción. La pandemia reveló de quién depende realmente la sociedad. Las personas que menos pagamos. Nos llaman esenciales. Pero no nos tratan como valiosos.',
-        },
-        media: {
-          ambient: {
-            url: '/media/ambient/empty-streets.mp3',
-          },
-        },
-        estimatedDuration: 3,
-      },
-      {
-        id: 'work-ch2',
-        order: 2,
-        title: {
-          en: 'Gig Economy',
-          fr: 'Économie à la Tâche',
-          es: 'Economía Gig',
-        },
-        description: {
-          en: 'Freedom that feels like exploitation.',
-          fr: 'Liberté qui ressemble à l\'exploitation.',
-          es: 'Libertad que se siente como explotación.',
-        },
-        text: {
-          en: 'I drive for Uber. Deliver for Skip. Work whenever I want. I am my own boss. That is what they tell you. Freedom. Flexibility. Be your own boss. But it is not freedom. It is precarity. I have no guaranteed hours. No benefits. No sick days. No vacation. If I do not work, I do not eat. I work seventy hours a week to make what a full-time job with benefits would pay in forty. I pay for my own gas. My own insurance. My own car maintenance. The company calls me a contractor. Not an employee. So they owe me nothing. This is the gig economy. Work without security. Income without stability. Labor without protection. They sell it as freedom. But it is exploitation with an app. And we have no choice. Because regular jobs do not exist anymore. Because full-time with benefits is disappearing. Because this is what is available. So we gig. We hustle. We work ourselves to exhaustion. For companies that profit billions. While we make minimum wage. After expenses.',
-          fr: 'Je conduis pour Uber. Livre pour Skip. Travaille quand je veux. Je suis mon propre patron. C\'est ce qu\'ils te disent. Liberté. Flexibilité. Mais ce n\'est pas la liberté. C\'est la précarité. Je n\'ai pas d\'heures garanties. Pas d\'avantages. Si je ne travaille pas, je ne mange pas. C\'est l\'économie à la tâche. Travail sans sécurité. Revenu sans stabilité. Ils la vendent comme liberté. Mais c\'est de l\'exploitation avec une application. Pour des entreprises qui profitent de milliards. Pendant que nous faisons le salaire minimum.',
-          es: 'Conduzco para Uber. Entrego para Skip. Trabajo cuando quiero. Soy mi propio jefe. Eso es lo que te dicen. Libertad. Flexibilidad. Pero no es libertad. Es precariedad. No tengo horas garantizadas. Sin beneficios. Si no trabajo, no como. Esta es la economía gig. Trabajo sin seguridad. Ingreso sin estabilidad. La venden como libertad. Pero es explotación con una aplicación. Para compañías que lucran miles de millones. Mientras hacemos salario mínimo.',
-        },
-        media: {
-          ambient: {
-            url: '/media/ambient/city-traffic.mp3',
-          },
-        },
-        estimatedDuration: 3,
-      },
-      {
-        id: 'work-ch3',
-        order: 3,
-        title: {
-          en: 'Invisible Labor',
-          fr: 'Travail Invisible',
-          es: 'Labor Invisible',
-        },
-        description: {
-          en: 'The work that no one sees or counts.',
-          fr: 'Le travail que personne ne voit ou ne compte.',
-          es: 'El trabajo que nadie ve ni cuenta.',
-        },
-        text: {
-          en: 'Who cooks the meals? Cleans the house? Raises the children? Does the laundry? Schedules the appointments? Remembers the birthdays? Plans the holidays? Women. Mostly. Unpaid. Uncounted. Invisible. This is reproductive labor. The work that keeps households running. Families functioning. Society operating. And it is not counted as work. Not in GDP. Not in economics. Not in value. My mother worked full-time. And then came home and worked again. Cooking. Cleaning. Caring. No pay. No break. No appreciation. This is the second shift. The invisible shift. The shift that women do for free. While men rest. While capitalism profits. Reproductive labor makes all other labor possible. You cannot work if no one feeds you. Cannot succeed if no one raises your children. Cannot function if no one maintains your home. But we do not value it. Do not pay for it. Do not count it. We just expect women to do it. For love. For duty. For free. This is invisible labor. Essential. Unvalued. Unpaid.',
-          fr: 'Qui cuisine les repas? Nettoie la maison? Élève les enfants? Fait la lessive? Les femmes. Principalement. Non payées. Non comptées. Invisibles. C\'est le travail reproductif. Le travail qui maintient les ménages en marche. Et il n\'est pas compté comme travail. Ma mère travaillait à temps plein. Et puis rentrait et travaillait encore. Cuisine. Nettoyage. Soins. Aucun salaire. C\'est le deuxième quart. Le quart invisible. Le quart que les femmes font gratuitement. C\'est du travail invisible. Essentiel. Non valorisé. Non payé.',
-          es: '¿Quién cocina las comidas? ¿Limpia la casa? ¿Cría a los niños? ¿Lava la ropa? Las mujeres. Mayormente. Sin pago. Sin contar. Invisibles. Este es el trabajo reproductivo. El trabajo que mantiene los hogares funcionando. Y no se cuenta como trabajo. Mi madre trabajaba tiempo completo. Y luego llegaba a casa y trabajaba otra vez. Cocina. Limpieza. Cuidado. Sin pago. Este es el segundo turno. El turno invisible. El turno que las mujeres hacen gratis. Este es trabajo invisible. Esencial. No valorado. No pagado.',
-        },
-        media: {
-          ambient: {
-            url: '/media/ambient/household-sounds.mp3',
-          },
-        },
-        estimatedDuration: 3,
-      },
-      {
-        id: 'work-ch4',
-        order: 4,
-        title: {
-          en: 'Wage Theft',
-          fr: 'Vol de Salaire',
-          es: 'Robo de Salarios',
-        },
-        description: {
-          en: 'When your boss steals what you earned.',
-          fr: 'Quand votre patron vole ce que vous avez gagné.',
-          es: 'Cuando tu jefe roba lo que ganaste.',
-        },
-        text: {
-          en: 'My first job in Canada was at a restaurant. Cash under the table. No contract. No record. The owner promised ten dollars an hour. I worked fifty hours a week. He paid me for thirty. When I asked about the missing hours, he shrugged. Said I was too slow. Said I took too many breaks. Said I was lucky to have a job. This is wage theft. When employers do not pay what they owe. It happens to immigrants most. To people without papers. To people who cannot complain. Because if you complain, you get fired. Or reported. Or deported. So you stay quiet. Take what you can get. Accept being stolen from. Because something is better than nothing. Even when that something is less than you earned. Wage theft is the most common form of theft. Bigger than robbery. Bigger than burglary. But no one goes to jail for it. Because it happens to people without power. To workers who cannot fight back. This is how the system works. Exploit the vulnerable. Steal from the powerless. And call it business.',
-          fr: 'Mon premier emploi au Canada était dans un restaurant. Argent sous la table. Pas de contrat. Le propriétaire a promis dix dollars de l\'heure. J\'ai travaillé cinquante heures par semaine. Il m\'a payé pour trente. C\'est le vol de salaire. Quand les employeurs ne paient pas ce qu\'ils doivent. Ça arrive le plus aux immigrants. Aux gens sans papiers. Parce que si vous vous plaignez, vous êtes viré. Alors vous restez silencieux. Le vol de salaire est la forme de vol la plus commune. Mais personne ne va en prison pour ça. C\'est comme ça que le système fonctionne. Exploiter les vulnérables.',
-          es: 'Mi primer trabajo en Canadá fue en un restaurante. Efectivo bajo la mesa. Sin contrato. El dueño prometió diez dólares por hora. Trabajé cincuenta horas por semana. Me pagó por treinta. Esto es robo de salarios. Cuando los empleadores no pagan lo que deben. Le sucede más a los inmigrantes. A personas sin papeles. Porque si te quejas, te despiden. Así que te quedas callado. El robo de salarios es la forma más común de robo. Pero nadie va a la cárcel por ello. Así es como funciona el sistema. Explotar a los vulnerables.',
-        },
-        media: {
-          ambient: {
-            url: '/media/ambient/restaurant-kitchen.mp3',
-          },
-        },
-        estimatedDuration: 3,
-      },
-      {
-        id: 'work-ch5',
-        order: 5,
-        title: {
-          en: 'Redefining Worth',
-          fr: 'Redéfinir la Valeur',
-          es: 'Redefiniendo Valor',
-        },
-        description: {
-          en: 'Our value is not determined by our wage.',
-          fr: 'Notre valeur n\'est pas déterminée par notre salaire.',
-          es: 'Nuestro valor no está determinado por nuestro salario.',
-        },
-        text: {
-          en: 'Capitalism says your worth equals your wage. If you are paid minimum wage, you have minimum worth. If you are unpaid, you are worthless. But this is a lie. Your worth is not your productivity. Not your income. Not your job title. You have worth because you exist. Because you are human. Because you matter. The care worker is worthy. The gig worker is worthy. The unpaid laborer is worthy. The unemployed are worthy. Worth is inherent. Not earned. Not bought. Not determined by markets. We must redefine worth. Separate it from work. From wages. From capitalism. And recognize that every person has value. Regardless of what they produce. Regardless of what they earn. This is how we build a better system. By valuing people. Not just profit. By honoring labor. Not just productivity. By recognizing worth. Not just wages. We are more than what we produce. We are more than what we earn. We are worthy. All of us. Always.',
-          fr: 'Le capitalisme dit que votre valeur égale votre salaire. Si vous êtes payé au salaire minimum, vous avez une valeur minimum. Mais c\'est un mensonge. Votre valeur n\'est pas votre productivité. Pas votre revenu. Vous avez de la valeur parce que vous existez. Parce que vous êtes humain. La valeur est inhérente. Pas gagnée. Nous devons redéfinir la valeur. La séparer du travail. Des salaires. Et reconnaître que chaque personne a de la valeur. Nous sommes plus que ce que nous produisons. Nous sommes dignes. Tous. Toujours.',
-          es: 'El capitalismo dice que tu valor es igual a tu salario. Si te pagan salario mínimo, tienes valor mínimo. Pero esto es una mentira. Tu valor no es tu productividad. No tu ingreso. Tienes valor porque existes. Porque eres humano. El valor es inherente. No ganado. Debemos redefinir el valor. Separarlo del trabajo. De los salarios. Y reconocer que cada persona tiene valor. Somos más que lo que producimos. Somos dignos. Todos. Siempre.',
-        },
-        media: {
-          ambient: {
-            url: '/media/ambient/affirming-presence.mp3',
-          },
-        },
-        estimatedDuration: 3,
-      },
-    ],
-  },
-
-  // ============================================================
-  // THE IRON ROAD — Canadian Pacific Railway Labour Story
-  // ============================================================
-  {
-    id: 'canadian-railway',
-    title: {
-      en: 'The Iron Road',
-      fr: 'La Route de Fer',
-      es: 'El Camino de Hierro',
-    },
-    description: {
-      en: 'The story of the 17,000 Chinese labourers who built Canada\'s transcontinental railway through the Rocky Mountains — paid half of what white workers earned, killed by the hundreds in blasting accidents, and then taxed $500 to bring their families to the country they helped build. This is the story that was left out of the history books.',
-      fr: 'L\'histoire des 17 000 travailleurs chinois qui ont construit le chemin de fer transcontinental du Canada à travers les Rocheuses — payés la moitié de ce que gagnaient les travailleurs blancs, tués par centaines dans des accidents d\'explosion, puis taxés à 500 $ pour faire venir leurs familles dans le pays qu\'ils ont aidé à construire.',
-      es: 'La historia de los 17,000 trabajadores chinos que construyeron el ferrocarril transcontinental de Canadá a través de las Montañas Rocosas — pagados la mitad de lo que ganaban los trabajadores blancos, muertos por cientos en accidentes de explosión, y luego gravados con $500 para traer a sus familias al país que ayudaron a construir.',
-    },
-    creator: {
-      en: 'CREOVA Documentary',
-      fr: 'CREOVA Documentaire',
-      es: 'CREOVA Documental',
-    },
-    coverImage: 'https://images.unsplash.com/photo-1474487548417-781cb71495f3?w=800&h=1200&fit=crop',
-    releaseDate: 'Mar 2026',
-    languagesAvailable: ['en', 'fr'],
-    culturalThemes: ['Labour & Resistance', 'Chinese-Canadian History', 'Documentary & Film', 'Migration & Diaspora'],
-    totalDuration: '55 min',
-    chapterCount: 4,
-    featured: true,
-    new: true,
-    trending: true,
-    visibility: 'public',
-    institutionalPartner: 'Chinese Canadian Museum',
-    chapters: [
-      {
-        id: 'railway-ch1',
-        order: 1,
-        title: {
-          en: 'Gold Mountain',
-          fr: 'La Montagne d\'Or',
-          es: 'La Montaña de Oro',
-        },
-        description: {
-          en: 'In 1881, contractors sail to Guangdong province to recruit labourers with promises of gold and good wages. Thousands of young men board ships for Canada — a place they call Gold Mountain.',
-          fr: 'En 1881, des entrepreneurs naviguent vers la province du Guangdong pour recruter des travailleurs avec des promesses d\'or et de bons salaires. Des milliers de jeunes hommes s\'embarquent pour le Canada — un endroit qu\'ils appellent la Montagne d\'Or.',
-          es: 'En 1881, los contratistas navegan a la provincia de Guangdong para reclutar trabajadores con promesas de oro y buenos salarios. Miles de jóvenes se embarcan hacia Canadá — un lugar al que llaman la Montaña de Oro.',
-        },
-        text: {
-          en: 'Lim Wing Chung is twenty-two years old when the contractor\'s man comes to his village. He speaks of a great railway being built through mountains taller than anything in China. He speaks of wages — $1 a day, more than a man can earn in a month at home. He does not speak of the men who have not returned.\n\nWing Chung\'s mother presses a small jade pendant into his palm at the dock. "Come back," she says. It is not a request. It is a prayer.\n\nThe ship takes 47 days to cross the Pacific. Below decks, 600 men sleep in shifts. They arrive at Victoria, British Columbia, in the spring of 1882. No one greets them. The dock workers, who are white, refuse to unload their ship.',
-          fr: 'Lim Wing Chung a vingt-deux ans quand l\'homme du contractant vient à son village. Il parle d\'un grand chemin de fer construit à travers des montagnes plus hautes que tout ce qui existe en Chine. Il parle de salaires — 1 $ par jour, plus qu\'un homme ne peut gagner en un mois chez lui. Il ne parle pas des hommes qui ne sont pas revenus.\n\nLa mère de Wing Chung presse un petit pendentif de jade dans sa paume au quai. "Reviens," dit-elle. Ce n\'est pas une demande. C\'est une prière.\n\nLe navire met 47 jours pour traverser le Pacifique. En dessous du pont, 600 hommes dorment par roulement. Ils arrivent à Victoria, en Colombie-Britannique, au printemps 1882. Personne ne les accueille.',
-          es: 'Lim Wing Chung tiene veintidós años cuando el hombre del contratista llega a su aldea. Habla de un gran ferrocarril construido a través de montañas más altas que cualquier cosa en China. Habla de salarios — $1 al día, más de lo que un hombre puede ganar en un mes en casa. No habla de los hombres que no han regresado.\n\nLa madre de Wing Chung presiona un pequeño colgante de jade en su palma en el muelle. "Vuelve," dice. No es una petición. Es una oración.',
-        },
-        media: {
-          ambient: { url: '/media/ambient/ocean-crossing.mp3' },
-          music: { url: '/media/music/departure.mp3' },
-        },
-        estimatedDuration: 14,
-        contextCards: [
-          {
-            id: 'gold-mountain-context',
-            type: 'historical',
-            title: {
-              en: 'Why "Gold Mountain"?',
-              fr: 'Pourquoi "Montagne d\'Or"?',
-              es: '¿Por qué "Montaña de Oro"?',
-            },
-            content: {
-              en: '"Gold Mountain" (金山, Gam Saan) was the Chinese name for California during the 1849 Gold Rush, and later applied to all of North America. It captured both genuine opportunity and dangerous illusion — the hope that drove migration and the brutal reality that often awaited.',
-              fr: '"Montagne d\'Or" (金山, Gam Saan) était le nom chinois de la Californie pendant la ruée vers l\'or de 1849, et plus tard appliqué à toute l\'Amérique du Nord. Il capturait à la fois une opportunité réelle et une illusion dangereuse.',
-              es: '"Montaña de Oro" (金山, Gam Saan) era el nombre chino de California durante la fiebre del oro de 1849, y luego se aplicó a toda América del Norte.',
-            },
-          },
-        ],
-      },
-      {
-        id: 'railway-ch2',
-        order: 2,
-        title: {
-          en: 'Through the Mountains',
-          fr: 'À Travers les Montagnes',
-          es: 'A Través de las Montañas',
-        },
-        description: {
-          en: 'Chinese workers are assigned the most dangerous sections — blasting tunnels through solid granite with nitroglycerin. For every mile of track through the Fraser Canyon, one man dies.',
-          fr: 'Les travailleurs chinois sont assignés aux sections les plus dangereuses — faire sauter des tunnels dans du granite solide avec de la nitroglycérine. Pour chaque mille de voie ferrée dans le canyon Fraser, un homme meurt.',
-          es: 'Los trabajadores chinos son asignados a las secciones más peligrosas — volando túneles a través del granito sólido con nitroglicerina. Por cada milla de vía a través del cañón Fraser, muere un hombre.',
-        },
-        text: {
-          en: 'White workers are paid $1.50 to $2.50 a day. Chinese workers are paid $1.00. And from that dollar, they must purchase their own food, their own tools, their own tents. White workers have these provided.\n\nThe most dangerous work — handling nitroglycerin, lowering men in wicker baskets down cliff faces to drill blast holes — is given to the Chinese crews. When a charge misfires, there is no warning. Men disappear. Bodies are sometimes not recovered at all.\n\nWing Chung learns to read the mountain. The way rock sounds before it cracks. The smell of dampness that precedes a slide. He teaches others. This knowledge keeps them alive when nothing else does.\n\nAt night, in the camps, men gather around small fires. They speak of home. They play music on instruments brought from Guangdong. They write letters knowing most will never arrive.',
-          fr: 'Les travailleurs blancs sont payés 1,50 $ à 2,50 $ par jour. Les travailleurs chinois sont payés 1,00 $. Et sur ce dollar, ils doivent acheter leur propre nourriture, leurs propres outils, leurs propres tentes.\n\nLe travail le plus dangereux — manipuler la nitroglycérine, descendre des hommes dans des paniers en osier le long des falaises pour forer des trous — est confié aux équipes chinoises. Quand une charge rate, il n\'y a pas d\'avertissement. Les hommes disparaissent.',
-          es: 'Los trabajadores blancos reciben entre $1.50 y $2.50 por día. Los trabajadores chinos reciben $1.00. Y de ese dólar, deben comprar su propia comida, sus propias herramientas, sus propias tiendas.\n\nEl trabajo más peligroso — manipular la nitroglicerina, bajar a los hombres en canastas de mimbre por los acantilados para perforar agujeros de voladura — se le da a los equipos chinos.',
-        },
-        media: {
-          ambient: { url: '/media/ambient/mountain-wind.mp3' },
-          music: { url: '/media/music/labour-rhythm.mp3' },
-        },
-        estimatedDuration: 16,
-        contextCards: [
-          {
-            id: 'death-toll-context',
-            type: 'historical',
-            title: {
-              en: 'The Death Toll',
-              fr: 'Le Bilan des Morts',
-              es: 'El Número de Muertos',
-            },
-            content: {
-              en: 'Historians estimate between 600 and 2,000 Chinese workers died building the CPR. The Canadian government kept no official records of Chinese worker deaths. Many families in China never learned what happened to their sons and husbands.',
-              fr: 'Les historiens estiment qu\'entre 600 et 2 000 travailleurs chinois sont morts lors de la construction du CPR. Le gouvernement canadien n\'a gardé aucun registre officiel des décès des travailleurs chinois.',
-              es: 'Los historiadores estiman que entre 600 y 2,000 trabajadores chinos murieron construyendo el CPR. El gobierno canadiense no mantuvo registros oficiales de las muertes de trabajadores chinos.',
-            },
-          },
-        ],
-      },
-      {
-        id: 'railway-ch3',
-        order: 3,
-        title: {
-          en: 'The Head Tax',
-          fr: 'La Taxe de Capitation',
-          es: 'El Impuesto por Cabeza',
-        },
-        description: {
-          en: 'The railway is complete. The Chinese workers who built it are no longer needed — and the Canadian government decides they are no longer welcome. In 1885, Parliament passes the Chinese Immigration Act, imposing a $50 head tax on every Chinese person entering Canada.',
-          fr: 'Le chemin de fer est terminé. Les travailleurs chinois qui l\'ont construit ne sont plus nécessaires — et le gouvernement canadien décide qu\'ils ne sont plus les bienvenus. En 1885, le Parlement passe la Loi sur l\'immigration chinoise, imposant une taxe de 50 $ par tête sur chaque Chinois entrant au Canada.',
-          es: 'El ferrocarril está completo. Los trabajadores chinos que lo construyeron ya no son necesarios — y el gobierno canadiense decide que ya no son bienvenidos. En 1885, el Parlamento aprueba la Ley de Inmigración China, imponiendo un impuesto de $50 por cabeza a cada chino que ingrese a Canadá.',
-        },
-        text: {
-          en: 'The last spike is driven at Craigellachie, British Columbia, on November 7, 1885. A photograph is taken. Donald Smith — the financier — drives the spike. Directors and white supervisors crowd the frame.\n\nNot one Chinese worker appears in the photograph.\n\nWing Chung is 26 years old. He has been in Canada for four years. He wants to bring his wife and young daughter to this country. He saves. He scrimps. He sends money home.\n\nIn 1885, the same year the railway is completed, Parliament raises the head tax to $50 — nearly two months of wages. In 1900, it becomes $100. In 1903, it becomes $500. Five hundred dollars. When the average Chinese worker earns $1 a day.\n\nWing Chung works for eleven more years to save the tax. He is 37 when his daughter finally arrives in Victoria. She is 15. He doesn\'t recognize her. She doesn\'t recognize him.',
-          fr: 'Le dernier crampon est enfoncé à Craigellachie, en Colombie-Britannique, le 7 novembre 1885. Une photographie est prise. Donald Smith — le financier — enfonce le crampon. Des directeurs et des superviseurs blancs encombrent le cadre.\n\nAucun travailleur chinois n\'apparaît dans la photographie.\n\nWing Chung a 26 ans. Il est au Canada depuis quatre ans. Il veut amener sa femme et sa jeune fille dans ce pays. Il économise. En 1885, la même année où le chemin de fer est terminé, le Parlement augmente la taxe de capitation à 50 $. En 1903, elle devient 500 $.',
-          es: 'El último clavo se clava en Craigellachie, Columbia Británica, el 7 de noviembre de 1885. Se toma una fotografía. Donald Smith — el financiero — clava el spike. Directores y supervisores blancos llenan el encuadre.\n\nNingún trabajador chino aparece en la fotografía.\n\nWing Chung tiene 26 años. Ha estado en Canadá durante cuatro años. Quiere traer a su esposa e hija a este país.',
-        },
-        media: {
-          ambient: { url: '/media/ambient/empty-platform.mp3' },
-        },
-        estimatedDuration: 16,
-        contextCards: [
-          {
-            id: 'head-tax-context',
-            type: 'historical',
-            title: {
-              en: 'The Chinese Head Tax',
-              fr: 'La Taxe de Capitation Chinoise',
-              es: 'El Impuesto por Cabeza Chino',
-            },
-            content: {
-              en: 'Between 1885 and 1923, the Canadian government collected approximately $23 million in head taxes from Chinese immigrants — equivalent to over $700 million today. In 2006, Prime Minister Stephen Harper issued a formal apology. No direct financial redress was provided to surviving payers or their descendants.',
-              fr: 'Entre 1885 et 1923, le gouvernement canadien a perçu environ 23 millions de dollars en taxes de capitation auprès des immigrants chinois — soit plus de 700 millions de dollars aujourd\'hui. En 2006, le Premier ministre Stephen Harper a présenté des excuses formelles.',
-              es: 'Entre 1885 y 1923, el gobierno canadiense recaudó aproximadamente $23 millones en impuestos por cabeza de inmigrantes chinos — equivalente a más de $700 millones hoy.',
-            },
-          },
-        ],
-      },
-      {
-        id: 'railway-ch4',
-        order: 4,
-        title: {
-          en: 'What the Spike Left Unnamed',
-          fr: 'Ce que le Crampon a Laissé Sans Nom',
-          es: 'Lo que el Clavo Dejó Sin Nombre',
-        },
-        description: {
-          en: 'More than a century later, descendants search the archives for the names of the men who built the railway. Many are missing. What does it mean to remember people a country tried to forget?',
-          fr: 'Plus d\'un siècle plus tard, des descendants fouillent les archives à la recherche des noms des hommes qui ont construit le chemin de fer. Beaucoup sont manquants. Que signifie se souvenir de personnes qu\'un pays a essayé d\'oublier?',
-          es: 'Más de un siglo después, los descendientes buscan en los archivos los nombres de los hombres que construyeron el ferrocarril. Muchos faltan. ¿Qué significa recordar a personas que un país trató de olvidar?',
-        },
-        text: {
-          en: 'Yenna Chan is 34 and a historian at the University of British Columbia. She has been looking for her great-great-grandfather\'s name for six years.\n\nThe pay ledgers exist — some of them. But Chinese workers were often listed only as "John Chinaman" or by a number. The contractors didn\'t think their names mattered. The government didn\'t think their names mattered. For a long time, Canada didn\'t think their names mattered.\n\n"I found him," Yenna says. "In a letter. Not a government document. A letter from a church missionary who visited the camps in 1883. He lists the names of the men he met. And there he is. Lim Wing Chung. My great-great-grandfather. He existed. He was here."\n\nThe railway runs 4,700 kilometres. It was built in five years. Every mile of it passes through land that was not ceded. Every rivet in it was driven by hands that history tried to erase.\n\nWe are still counting the names.',
-          fr: 'Yenna Chan a 34 ans et est historienne à l\'Université de Colombie-Britannique. Cela fait six ans qu\'elle cherche le nom de son arrière-arrière-grand-père.\n\nLes livres de paie existent — certains d\'entre eux. Mais les travailleurs chinois étaient souvent listés seulement comme "John Chinaman" ou par un numéro. Les entrepreneurs ne pensaient pas que leurs noms importaient.\n\n"Je l\'ai trouvé," dit Yenna. "Dans une lettre. Lim Wing Chung. Mon arrière-arrière-grand-père. Il existait. Il était là."\n\nNous comptons encore les noms.',
-          es: 'Yenna Chan tiene 34 años y es historiadora en la Universidad de Columbia Británica. Ha estado buscando el nombre de su tatarabuelo durante seis años.\n\nLos libros de nóminas existen — algunos de ellos. Pero los trabajadores chinos a menudo figuraban solo como "John Chinaman" o por un número.\n\n"Lo encontré," dice Yenna. "En una carta. Lim Wing Chung. Mi tatarabuelo. Existió. Estuvo aquí."\n\nTodavía estamos contando los nombres.',
-        },
-        media: {
-          ambient: { url: '/media/ambient/archive-room.mp3' },
-          music: { url: '/media/music/remembrance.mp3' },
-        },
-        estimatedDuration: 13,
-        contextCards: [
-          {
-            id: 'chinese-canadian-museum',
-            type: 'institutional',
-            title: {
-              en: 'Chinese Canadian Museum',
-              fr: 'Musée Canadien Chinois',
-              es: 'Museo Canadiense Chino',
-            },
-            content: {
-              en: 'The Chinese Canadian Museum in Vancouver opened in 2023 in the historic Wing Sang building in Chinatown — the oldest commercial building in BC. It preserves and shares the history of Chinese Canadians, including railway labour, the Head Tax, and the 1923 Exclusion Act.',
-              fr: 'Le Musée Canadien Chinois de Vancouver a ouvert en 2023 dans le bâtiment historique Wing Sang dans Chinatown. Il préserve et partage l\'histoire des Canadiens chinois, y compris le travail ferroviaire, la taxe de capitation et la Loi d\'exclusion de 1923.',
-              es: 'El Museo Canadiense Chino en Vancouver abrió en 2023 en el histórico edificio Wing Sang en Chinatown. Preserva y comparte la historia de los canadienses chinos.',
-            },
-          },
-        ],
-      },
-    ],
-  },
-
-  // ============================================================
-  // ROOTS IN NIAGARA — Brock University Black Families Archive
-  // ============================================================
-  {
-    id: 'niagara-black-archive',
-    title: {
-      en: 'Roots in Niagara',
-      fr: 'Racines à Niagara',
-      es: 'Raíces en Niagara',
-    },
-    description: {
-      en: 'A digital archive experience curated with Brock University Special Collections, documenting the Black families who built lives in the Niagara Region — from freedom seekers crossing the river at the end of the Underground Railroad, to the builders of the British Methodist Episcopal Church, to the entrepreneurs and educators who shaped St. Catharines and Niagara-on-the-Lake across two centuries. Explore this living history without travelling to the archive.',
-      fr: 'Une expérience d\'archives numériques élaborée avec les Collections spéciales de l\'Université Brock, documentant les familles noires qui ont construit leur vie dans la région de Niagara — des chercheurs de liberté traversant la rivière à la fin du Chemin de fer clandestin, aux bâtisseurs de l\'Église méthodiste épiscopale britannique.',
-      es: 'Una experiencia de archivo digital curada con las Colecciones Especiales de la Universidad Brock, documentando las familias negras que construyeron vidas en la Región de Niagara.',
-    },
-    creator: {
-      en: 'Brock University Special Collections × CREOVA',
-      fr: 'Collections spéciales de l\'Université Brock × CREOVA',
-      es: 'Colecciones Especiales de la Universidad Brock × CREOVA',
-    },
-    coverImage: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=800&h=1200&fit=crop',
-    releaseDate: 'Mar 2026',
-    languagesAvailable: ['en', 'fr'],
-    culturalThemes: ['Black Canadian History', 'Community Stories', 'Documentary & Film', 'Archive & Memory'],
-    totalDuration: '50 min',
-    chapterCount: 4,
-    featured: true,
-    new: true,
-    visibility: 'institutional',
-    institutionalPartner: 'Brock University Special Collections',
-    chapters: [
-      {
-        id: 'niagara-ch1',
-        order: 1,
-        title: {
-          en: 'Crossing the River',
-          fr: 'Traverser la Rivière',
-          es: 'Cruzando el Río',
-        },
-        description: {
-          en: 'For freedom seekers following the Underground Railroad, the Niagara River was the final crossing — the boundary between slavery and freedom. Many who crossed settled in St. Catharines, drawn by the community that had formed around Harriet Tubman\'s base of operations.',
-          fr: 'Pour les chercheurs de liberté suivant le Chemin de fer clandestin, la rivière Niagara était la dernière traversée — la frontière entre l\'esclavage et la liberté. Beaucoup de ceux qui traversaient s\'installaient à St. Catharines.',
-          es: 'Para los buscadores de libertad que seguían el Ferrocarril Clandestino, el río Niagara era el último cruce — la frontera entre la esclavitud y la libertad.',
-        },
-        text: {
-          en: 'The river is only a few hundred metres wide at Queenston. On one bank: New York State. Slavery. On the other: Upper Canada. Freedom.\n\nBetween 1820 and 1860, an estimated 40,000 freedom seekers crossed into Canada. St. Catharines became one of the most important destinations — partly because of the work of Harriet Tubman, who made the town her base between 1851 and 1861 and guided at least 70 people north along routes she knew by heart.\n\nThe families who settled here did not arrive with nothing. They arrived with everything that could not be taken from them: their languages, their faith, their music, their memory, their names. The Brock University archive holds their records — deeds to land purchased, church membership rolls, school registrations, letters to family members still enslaved south of the border.\n\nThis is where we begin.',
-          fr: 'La rivière ne fait que quelques centaines de mètres de large à Queenston. D\'un côté: l\'État de New York. L\'esclavage. De l\'autre: le Haut-Canada. La liberté.\n\nEntre 1820 et 1860, environ 40 000 chercheurs de liberté ont traversé au Canada. St. Catharines est devenue l\'une des destinations les plus importantes — en partie grâce au travail de Harriet Tubman, qui a fait de la ville sa base entre 1851 et 1861.\n\nL\'archive de l\'Université Brock conserve leurs dossiers — actes de propriété, listes de membres d\'église, inscriptions scolaires, lettres à des membres de la famille encore réduits en esclavage au sud de la frontière.',
-          es: 'El río tiene solo unos pocos cientos de metros de ancho en Queenston. En una orilla: el Estado de Nueva York. Esclavitud. En la otra: el Alto Canadá. Libertad.\n\nEntre 1820 y 1860, un estimado de 40,000 buscadores de libertad cruzaron a Canadá. St. Catharines se convirtió en uno de los destinos más importantes.',
-        },
-        media: {
-          ambient: { url: '/media/ambient/river-crossing.mp3' },
-          music: { url: '/media/music/freedom-walking.mp3' },
-        },
-        estimatedDuration: 14,
-        contextCards: [
-          {
-            id: 'harriet-tubman-context',
-            type: 'historical',
-            title: {
-              en: 'Harriet Tubman in St. Catharines',
-              fr: 'Harriet Tubman à St. Catharines',
-              es: 'Harriet Tubman en St. Catharines',
-            },
-            content: {
-              en: 'Harriet Tubman lived in St. Catharines from 1851 to 1861, using it as her base for rescue missions into the United States. She guided at least 70 enslaved people to freedom along routes through upstate New York and across the Niagara River. The Salem Chapel BME Church, which she attended, still stands in St. Catharines.',
-              fr: 'Harriet Tubman a vécu à St. Catharines de 1851 à 1861, l\'utilisant comme base pour des missions de sauvetage aux États-Unis. Elle a guidé au moins 70 personnes réduites en esclavage vers la liberté. La chapelle Salem BME, qu\'elle fréquentait, est toujours debout à St. Catharines.',
-              es: 'Harriet Tubman vivió en St. Catharines de 1851 a 1861, usándola como base para misiones de rescate en los Estados Unidos.',
-            },
-          },
-        ],
-      },
-      {
-        id: 'niagara-ch2',
-        order: 2,
-        title: {
-          en: 'The Church That Kept the Record',
-          fr: 'L\'Église Qui Gardait le Registre',
-          es: 'La Iglesia que Guardó el Registro',
-        },
-        description: {
-          en: 'The British Methodist Episcopal Church was the spiritual and civic anchor of Black life in Niagara. Its congregation kept records that governments didn\'t — births, marriages, deaths, property transfers. The Brock archive holds 180 years of those records.',
-          fr: 'L\'Église méthodiste épiscopale britannique était l\'ancre spirituelle et civique de la vie noire à Niagara. Sa congrégation a tenu des registres que les gouvernements ne tenaient pas — naissances, mariages, décès, transferts de propriété.',
-          es: 'La Iglesia Metodista Episcopal Británica era el ancla espiritual y cívica de la vida negra en Niagara.',
-        },
-        text: {
-          en: 'The Salem Chapel BME Church on Geneva Street in St. Catharines was built in 1855. It is one of the oldest surviving Black church buildings in Canada.\n\nThe church was not only a place of worship. It was a post office, a community hall, a safe house, a school before the public schools would admit Black children, a courthouse of community disputes, and a library. The congregation kept meticulous records because they understood that their existence would be doubted, and so they documented it.\n\nIn the Brock University archive, those records fill dozens of boxes. Marriage registers with names written in careful copperplate. Land deed copies made because the original would be held by the county clerk who might not always be trusted. Letters read aloud at Sunday service and then preserved in the church files.\n\n"They knew they were making history," says Dr. Maureen FitzGerald, the Brock archivist who has spent fifteen years cataloguing the collection. "They were preserving themselves."',
-          fr: 'La chapelle Salem BME sur la rue Geneva à St. Catharines a été construite en 1855. C\'est l\'un des plus anciens bâtiments d\'église noire survivants au Canada.\n\nL\'église n\'était pas seulement un lieu de culte. C\'était un bureau de poste, une salle communautaire, une maison sûre, une école avant que les écoles publiques n\'admettent les enfants noirs.\n\nDans l\'archive de l\'Université Brock, ces registres remplissent des dizaines de boîtes. Registres de mariage avec des noms écrits en belle cursive. Copies d\'actes de propriété.',
-          es: 'La Capilla Salem BME en la calle Geneva en St. Catharines fue construida en 1855. Es uno de los edificios de iglesia negra más antiguos que sobreviven en Canadá.\n\nLa iglesia no era solo un lugar de culto. Era una oficina de correos, un salón comunitario, una casa segura.',
-        },
-        media: {
-          ambient: { url: '/media/ambient/church-interior.mp3' },
-          music: { url: '/media/music/hymn-voices.mp3' },
-        },
-        estimatedDuration: 13,
-        contextCards: [
-          {
-            id: 'bme-church-context',
-            type: 'institutional',
-            title: {
-              en: 'The BME Church',
-              fr: 'L\'Église BME',
-              es: 'La Iglesia BME',
-            },
-            content: {
-              en: 'The British Methodist Episcopal Church was founded in Canada in 1856 by Black Canadians who had separated from the Methodist Episcopal Church to form a denomination of their own. At its peak, the BME Church operated congregations in 36 communities across Ontario. Salem Chapel in St. Catharines is a National Historic Site of Canada.',
-              fr: 'L\'Église méthodiste épiscopale britannique a été fondée au Canada en 1856 par des Canadiens noirs qui s\'étaient séparés de l\'Église méthodiste épiscopale pour former leur propre dénomination. La Chapelle Salem à St. Catharines est un lieu historique national du Canada.',
-              es: 'La Iglesia Metodista Episcopal Británica fue fundada en Canadá en 1856 por canadienses negros.',
-            },
-          },
-        ],
-      },
-      {
-        id: 'niagara-ch3',
-        order: 3,
-        title: {
-          en: 'Business and Belonging',
-          fr: 'Commerce et Appartenance',
-          es: 'Negocio y Pertenencia',
-        },
-        description: {
-          en: 'By the 1880s, Black families in Niagara had established hotels, barbershops, farms, and service businesses throughout the region. The archive documents an economic life that was largely invisible to mainstream Canadian historians.',
-          fr: 'Dans les années 1880, les familles noires de Niagara avaient établi des hôtels, des barbiers, des fermes et des entreprises de services dans toute la région. L\'archive documente une vie économique largement invisible pour les historiens canadiens.',
-          es: 'En la década de 1880, las familias negras en Niagara habían establecido hoteles, barberías, granjas y negocios de servicios en toda la región.',
-        },
-        text: {
-          en: 'Richard Pierpoint arrived in Upper Canada in 1780. He was a Mandinka man who had been enslaved at age 16, purchased by a British soldier, and brought to what is now Ontario after the American Revolution. He fought in the War of 1812, petitioned the Crown to be repatriated to Africa, was denied, and died in Fergus, Ontario, in his eighties.\n\nThe Niagara region is full of stories like his — lives that stretched across empires and laws and centuries, leaving traces in documents that most people never knew existed.\n\nThe Brock archive holds the business ledger of Henry Weaver, who operated a hotel on King Street in Niagara-on-the-Lake in the 1870s. The ledger lists his clients, his suppliers, and his debts. It is an ordinary business record. And also an extraordinary act of documentation — proof that a Black man owned property, employed workers, and served customers in a town that the tourist industry now presents as a well-preserved 19th-century English village.',
-          fr: 'Richard Pierpoint est arrivé dans le Haut-Canada en 1780. C\'était un homme Mandinka qui avait été réduit en esclavage à 16 ans, acheté par un soldat britannique, et amené dans ce qui est maintenant l\'Ontario après la Révolution américaine.\n\nL\'archive de Brock contient le livre de comptes de Henry Weaver, qui exploitait un hôtel sur la rue King à Niagara-on-the-Lake dans les années 1870.',
-          es: 'Richard Pierpoint llegó al Alto Canadá en 1780. Era un hombre Mandinka que había sido esclavizado a los 16 años, comprado por un soldado británico, y traído a lo que ahora es Ontario después de la Revolución Americana.\n\nEl archivo de Brock contiene el libro de contabilidad de Henry Weaver, que operaba un hotel en la calle King en Niagara-on-the-Lake en la década de 1870.',
-        },
-        media: {
-          ambient: { url: '/media/ambient/town-market.mp3' },
-        },
-        estimatedDuration: 13,
-      },
-      {
-        id: 'niagara-ch4',
-        order: 4,
-        title: {
-          en: 'The Living Archive',
-          fr: 'L\'Archive Vivante',
-          es: 'El Archivo Vivo',
-        },
-        description: {
-          en: 'Descendants of Niagara\'s Black families are using the Brock archive to reconstruct family histories. This chapter follows three families across the region as they encounter their ancestors for the first time through documents, photographs, and oral histories.',
-          fr: 'Les descendants des familles noires de Niagara utilisent l\'archive de Brock pour reconstruire des histoires familiales. Ce chapitre suit trois familles à travers la région alors qu\'elles rencontrent leurs ancêtres pour la première fois.',
-          es: 'Los descendientes de las familias negras de Niagara están usando el archivo de Brock para reconstruir historias familiares.',
-        },
-        text: {
-          en: 'Diane Smythe is 61 years old and she has lived in St. Catharines her entire life. She knew her grandmother was from the area but never knew much more than that. Last spring, a researcher at Brock contacted her.\n\n"They found my great-great-grandmother\'s name in the Salem Chapel marriage register from 1879," Diane says. "Her name was Celeste. She married a man named James Smythe. And they listed her parents\' names — they had come from Maryland. Which means they came across. They crossed the river."\n\nDiane\'s voice breaks when she says this. Not from grief. From recognition.\n\n"I knew we were from here. But I didn\'t know how far back. And now I know: my family has been in Niagara for almost 200 years. Two hundred years. That\'s not just history. That\'s home."\n\nThe Brock archive is still being catalogued. New records surface every year. Somewhere in those boxes are the names of people whose descendants are still looking.',
-          fr: 'Diane Smythe a 61 ans et a vécu toute sa vie à St. Catharines. Elle savait que sa grand-mère était de la région mais n\'en savait pas beaucoup plus. Le printemps dernier, une chercheuse à Brock l\'a contactée.\n\n"Ils ont trouvé le nom de mon arrière-arrière-grand-mère dans le registre de mariage de la chapelle Salem de 1879," dit Diane. "Son nom était Céleste. Elle a épousé un homme nommé James Smythe. Et ils ont inscrit les noms de ses parents — ils étaient venus du Maryland. Ce qui signifie qu\'ils sont venus à travers. Ils ont traversé la rivière."\n\nMa famille est à Niagara depuis presque 200 ans. Ce n\'est pas seulement de l\'histoire. C\'est chez moi.',
-          es: 'Diane Smythe tiene 61 años y ha vivido en St. Catharines toda su vida. Sabía que su abuela era de la zona pero nunca supo mucho más. La primavera pasada, una investigadora de Brock se puso en contacto con ella.\n\n"Mi familia ha estado en Niagara durante casi 200 años. Doscientos años. Eso no es solo historia. Eso es hogar."',
-        },
-        media: {
-          ambient: { url: '/media/ambient/archive-room.mp3' },
-          music: { url: '/media/music/homecoming.mp3' },
-        },
-        estimatedDuration: 14,
-        contextCards: [
-          {
-            id: 'brock-archive-context',
-            type: 'institutional',
-            title: {
-              en: 'Brock University Special Collections',
-              fr: 'Collections Spéciales de l\'Université Brock',
-              es: 'Colecciones Especiales de la Universidad Brock',
-            },
-            content: {
-              en: 'Brock University\'s Special Collections and Archives in St. Catharines holds one of Ontario\'s most significant collections of Black Canadian historical records, including the records of the British Methodist Episcopal Church, land deeds, personal correspondence, and oral history recordings dating to the early 20th century. The archive is physically located at the James A. Gibson Library on Brock\'s main campus. SEEN is partnering with Brock to make portions of this collection available digitally for the first time.',
-              fr: 'Les Collections spéciales et Archives de l\'Université Brock à St. Catharines détiennent l\'une des collections les plus importantes de documents historiques canadiens noirs en Ontario. SEEN s\'associe à Brock pour rendre des portions de cette collection disponibles numériquement pour la première fois.',
-              es: 'Las Colecciones Especiales y Archivos de la Universidad Brock en St. Catharines tienen una de las colecciones más significativas de registros históricos negros canadienses en Ontario. SEEN se asocia con Brock para hacer porciones de esta colección disponibles digitalmente por primera vez.',
-            },
-          },
-        ],
-      },
-    ],
+    chapters: workWorthChapters,
   },
 ];
+
+// ============================================
+// BUILD CHAPTER REGISTRY (Independent Chapter Access)
+// ============================================
+
+/**
+ * Build an independent chapter registry from all story worlds
+ * Enables querying chapters without accessing through story.chapters
+ */
+function buildChapterRegistry(): Map<string, Chapter> {
+  const registry = new Map<string, Chapter>();
+
+  for (const story of STORY_WORLDS) {
+    if (story.chapters && Array.isArray(story.chapters)) {
+      for (const chapter of story.chapters) {
+        registry.set(chapter.id, chapter);
+      }
+    }
+  }
+
+  return registry;
+}
+
+// Pre-built registry for fast lookups
+export const CHAPTERS_REGISTRY = buildChapterRegistry();
 
 // ============================================
 // HELPER FUNCTIONS
@@ -2521,18 +1649,70 @@ export function getLocalizedText(text: MultilingualText, preferredLang: Language
 }
 
 /**
- * Get story world by ID
+ * Get story world by ID. Falls back to creator-published stories
+ * (userStoriesService, a separate localStorage-backed store) when the id
+ * isn't in the static curated catalog — those are always prefixed
+ * "user_", so the fallback check is cheap for the common case.
  */
 export function getStoryWorldById(id: string): StoryWorld | undefined {
-  return STORY_WORLDS.find(story => story.id === id);
+  const curated = STORY_WORLDS.find(story => story.id === id);
+  if (curated) return curated;
+  if (id.startsWith('user_')) {
+    return getUserStoryWorldById(id);
+  }
+  return undefined;
 }
 
 /**
- * Get chapter by ID
+ * Get chapters for a specific story. Curated stories store chapters as
+ * registry references (resolved via CHAPTERS_REGISTRY); creator-published
+ * stories embed full Chapter objects directly, so they're returned as-is.
+ */
+export function getChaptersForStory(storyWorldId: string): Chapter[] {
+  const story = getStoryWorldById(storyWorldId);
+  if (!story) return [];
+
+  if (storyWorldId.startsWith('user_')) {
+    return [...story.chapters].sort((a, b) => a.order - b.order);
+  }
+
+  // Return chapters in order by looking them up from registry
+  return story.chapters
+    .map(ch => CHAPTERS_REGISTRY.get(ch.id))
+    .filter((ch): ch is Chapter => ch !== undefined)
+    .sort((a, b) => a.order - b.order);
+}
+
+/**
+ * Get chapter by ID directly from registry (independent query).
+ * Curated catalog only — creator-published chapters aren't registered
+ * here since they're embedded directly in their StoryWorld.
+ */
+export function getChapterByIdDirect(chapterId: string): Chapter | undefined {
+  return CHAPTERS_REGISTRY.get(chapterId);
+}
+
+/**
+ * Get chapter by ID from story and chapter ID (backward compatible)
  */
 export function getChapterById(storyWorldId: string, chapterId: string): Chapter | undefined {
-  const story = getStoryWorldById(storyWorldId);
-  return story?.chapters.find(ch => ch.id === chapterId);
+  if (storyWorldId.startsWith('user_')) {
+    const story = getStoryWorldById(storyWorldId);
+    return story?.chapters.find(ch => ch.id === chapterId);
+  }
+
+  // Use the independent registry for faster lookup
+  const chapter = CHAPTERS_REGISTRY.get(chapterId);
+
+  // Verify chapter belongs to the requested story
+  if (chapter) {
+    const story = getStoryWorldById(storyWorldId);
+    if (story?.chapters.some(ch => ch.id === chapterId)) {
+      return chapter;
+    }
+  }
+
+  return undefined;
 }
 
 /**
@@ -2554,6 +1734,41 @@ export function getStoriesByLanguage(lang: Language): StoryWorld[] {
  */
 export function getFeaturedStories(): StoryWorld[] {
   return STORY_WORLDS.filter(story => story.featured && story.visibility === 'public');
+}
+
+/**
+ * Get next chapter in story
+ */
+export function getNextChapter(storyWorldId: string, currentChapterId: string): Chapter | undefined {
+  const chapters = getChaptersForStory(storyWorldId);
+  const currentIndex = chapters.findIndex(ch => ch.id === currentChapterId);
+
+  if (currentIndex >= 0 && currentIndex < chapters.length - 1) {
+    return chapters[currentIndex + 1];
+  }
+
+  return undefined;
+}
+
+/**
+ * Get previous chapter in story
+ */
+export function getPreviousChapter(storyWorldId: string, currentChapterId: string): Chapter | undefined {
+  const chapters = getChaptersForStory(storyWorldId);
+  const currentIndex = chapters.findIndex(ch => ch.id === currentChapterId);
+
+  if (currentIndex > 0) {
+    return chapters[currentIndex - 1];
+  }
+
+  return undefined;
+}
+
+/**
+ * Get all chapters for a story with their full data
+ */
+export function getAllChaptersForStory(storyWorldId: string): Chapter[] {
+  return getChaptersForStory(storyWorldId);
 }
 
 /**

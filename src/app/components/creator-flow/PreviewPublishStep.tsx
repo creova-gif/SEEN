@@ -406,11 +406,11 @@ export function PreviewPublishStep({
           <motion.button
             type="button"
             onClick={() => setShowPublishConfirm(true)}
-            disabled={!canProceed}
-            whileHover={!reducedMotion && canProceed ? { scale: 1.02 } : undefined}
-            whileTap={!reducedMotion && canProceed ? { scale: 0.98 } : undefined}
+            disabled={!canPublish}
+            whileHover={!reducedMotion && canPublish ? { scale: 1.02 } : undefined}
+            whileTap={!reducedMotion && canPublish ? { scale: 0.98 } : undefined}
             className={`flex items-center gap-2 px-8 py-3 rounded-lg text-sm tracking-wide font-medium transition-all ${
-              canProceed
+              canPublish
                 ? 'bg-white text-black hover:bg-white/90'
                 : 'bg-white/10 text-white/40 cursor-not-allowed'
             }`}

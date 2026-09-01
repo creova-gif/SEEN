@@ -1,81 +1,53 @@
-# SEEN by Creova — Mobile (Expo)
+# SEEN — Mobile (Expo)
 
-Native React Native port of the SEEN web app, designed to run on **Expo Go** for iOS and Android.
+Native iOS and Android client for SEEN by CREOVA, built on Expo SDK 57 (React Native 0.86, React 19).
 
-## Status
-
-This is **Phase 1 — Foundation**. Currently implemented:
-
-- Expo SDK 52 (managed workflow, new architecture)
-- expo-router with Stack → Tabs navigation
-- Design tokens ported from `src/styles/theme.css`
-- SEEN logo component
-- Welcome screen with "Begin Listening" CTA
-- 4 native tabs: For You, Explore, Library, Profile
-- For You screen with native scroll + story cards
-- Placeholder screens for Explore / Library / Profile
-
-## Phase 2 (next sessions)
-
-- Port `OnboardingSystem` (Language → Invocation → Role → Intent → Account → Accessibility)
-- Port `ExploreScreen` with cultural tag cloud
-- Port `LibraryScreen` (Saved, Continue, Downloads, Collections)
-- Port `ProfileScreen` + `ProfilePreferencesScreen`
-- Port `ForYouScreen` full feature set (FeaturedStoryPreview, reactions, etc.)
-- Audio playback via `expo-av`
-- Spotify embeds via `react-native-webview`
-- Supabase auth wiring
-- AsyncStorage migration for all `seen_*` localStorage keys
-
-## Run on Expo Go
-
-From the repo root:
+## Run it with Expo Go
 
 ```bash
 cd mobile
 npm install
-npm start          # uses --tunnel so your phone can connect from anywhere
+npx expo start
 ```
 
-A QR code appears in the terminal. Open **Expo Go** on your phone and scan it:
+This prints a QR code in the terminal.
 
-- **iOS** — use the iPhone Camera app, then tap the banner
-- **Android** — use the QR scanner inside Expo Go
+- **iOS**: open the Camera app and scan the QR code, or open it directly inside the Expo Go app.
+- **Android**: open the Expo Go app and use its built-in QR scanner.
 
-If you and your phone are on the same Wi-Fi network, you can use the faster LAN mode:
+Both devices must be on the same network as the machine running `expo start` (or use the tunnel option if they aren't: `npx expo start --tunnel`).
+
+## What's implemented
+
+- Branded invocation screen with the signature pulsing S.E.E.N glow button
+- Onboarding (role + intent selection)
+- For You feed with story cards (sample catalog)
+- Story detail screen
+- Profile with sign-out
+- Dark theme, safe-area-aware layout, custom app icon/splash for both platforms
+
+## What's not yet wired up
+
+This is the first mobile milestone, not a full port of the web app. Not yet built on mobile:
+
+- Full chapter reader (audio playback, captions, branching choices)
+- Authentication against the shared Supabase backend (currently local onboarding state only)
+- Creator monetization, checkout, and subscription management
+- Admin/moderation tools
+- Search
+
+The web app (`../src`) and this mobile app are intended to eventually share the same Supabase backend (`../supabase/functions/server`) rather than duplicate business logic — that wiring is the natural next step.
+
+## Building for the App Store / Play Store
+
+This project hasn't been configured with EAS Build yet. When ready to publish:
 
 ```bash
-npm run start:lan
+npm install -g eas-cli
+eas login
+eas build:configure
+eas build --platform ios
+eas build --platform android
 ```
 
-## Why this is a separate folder
-
-Keeping the Expo project in `mobile/` means:
-
-1. The existing Vite web app at the repo root is **completely unaffected** — `npm run dev` still runs the PWA
-2. The native and web stacks don't fight over `package.json`, peer deps, or `node_modules`
-3. We can port screens incrementally from `src/app/components/` into `mobile/app/` without breakage
-
-## Project layout
-
-```
-mobile/
-├── app/                       # expo-router file-based routes
-│   ├── _layout.tsx            # root Stack (safe-area + status bar)
-│   ├── index.tsx              # Welcome screen
-│   └── (tabs)/
-│       ├── _layout.tsx        # bottom tabs
-│       ├── index.tsx          # For You
-│       ├── explore.tsx
-│       ├── library.tsx
-│       └── profile.tsx
-├── components/
-│   ├── SeenLogo.tsx
-│   └── Placeholder.tsx
-├── constants/
-│   └── theme.ts               # ported design tokens (colors, spacing, type)
-├── app.json                   # Expo config
-├── package.json
-├── babel.config.js
-└── tsconfig.json
-```
+That requires an Expo account and, for iOS, an active Apple Developer Program membership.

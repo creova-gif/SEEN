@@ -9,8 +9,8 @@
  * - Archives (Library and Archives Canada, provincial archives)
  * - Cultural institutions (community centers, research institutes)
  * - Public education programs
- *
- * Academically rigorous, citation-ready
+ * 
+ * CMF-compliant, academically rigorous, citation-ready
  */
 
 import type { MultilingualText } from './types';
@@ -37,9 +37,7 @@ export type CurriculumAlignment =
   | 'Migration Studies'
   | 'Cultural Studies'
   | 'Labour Studies'
-  | 'Women & Gender Studies'
-  | 'Canadian Literature'
-  | 'Visual Arts';
+  | 'Women & Gender Studies';
 
 export interface InstitutionalCollection {
   collectionId: string;
@@ -74,7 +72,7 @@ export interface InstitutionalCollection {
     criticalThinkingPrompts: MultilingualText[];
   };
   
-  /** Editorial rationale */
+  /** CMF-safe editorial rationale */
   editorialRationale: MultilingualText;
   
   /** Target audiences */

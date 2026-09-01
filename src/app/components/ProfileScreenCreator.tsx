@@ -1,11 +1,12 @@
-import { motion, AnimatePresence } from "motion/react";
+import { motion } from "motion/react";
 import { NavigationBar } from "./NavigationBar";
 import { 
   Settings, 
   Info, 
-  Globe,
-  Eye,
+  Globe, 
+  Eye, 
   Shield,
+  Building2,
   MessageCircle,
   LogOut,
   Plus,
@@ -15,134 +16,25 @@ import {
   ChevronRight,
   BarChart3,
   FileText,
-  Palette,
-  Share2,
-  Instagram,
-  Twitter,
-  Linkedin,
-  Youtube,
-  Link2,
-  Check,
-  X,
-  Pencil
+  Palette
 } from "lucide-react";
-import { useState, useCallback } from "react";
 import { useStoryState } from "../contexts/StoryStateContext";
 import { useAuth } from "../contexts/AuthContext";
 import type { Language } from "../contexts/StoryStateContext";
 
-type SocialPlatform = 'instagram' | 'twitter' | 'linkedin' | 'youtube' | 'tiktok' | 'website';
-interface SocialLink { platform: SocialPlatform; url: string; }
-
-const PLATFORM_META: Record<SocialPlatform, { label: string; icon: React.ReactNode; placeholder: string }> = {
-  instagram: { label: 'Instagram', icon: <Instagram className="w-4 h-4" />, placeholder: 'https://instagram.com/yourhandle' },
-  twitter:   { label: 'X / Twitter', icon: <Twitter className="w-4 h-4" />, placeholder: 'https://x.com/yourhandle' },
-  linkedin:  { label: 'LinkedIn', icon: <Linkedin className="w-4 h-4" />, placeholder: 'https://linkedin.com/in/yourhandle' },
-  youtube:   { label: 'YouTube', icon: <Youtube className="w-4 h-4" />, placeholder: 'https://youtube.com/@yourchannel' },
-  tiktok:    { label: 'TikTok', icon: <Link2 className="w-4 h-4" />, placeholder: 'https://tiktok.com/@yourhandle' },
-  website:   { label: 'Website', icon: <Globe className="w-4 h-4" />, placeholder: 'https://yoursite.com' },
-};
-
-const PLATFORMS = Object.keys(PLATFORM_META) as SocialPlatform[];
-const MAX_LINKS = 5;
-const STORAGE_KEY = 'seen_social_links';
-
-function loadSocialLinks(): SocialLink[] {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { return []; }
-}
-function saveSocialLinks(links: SocialLink[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(links));
-}
-function isValidUrl(url: string) {
-  if (!url.trim()) return true;
-  try { const u = new URL(url.trim()); return u.protocol === 'http:' || u.protocol === 'https:'; }
-  catch { return false; }
-}
-
-type ActiveModal = null | 'dashboard' | 'rights' | 'guidelines' | 'accessibility' | 'privacy' | 'feedback';
-
 interface ProfileScreenCreatorProps {
-  onNavigate: (screen: "for-you" | "explore" | "library" | "profile" | "create") => void;
-  onOpenSettings?: () => void;
-  onOpenAbout?: () => void;
+  onNavigate: (screen: "for-you" | "explore" | "library" | "profile") => void;
 }
 
-export function ProfileScreenCreator({ onNavigate, onOpenSettings, onOpenAbout }: ProfileScreenCreatorProps) {
-  const { state: { language, accessibilityPreferences }, setLanguage, setAccessibilityPreferences } = useStoryState();
+export function ProfileScreenCreator({ onNavigate }: ProfileScreenCreatorProps) {
+  const { state: { language }, setLanguage } = useStoryState();
   const { state: authState, signOut } = useAuth();
-  const [activeModal, setActiveModal] = useState<ActiveModal>(null);
-
-  const cycleLanguage = () => {
-    const next: Record<string, Language> = { en: 'fr', fr: 'es', es: 'en' };
-    setLanguage(next[language] ?? 'en');
-  };
 
   const userStats = {
     hoursCreated: 47,
     culturalContributions: 12,
     communityImpact: 2845,
     averageCompletion: 78,
-  };
-
-  // Social links
-  const [socialLinks, setSocialLinks] = useState<SocialLink[]>(loadSocialLinks);
-  const [editingLinks, setEditingLinks] = useState(false);
-  const [draftLinks, setDraftLinks] = useState<Record<SocialPlatform, string>>(() => {
-    const loaded = loadSocialLinks();
-    const map = {} as Record<SocialPlatform, string>;
-    PLATFORMS.forEach(p => { map[p] = loaded.find(l => l.platform === p)?.url ?? ''; });
-    return map;
-  });
-  const [urlErrors, setUrlErrors] = useState<Record<string, boolean>>({});
-  const [shareStatus, setShareStatus] = useState<'idle' | 'copied'>('idle');
-
-  const userId = authState.user?.id ?? 'me';
-  const profileUrl = `https://seen.app/profile/${userId}`;
-
-  const handleOpenLink = (url: string) => {
-    if (url) window.open(url, '_blank', 'noopener,noreferrer');
-  };
-
-  const handleShareProfile = useCallback(async () => {
-    const shareData = {
-      title: `${authState.user?.name || 'Creator'} on SEEN`,
-      text: `Check out my creator profile on SEEN`,
-      url: profileUrl,
-    };
-    try {
-      if (navigator.share) { await navigator.share(shareData); }
-      else {
-        await navigator.clipboard.writeText(profileUrl);
-        setShareStatus('copied');
-        setTimeout(() => setShareStatus('idle'), 2000);
-      }
-    } catch {
-      try {
-        await navigator.clipboard.writeText(profileUrl);
-        setShareStatus('copied');
-        setTimeout(() => setShareStatus('idle'), 2000);
-      } catch {}
-    }
-  }, [profileUrl, authState.user?.name]);
-
-  const handleSaveLinks = () => {
-    const errors: Record<string, boolean> = {};
-    PLATFORMS.forEach(p => { if (draftLinks[p] && !isValidUrl(draftLinks[p])) errors[p] = true; });
-    if (Object.keys(errors).length > 0) { setUrlErrors(errors); return; }
-    setUrlErrors({});
-    const filled = PLATFORMS.filter(p => draftLinks[p].trim()).map(p => ({ platform: p, url: draftLinks[p].trim() }));
-    const trimmed = filled.slice(0, MAX_LINKS);
-    saveSocialLinks(trimmed);
-    setSocialLinks(trimmed);
-    setEditingLinks(false);
-  };
-
-  const handleCancelEdit = () => {
-    const map = {} as Record<SocialPlatform, string>;
-    PLATFORMS.forEach(p => { map[p] = socialLinks.find(l => l.platform === p)?.url ?? ''; });
-    setDraftLinks(map);
-    setUrlErrors({});
-    setEditingLinks(false);
   };
 
   const handleSignOut = async () => {
@@ -163,7 +55,7 @@ export function ProfileScreenCreator({ onNavigate, onOpenSettings, onOpenAbout }
         action={{
           label: "Settings",
           icon: Settings,
-          onClick: () => onOpenSettings?.()
+          onClick: () => console.log("Open settings")
         }}
       />
 
@@ -203,7 +95,7 @@ export function ProfileScreenCreator({ onNavigate, onOpenSettings, onOpenAbout }
           {/* Create New Button */}
           <button
             type="button"
-            onClick={() => onNavigate("create")}
+            onClick={() => console.log("Create new content")}
             className="w-full py-4 bg-white text-black rounded-lg flex items-center justify-center gap-2 text-sm tracking-wide font-medium hover:bg-white/90 transition-all duration-300"
           >
             <Plus className="w-4 h-4" strokeWidth={2} />
@@ -256,111 +148,6 @@ export function ProfileScreenCreator({ onNavigate, onOpenSettings, onOpenAbout }
           </div>
         </div>
 
-        {/* Links & Presence */}
-        <div className="px-5 mb-8">
-          <h3 className="text-xs tracking-widest uppercase text-white/40 mb-3 px-1">Links & Presence</h3>
-
-          {/* Share Profile */}
-          <button
-            type="button"
-            onClick={handleShareProfile}
-            className="w-full flex items-center justify-between p-4 border border-white/10 bg-white/[0.02] rounded-lg hover:border-white/20 hover:bg-white/[0.04] transition-all duration-300 mb-2"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center">
-                {shareStatus === 'copied' ? (
-                  <Check className="w-4 h-4 text-green-400" strokeWidth={1.5} />
-                ) : (
-                  <Share2 className="w-4 h-4 text-white/60" strokeWidth={1.5} />
-                )}
-              </div>
-              <div className="text-left">
-                <div className="text-sm tracking-wide">
-                  {shareStatus === 'copied' ? 'Link Copied' : 'Share Profile'}
-                </div>
-                <div className="text-xs text-white/40">Share your creator page</div>
-              </div>
-            </div>
-            <ChevronRight className="w-4 h-4 text-white/30" strokeWidth={1.5} />
-          </button>
-
-          {/* Social Links */}
-          <div className="bg-white/[0.02] border border-white/10 rounded-lg overflow-hidden">
-            <div className="flex items-center justify-between px-4 py-3">
-              <div className="flex items-center gap-3">
-                {PLATFORMS.map(platform => {
-                  const link = socialLinks.find(l => l.platform === platform);
-                  const meta = PLATFORM_META[platform];
-                  return (
-                    <button
-                      key={platform}
-                      aria-label={meta.label}
-                      onClick={() => link?.url ? handleOpenLink(link.url) : setEditingLinks(true)}
-                      className={`transition-all duration-200 ${link?.url ? 'text-white hover:text-white/80' : 'text-white/20 hover:text-white/40'}`}
-                    >
-                      {meta.icon}
-                    </button>
-                  );
-                })}
-              </div>
-              <button
-                onClick={() => setEditingLinks(v => !v)}
-                aria-label="Manage social links"
-                className="text-white/40 hover:text-white/70 transition-colors"
-              >
-                <Pencil className="w-3.5 h-3.5" />
-              </button>
-            </div>
-
-            <AnimatePresence>
-              {editingLinks && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.25 }}
-                  className="overflow-hidden"
-                >
-                  <div className="border-t border-white/10 px-4 py-4 space-y-3">
-                    <p className="text-xs text-white/40 mb-1">Max {MAX_LINKS} links · {socialLinks.filter(l => l.url.trim()).length} active</p>
-                    {PLATFORMS.map(platform => {
-                      const meta = PLATFORM_META[platform];
-                      const hasError = urlErrors[platform];
-                      return (
-                        <div key={platform}>
-                          <div className={`flex items-center gap-2 rounded-xl border px-3 py-2.5 ${hasError ? 'border-red-500/50 bg-red-500/5' : 'border-white/10 bg-white/5'}`}>
-                            <span className="text-white/50 flex-shrink-0">{meta.icon}</span>
-                            <input
-                              type="url"
-                              value={draftLinks[platform]}
-                              onChange={e => {
-                                setDraftLinks(prev => ({ ...prev, [platform]: e.target.value }));
-                                if (urlErrors[platform]) setUrlErrors(prev => { const n = {...prev}; delete n[platform]; return n; });
-                              }}
-                              placeholder={meta.placeholder}
-                              className="flex-1 bg-transparent text-xs text-white placeholder-white/25 focus:outline-none min-w-0"
-                            />
-                            {draftLinks[platform] && (
-                              <button onClick={() => setDraftLinks(prev => ({ ...prev, [platform]: '' }))} className="text-white/30 hover:text-white/60 flex-shrink-0">
-                                <X className="w-3 h-3" />
-                              </button>
-                            )}
-                          </div>
-                          {hasError && <p className="text-xs text-red-400 mt-1 px-1">Invalid URL</p>}
-                        </div>
-                      );
-                    })}
-                    <div className="flex gap-2 pt-1">
-                      <button onClick={handleSaveLinks} className="flex-1 py-2.5 rounded-xl bg-white text-black text-sm font-medium hover:bg-white/90 transition-colors">Save</button>
-                      <button onClick={handleCancelEdit} className="flex-1 py-2.5 rounded-xl border border-white/20 text-white text-sm hover:border-white/40 transition-colors">Cancel</button>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
-
         {/* Creator Tools */}
         <div className="px-5 mb-8">
           <h3 className="text-xs tracking-widest uppercase text-white/40 mb-3 px-1">Creator Tools</h3>
@@ -369,7 +156,7 @@ export function ProfileScreenCreator({ onNavigate, onOpenSettings, onOpenAbout }
             {/* Creator Dashboard */}
             <button
               type="button"
-              onClick={() => setActiveModal('dashboard')}
+              onClick={() => console.log("Open creator dashboard")}
               className="w-full flex items-center justify-between p-4 border border-white/10 bg-white/[0.02] rounded-lg hover:border-white/20 hover:bg-white/[0.04] transition-all duration-300"
             >
               <div className="flex items-center gap-3">
@@ -387,7 +174,7 @@ export function ProfileScreenCreator({ onNavigate, onOpenSettings, onOpenAbout }
             {/* Rights & Licensing */}
             <button
               type="button"
-              onClick={() => setActiveModal('rights')}
+              onClick={() => console.log("Open rights & licensing")}
               className="w-full flex items-center justify-between p-4 border border-white/10 bg-white/[0.02] rounded-lg hover:border-white/20 hover:bg-white/[0.04] transition-all duration-300"
             >
               <div className="flex items-center gap-3">
@@ -405,7 +192,7 @@ export function ProfileScreenCreator({ onNavigate, onOpenSettings, onOpenAbout }
             {/* Content Guidelines */}
             <button
               type="button"
-              onClick={() => setActiveModal('guidelines')}
+              onClick={() => console.log("Open content guidelines")}
               className="w-full flex items-center justify-between p-4 border border-white/10 bg-white/[0.02] rounded-lg hover:border-white/20 hover:bg-white/[0.04] transition-all duration-300"
             >
               <div className="flex items-center gap-3">
@@ -430,7 +217,7 @@ export function ProfileScreenCreator({ onNavigate, onOpenSettings, onOpenAbout }
             {/* Language */}
             <button
               type="button"
-              onClick={cycleLanguage}
+              onClick={() => console.log("Change language")}
               className="w-full flex items-center justify-between p-4 border border-white/10 bg-white/[0.02] rounded-lg hover:border-white/20 hover:bg-white/[0.04] transition-all duration-300"
             >
               <div className="flex items-center gap-3">
@@ -450,7 +237,7 @@ export function ProfileScreenCreator({ onNavigate, onOpenSettings, onOpenAbout }
             {/* Accessibility */}
             <button
               type="button"
-              onClick={() => setActiveModal('accessibility')}
+              onClick={() => console.log("Open accessibility")}
               className="w-full flex items-center justify-between p-4 border border-white/10 bg-white/[0.02] rounded-lg hover:border-white/20 hover:bg-white/[0.04] transition-all duration-300"
             >
               <div className="flex items-center gap-3">
@@ -468,7 +255,7 @@ export function ProfileScreenCreator({ onNavigate, onOpenSettings, onOpenAbout }
             {/* Privacy */}
             <button
               type="button"
-              onClick={() => setActiveModal('privacy')}
+              onClick={() => console.log("Open privacy")}
               className="w-full flex items-center justify-between p-4 border border-white/10 bg-white/[0.02] rounded-lg hover:border-white/20 hover:bg-white/[0.04] transition-all duration-300"
             >
               <div className="flex items-center gap-3">
@@ -490,10 +277,25 @@ export function ProfileScreenCreator({ onNavigate, onOpenSettings, onOpenAbout }
           <h3 className="text-xs tracking-widest uppercase text-white/40 mb-3 px-1">Support & Information</h3>
           
           <div className="space-y-2">
+            {/* Grant Resources */}
+            <button
+              type="button"
+              onClick={() => console.log("Open grant resources")}
+              className="w-full flex items-center justify-between p-4 border border-white/10 bg-white/[0.02] rounded-lg hover:border-white/20 hover:bg-white/[0.04] transition-all duration-300"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center">
+                  <Building2 className="w-4 h-4 text-white/60" strokeWidth={1.5} />
+                </div>
+                <span className="text-sm tracking-wide">CMF Grant Resources</span>
+              </div>
+              <ChevronRight className="w-4 h-4 text-white/30" strokeWidth={1.5} />
+            </button>
+
             {/* Feedback */}
             <button
               type="button"
-              onClick={() => setActiveModal('feedback')}
+              onClick={() => console.log("Send feedback")}
               className="w-full flex items-center justify-between p-4 border border-white/10 bg-white/[0.02] rounded-lg hover:border-white/20 hover:bg-white/[0.04] transition-all duration-300"
             >
               <div className="flex items-center gap-3">
@@ -508,7 +310,7 @@ export function ProfileScreenCreator({ onNavigate, onOpenSettings, onOpenAbout }
             {/* About */}
             <button
               type="button"
-              onClick={() => onOpenAbout?.()}
+              onClick={() => console.log("Open about")}
               className="w-full flex items-center justify-between p-4 border border-white/10 bg-white/[0.02] rounded-lg hover:border-white/20 hover:bg-white/[0.04] transition-all duration-300"
             >
               <div className="flex items-center gap-3">
@@ -537,7 +339,7 @@ export function ProfileScreenCreator({ onNavigate, onOpenSettings, onOpenAbout }
 
       {/* Bottom Navigation */}
       <div className="fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur-xl border-t border-white/10 pointer-events-none">
-        <div className="max-w-[428px] mx-auto px-4 py-4 flex justify-around items-end">
+        <div className="max-w-[428px] mx-auto px-5 py-4 flex justify-around">
           <button
             type="button"
             onClick={() => onNavigate("for-you")}
@@ -561,19 +363,6 @@ export function ProfileScreenCreator({ onNavigate, onOpenSettings, onOpenAbout }
               <div className="w-4 h-4 rounded-full border border-white/40 group-hover:border-white/60 transition-colors duration-300" />
             </div>
             <span className="text-[10px] tracking-widest uppercase font-light">Explore</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => onNavigate("create")}
-            className="flex flex-col items-center gap-1 transition-all duration-300 pointer-events-auto group -mt-3"
-          >
-            <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-[0_0_24px_rgba(255,255,255,0.25)] group-hover:shadow-[0_0_32px_rgba(255,255,255,0.4)] transition-shadow duration-300">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M10 4v12M4 10h12" stroke="black" strokeWidth="2" strokeLinecap="round"/>
-              </svg>
-            </div>
-            <span className="text-[10px] tracking-widest uppercase font-light text-white/60 group-hover:text-white/80 transition-colors">Create</span>
           </button>
           
           <button
@@ -605,178 +394,6 @@ export function ProfileScreenCreator({ onNavigate, onOpenSettings, onOpenAbout }
           </button>
         </div>
       </div>
-
-      {/* Modal Overlay */}
-      <AnimatePresence>
-        {activeModal && (
-          <motion.div
-            key="modal-backdrop"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm"
-            onClick={() => setActiveModal(null)}
-          />
-        )}
-        {activeModal && (
-          <motion.div
-            key="modal-sheet"
-            initial={{ y: '100%' }}
-            animate={{ y: 0 }}
-            exit={{ y: '100%' }}
-            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="fixed bottom-0 left-0 right-0 z-50 max-w-[428px] mx-auto bg-[#111] border-t border-white/10 rounded-t-2xl overflow-hidden"
-          >
-            {/* Modal Handle */}
-            <div className="flex justify-center pt-3 pb-2">
-              <div className="w-10 h-1 rounded-full bg-white/20" />
-            </div>
-
-            {/* Dashboard */}
-            {activeModal === 'dashboard' && (
-              <div className="px-5 pb-10">
-                <h3 className="text-base tracking-wide font-light mb-1">Creator Dashboard</h3>
-                <p className="text-xs text-white/40 mb-6">Your analytics at a glance</p>
-                <div className="grid grid-cols-2 gap-3 mb-6">
-                  {[
-                    { label: 'Total Views', value: '4,368', icon: <Eye className="w-4 h-4" /> },
-                    { label: 'Stories Published', value: '3', icon: <FileText className="w-4 h-4" /> },
-                    { label: 'Avg. Completion', value: '78%', icon: <BarChart3 className="w-4 h-4" /> },
-                    { label: 'Community Impact', value: '2,845', icon: <Heart className="w-4 h-4" /> },
-                  ].map(({ label, value, icon }) => (
-                    <div key={label} className="p-4 border border-white/10 bg-white/[0.02] rounded-lg">
-                      <div className="flex items-center gap-2 mb-2 text-white/40">{icon}<span className="text-[10px] tracking-widest uppercase">{label}</span></div>
-                      <div className="text-2xl font-light tracking-wide">{value}</div>
-                    </div>
-                  ))}
-                </div>
-                <button type="button" onClick={() => setActiveModal(null)} className="w-full py-3 text-sm tracking-widest uppercase text-white/40 border border-white/10 rounded-lg hover:border-white/20 transition-all">Close</button>
-              </div>
-            )}
-
-            {/* Rights & Licensing */}
-            {activeModal === 'rights' && (
-              <div className="px-5 pb-10">
-                <h3 className="text-base tracking-wide font-light mb-1">Rights & Licensing</h3>
-                <p className="text-xs text-white/40 mb-5">Your intellectual property on SEEN</p>
-                <div className="space-y-3 mb-6">
-                  {[
-                    { title: 'You own your content', body: 'All stories you publish remain your intellectual property. SEEN holds a limited licence to display your work on the platform.' },
-                    { title: 'Attribution required', body: 'Content shared or remixed by other creators must credit you. Violations can be reported through the moderation system.' },
-                  ].map(({ title, body }) => (
-                    <div key={title} className="p-3 border border-white/10 bg-white/[0.02] rounded-lg">
-                      <div className="text-xs tracking-wide font-medium mb-1">{title}</div>
-                      <div className="text-xs text-white/50 leading-relaxed">{body}</div>
-                    </div>
-                  ))}
-                </div>
-                <button type="button" onClick={() => setActiveModal(null)} className="w-full py-3 text-sm tracking-widest uppercase text-white/40 border border-white/10 rounded-lg hover:border-white/20 transition-all">Close</button>
-              </div>
-            )}
-
-            {/* Content Guidelines */}
-            {activeModal === 'guidelines' && (
-              <div className="px-5 pb-10">
-                <h3 className="text-base tracking-wide font-light mb-1">Content Guidelines</h3>
-                <p className="text-xs text-white/40 mb-5">Standards for publishing on SEEN</p>
-                <div className="space-y-2 mb-6">
-                  {[
-                    'Uplift underrepresented Canadian voices and cultural perspectives',
-                    'No hate speech, discrimination, or harmful stereotyping',
-                    'Audio must meet PIPEDA privacy standards — no recording third parties without consent',
-                    'All copyrighted music or media must be properly licensed',
-                    'Content involving minors requires parental consent documentation',
-                    'Subtitle/caption files are strongly encouraged for accessibility',
-                  ].map((item, i) => (
-                    <div key={i} className="flex items-start gap-3 py-2 border-b border-white/5 last:border-0">
-                      <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <Check className="w-3 h-3 text-white/60" strokeWidth={2} />
-                      </div>
-                      <span className="text-xs text-white/60 leading-relaxed">{item}</span>
-                    </div>
-                  ))}
-                </div>
-                <button type="button" onClick={() => setActiveModal(null)} className="w-full py-3 text-sm tracking-widest uppercase text-white/40 border border-white/10 rounded-lg hover:border-white/20 transition-all">Close</button>
-              </div>
-            )}
-
-            {/* Accessibility */}
-            {activeModal === 'accessibility' && (
-              <div className="px-5 pb-10">
-                <h3 className="text-base tracking-wide font-light mb-1">Accessibility</h3>
-                <p className="text-xs text-white/40 mb-5">Adjust your experience</p>
-                <div className="space-y-3 mb-6">
-                  {[
-                    { key: 'reducedMotion' as const, label: 'Reduce Motion', desc: 'Minimise animations and transitions' },
-                    { key: 'captionsEnabled' as const, label: 'Subtitles & Captions', desc: 'Show captions during story playback' },
-                    { key: 'highContrast' as const, label: 'High Contrast', desc: 'Increase contrast for better readability' },
-                  ].map(({ key, label, desc }) => (
-                    <button
-                      key={key}
-                      type="button"
-                      onClick={() => setAccessibilityPreferences({ [key]: !accessibilityPreferences[key] })}
-                      className="w-full flex items-center justify-between p-4 border border-white/10 bg-white/[0.02] rounded-lg hover:border-white/20 transition-all"
-                    >
-                      <div className="text-left">
-                        <div className="text-sm tracking-wide">{label}</div>
-                        <div className="text-xs text-white/40">{desc}</div>
-                      </div>
-                      <div className={`w-10 h-5 rounded-full transition-all duration-300 flex items-center px-0.5 ${accessibilityPreferences[key] ? 'bg-white' : 'bg-white/20'}`}>
-                        <div className={`w-4 h-4 rounded-full bg-black transition-all duration-300 ${accessibilityPreferences[key] ? 'translate-x-5' : 'translate-x-0'}`} />
-                      </div>
-                    </button>
-                  ))}
-                </div>
-                <button type="button" onClick={() => setActiveModal(null)} className="w-full py-3 text-sm tracking-widest uppercase text-white/40 border border-white/10 rounded-lg hover:border-white/20 transition-all">Done</button>
-              </div>
-            )}
-
-            {/* Privacy */}
-            {activeModal === 'privacy' && (
-              <div className="px-5 pb-10">
-                <h3 className="text-base tracking-wide font-light mb-1">Privacy</h3>
-                <p className="text-xs text-white/40 mb-5">PIPEDA-compliant data handling</p>
-                <div className="space-y-3 mb-6">
-                  {[
-                    { title: 'Data we collect', body: 'Account details, content you publish, and anonymised engagement metrics. No third-party advertising data is collected.' },
-                    { title: 'How it\'s used', body: 'Your data powers your creator analytics, personalised recommendations, and platform safety. It is never sold to third parties.' },
-                    { title: 'Your rights', body: 'You may request a data export or deletion of your account at any time by contacting privacy@creova.ca.' },
-                  ].map(({ title, body }) => (
-                    <div key={title} className="p-3 border border-white/10 bg-white/[0.02] rounded-lg">
-                      <div className="text-xs tracking-wide font-medium mb-1">{title}</div>
-                      <div className="text-xs text-white/50 leading-relaxed">{body}</div>
-                    </div>
-                  ))}
-                </div>
-                <button type="button" onClick={() => setActiveModal(null)} className="w-full py-3 text-sm tracking-widest uppercase text-white/40 border border-white/10 rounded-lg hover:border-white/20 transition-all">Close</button>
-              </div>
-            )}
-
-            {/* Feedback */}
-            {activeModal === 'feedback' && (
-              <div className="px-5 pb-10">
-                <h3 className="text-base tracking-wide font-light mb-1">Send Feedback</h3>
-                <p className="text-xs text-white/40 mb-5">Help us improve SEEN for all creators</p>
-                <div className="space-y-3 mb-6">
-                  <button
-                    type="button"
-                    onClick={() => { window.open('mailto:hello@creova.ca?subject=SEEN Creator Feedback', '_blank'); setActiveModal(null); }}
-                    className="w-full flex items-center gap-3 p-4 border border-white/10 bg-white/[0.02] rounded-lg hover:border-white/20 transition-all"
-                  >
-                    <MessageCircle className="w-4 h-4 text-white/60" strokeWidth={1.5} />
-                    <div className="text-left">
-                      <div className="text-sm tracking-wide">Email the team</div>
-                      <div className="text-xs text-white/40">hello@creova.ca</div>
-                    </div>
-                  </button>
-                </div>
-                <button type="button" onClick={() => setActiveModal(null)} className="w-full py-3 text-sm tracking-widest uppercase text-white/40 border border-white/10 rounded-lg hover:border-white/20 transition-all">Cancel</button>
-              </div>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }
-

@@ -1,7 +1,7 @@
 import { motion } from "motion/react";
-import { ArrowLeft, Globe, Volume2, Eye, Bookmark, Download, Shield, ChevronRight, Trash2, FileDown, User, Zap } from "lucide-react";
+import { ArrowLeft, Globe, Volume2, Eye, Bookmark, Download, Shield, ChevronRight } from "lucide-react";
 import { useState } from "react";
-import { useStoryState } from "../contexts/StoryStateContext";
+import { useStoryState, type Language } from "../contexts/StoryStateContext";
 
 interface SavedStory {
   id: string;
@@ -27,7 +27,7 @@ export function ProfilePreferencesScreen({
   savedStories = [], // Default to empty array
   onStoryClick
 }: ProfilePreferencesScreenProps) {
-  const { state, dispatch, setUserRole } = useStoryState();
+  const { state, setLanguage } = useStoryState();
   const [downloadedStories, setDownloadedStories] = useState<string[]>([]);
   
   // Use onBack if onClose is not provided
@@ -135,7 +135,7 @@ export function ProfilePreferencesScreen({
               {languageOptions.map((lang) => (
                 <button
                   key={lang.code}
-                  onClick={() => dispatch({ type: 'SET_LANGUAGE', language: lang.code as any })}
+                  onClick={() => setLanguage(lang.code as Language)}
                   className={`
                     w-full p-4 rounded-xl text-left transition-all border
                     ${state.language === lang.code
@@ -255,86 +255,6 @@ export function ProfilePreferencesScreen({
             </div>
           </motion.section>
 
-          {/* Your Account / Role */}
-          <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.35 }}
-            className="space-y-4"
-          >
-            <div className="flex items-center gap-2">
-              <User className="w-4 h-4 text-white/40" />
-              <h3 className="text-sm tracking-wider uppercase text-white/40">
-                {state.language === 'en' ? 'Your Account' : state.language === 'fr' ? 'Votre Compte' : 'Tu Cuenta'}
-              </h3>
-            </div>
-
-            <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-white/40 uppercase tracking-wider mb-2">
-                    {state.language === 'en' ? 'Current Role' : state.language === 'fr' ? 'Rôle Actuel' : 'Rol Actual'}
-                  </p>
-                  <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border ${
-                    state.userRole === 'moderator' || state.userRole === 'admin'
-                      ? 'bg-amber-500/15 border-amber-500/30 text-amber-300'
-                      : state.userRole === 'creator'
-                      ? 'bg-violet-500/15 border-violet-500/30 text-violet-300'
-                      : 'bg-white/10 border-white/20 text-white/80'
-                  }`}>
-                    {(state.userRole === 'moderator' || state.userRole === 'admin') && <Shield className="w-3 h-3" />}
-                    {state.userRole === 'creator' && <Zap className="w-3 h-3" />}
-                    {state.userRole === 'moderator'
-                      ? (state.language === 'fr' ? 'Modérateur' : 'Moderator')
-                      : state.userRole === 'admin'
-                      ? 'Admin'
-                      : state.userRole === 'creator'
-                      ? (state.language === 'fr' ? 'Créateur' : state.language === 'es' ? 'Creador' : 'Creator')
-                      : (state.language === 'fr' ? 'Spectateur' : state.language === 'es' ? 'Espectador' : 'Viewer')}
-                  </div>
-                </div>
-              </div>
-
-              <p className="text-xs text-white/40 leading-relaxed">
-                {state.userRole === 'moderator' || state.userRole === 'admin'
-                  ? (state.language === 'fr'
-                    ? 'Votre rôle est géré par l\'équipe admin de SEEN. Vous avez un accès complet à la modération.'
-                    : 'Your role is managed by the SEEN admin team. You have full moderation access.')
-                  : state.userRole === 'creator'
-                  ? (state.language === 'fr'
-                    ? 'Accès créateur — publiez des histoires, suivez les statistiques, invitez des collaborateurs.'
-                    : state.language === 'es'
-                    ? 'Acceso de creador — publica historias, rastrea análisis, invita colaboradores.'
-                    : 'Creator access — publish stories, track analytics, and invite collaborators.')
-                  : (state.language === 'fr'
-                    ? 'Explorez les histoires et sauvegardez du contenu. Passez en mode Créateur pour publier votre propre travail.'
-                    : state.language === 'es'
-                    ? 'Explora historias y guarda contenido. Cambia a Creador para publicar tu propio trabajo.'
-                    : 'Explore stories and save content. Switch to Creator to publish your own work.')}
-              </p>
-
-              {state.userRole !== 'moderator' && state.userRole !== 'admin' && (
-                <button
-                  onClick={() => {
-                    const newRole = state.userRole === 'creator' ? 'viewer' : 'creator';
-                    setUserRole(newRole as any);
-                    localStorage.setItem('seen_user_role', newRole);
-                  }}
-                  className={`w-full py-3 rounded-xl text-sm transition-all border flex items-center justify-center gap-2 ${
-                    state.userRole === 'creator'
-                      ? 'border-white/20 bg-white/5 text-white/60 hover:bg-white/10'
-                      : 'border-violet-500/40 bg-violet-500/10 text-violet-300 hover:bg-violet-500/20'
-                  }`}
-                >
-                  <Zap className="w-4 h-4" />
-                  {state.userRole === 'creator'
-                    ? (state.language === 'fr' ? 'Passer en Spectateur' : state.language === 'es' ? 'Cambiar a Espectador' : 'Switch to Viewer')
-                    : (state.language === 'fr' ? 'Passer en Créateur' : state.language === 'es' ? 'Cambiar a Creador' : 'Switch to Creator')}
-                </button>
-              )}
-            </div>
-          </motion.section>
-
           {/* Saved stories */}
           <motion.section
             initial={{ opacity: 0, y: 20 }}
@@ -439,61 +359,11 @@ export function ProfilePreferencesScreen({
             </div>
           </motion.section>
 
-          {/* PIPEDA Data Rights */}
-          <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
-            className="space-y-3"
-          >
-            <div className="flex items-center gap-2">
-              <Shield className="w-4 h-4 text-white/40" />
-              <h3 className="text-sm tracking-wider uppercase text-white/40">
-                {state.language === 'fr' ? 'Vos Droits LPRPDE' : state.language === 'es' ? 'Sus Derechos' : 'Your Data Rights (PIPEDA)'}
-              </h3>
-            </div>
-
-            <div className="space-y-2">
-              <button
-                onClick={() => {
-                  const data = {
-                    exportedAt: new Date().toISOString(),
-                    language: state.language,
-                    preferences: state.accessibilityPreferences,
-                    note: 'SEEN by CREOVA — PIPEDA data export'
-                  };
-                  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement('a');
-                  a.href = url;
-                  a.download = 'seen-my-data.json';
-                  a.click();
-                  URL.revokeObjectURL(url);
-                }}
-                className="w-full p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-left flex items-center gap-3"
-              >
-                <div className="w-9 h-9 rounded-lg bg-blue-500/20 border border-blue-400/30 flex items-center justify-center flex-shrink-0">
-                  <FileDown className="w-4 h-4 text-blue-300" />
-                </div>
-                <div>
-                  <p className="text-sm text-white">
-                    {state.language === 'fr' ? 'Exporter mes données' : state.language === 'es' ? 'Exportar mis datos' : 'Export My Data'}
-                  </p>
-                  <p className="text-xs text-white/40">
-                    {state.language === 'fr' ? 'Télécharger un fichier JSON' : 'Download a JSON file'}
-                  </p>
-                </div>
-              </button>
-
-              <DataDeletionButton language={state.language} />
-            </div>
-          </motion.section>
-
           {/* About link */}
           <motion.section
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8 }}
+            transition={{ delay: 0.7 }}
           >
             <button
               onClick={onOpenAbout}
@@ -522,64 +392,5 @@ export function ProfilePreferencesScreen({
         </div>
       </div>
     </motion.div>
-  );
-}
-
-function DataDeletionButton({ language }: { language: string }) {
-  const [stage, setStage] = useState<'idle' | 'confirm' | 'done'>('idle');
-
-  if (stage === 'done') {
-    return (
-      <div className="p-4 rounded-xl bg-green-500/10 border border-green-500/30 text-center">
-        <p className="text-sm text-green-300">
-          {language === 'fr' ? 'Demande reçue. Nous traiterons cela sous 30 jours.' : 'Request received. We will process this within 30 days.'}
-        </p>
-      </div>
-    );
-  }
-
-  if (stage === 'confirm') {
-    return (
-      <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 space-y-3">
-        <p className="text-sm text-red-300">
-          {language === 'fr'
-            ? 'Cela supprimera définitivement votre compte et toutes les données associées. Confirmez-vous?'
-            : 'This will permanently delete your account and all associated data. Are you sure?'}
-        </p>
-        <div className="flex gap-3">
-          <button
-            onClick={() => setStage('idle')}
-            className="flex-1 py-2 rounded-lg bg-white/5 border border-white/10 text-xs text-white/60 hover:bg-white/10 transition-colors"
-          >
-            {language === 'fr' ? 'Annuler' : 'Cancel'}
-          </button>
-          <button
-            onClick={() => setStage('done')}
-            className="flex-1 py-2 rounded-lg bg-red-500/20 border border-red-500/40 text-xs text-red-300 hover:bg-red-500/30 transition-colors"
-          >
-            {language === 'fr' ? 'Confirmer la suppression' : 'Confirm Deletion'}
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <button
-      onClick={() => setStage('confirm')}
-      className="w-full p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-red-500/5 hover:border-red-500/30 transition-all text-left flex items-center gap-3"
-    >
-      <div className="w-9 h-9 rounded-lg bg-red-500/20 border border-red-400/30 flex items-center justify-center flex-shrink-0">
-        <Trash2 className="w-4 h-4 text-red-300" />
-      </div>
-      <div>
-        <p className="text-sm text-white">
-          {language === 'fr' ? 'Supprimer mon compte' : language === 'es' ? 'Eliminar mi cuenta' : 'Delete My Account'}
-        </p>
-        <p className="text-xs text-white/40">
-          {language === 'fr' ? 'Droit à l\'effacement — LPRPDE Art. 4.3' : 'Right to erasure — PIPEDA s. 4.3'}
-        </p>
-      </div>
-    </button>
   );
 }

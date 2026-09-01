@@ -7,8 +7,9 @@
  */
 
 import { AudioScript, getAudioScript } from './audioScripts';
-import { STORY_DATA, type Chapter } from './storyData';
+import { getChaptersForStory, type Chapter } from './storyDatabase';
 import { AudioFileMetadata, generateAudioFileName } from './audioProductionSystem';
+import { getStoryWorldById } from './storyDatabase';
 
 // ============================================
 // MEDIA STORAGE CONFIGURATION
@@ -162,11 +163,12 @@ export function getChapterWithAudio(
   chapterId: string,
   language: 'en' | 'fr' | 'es'
 ): ChapterWithAudio | undefined {
-  // Find chapter in story data
-  const storyWorld = STORY_DATA.find((s) => s.id === storyWorldId);
+  // Find chapter using independent registry
+  const storyWorld = getStoryWorldById(storyWorldId);
   if (!storyWorld) return undefined;
-  
-  const chapter = storyWorld.chapters.find((c) => c.id === chapterId);
+
+  const chapters = getChaptersForStory(storyWorldId);
+  const chapter = chapters.find((c) => c.id === chapterId);
   if (!chapter) return undefined;
   
   // Get audio script
@@ -195,10 +197,10 @@ export function getStoryWorldWithAudio(
   storyWorldId: string,
   language: 'en' | 'fr' | 'es'
 ): ChapterWithAudio[] {
-  const storyWorld = STORY_DATA.find((s) => s.id === storyWorldId);
-  if (!storyWorld) return [];
-  
-  return storyWorld.chapters
+  const chapters = getChaptersForStory(storyWorldId);
+  if (chapters.length === 0) return [];
+
+  return chapters
     .map((chapter) => getChapterWithAudio(storyWorldId, chapter.id, language))
     .filter((c): c is ChapterWithAudio => c !== undefined);
 }
@@ -263,7 +265,7 @@ export const AUDIO_KEYBOARD_SHORTCUTS = {
 /**
  * Privacy-first audio engagement tracking
  * NO user identification, NO behavioral surveillance
- * Local storage only, aggregate statistics
+ * Local storage only, aggregate statistics for CMF reporting
  */
 export interface AudioEngagementMetrics {
   // Chapter-level (no user tracking)
@@ -281,6 +283,7 @@ export interface AudioEngagementMetrics {
   };
   
   // NO timestamps, NO user IDs, NO session tracking
+  // This data is for CMF reporting only (engagement with cultural content)
 }
 
 /**
@@ -294,8 +297,8 @@ export function recordAudioEngagement(
 ): void {
   // Implementation would use localStorage only
   // No network requests, no user tracking
-  // Data aggregated locally
-
+  // Data aggregated locally for CMF compliance reporting
+  
   const storageKey = `audio_engagement_${chapterId}_${language}`;
   // ... local storage logic
 }
@@ -391,14 +394,14 @@ export function getPreloadQueue(
   language: 'en' | 'fr' | 'es',
   strategy: AudioPreloadStrategy = DEFAULT_PRELOAD_STRATEGY
 ): string[] {
-  const storyWorld = STORY_DATA.find((s) => s.id === storyWorldId);
-  if (!storyWorld) return [];
-  
-  const currentIndex = storyWorld.chapters.findIndex((c) => c.id === currentChapterId);
+  const chapters = getChaptersForStory(storyWorldId);
+  if (chapters.length === 0) return [];
+
+  const currentIndex = chapters.findIndex((c) => c.id === currentChapterId);
   if (currentIndex === -1) return [];
-  
+
   const preloadQueue: string[] = [];
-  
+
   // Current chapter (always)
   if (strategy.preloadCurrent) {
     const currentPath = getAudioFilePath(
@@ -409,10 +412,10 @@ export function getPreloadQueue(
     );
     preloadQueue.push(currentPath);
   }
-  
+
   // Next chapter
-  if (strategy.preloadNext && currentIndex < storyWorld.chapters.length - 1) {
-    const nextChapter = storyWorld.chapters[currentIndex + 1];
+  if (strategy.preloadNext && currentIndex < chapters.length - 1) {
+    const nextChapter = chapters[currentIndex + 1];
     const nextPath = getAudioFilePath(
       storyWorldId,
       nextChapter.id,
@@ -421,10 +424,10 @@ export function getPreloadQueue(
     );
     preloadQueue.push(nextPath);
   }
-  
+
   // Previous chapter
   if (strategy.preloadPrevious && currentIndex > 0) {
-    const prevChapter = storyWorld.chapters[currentIndex - 1];
+    const prevChapter = chapters[currentIndex - 1];
     const prevPath = getAudioFilePath(
       storyWorldId,
       prevChapter.id,
@@ -433,7 +436,7 @@ export function getPreloadQueue(
     );
     preloadQueue.push(prevPath);
   }
-  
+
   return preloadQueue;
 }
 

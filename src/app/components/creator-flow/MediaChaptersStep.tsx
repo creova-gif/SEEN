@@ -28,6 +28,7 @@ export interface Chapter {
   id: string;
   title: string;
   description: string;
+  text: string; // the actual narrative content readers see
   narration?: { file: string; duration: number };
   ambient?: { file: string };
   music?: { file: string };
@@ -56,6 +57,7 @@ export function MediaChaptersStep({
         id: '1',
         title: '',
         description: '',
+        text: '',
         estimatedDuration: 5,
         completeness: 0,
       },
@@ -72,6 +74,7 @@ export function MediaChaptersStep({
       id: Date.now().toString(),
       title: '',
       description: '',
+      text: '',
       estimatedDuration: 5,
       completeness: 0,
     };
@@ -96,14 +99,15 @@ export function MediaChaptersStep({
 
   const calculateCompleteness = (chapter: Chapter): number => {
     let score = 0;
-    if (chapter.title.trim()) score += 30;
-    if (chapter.description.trim()) score += 20;
-    if (chapter.narration || chapter.music || chapter.ambient) score += 40;
+    if (chapter.title.trim()) score += 20;
+    if (chapter.description.trim()) score += 15;
+    if (chapter.text.trim()) score += 35;
+    if (chapter.narration || chapter.music || chapter.ambient) score += 20;
     if (chapter.images?.length || chapter.video) score += 10;
     return score;
   };
 
-  const canProceed = chapters.some(ch => ch.title.trim() && calculateCompleteness(ch) >= 50);
+  const canProceed = chapters.some(ch => ch.title.trim() && ch.text.trim());
 
   const handleNext = () => {
     if (canProceed) {
@@ -252,6 +256,20 @@ export function MediaChaptersStep({
                           </label>
                         </div>
 
+                        {/* Chapter Text — the actual narrative content readers will see */}
+                        <div>
+                          <label className="block mb-2">
+                            <span className="text-xs tracking-wider uppercase text-white/60">Chapter Text</span>
+                            <textarea
+                              value={chapter.text}
+                              onChange={(e) => updateChapter(chapter.id, { text: e.target.value })}
+                              placeholder="Write the story readers will actually read here..."
+                              className="mt-1.5 w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-sm text-white placeholder:text-white/30 focus:border-white/30 focus:outline-none resize-none"
+                              rows={6}
+                            />
+                          </label>
+                        </div>
+
                         {/* Duration */}
                         <div>
                           <label className="block mb-2">
@@ -272,44 +290,61 @@ export function MediaChaptersStep({
                           <span className="text-xs tracking-wider uppercase text-white/60 block">Media</span>
                           
                           <div className="grid grid-cols-2 gap-2">
-                            {/* Narration */}
+                            {/* Narration — no file-upload backend exists yet, so this
+                                accepts a hosted audio URL rather than being a dead button. */}
                             <button
                               type="button"
+                              onClick={() => {
+                                const url = window.prompt('Paste a hosted audio URL for narration:', chapter.narration?.file || '');
+                                if (url) updateChapter(chapter.id, { narration: { file: url, duration: 0 } });
+                              }}
                               className="p-3 bg-white/5 border border-white/10 rounded hover:bg-white/10 hover:border-white/20 transition-all text-left"
                             >
-                              <Mic className="w-4 h-4 text-white/60 mb-2" strokeWidth={1.5} />
+                              <Mic className={`w-4 h-4 mb-2 ${chapter.narration ? 'text-green-400' : 'text-white/60'}`} strokeWidth={1.5} />
                               <div className="text-xs text-white/80">Narration</div>
-                              <div className="text-[10px] text-white/40">Record or upload</div>
+                              <div className="text-[10px] text-white/40">{chapter.narration ? 'Attached' : 'Add audio URL'}</div>
                             </button>
 
-                            {/* Ambient */}
+                            {/* Music */}
                             <button
                               type="button"
+                              onClick={() => {
+                                const url = window.prompt('Paste a hosted music/soundtrack URL:', chapter.music?.file || '');
+                                if (url) updateChapter(chapter.id, { music: { file: url } });
+                              }}
                               className="p-3 bg-white/5 border border-white/10 rounded hover:bg-white/10 hover:border-white/20 transition-all text-left"
                             >
-                              <Music className="w-4 h-4 text-white/60 mb-2" strokeWidth={1.5} />
+                              <Music className={`w-4 h-4 mb-2 ${chapter.music ? 'text-green-400' : 'text-white/60'}`} strokeWidth={1.5} />
                               <div className="text-xs text-white/80">Music</div>
-                              <div className="text-[10px] text-white/40">Add soundtrack</div>
+                              <div className="text-[10px] text-white/40">{chapter.music ? 'Attached' : 'Add soundtrack'}</div>
                             </button>
 
                             {/* Images */}
                             <button
                               type="button"
+                              onClick={() => {
+                                const url = window.prompt('Paste an image URL:', chapter.images?.[0] || '');
+                                if (url) updateChapter(chapter.id, { images: [url] });
+                              }}
                               className="p-3 bg-white/5 border border-white/10 rounded hover:bg-white/10 hover:border-white/20 transition-all text-left"
                             >
-                              <ImageIcon className="w-4 h-4 text-white/60 mb-2" strokeWidth={1.5} />
+                              <ImageIcon className={`w-4 h-4 mb-2 ${chapter.images?.length ? 'text-green-400' : 'text-white/60'}`} strokeWidth={1.5} />
                               <div className="text-xs text-white/80">Images</div>
-                              <div className="text-[10px] text-white/40">Upload photos</div>
+                              <div className="text-[10px] text-white/40">{chapter.images?.length ? 'Attached' : 'Add image URL'}</div>
                             </button>
 
                             {/* Video */}
                             <button
                               type="button"
+                              onClick={() => {
+                                const url = window.prompt('Paste a hosted video URL:', chapter.video?.file || '');
+                                if (url) updateChapter(chapter.id, { video: { file: url, duration: 0 } });
+                              }}
                               className="p-3 bg-white/5 border border-white/10 rounded hover:bg-white/10 hover:border-white/20 transition-all text-left"
                             >
-                              <Video className="w-4 h-4 text-white/60 mb-2" strokeWidth={1.5} />
+                              <Video className={`w-4 h-4 mb-2 ${chapter.video ? 'text-green-400' : 'text-white/60'}`} strokeWidth={1.5} />
                               <div className="text-xs text-white/80">Video</div>
-                              <div className="text-[10px] text-white/40">Optional</div>
+                              <div className="text-[10px] text-white/40">{chapter.video ? 'Attached' : 'Optional'}</div>
                             </button>
                           </div>
                         </div>
@@ -350,8 +385,8 @@ export function MediaChaptersStep({
       <div className="px-5 py-4">
         <div className="p-4 bg-white/5 border border-white/10 rounded-lg">
           <p className="text-xs text-white/60 leading-relaxed">
-            <strong className="text-white/80">Tip:</strong> Each chapter should have at least a title and one media element 
-            (narration, music, or images) to proceed. You can refine details later.
+            <strong className="text-white/80">Tip:</strong> At least one chapter needs a title and chapter text to proceed.
+            Media is optional and can be added later.
           </p>
         </div>
       </div>

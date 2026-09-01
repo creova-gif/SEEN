@@ -1,21 +1,23 @@
 import { motion, AnimatePresence } from "motion/react";
-import { ArrowLeft, ChevronLeft, ChevronRight, List, Share2, Bookmark, Info, MessageCircle, SmilePlus, Mic, Globe2 } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, List, Share2, Bookmark, Info, MessageCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 import { AudioPlayer } from "./AudioPlayer";
 import { useAudioPlayer } from "../hooks/useAudioPlayer";
 import { useStoryState } from "../contexts/StoryStateContext";
+import { useAuth } from "../contexts/AuthContext";
 import {
   getChaptersForStory,
-  getText,
-  Chapter,
-  getContextCardsForChapter,
-  getResponsesForChapter,
-  getChapter
-} from "../data/storyReader";
+  getLocalizedText,
+  type Chapter,
+  getChapterById,
+  getStoryWorldById
+} from "../data/storyDatabase";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ContextCardModal } from "./ContextCardModal";
 import { CommunityResponsesPanel } from "./CommunityResponsesPanel";
 import { BranchingChoiceOverlay } from "./BranchingChoiceOverlay";
+import { SubmitResponseModal } from "./SubmitResponseModal";
+import { submitCommunityResponse, getApprovedResponsesForChapter } from "../data/adminService";
 
 interface StoryChapterScreenProps {
   onClose: () => void;
@@ -23,40 +25,18 @@ interface StoryChapterScreenProps {
   storyWorldId?: string;
 }
 
-// Feature 1: Timed Reaction types
-const REACTION_EMOJIS = ['❤️', '🔥', '💫', '😢', '🙏'] as const;
-type ReactionEmoji = typeof REACTION_EMOJIS[number];
-
-interface TimedReaction {
-  id: string;
-  storyId: string;
-  chapterId: string;
-  emoji: ReactionEmoji;
-  timePosition: number;
-  timestamp: number;
-}
-
-const REACTIONS_KEY = 'seen_reactions';
-function loadReactions(): TimedReaction[] {
-  try { return JSON.parse(localStorage.getItem(REACTIONS_KEY) || '[]'); } catch { return []; }
-}
-function saveReactions(r: TimedReaction[]) {
-  localStorage.setItem(REACTIONS_KEY, JSON.stringify(r));
-}
-
-// Feature 2: Multilingual track labels
-const LANG_LABELS: Record<string, string> = { en: 'EN', fr: 'FR', es: 'ES' };
-const LANG_NAMES: Record<string, string> = { en: 'English', fr: 'Français', es: 'Español' };
-
 export function StoryChapterScreen({ 
   onClose, 
   onShowIndex,
   storyWorldId = 'midnight-resonance'
 }: StoryChapterScreenProps) {
   const { state, navigateToChapter, updateAudioState, saveProgress, setLanguage, recordBranchChoice } = useStoryState();
+  const { state: authState } = useAuth();
   const chapters = getChaptersForStory(storyWorldId);
+  const storyWorld = getStoryWorldById(storyWorldId);
   
   const [currentChapter, setCurrentChapter] = useState<Chapter>(() => {
+    // Resume from saved progress or start at first chapter
     const savedChapterId = state.currentChapterId;
     return chapters.find(ch => ch.id === savedChapterId) || chapters[0];
   });
@@ -64,20 +44,12 @@ export function StoryChapterScreen({
   const [showCaptions, setShowCaptions] = useState(state.accessibilityPreferences.captionsEnabled);
   const [controlsVisible, setControlsVisible] = useState(true);
   
+  // NEW: State for context cards, community responses, and branching
   const [selectedContextCardIndex, setSelectedContextCardIndex] = useState<number | null>(null);
   const [showCommunityResponses, setShowCommunityResponses] = useState(false);
+  const [showSubmitResponse, setShowSubmitResponse] = useState(false);
   const [showBranchChoice, setShowBranchChoice] = useState(false);
   const [hasMadeBranchChoice, setHasMadeBranchChoice] = useState(false);
-
-  // Feature 1: Timed Reactions state
-  const [reactions, setReactions] = useState<TimedReaction[]>(() =>
-    loadReactions().filter(r => r.storyId === storyWorldId)
-  );
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-
-  // Feature 2: Audio language track state
-  const [audioLang, setAudioLang] = useState<string>(state.language);
-  const [trackSwitching, setTrackSwitching] = useState(false);
   
   // Early return if no chapter is found
   if (!currentChapter) {
@@ -96,16 +68,27 @@ export function StoryChapterScreen({
     );
   }
   
-  const contextCards = getContextCardsForChapter(currentChapter.id);
-  const communityResponses = getResponsesForChapter(currentChapter.id);
-  const branchChoice = currentChapter.branchChoices?.[0];
+  // Get context cards and responses for current chapter.
+  // Community responses come from the real moderation queue — only
+  // moderator-approved submissions are shown to readers.
+  const contextCards = currentChapter.contextCards || [];
+  const approvedResponses = getApprovedResponsesForChapter(currentChapter.id);
+  const communityResponses = approvedResponses.map(r => ({
+    id: r.id,
+    type: r.type,
+    content: r.content,
+    authorName: r.contributorName,
+    timestamp: r.timestamp,
+    language: r.language,
+  }));
+  const branchChoice = currentChapter.branchChoices?.[0]; // Get first branch choice if available
   
-  const audio = useAudioPlayer({ 
-    src: currentChapter.audioSrc,
-    autoPlay: false 
+  const audio = useAudioPlayer({
+    src: currentChapter.media?.narration?.url,
+    autoPlay: false
   });
 
-  // Sync audio state
+  // Sync audio state with global state
   useEffect(() => {
     updateAudioState({
       isPlaying: audio.isPlaying,
@@ -113,11 +96,12 @@ export function StoryChapterScreen({
     });
   }, [audio.isPlaying, audio.currentTime]);
 
-  // Auto-hide controls
+  // Auto-hide controls after 3 seconds of inactivity
   useEffect(() => {
     const timer = setTimeout(() => {
       setControlsVisible(false);
     }, 3000);
+
     return () => clearTimeout(timer);
   }, [controlsVisible]);
 
@@ -129,34 +113,64 @@ export function StoryChapterScreen({
 
   const handleShowControls = () => {
     setControlsVisible(true);
-    setShowEmojiPicker(false);
   };
 
+  // NEW: Handler for branching choice
   const handleBranchChoice = (optionId: string, nextChapterId?: string) => {
     if (!branchChoice) return;
+    
+    // Record the choice
     recordBranchChoice(currentChapter.id, branchChoice.id, optionId);
     setHasMadeBranchChoice(true);
     setShowBranchChoice(false);
+    
+    // If this is a hard branch (impacts outcome), navigate to specific chapter
     if (branchChoice.impactsOutcome && nextChapterId) {
-      const targetChapter = getChapter(nextChapterId);
+      const targetChapter = getChapterById(storyWorldId, nextChapterId);
       if (targetChapter) {
         audio.fadeOut();
-        setTimeout(() => { setCurrentChapter(targetChapter); }, 600);
+        setTimeout(() => {
+          setCurrentChapter(targetChapter);
+        }, 600);
       }
     }
+    // For soft branches, just continue normally
   };
 
+  // Handler for community response submission
   const handleSubmitResponse = () => {
     setShowCommunityResponses(false);
+    setShowSubmitResponse(true);
   };
 
+  const [submissionForceRefresh, setSubmissionForceRefresh] = useState(0);
+
+  const handleActualSubmit = (type: "text" | "audio" | "image", content: string, isAnonymous: boolean) => {
+    submitCommunityResponse({
+      chapterId: currentChapter.id,
+      storyId: storyWorldId,
+      contributorId: authState.user?.id ?? "anonymous",
+      contributorName: isAnonymous ? "Anonymous" : (authState.user?.name ?? "Anonymous"),
+      type,
+      content,
+      language: state.language,
+    });
+    setShowSubmitResponse(false);
+    setSubmissionForceRefresh(n => n + 1); // re-render so any future approved response shows
+  };
+
+  // Show branch choice automatically when chapter loads (if not already made)
   useEffect(() => {
     if (branchChoice && !hasMadeBranchChoice) {
-      const timer = setTimeout(() => { setShowBranchChoice(true); }, 2000);
+      // Show branch choice after a brief delay
+      const timer = setTimeout(() => {
+        setShowBranchChoice(true);
+      }, 2000);
       return () => clearTimeout(timer);
     }
   }, [currentChapter.id, branchChoice]);
 
+  // Reset branch choice state when chapter changes
   useEffect(() => {
     setHasMadeBranchChoice(false);
     setShowBranchChoice(false);
@@ -165,47 +179,20 @@ export function StoryChapterScreen({
   const navigateChapter = (direction: 'prev' | 'next') => {
     const currentIndex = chapters.findIndex(ch => ch.id === currentChapter.id);
     let newIndex = direction === 'prev' ? currentIndex - 1 : currentIndex + 1;
+    
     if (newIndex >= 0 && newIndex < chapters.length) {
+      // Cinematic transition: fade out audio
       audio.fadeOut();
-      setTimeout(() => { setCurrentChapter(chapters[newIndex]); }, 500);
+      
+      // Wait for fade, then switch chapter
+      setTimeout(() => {
+        setCurrentChapter(chapters[newIndex]);
+      }, 500);
     }
   };
 
   const canGoPrev = chapters.findIndex(ch => ch.id === currentChapter.id) > 0;
   const canGoNext = chapters.findIndex(ch => ch.id === currentChapter.id) < chapters.length - 1;
-
-  // Feature 1: Add reaction at current audio position
-  const handleAddReaction = (emoji: ReactionEmoji) => {
-    const newReaction: TimedReaction = {
-      id: `rxn-${Date.now()}`,
-      storyId: storyWorldId,
-      chapterId: currentChapter.id,
-      emoji,
-      timePosition: audio.currentTime,
-      timestamp: Date.now(),
-    };
-    const all = loadReactions();
-    const updated = [newReaction, ...all];
-    saveReactions(updated);
-    setReactions(updated.filter(r => r.storyId === storyWorldId && r.chapterId === currentChapter.id));
-    setShowEmojiPicker(false);
-  };
-
-  // Feature 2: Handle audio language switch
-  const handleLanguageChange = (lang: string) => {
-    setLanguage(lang as any);
-    if (lang !== audioLang) {
-      setTrackSwitching(true);
-      // Simulate audio track loading (1.2s)
-      setTimeout(() => {
-        setAudioLang(lang);
-        setTrackSwitching(false);
-      }, 1200);
-    }
-  };
-
-  // Reactions for current chapter (filtered)
-  const chapterReactions = reactions.filter(r => r.chapterId === currentChapter.id);
 
   return (
     <motion.div
@@ -218,8 +205,8 @@ export function StoryChapterScreen({
       {/* Background image */}
       <div className="absolute inset-0">
         <img
-          src={currentChapter.imageUrl}
-          alt={getText(currentChapter.title, state.language)}
+          src={currentChapter.media?.images?.[0] || storyWorld?.coverImage}
+          alt={getLocalizedText(currentChapter.title, state.language)}
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black" />
@@ -243,10 +230,10 @@ export function StoryChapterScreen({
                 <ArrowLeft className="w-5 h-5 text-white" />
               </button>
 
-              <div className="flex gap-2 flex-wrap justify-end">
+              <div className="flex gap-2">
                 <LanguageSwitcher
                   currentLanguage={state.language}
-                  onLanguageChange={handleLanguageChange}
+                  onLanguageChange={setLanguage}
                   availableLanguages={['en', 'fr', 'es']}
                 />
                 <button
@@ -269,10 +256,7 @@ export function StoryChapterScreen({
                   <Bookmark className="w-4 h-4 text-white" />
                 </button>
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelectedContextCardIndex(contextCards.length > 0 ? 0 : null);
-                  }}
+                  onClick={() => setSelectedContextCardIndex(contextCards.length > 0 ? 0 : null)}
                   disabled={contextCards.length === 0}
                   className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center hover:bg-black/60 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   aria-label="Info"
@@ -283,10 +267,7 @@ export function StoryChapterScreen({
                   )}
                 </button>
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowCommunityResponses(true);
-                  }}
+                  onClick={() => setShowCommunityResponses(true)}
                   className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center hover:bg-black/60 transition-colors"
                   aria-label="Community Responses"
                 >
@@ -297,61 +278,8 @@ export function StoryChapterScreen({
                     </span>
                   )}
                 </button>
-                {/* Feature 1: React button */}
-                <div className="relative" onClick={e => e.stopPropagation()}>
-                  <button
-                    onClick={() => setShowEmojiPicker(v => !v)}
-                    className={`w-10 h-10 rounded-full backdrop-blur-md border border-white/10 flex items-center justify-center transition-all ${
-                      showEmojiPicker ? 'bg-white/20' : 'bg-black/40 hover:bg-black/60'
-                    }`}
-                    aria-label="Add reaction"
-                  >
-                    <SmilePlus className="w-4 h-4 text-white" />
-                    {chapterReactions.length > 0 && (
-                      <span className="absolute -top-1 -right-1 w-5 h-5 bg-rose-500 rounded-full flex items-center justify-center text-[10px] text-white font-medium">
-                        {chapterReactions.length}
-                      </span>
-                    )}
-                  </button>
-                  <AnimatePresence>
-                    {showEmojiPicker && (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.8, y: 8 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.8, y: 8 }}
-                        className="absolute right-0 top-12 flex gap-2 bg-black/90 backdrop-blur-xl border border-white/15 rounded-2xl px-3 py-2.5 z-50 shadow-2xl"
-                      >
-                        {REACTION_EMOJIS.map(emoji => (
-                          <button
-                            key={emoji}
-                            onClick={() => handleAddReaction(emoji)}
-                            className="text-xl hover:scale-125 transition-transform"
-                            aria-label={`React with ${emoji}`}
-                          >
-                            {emoji}
-                          </button>
-                        ))}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
               </div>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Feature 2: Audio language track switching indicator */}
-      <AnimatePresence>
-        {trackSwitching && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            className="absolute top-24 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/80 backdrop-blur-md border border-white/10"
-          >
-            <Globe2 className="w-3 h-3 text-white/60 animate-spin" />
-            <span className="text-xs text-white/60 tracking-wide">Loading {LANG_NAMES[state.language]} track...</span>
           </motion.div>
         )}
       </AnimatePresence>
@@ -366,8 +294,9 @@ export function StoryChapterScreen({
             className="flex items-center gap-3"
           >
             <span className="text-xs tracking-[0.3em] uppercase text-white/40">
-              Chapter {currentChapter.number} of {chapters.length}
+              Chapter {currentChapter.order} of {chapters.length}
             </span>
+            {/* Soft progress indicator */}
             <div className="flex gap-1">
               {chapters.map((ch, idx) => (
                 <div
@@ -390,7 +319,7 @@ export function StoryChapterScreen({
             transition={{ delay: 0.1 }}
             className="text-3xl tracking-tight text-white leading-tight"
           >
-            {getText(currentChapter.title, state.language)}
+            {getLocalizedText(currentChapter.title, state.language)}
           </motion.h1>
 
           {/* Chapter content */}
@@ -401,49 +330,21 @@ export function StoryChapterScreen({
             transition={{ delay: 0.2 }}
             className="text-base text-white/70 leading-relaxed"
           >
-            {getText(currentChapter.content, state.language)}
+            {getLocalizedText(currentChapter.text, state.language)}
           </motion.p>
 
-          {/* Feature 2: Audio language track indicator */}
-          <div className="flex items-center gap-2">
-            <Mic className="w-3 h-3 text-white/30" strokeWidth={1.5} />
-            <span className="text-[10px] tracking-widest uppercase text-white/30">Audio track</span>
-            <div className="flex gap-1.5">
-              {['en', 'fr', 'es'].map(lang => (
-                <span
-                  key={lang}
-                  className={`text-[9px] tracking-widest px-1.5 py-0.5 rounded uppercase border ${
-                    audioLang === lang
-                      ? 'bg-white/20 border-white/30 text-white/80'
-                      : 'border-white/10 text-white/20'
-                  }`}
-                >
-                  {LANG_LABELS[lang]}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Subtitle captions overlay */}
+          {/* Captions overlay */}
           <AnimatePresence>
             {showCaptions && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 10 }}
-                className="mx-auto max-w-sm"
+                className="p-4 rounded-xl bg-black/60 backdrop-blur-md border border-white/10"
               >
-                <div className="px-4 py-3 rounded-lg bg-black/80 backdrop-blur-md border border-white/10 text-center">
-                  <p className="text-sm text-white leading-relaxed font-light">
-                    {getText(currentChapter.content, state.language)}
-                  </p>
-                </div>
-                <div className="mt-1.5 flex items-center justify-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-white/60 animate-pulse" />
-                  <span className="text-[10px] text-white/40 tracking-widest uppercase">
-                    {state.language === 'fr' ? 'Sous-titres' : state.language === 'es' ? 'Subtítulos' : 'Subtitles'}
-                  </span>
-                </div>
+                <p className="text-sm text-white/90 leading-relaxed">
+                  [Ambient sounds: distant city traffic, wind through buildings, occasional footsteps]
+                </p>
               </motion.div>
             )}
           </AnimatePresence>
@@ -464,16 +365,17 @@ export function StoryChapterScreen({
         isOpen={showCommunityResponses}
         onClose={() => setShowCommunityResponses(false)}
         chapterId={currentChapter.id}
-        chapterTitle={getText(currentChapter.title, state.language)}
-        responses={communityResponses.map(r => ({
-          id: r.id,
-          type: r.responseType,
-          content: r.content,
-          authorName: r.userName,
-          timestamp: r.timestamp,
-          language: state.language
-        }))}
+        chapterTitle={getLocalizedText(currentChapter.title, state.language)}
+        responses={communityResponses}
         onSubmitResponse={handleSubmitResponse}
+      />
+
+      <SubmitResponseModal
+        isOpen={showSubmitResponse}
+        onClose={() => setShowSubmitResponse(false)}
+        chapterId={currentChapter.id}
+        chapterTitle={getLocalizedText(currentChapter.title, state.language)}
+        onSubmit={handleActualSubmit}
       />
 
       {/* Branching Choice Overlay */}
@@ -489,25 +391,6 @@ export function StoryChapterScreen({
       {/* Bottom controls */}
       <div className="absolute bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-black via-black to-transparent">
         <div className="max-w-[428px] mx-auto p-6 space-y-4">
-          {/* Feature 1: Reaction dots on progress bar area */}
-          {chapterReactions.length > 0 && audio.duration > 0 && (
-            <div className="relative h-2 mb-1">
-              {chapterReactions.map(rxn => {
-                const pct = Math.min(100, (rxn.timePosition / audio.duration) * 100);
-                return (
-                  <span
-                    key={rxn.id}
-                    className="absolute -top-1 text-base transform -translate-x-1/2 pointer-events-none select-none"
-                    style={{ left: `${pct}%` }}
-                    title={`${rxn.emoji} at ${Math.floor(rxn.timePosition)}s`}
-                  >
-                    {rxn.emoji}
-                  </span>
-                );
-              })}
-            </div>
-          )}
-
           {/* Audio player */}
           <AudioPlayer
             isPlaying={audio.isPlaying}
@@ -519,6 +402,8 @@ export function StoryChapterScreen({
             onSeek={audio.seek}
             showCaptions={showCaptions}
             onToggleCaptions={() => setShowCaptions(!showCaptions)}
+            title={getLocalizedText(currentChapter.title, state.language)}
+            artist={storyWorld ? getLocalizedText(storyWorld.creator, state.language) : undefined}
           />
 
           {/* Chapter navigation */}

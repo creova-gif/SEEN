@@ -248,7 +248,7 @@ export function CreatorInsightsScreen({
           >
             <p className="text-xs text-white/30 leading-relaxed">
               {state.language === 'en' 
-                ? 'These insights are qualitative and language-based. We don't track individual behavior, viewing time, or engagement scores. This preserves audience privacy while giving you meaningful creative signals.'
+                ? "These insights are qualitative and language-based. We don't track individual behavior, viewing time, or engagement scores. This preserves audience privacy while giving you meaningful creative signals."
                 : state.language === 'fr'
                 ? 'Ces aperçus sont qualitatifs et basés sur le langage. Nous ne suivons pas le comportement individuel, le temps de visionnage ou les scores d\'engagement. Cela préserve la confidentialité de l\'audience tout en vous donnant des signaux créatifs significatifs.'
                 : 'Estas perspectivas son cualitativas y basadas en el lenguaje. No rastreamos el comportamiento individual, el tiempo de visualización ni las puntuaciones de participación. Esto preserva la privacidad de la audiencia mientras te brinda señales creativas significativas.'

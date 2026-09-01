@@ -163,15 +163,15 @@ export function PostPublishSuccess({
               <>
                 <li className="flex items-start gap-2">
                   <span className="text-white/40">•</span>
-                  <span>Your story appears in Explore within 24 hours</span>
+                  <span>Your story is live now and visible to readers</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-white/40">•</span>
-                  <span>Community responses will be moderated automatically</span>
+                  <span>Community responses are reviewed by moderators before appearing</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-white/40">•</span>
-                  <span>You'll receive weekly performance insights</span>
+                  <span>Check Earnings for revenue once you set pricing</span>
                 </li>
               </>
             )}
@@ -179,11 +179,11 @@ export function PostPublishSuccess({
               <>
                 <li className="flex items-start gap-2">
                   <span className="text-white/40">•</span>
-                  <span>Institutional partners will review within 5-7 days</span>
+                  <span>Your story is saved to the Institutional Collection</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-white/40">•</span>
-                  <span>You'll be notified of any collection placements</span>
+                  <span>You can change its visibility anytime</span>
                 </li>
               </>
             )}

@@ -7,14 +7,10 @@ import type { UserRole, Language, UserIntent } from './StoryStateContext';
  * Local-storage backed authentication. Accounts, sessions, and profile
  * updates are persisted on-device so the full auth flow (sign up, sign in,
  * sign out, password recovery, role elevation) works end-to-end without a
- * deployed backend. The previous implementation validated every session
- * against a Supabase Edge Function (${projectId}.supabase.co/functions/v1/
- * make-server-2bdc05e6) that isn't reachable in this environment, which
- * meant every real signup/login attempt failed silently. A Supabase Edge
- * Function with a matching contract lives at
- * supabase/functions/server/index.tsx — swap the implementations below for
- * fetch() calls to that API once it is actually deployed; the
- * AuthContextType surface is designed to stay identical either way.
+ * deployed backend. A Supabase Edge Function with a matching contract lives
+ * at supabase/functions/server/index.tsx — swap the implementations below
+ * for fetch() calls to that API once it is deployed; the AuthContextType
+ * surface is designed to stay identical either way.
  */
 
 export interface User {
@@ -44,7 +40,7 @@ interface AuthContextType {
   checkSession: () => Promise<void>;
   updateProfile: (updates: Partial<User>) => Promise<void>;
   requestRoleElevation: (requestedRole: UserRole, reason: string) => Promise<void>;
-  requestPasswordRecovery: (email: string) => Promise<void>;
+  requestPasswordRecovery: (email: string) => Promise<{ resetToken?: string }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -270,8 +266,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!state.user) {
       throw new Error('Not authenticated');
     }
-    // Demo mode: role elevation requests are logged for admin review rather
-    // than applied immediately.
+    // Demo mode: role elevation requests are auto-logged for admin review
+    // via the moderation/admin data layer rather than applied immediately.
     const key = 'seenos_role_elevation_requests';
     const raw = localStorage.getItem(key);
     const requests = raw ? JSON.parse(raw) : [];
@@ -294,7 +290,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const user = Object.values(usersDb).find(u => u.email.toLowerCase() === email.trim().toLowerCase());
     if (!user) {
       // Do not reveal whether the account exists
-      return;
+      return {};
     }
     // Demo mode: return a reset token directly instead of emailing it,
     // since no email provider is connected in this environment.
@@ -304,6 +300,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const resets = raw ? JSON.parse(raw) : {};
     resets[resetToken] = { userId: user.id, expiresAt: Date.now() + 30 * 60 * 1000 };
     localStorage.setItem(key, JSON.stringify(resets));
+    return { resetToken };
   };
 
   return (

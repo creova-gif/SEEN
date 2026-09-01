@@ -9,6 +9,7 @@
  */
 
 import type { StoryWorld, Chapter, Language } from './storyDatabase';
+import { getChaptersForStory } from './storyDatabase';
 import { validateDiscoveryDistribution } from './discoveryMapping';
 
 export interface ValidationResult {
@@ -76,11 +77,12 @@ function validateStoryWorld(story: StoryWorld): ValidationResult[] {
   results.push(validateMultilingualText(story.creator, 'Creator', story.id));
 
   // Chapter count validation
-  if (story.chapters.length !== story.chapterCount) {
+  const chapters = getChaptersForStory(story.id);
+  if (chapters.length !== story.chapterCount) {
     results.push({
       category: 'Data Integrity',
       status: 'fail',
-      message: `Chapter count mismatch: declared ${story.chapterCount}, found ${story.chapters.length}`,
+      message: `Chapter count mismatch: declared ${story.chapterCount}, found ${chapters.length}`,
       details: story.id,
     });
   } else {
@@ -173,7 +175,8 @@ function validateLanguageSwitching(stories: StoryWorld[]): ValidationResult[] {
   const results: ValidationResult[] = [];
 
   for (const story of stories) {
-    for (const chapter of story.chapters) {
+    const chapters = getChaptersForStory(story.id);
+    for (const chapter of chapters) {
       const hasAllLanguages =
         chapter.text.en &&
         chapter.text.fr &&
@@ -209,7 +212,7 @@ function validateLanguageSwitching(stories: StoryWorld[]): ValidationResult[] {
  */
 function validateResumeSupport(stories: StoryWorld[]): ValidationResult {
   // Resume depends on chapter IDs being unique and stable
-  const allChapterIds = stories.flatMap((s) => s.chapters.map((c) => c.id));
+  const allChapterIds = stories.flatMap((s) => getChaptersForStory(s.id).map((c) => c.id));
   const uniqueIds = new Set(allChapterIds);
 
   if (allChapterIds.length !== uniqueIds.size) {
@@ -260,7 +263,8 @@ function validateAudioStructure(stories: StoryWorld[]): ValidationResult[] {
   const results: ValidationResult[] = [];
 
   for (const story of stories) {
-    for (const chapter of story.chapters) {
+    const chapters = getChaptersForStory(story.id);
+    for (const chapter of chapters) {
       // Check if media object exists
       if (!chapter.media) {
         results.push({
@@ -328,7 +332,8 @@ export function validateContentSystem(stories: StoryWorld[]): SystemValidation {
   // 2. Validate each Story World
   stories.forEach((story) => {
     results.push(...validateStoryWorld(story));
-    story.chapters.forEach((chapter) => {
+    const chapters = getChaptersForStory(story.id);
+    chapters.forEach((chapter) => {
       results.push(...validateChapter(chapter, story.id));
     });
   });

@@ -1,0 +1,136 @@
+{
+  "codeReview": {
+    "autoReview": true,
+    "focusAreas": ["security", "performance", "types", "i18n"]
+  },
+  "hooks": {
+    "onToolUse": "sh .claude/hooks/on-tool-use.sh",
+    "beforeGitPush": "sh .claude/hooks/pre-push.sh"
+  },
+  "customSkills": {
+    "audit-seen": {
+      "description": "Run comprehensive SEEN platform audit (Critical/High/Medium/Low issues)",
+      "command": "npm run audit:full",
+      "watchFiles": ["src/**/*.ts", "src/**/*.tsx", "src/app/data/**"]
+    },
+    "fix-critical": {
+      "description": "Apply all CRITICAL fixes (data conflict, incomplete stories, search button)",
+      "command": "npm run fix:critical",
+      "steps": [
+        "Resolve content.ts vs storyDatabase.ts conflict",
+        "Generate missing 22 chapters for 4 stories",
+        "Implement Search functionality",
+        "Refactor chapter storage architecture"
+      ]
+    },
+    "add-design-system": {
+      "description": "Create DESIGN.md using awesome-design-md pattern",
+      "command": "npm run create:design-system",
+      "template": "DESIGN.md"
+    },
+    "implement-search": {
+      "description": "Add Fuse.js full-text search for stories (svgl pattern)",
+      "command": "npm install fuse.js && npm run implement:search"
+    },
+    "add-favorites": {
+      "description": "Implement favorites/bookmarks store (svgl pattern)",
+      "command": "npm run add:favorites"
+    },
+    "setup-editor": {
+      "description": "Refactor to multi-studio editor architecture (Open-Generative-AI pattern)",
+      "command": "npm run setup:multi-studio-editor"
+    },
+    "test-runtime": {
+      "description": "Run full runtime tests (browser, feeds, navigation, auth, i18n)",
+      "command": "npm run test:runtime"
+    },
+    "validate-content": {
+      "description": "Validate all 62 chapters, multilingual content, media hosting",
+      "command": "npm run validate:content"
+    },
+    "check-cmf": {
+      "description": "Audit CMF (Cultural Metrics Framework) compliance",
+      "command": "npm run audit:cmf"
+    }
+  },
+  "permissions": {
+    "default": "prompt",
+    "bash": {
+      "allowList": [
+        "git status",
+        "git add",
+        "git commit",
+        "git push",
+        "npm install",
+        "npm run",
+        "ls",
+        "find",
+        "grep",
+        "mkdir",
+        "cat"
+      ]
+    },
+    "fileOperations": {
+      "allowList": [
+        ".claude/**",
+        "src/**",
+        "package.json",
+        ".gitignore",
+        "DESIGN.md",
+        "CHANGELOG.md"
+      ]
+    }
+  },
+  "development": {
+    "framework": "React 18.3.1 + TypeScript",
+    "buildTool": "Vite 6.3.5",
+    "styling": "Tailwind CSS 4.1.12",
+    "ui": "Radix UI + Motion (Framer Motion)",
+    "state": "Context API (StoryStateContext + AuthContext)",
+    "languages": ["en", "fr", "es"],
+    "roles": ["viewer", "creator", "moderator", "admin"],
+    "database": "Supabase"
+  },
+  "importantPaths": {
+    "data": "src/app/data/",
+    "components": "src/app/components/",
+    "screens": "src/app/screens/",
+    "types": "src/app/data/types.ts",
+    "context": "src/app/context/"
+  },
+  "criticalIssues": {
+    "dataConflict": {
+      "description": "content.ts (2 stories) vs storyDatabase.ts (12 stories)",
+      "status": "BLOCKING"
+    },
+    "incompleteStories": {
+      "description": "4 stories with 22 missing chapters (IN PROGRESS)",
+      "status": "BLOCKING",
+      "affectedStories": [
+        "black-atlantic-canada",
+        "what-we-carry",
+        "small-histories",
+        "work-worth"
+      ]
+    },
+    "deadSearchButton": {
+      "description": "NavigationBar.tsx Search button has no implementation",
+      "status": "BLOCKING",
+      "file": "src/app/components/NavigationBar.tsx"
+    },
+    "chapterArchitecture": {
+      "description": "Chapters nested in StoryWorld; cannot be independently referenced",
+      "status": "BLOCKING"
+    }
+  },
+  "auditResults": {
+    "systemScore": "38/100",
+    "launchStatus": "NOT READY",
+    "issueCount": {
+      "critical": 4,
+      "high": 8,
+      "medium": 4,
+      "low": 3
+    }
+  }
+}

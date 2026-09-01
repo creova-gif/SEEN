@@ -1,10 +1,14 @@
 import { motion, AnimatePresence } from "motion/react";
-import { ArrowLeft, Play, Volume2, VolumeX, Share2, Check } from "lucide-react";
-import { useState, useCallback } from "react";
+import { ArrowLeft, Play, Volume2, VolumeX, Lock } from "lucide-react";
+import { useState } from "react";
 import { useStoryState } from "../contexts/StoryStateContext";
-import { getStoryWorld, getText } from "../data/content";
+import { useAuth } from "../contexts/AuthContext";
+import { getStoryWorldById, getLocalizedText } from "../data/storyDatabase";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { useAudioPlayer } from "../hooks/useAudioPlayer";
+import { PaywallModal } from "./PaywallModal";
+import { hasAccessToContent, creatorIdFromName } from "../data/monetizationService";
+import { getContentPricing } from "../data/monetizationService";
 
 interface StoryWorldEntryScreenProps {
   storyWorldId: string;
@@ -18,36 +22,11 @@ export function StoryWorldEntryScreen({
   onEnterStory 
 }: StoryWorldEntryScreenProps) {
   const { state, setLanguage, getProgressForStory } = useStoryState();
-  const storyWorld = getStoryWorld(storyWorldId);
+  const { state: authState } = useAuth();
+  const storyWorld = getStoryWorldById(storyWorldId);
   const progress = getProgressForStory(storyWorldId);
   const [showDetails, setShowDetails] = useState(false);
-  const [shareStatus, setShareStatus] = useState<'idle' | 'copied'>('idle');
-
-  const handleShareStory = useCallback(async () => {
-    if (!storyWorld) return;
-    const title = typeof storyWorld.title === 'string' ? storyWorld.title : getText(storyWorld.title, state.language);
-    const storyUrl = `https://seen.app/story/${storyWorldId}`;
-    const shareData = {
-      title: `${title} — SEEN`,
-      text: `Explore this story on SEEN — "${title}"`,
-      url: storyUrl,
-    };
-    try {
-      if (navigator.share) {
-        await navigator.share(shareData);
-      } else {
-        await navigator.clipboard.writeText(storyUrl);
-        setShareStatus('copied');
-        setTimeout(() => setShareStatus('idle'), 2000);
-      }
-    } catch {
-      try {
-        await navigator.clipboard.writeText(storyUrl);
-        setShareStatus('copied');
-        setTimeout(() => setShareStatus('idle'), 2000);
-      } catch {}
-    }
-  }, [storyWorld, storyWorldId, state.language]);
+  const [paywallOpen, setPaywallOpen] = useState(false);
 
   // Ambient audio for story world
   const ambientAudio = useAudioPlayer({
@@ -59,6 +38,18 @@ export function StoryWorldEntryScreen({
   if (!storyWorld) return null;
 
   const hasProgress = !!progress;
+  const creatorName = storyWorld.creator.en;
+  const creatorId = creatorIdFromName(creatorName);
+  const pricing = getContentPricing(storyWorld.id);
+  const isLocked = pricing.accessTier !== "free" && !hasAccessToContent(storyWorld.id, authState.user?.id ?? null, creatorId);
+
+  const handleEnterClick = () => {
+    if (isLocked) {
+      setPaywallOpen(true);
+      return;
+    }
+    onEnterStory();
+  };
 
   return (
     <motion.div
@@ -76,8 +67,8 @@ export function StoryWorldEntryScreen({
         className="absolute inset-0"
       >
         <img
-          src={storyWorld.imageUrl}
-          alt={getText(storyWorld.title, state.language)}
+          src={storyWorld.coverImage}
+          alt={getLocalizedText(storyWorld.title, state.language)}
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/70 to-black" />
@@ -98,21 +89,8 @@ export function StoryWorldEntryScreen({
             <LanguageSwitcher
               currentLanguage={state.language}
               onLanguageChange={setLanguage}
-              availableLanguages={storyWorld.availableLanguages}
+              availableLanguages={storyWorld.languagesAvailable}
             />
-
-            {/* Share story */}
-            <button
-              onClick={handleShareStory}
-              aria-label="Share story"
-              className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center hover:bg-black/60 transition-colors"
-            >
-              {shareStatus === 'copied' ? (
-                <Check className="w-4 h-4 text-green-400" />
-              ) : (
-                <Share2 className="w-4 h-4 text-white" />
-              )}
-            </button>
             
             {/* Ambient audio toggle */}
             <button
@@ -145,7 +123,7 @@ export function StoryWorldEntryScreen({
             transition={{ delay: 0.7 }}
           >
             <span className="text-xs tracking-[0.3em] uppercase text-white/40">
-              {getText(storyWorld.category, state.language)}
+              {storyWorld.culturalThemes?.[0] || 'Story'}
             </span>
           </motion.div>
 
@@ -156,7 +134,7 @@ export function StoryWorldEntryScreen({
             transition={{ delay: 0.9 }}
             className="text-5xl tracking-tight text-white leading-[1.1]"
           >
-            {getText(storyWorld.title, state.language)}
+            {getLocalizedText(storyWorld.title, state.language)}
           </motion.h1>
 
           {/* Description - poetic */}
@@ -166,7 +144,7 @@ export function StoryWorldEntryScreen({
             transition={{ delay: 1.1 }}
             className="text-lg text-white/70 leading-relaxed max-w-md"
           >
-            {getText(storyWorld.description, state.language)}
+            {getLocalizedText(storyWorld.description, state.language)}
           </motion.p>
 
           {/* Themes */}
@@ -176,12 +154,12 @@ export function StoryWorldEntryScreen({
             transition={{ delay: 1.3 }}
             className="flex flex-wrap gap-2"
           >
-            {storyWorld.themes.map((theme, index) => (
+            {storyWorld.culturalThemes.map((theme, index) => (
               <span
                 key={index}
                 className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-white/60"
               >
-                {getText(theme, state.language)}
+                {theme}
               </span>
             ))}
           </motion.div>
@@ -195,12 +173,12 @@ export function StoryWorldEntryScreen({
           >
             <span className="text-xs text-white/30">Available in:</span>
             <div className="flex gap-1.5">
-              {storyWorld.availableLanguages.map((lang) => (
+              {storyWorld.languagesAvailable.map((lang) => (
                 <span
                   key={lang}
                   className={`text-xs uppercase tracking-wider ${
-                    lang === state.language 
-                      ? 'text-white/60' 
+                    lang === state.language
+                      ? 'text-white/60'
                       : 'text-white/20'
                   }`}
                 >
@@ -218,10 +196,17 @@ export function StoryWorldEntryScreen({
             className="pt-4 space-y-3"
           >
             <button
-              onClick={onEnterStory}
+              onClick={handleEnterClick}
               className="w-full py-5 rounded-full bg-white text-black text-sm tracking-wider uppercase hover:bg-white/90 transition-all flex items-center justify-center gap-3 group"
             >
-              {hasProgress ? (
+              {isLocked ? (
+                <>
+                  <span>
+                    {state.language === 'en' ? 'Unlock Story' : state.language === 'fr' ? 'Débloquer l\'Histoire' : 'Desbloquear Historia'}
+                  </span>
+                  <Lock className="w-4 h-4" />
+                </>
+              ) : hasProgress ? (
                 <>
                   <span>
                     {state.language === 'en' ? 'Continue Your Journey' : state.language === 'fr' ? 'Continuez Votre Voyage' : 'Continúa Tu Viaje'}
@@ -295,6 +280,18 @@ export function StoryWorldEntryScreen({
           </span>
         </motion.div>
       )}
+
+      <PaywallModal
+        isOpen={paywallOpen}
+        onClose={() => setPaywallOpen(false)}
+        onUnlocked={() => {
+          setPaywallOpen(false);
+          onEnterStory();
+        }}
+        contentId={storyWorld.id}
+        contentTitle={getLocalizedText(storyWorld.title, state.language)}
+        creatorName={creatorName}
+      />
     </motion.div>
   );
 }
