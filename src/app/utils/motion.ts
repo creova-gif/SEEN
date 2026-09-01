@@ -323,7 +323,7 @@ export const CONFIRMATION_PULSE = {
     duration: 0.6,
     ease: EASING.organic,
   },
-} as const;
+};
 
 // ============================================
 // AUDIO / PLAYBACK

@@ -47,6 +47,18 @@ export interface ChapterMedia {
   };
 }
 
+export interface ChapterBranchChoice {
+  id: string;
+  questionText: MultilingualText;
+  options: Array<{
+    id: string;
+    text: MultilingualText;
+    nextChapterId?: string;
+    tag?: string;
+  }>;
+  impactsOutcome?: boolean;
+}
+
 export interface Chapter {
   id: string;
   order: number;
@@ -56,6 +68,7 @@ export interface Chapter {
   media: ChapterMedia;
   estimatedDuration: number; // minutes
   contextCards?: ContextCard[];
+  branchChoices?: ChapterBranchChoice[];
 }
 
 export interface StoryWorld {

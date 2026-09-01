@@ -12,7 +12,8 @@ interface SearchScreenProps {
 }
 
 export function SearchScreen({ onClose, onSelectStory }: SearchScreenProps) {
-  const { language } = useStoryState();
+  const { state } = useStoryState();
+  const { language } = state;
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<ContentItem[]>([]);
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -121,9 +122,10 @@ export function SearchScreen({ onClose, onSelectStory }: SearchScreenProps) {
                         onClick={() => handleSelectStory(story.id)}
                       >
                         <StoryCard
-                          story={story}
-                          language={language}
-                          interactive={true}
+                          title={story.title}
+                          author={story.creator}
+                          readTime={story.duration}
+                          imageUrl={story.mediaSource}
                         />
                       </motion.div>
                     ))}

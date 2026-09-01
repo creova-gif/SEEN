@@ -111,7 +111,6 @@ export const spanishTranslations: Record<string, string> = {
 
   // Story Details
   'Author': 'Autor',
-  'Creator': 'Creador',
   'Duration': 'Duración',
   'Released': 'Lanzado',
   'Language': 'Idioma',

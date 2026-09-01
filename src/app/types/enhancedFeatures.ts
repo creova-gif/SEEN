@@ -550,37 +550,3 @@ export interface CMFReport {
   generatedAt: string;
   generatedBy: string; // Admin ID
 }
-
-// ============================================================================
-// EXPORTS
-// ============================================================================
-
-export type {
-  MultilingualText,
-  InstitutionSource,
-  EnhancedContextCard,
-  ConsumptionMode,
-  UserReadingPreferences,
-  ChapterConsumptionState,
-  DiscussionPrompt,
-  InstitutionalCollection,
-  AggregateStoryMetrics,
-  PlatformWideMetrics,
-  CreatorNote,
-  ReflectionFormat,
-  ModerationStatus,
-  CommunityReflection,
-  ReflectionPrompt,
-  OfflineCulturalPack,
-  UserDownload,
-  NarratorProfile,
-  ChapterNarrationTrack,
-  ChapterVersion,
-  StoryWorldHistory,
-  LicenseType,
-  ContentRights,
-  SeasonalEditorialFraming,
-  UserFeaturePreferences,
-  ModerationQueue,
-  CMFReport,
-};

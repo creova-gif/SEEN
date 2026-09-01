@@ -39,7 +39,13 @@ export function LibraryScreen({
   onSearch
 }: LibraryScreenProps) {
   const [activeTab, setActiveTab] = useState<LibraryTab>('inProgress');
-  const { state } = useStoryState();
+  const { state, removeProgress } = useStoryState();
+
+  const handleDelete = (contentId: string, kind: 'progress') => {
+    if (kind === 'progress') {
+      removeProgress(contentId);
+    }
+  };
 
   // Get library data with current language
   const libraryData = getLibraryStories(
