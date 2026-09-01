@@ -1,8 +1,9 @@
 import { motion } from "motion/react";
-import { ArrowLeft, Eye, EyeOff, Check } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { useStoryState } from "../contexts/StoryStateContext";
 import { useAuth } from "../contexts/AuthContext";
+import { SaveConfirmationToast } from "./SaveConfirmationToast";
 
 interface ChangePasswordScreenProps {
   onBack: () => void;
@@ -54,7 +55,6 @@ export function ChangePasswordScreen({ onBack }: ChangePasswordScreenProps) {
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
-      setTimeout(() => setSaved(false), 2000);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not update password.");
     } finally {
@@ -155,17 +155,16 @@ export function ChangePasswordScreen({ onBack }: ChangePasswordScreenProps) {
             disabled={saving || !canSubmit}
             className="w-full py-4 rounded-full bg-white text-black text-sm tracking-wider uppercase hover:bg-white/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            {saved ? (
-              <>
-                <Check className="w-4 h-4" />
-                {getText("saved")}
-              </>
-            ) : (
-              getText("save")
-            )}
+            {getText("save")}
           </button>
         </div>
       </div>
+
+      <SaveConfirmationToast
+        visible={saved}
+        message={getText("saved")}
+        onDismiss={() => setSaved(false)}
+      />
     </motion.div>
   );
 }

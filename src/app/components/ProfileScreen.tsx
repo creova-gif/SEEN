@@ -1,5 +1,7 @@
 import { motion, AnimatePresence } from "motion/react";
 import { NavigationBar } from "./NavigationBar";
+import { LogoutConfirmationModal } from "./LogoutConfirmationModal";
+import { GuestSignupPromptModal } from "./GuestSignupPromptModal";
 import { 
   Settings, 
   Info, 
@@ -104,6 +106,8 @@ export function ProfileScreen({
 }: ProfileScreenProps) {
   const { state, setUserRole, setLanguage, setIntent } = useStoryState();
   const [showGuidelinesModal, setShowGuidelinesModal] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [guestPromptDismissed, setGuestPromptDismissed] = useState(false);
   const { state: authState, signOut, requestRoleElevation } = useAuth();
   const [elevationReason, setElevationReason] = useState("");
   const [elevationSubmitted, setElevationSubmitted] = useState(false);
@@ -657,7 +661,7 @@ export function ProfileScreen({
           className="mb-8"
         >
           <button
-            onClick={handleSignOut}
+            onClick={() => setShowLogoutConfirm(true)}
             className="w-full py-3 rounded-xl border border-red-500/30 text-red-400 text-sm hover:bg-red-500/10 transition-colors flex items-center justify-center gap-2"
           >
             <LogOut className="w-4 h-4" />
@@ -707,6 +711,19 @@ export function ProfileScreen({
           </button>
         </div>
       </nav>
+
+      <LogoutConfirmationModal
+        isOpen={showLogoutConfirm}
+        onClose={() => setShowLogoutConfirm(false)}
+        onConfirm={handleSignOut}
+      />
+
+      <GuestSignupPromptModal
+        isOpen={!authState.isAuthenticated && !guestPromptDismissed}
+        onClose={() => setGuestPromptDismissed(true)}
+        onCreateAccount={() => onNavigate("onboarding")}
+        onSignIn={() => onNavigate("onboarding")}
+      />
 
       {/* Community Guidelines Modal */}
       <AnimatePresence>

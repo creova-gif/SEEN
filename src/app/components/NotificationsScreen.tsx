@@ -1,11 +1,12 @@
 import { motion } from "motion/react";
-import { ArrowLeft, CheckCircle2, Download, Bell } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Download, Bell, Settings } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useStoryState } from "../contexts/StoryStateContext";
 import { getStoryWorldById, getLocalizedText } from "../data/storyDatabase";
 
 interface NotificationsScreenProps {
   onBack: () => void;
+  onOpenSettings?: () => void;
 }
 
 interface DownloadedStory {
@@ -55,7 +56,7 @@ function formatRelative(timestamp: number, language: string) {
   return `${days}d ago`;
 }
 
-export function NotificationsScreen({ onBack }: NotificationsScreenProps) {
+export function NotificationsScreen({ onBack, onOpenSettings }: NotificationsScreenProps) {
   const { state } = useStoryState();
   const [filter, setFilter] = useState<Filter>("all");
   const language = state.language as "en" | "fr" | "es";
@@ -162,7 +163,17 @@ export function NotificationsScreen({ onBack }: NotificationsScreenProps) {
               <ArrowLeft className="w-5 h-5 text-white" />
             </button>
             <h2 className="text-base tracking-tight text-white">{getText("title")}</h2>
-            <div className="w-10" />
+            {onOpenSettings ? (
+              <button
+                onClick={onOpenSettings}
+                className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors"
+                aria-label="Notification settings"
+              >
+                <Settings className="w-4 h-4 text-white/70" />
+              </button>
+            ) : (
+              <div className="w-10" />
+            )}
           </div>
 
           {/* Filter tabs */}

@@ -26,6 +26,13 @@ import { SearchScreen } from "./components/SearchScreen";
 import { NotificationsScreen } from "./components/NotificationsScreen";
 import { EditProfileScreen } from "./components/EditProfileScreen";
 import { ChangePasswordScreen } from "./components/ChangePasswordScreen";
+import { EmailVerificationScreen } from "./components/EmailVerificationScreen";
+import { TermsPrivacyScreen } from "./components/TermsPrivacyScreen";
+import { NotificationSettingsScreen } from "./components/NotificationSettingsScreen";
+import { ReportContentScreen } from "./components/ReportContentScreen";
+import { StoryCompletionScreen } from "./components/StoryCompletionScreen";
+import { AppUpdateModal } from "./components/AppUpdateModal";
+import { OfflineBanner } from "./components/OfflineBanner";
 import { useStoryState } from "./contexts/StoryStateContext";
 import type { Language, UserIntent, UserRole } from "./contexts/StoryStateContext";
 import { initializeDemoData } from "./data/demoData";
@@ -58,7 +65,12 @@ type AppScreen =
   | "search"
   | "notifications"
   | "edit-profile"
-  | "change-password";
+  | "change-password"
+  | "email-verification"
+  | "terms-privacy"
+  | "notification-settings"
+  | "report-content"
+  | "story-completion";
 
 function AppContent() {
   const { state, setLanguage, setIntent, setUserRole, setAccessibilityPreferences, setPersonalizationPreferences, enterStoryWorld } = useStoryState();
@@ -113,6 +125,8 @@ function AppContent() {
   const [currentScreen, setCurrentScreen] = useState<AppScreen>(getInitialScreen());
   const [isFirstVisit, setIsFirstVisit] = useState(!hasCompletedOnboarding);
   const [searchOrigin, setSearchOrigin] = useState<AppScreen>("for-you");
+  const [termsPrivacyOrigin, setTermsPrivacyOrigin] = useState<AppScreen>("about");
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
 
   // getInitialScreen() runs before AuthContext's async session check resolves, so
   // authState.isAuthenticated is always false at that point and a returning user
@@ -202,6 +216,9 @@ function AppContent() {
       case "change-password":
         setCurrentScreen("change-password");
         break;
+      case "onboarding":
+        setCurrentScreen("onboarding");
+        break;
       default:
         break;
     }
@@ -233,18 +250,20 @@ function AppContent() {
         )}
         
         {currentScreen === "story-preview" && state.currentStoryWorldId && (
-          <FeaturedStoryPreview 
+          <FeaturedStoryPreview
             key="story-preview"
             onClose={() => setCurrentScreen("for-you")}
             onEnterStory={() => setCurrentScreen("story-chapter")}
+            onReport={() => setCurrentScreen("report-content")}
           />
         )}
 
         {currentScreen === "story-chapter" && state.currentStoryWorldId && (
-          <StoryChapterScreen 
+          <StoryChapterScreen
             key="story-chapter"
             onClose={() => setCurrentScreen("for-you")}
             onShowIndex={() => setCurrentScreen("chapter-index")}
+            onFinishStory={() => setCurrentScreen("story-completion")}
             storyWorldId={state.currentStoryWorldId}
           />
         )}
@@ -349,6 +368,10 @@ function AppContent() {
           <AboutScreen
             key="about"
             onClose={() => setCurrentScreen("profile")}
+            onOpenTermsPrivacy={() => {
+              setTermsPrivacyOrigin("about");
+              setCurrentScreen("terms-privacy");
+            }}
           />
         )}
 
@@ -357,6 +380,12 @@ function AppContent() {
             key="settings"
             onBack={() => setCurrentScreen("profile")}
             onOpenChangePassword={() => setCurrentScreen("change-password")}
+            onOpenTermsPrivacy={() => {
+              setTermsPrivacyOrigin("settings");
+              setCurrentScreen("terms-privacy");
+            }}
+            onOpenEmailVerification={() => setCurrentScreen("email-verification")}
+            onCheckForUpdates={() => setShowUpdateModal(true)}
           />
         )}
 
@@ -394,6 +423,7 @@ function AppContent() {
           <NotificationsScreen
             key="notifications"
             onBack={() => setCurrentScreen("profile")}
+            onOpenSettings={() => setCurrentScreen("notification-settings")}
           />
         )}
 
@@ -410,7 +440,49 @@ function AppContent() {
             onBack={() => setCurrentScreen("settings")}
           />
         )}
+
+        {currentScreen === "email-verification" && (
+          <EmailVerificationScreen
+            key="email-verification"
+            onBack={() => setCurrentScreen("settings")}
+          />
+        )}
+
+        {currentScreen === "terms-privacy" && (
+          <TermsPrivacyScreen
+            key="terms-privacy"
+            onBack={() => setCurrentScreen(termsPrivacyOrigin)}
+          />
+        )}
+
+        {currentScreen === "notification-settings" && (
+          <NotificationSettingsScreen
+            key="notification-settings"
+            onBack={() => setCurrentScreen("notifications")}
+          />
+        )}
+
+        {currentScreen === "report-content" && state.currentStoryWorldId && (
+          <ReportContentScreen
+            key="report-content"
+            contentId={state.currentStoryWorldId}
+            onBack={() => setCurrentScreen("story-preview")}
+          />
+        )}
+
+        {currentScreen === "story-completion" && state.currentStoryWorldId && (
+          <StoryCompletionScreen
+            key="story-completion"
+            storyWorldId={state.currentStoryWorldId}
+            onBack={() => setCurrentScreen("story-chapter")}
+            onBackToLibrary={() => setCurrentScreen("library")}
+            onExploreMore={() => setCurrentScreen("explore")}
+          />
+        )}
       </AnimatePresence>
+
+      <OfflineBanner />
+      <AppUpdateModal isOpen={showUpdateModal} onDismiss={() => setShowUpdateModal(false)} />
     </div>
   );
 }

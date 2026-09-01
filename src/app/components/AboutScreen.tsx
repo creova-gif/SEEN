@@ -4,9 +4,10 @@ import { useStoryState } from "../contexts/StoryStateContext";
 
 interface AboutScreenProps {
   onClose: () => void;
+  onOpenTermsPrivacy?: () => void;
 }
 
-export function AboutScreen({ onClose }: AboutScreenProps) {
+export function AboutScreen({ onClose, onOpenTermsPrivacy }: AboutScreenProps) {
   const { state } = useStoryState();
 
   const getText = (key: string, type: 'title' | 'body') => {
@@ -279,10 +280,10 @@ export function AboutScreen({ onClose }: AboutScreenProps) {
           >
             <p className="text-xs text-white/30 mb-2">SEEN v1.0.0</p>
             <div className="flex justify-center gap-4 text-xs text-white/40">
-              <button className="hover:text-white/60 transition-colors underline">
+              <button onClick={onOpenTermsPrivacy} className="hover:text-white/60 transition-colors underline">
                 {state.language === 'en' ? 'Privacy Policy' : state.language === 'fr' ? 'Politique de Confidentialité' : 'Política de Privacidad'}
               </button>
-              <button className="hover:text-white/60 transition-colors underline">
+              <button onClick={onOpenTermsPrivacy} className="hover:text-white/60 transition-colors underline">
                 {state.language === 'en' ? 'Terms of Use' : state.language === 'fr' ? 'Conditions d\'Utilisation' : 'Términos de Uso'}
               </button>
             </div>

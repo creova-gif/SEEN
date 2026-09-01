@@ -15,6 +15,8 @@ import {
   Circle
 } from "lucide-react";
 import { TRANSITIONS, VARIANTS, prefersReducedMotion } from "../../utils/motion";
+import { useMediaPermission } from "../../hooks/useMediaPermission";
+import { PermissionDeniedScreen } from "../PermissionDeniedScreen";
 
 interface MediaChaptersStepProps {
   onNext: (data: MediaChaptersData) => void;
@@ -80,8 +82,23 @@ export function MediaChaptersStep({
     setTimeout(handleAutoSave, 300);
   };
 
+  const mic = useMediaPermission('microphone');
+  const [micDeniedForChapter, setMicDeniedForChapter] = useState<string | null>(null);
+
+  const handleRequestNarration = async (chapterId: string) => {
+    const stream = await mic.requestAccess();
+    if (stream) {
+      // Permission granted — actual recording capture UI isn't implemented yet,
+      // so release the stream immediately rather than leaving the mic open.
+      stream.getTracks().forEach(track => track.stop());
+      setMicDeniedForChapter(null);
+    } else {
+      setMicDeniedForChapter(chapterId);
+    }
+  };
+
   const updateChapter = (id: string, updates: Partial<Chapter>) => {
-    setChapters(chapters.map(ch => 
+    setChapters(chapters.map(ch =>
       ch.id === id ? { ...ch, ...updates } : ch
     ));
     setTimeout(handleAutoSave, 500);
@@ -275,6 +292,7 @@ export function MediaChaptersStep({
                             {/* Narration */}
                             <button
                               type="button"
+                              onClick={() => handleRequestNarration(chapter.id)}
                               className="p-3 bg-white/5 border border-white/10 rounded hover:bg-white/10 hover:border-white/20 transition-all text-left"
                             >
                               <Mic className="w-4 h-4 text-white/60 mb-2" strokeWidth={1.5} />
@@ -389,6 +407,16 @@ export function MediaChaptersStep({
           </motion.button>
         </div>
       </div>
+
+      {micDeniedForChapter && (
+        <PermissionDeniedScreen
+          variant="microphone"
+          body={mic.error ?? undefined}
+          primaryBusy={mic.status === 'requesting'}
+          onPrimaryAction={() => handleRequestNarration(micDeniedForChapter)}
+          onGoBack={() => setMicDeniedForChapter(null)}
+        />
+      )}
     </div>
   );
 }

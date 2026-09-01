@@ -175,5 +175,6 @@ export function useAudioPlayer({ src, fadeDuration = 2000, autoPlay = false }: A
     fadeOut,
     seek,
     setVolume,
+    audioRef,
   };
 }
