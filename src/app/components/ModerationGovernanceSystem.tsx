@@ -589,6 +589,7 @@ export function GovernanceGuidelines() {
           <div key={s.id} className={`rounded-2xl border overflow-hidden ${s.borderColor} ${s.bg}`}>
             <button
               onClick={() => setOpen(isOpen ? null : s.id)}
+              aria-expanded={isOpen}
               className="w-full flex items-center justify-between px-4 py-4"
             >
               <div className="flex items-center gap-3">

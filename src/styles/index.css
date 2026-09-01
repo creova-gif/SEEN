@@ -77,6 +77,23 @@ html, body {
   user-select: text;
 }
 
+/* ─── Reduced motion ─────────────────────────────────────────────────────── */
+
+/* Safety net for plain CSS transitions/animations (Tailwind's transition-*,
+   duration-*, animate-* utilities) site-wide. Framer Motion elements check
+   prefersReducedMotion() individually in JS (see utils/motion.ts) since
+   most of their motion is JS-driven transforms, not CSS animations. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  html, body {
+    scroll-behavior: auto !important;
+  }
+}
+
 /* ─── Desktop gate ───────────────────────────────────────────────────────── */
 
 #desktop-gate {

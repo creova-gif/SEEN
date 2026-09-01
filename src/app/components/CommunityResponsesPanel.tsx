@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { X, MessageCircle, Mic, Image as ImageIcon, Plus } from "lucide-react";
 import { useState } from "react";
 import { useStoryState } from "../contexts/StoryStateContext";
+import { useDialogA11y } from "../hooks/useDialogA11y";
 
 interface Response {
   id: string;
@@ -30,6 +31,7 @@ export function CommunityResponsesPanel({
   onSubmitResponse
 }: CommunityResponsesPanelProps) {
   const { state } = useStoryState();
+  const dialogRef = useDialogA11y(isOpen, onClose);
   const [filter, setFilter] = useState<"all" | "text" | "audio" | "image">("all");
 
   const filteredResponses = responses.filter(r => 
@@ -82,11 +84,16 @@ export function CommunityResponsesPanel({
 
           {/* Panel */}
           <motion.div
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="community-responses-title"
+            tabIndex={-1}
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
-            className="fixed inset-x-0 bottom-0 z-50 bg-black border-t border-white/10 rounded-t-3xl overflow-hidden"
+            className="fixed inset-x-0 bottom-0 z-50 bg-black border-t border-white/10 rounded-t-3xl overflow-hidden outline-none"
             style={{ maxHeight: "85vh" }}
           >
             {/* Handle */}
@@ -100,7 +107,7 @@ export function CommunityResponsesPanel({
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
                     <MessageCircle className="w-4 h-4 text-white/40" />
-                    <h2 className="text-base tracking-tight text-white">
+                    <h2 id="community-responses-title" className="text-base tracking-tight text-white">
                       {getText("title")}
                     </h2>
                   </div>

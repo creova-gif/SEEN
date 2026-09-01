@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { ArrowLeft, Globe, Volume2, Eye, Bookmark, Download, Shield, ChevronRight, Trash2, FileDown, User, Zap } from "lucide-react";
+import { ArrowLeft, Globe, Volume2, Eye, Bookmark, Download, Shield, ChevronRight, Trash2, FileDown, User, Zap, Lock, Mail, RefreshCw } from "lucide-react";
 import { useState } from "react";
 import { useStoryState } from "../contexts/StoryStateContext";
 
@@ -15,6 +15,10 @@ interface ProfilePreferencesScreenProps {
   onBack?: () => void;
   onOpenAccessibility?: () => void;
   onOpenAbout?: () => void;
+  onOpenChangePassword?: () => void;
+  onOpenTermsPrivacy?: () => void;
+  onOpenEmailVerification?: () => void;
+  onCheckForUpdates?: () => void;
   savedStories?: SavedStory[];
   onStoryClick?: (storyId: string) => void;
 }
@@ -24,10 +28,14 @@ export function ProfilePreferencesScreen({
   onBack,
   onOpenAccessibility,
   onOpenAbout,
+  onOpenChangePassword,
+  onOpenTermsPrivacy,
+  onOpenEmailVerification,
+  onCheckForUpdates,
   savedStories = [], // Default to empty array
   onStoryClick
 }: ProfilePreferencesScreenProps) {
-  const { state, dispatch, setUserRole } = useStoryState();
+  const { state, setLanguage, setUserRole } = useStoryState();
   const [downloadedStories, setDownloadedStories] = useState<string[]>([]);
   
   // Use onBack if onClose is not provided
@@ -135,7 +143,7 @@ export function ProfilePreferencesScreen({
               {languageOptions.map((lang) => (
                 <button
                   key={lang.code}
-                  onClick={() => dispatch({ type: 'SET_LANGUAGE', language: lang.code as any })}
+                  onClick={() => setLanguage(lang.code as any)}
                   className={`
                     w-full p-4 rounded-xl text-left transition-all border
                     ${state.language === lang.code
@@ -332,6 +340,57 @@ export function ProfilePreferencesScreen({
                     : (state.language === 'fr' ? 'Passer en Créateur' : state.language === 'es' ? 'Cambiar a Creador' : 'Switch to Creator')}
                 </button>
               )}
+
+              {onOpenChangePassword && (
+              <button
+                onClick={onOpenChangePassword}
+                className="w-full p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-left flex items-center gap-3"
+              >
+                <div className="w-9 h-9 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center flex-shrink-0">
+                  <Lock className="w-4 h-4 text-white/70" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm text-white">
+                    {state.language === 'fr' ? 'Changer le mot de passe' : state.language === 'es' ? 'Cambiar contraseña' : 'Change Password'}
+                  </p>
+                </div>
+                <ChevronRight className="w-4 h-4 text-white/30" />
+              </button>
+              )}
+
+              {onOpenEmailVerification && (
+              <button
+                onClick={onOpenEmailVerification}
+                className="w-full p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-left flex items-center gap-3"
+              >
+                <div className="w-9 h-9 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center flex-shrink-0">
+                  <Mail className="w-4 h-4 text-white/70" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm text-white">
+                    {state.language === 'fr' ? 'Vérifier l\'e-mail' : state.language === 'es' ? 'Verificar correo' : 'Verify Email'}
+                  </p>
+                </div>
+                <ChevronRight className="w-4 h-4 text-white/30" />
+              </button>
+              )}
+
+              {onCheckForUpdates && (
+              <button
+                onClick={onCheckForUpdates}
+                className="w-full p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-left flex items-center gap-3"
+              >
+                <div className="w-9 h-9 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center flex-shrink-0">
+                  <RefreshCw className="w-4 h-4 text-white/70" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm text-white">
+                    {state.language === 'fr' ? 'Vérifier les mises à jour' : state.language === 'es' ? 'Buscar actualizaciones' : 'Check for Updates'}
+                  </p>
+                </div>
+                <ChevronRight className="w-4 h-4 text-white/30" />
+              </button>
+              )}
             </div>
           </motion.section>
 
@@ -433,7 +492,7 @@ export function ProfilePreferencesScreen({
                   : 'SEEN almacena todas las preferencias localmente. Nunca rastreamos el comportamiento individual, los patrones de visualización o las métricas de participación. Tus historias, tus datos, tu privacidad.'
                 }
               </p>
-              <button className="text-xs text-white/50 hover:text-white/70 transition-colors underline">
+              <button onClick={onOpenTermsPrivacy} className="text-xs text-white/50 hover:text-white/70 transition-colors underline">
                 {state.language === 'en' ? 'Read full privacy policy' : state.language === 'fr' ? 'Lire la politique complète' : 'Leer política completa'}
               </button>
             </div>

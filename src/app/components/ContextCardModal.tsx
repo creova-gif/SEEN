@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { Info, X, ExternalLink } from "lucide-react";
 import { useStoryState } from "../contexts/StoryStateContext";
 import { ContextCard, getText as getTextHelper } from "../data/storyReader";
+import { useDialogA11y } from "../hooks/useDialogA11y";
 
 interface ContextCardModalProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ export function ContextCardModal({
   contextCard
 }: ContextCardModalProps) {
   const { state } = useStoryState();
+  const dialogRef = useDialogA11y(isOpen, onClose);
 
   const getText = (text: { en: string; fr: string; es: string }) => {
     return getTextHelper(text, state.language);
@@ -46,11 +48,16 @@ export function ContextCardModal({
 
           {/* Card */}
           <motion.div
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="context-card-title"
+            tabIndex={-1}
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed bottom-8 left-4 right-4 md:left-1/2 md:-translate-x-1/2 md:w-full md:max-w-[420px] z-50"
+            className="fixed bottom-8 left-4 right-4 md:left-1/2 md:-translate-x-1/2 md:w-full md:max-w-[420px] z-50 outline-none"
           >
             <div className="bg-black/95 backdrop-blur-xl border border-white/20 rounded-2xl overflow-hidden shadow-2xl">
               {/* Image if available */}
@@ -74,12 +81,13 @@ export function ContextCardModal({
                       {getTypeLabel()}
                     </span>
                   </div>
-                  <h3 className="text-xl tracking-tight text-white">
+                  <h3 id="context-card-title" className="text-xl tracking-tight text-white">
                     {getText(contextCard.title)}
                   </h3>
                 </div>
                 <button
                   onClick={onClose}
+                  aria-label="Close"
                   className="p-2 rounded-full hover:bg-white/10 transition-colors"
                 >
                   <X className="w-5 h-5 text-white/60" />

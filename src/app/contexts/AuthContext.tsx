@@ -24,6 +24,9 @@ export interface User {
   role: UserRole;
   language: Language;
   intent: UserIntent;
+  bio?: string;
+  location?: string;
+  avatarUrl?: string;
   passwordHash?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -43,6 +46,7 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   checkSession: () => Promise<void>;
   updateProfile: (updates: Partial<User>) => Promise<void>;
+  changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
   requestRoleElevation: (requestedRole: UserRole, reason: string) => Promise<void>;
   requestPasswordRecovery: (email: string) => Promise<void>;
 }
@@ -266,6 +270,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setState(prev => ({ ...prev, user: stripPassword(updated) }));
   };
 
+  const changePassword = async (currentPassword: string, newPassword: string) => {
+    if (!state.user) {
+      throw new Error('Not authenticated');
+    }
+
+    const usersDb = loadUsersDb();
+    const existing = usersDb[state.user.id];
+    if (!existing) {
+      throw new Error('User not found');
+    }
+
+    const currentHash = await hashPassword(currentPassword);
+    if (existing.passwordHash !== currentHash) {
+      throw new Error('Current password is incorrect.');
+    }
+
+    const newHash = await hashPassword(newPassword);
+    const updated: User = {
+      ...existing,
+      passwordHash: newHash,
+      updatedAt: new Date().toISOString(),
+    };
+
+    usersDb[existing.id] = updated;
+    saveUsersDb(usersDb);
+
+    setState(prev => ({ ...prev, user: stripPassword(updated) }));
+  };
+
   const requestRoleElevation = async (requestedRole: UserRole, reason: string) => {
     if (!state.user) {
       throw new Error('Not authenticated');
@@ -315,6 +348,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signOut,
         checkSession,
         updateProfile,
+        changePassword,
         requestRoleElevation,
         requestPasswordRecovery,
       }}

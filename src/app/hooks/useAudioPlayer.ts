@@ -14,7 +14,7 @@ export function useAudioPlayer({ src, fadeDuration = 2000, autoPlay = false }: A
   const [isFading, setIsFading] = useState(false);
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const fadeIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const fadeIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Initialize audio element
   useEffect(() => {
@@ -175,5 +175,6 @@ export function useAudioPlayer({ src, fadeDuration = 2000, autoPlay = false }: A
     fadeOut,
     seek,
     setVolume,
+    audioRef,
   };
 }

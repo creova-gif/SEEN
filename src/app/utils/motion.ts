@@ -28,7 +28,6 @@ export const getMotionProps = (props: MotionProps): MotionProps => {
     return {
       initial: false,
       animate: props.animate,
-      exit: false,
       transition: { duration: 0 },
     };
   }
@@ -352,7 +351,7 @@ export const WAVEFORM_VARIANTS = {
       ease: "easeInOut",
     },
   },
-} as const;
+} as Variants;
 
 // ============================================
 // UTILITY FUNCTIONS

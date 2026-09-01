@@ -1,13 +1,15 @@
 import { motion } from "motion/react";
 import { ChevronRight } from "lucide-react";
+import type { ReactNode } from "react";
 
 interface SectionHeaderProps {
   title: string;
   subtitle?: string;
+  icon?: ReactNode;
   onViewAll?: () => void;
 }
 
-export function SectionHeader({ title, subtitle, onViewAll }: SectionHeaderProps) {
+export function SectionHeader({ title, subtitle, icon, onViewAll }: SectionHeaderProps) {
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
@@ -15,15 +17,18 @@ export function SectionHeader({ title, subtitle, onViewAll }: SectionHeaderProps
       transition={{ duration: 0.5 }}
       className="flex items-center justify-between mb-5"
     >
-      <div>
-        <h2 className="text-xl tracking-tight text-white">
-          {title}
-        </h2>
-        {subtitle && (
-          <p className="text-xs text-white/40 mt-1">
-            {subtitle}
-          </p>
-        )}
+      <div className="flex items-center gap-2.5">
+        {icon && <span className="text-white/60">{icon}</span>}
+        <div>
+          <h2 className="text-xl tracking-tight text-white">
+            {title}
+          </h2>
+          {subtitle && (
+            <p className="text-xs text-white/40 mt-1">
+              {subtitle}
+            </p>
+          )}
+        </div>
       </div>
       {onViewAll && (
         <button

@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { Globe, Check } from "lucide-react";
 import { useState } from "react";
 import { Language } from "../contexts/StoryStateContext";
+import { useDialogA11y } from "../hooks/useDialogA11y";
 
 interface LanguageSwitcherProps {
   currentLanguage: Language;
@@ -21,6 +22,7 @@ export function LanguageSwitcher({
   availableLanguages = ['en', 'fr', 'es']
 }: LanguageSwitcherProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useDialogA11y(isOpen, () => setIsOpen(false));
 
   const handleLanguageSelect = (lang: Language) => {
     onLanguageChange(lang);
@@ -34,6 +36,8 @@ export function LanguageSwitcher({
         onClick={() => setIsOpen(!isOpen)}
         className="w-10 h-10 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 flex items-center justify-center transition-colors"
         aria-label="Change language"
+        aria-haspopup="dialog"
+        aria-expanded={isOpen}
       >
         <Globe className="w-5 h-5 text-white/70" />
       </button>
@@ -53,11 +57,16 @@ export function LanguageSwitcher({
 
             {/* Menu */}
             <motion.div
+              ref={menuRef}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Select language"
+              tabIndex={-1}
               initial={{ opacity: 0, y: -10, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -10, scale: 0.95 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="absolute top-full right-0 mt-2 w-48 rounded-xl bg-black/90 backdrop-blur-xl border border-white/10 overflow-hidden z-50 shadow-2xl"
+              className="absolute top-full right-0 mt-2 w-48 rounded-xl bg-black/90 backdrop-blur-xl border border-white/10 overflow-hidden z-50 shadow-2xl outline-none"
             >
               <div className="p-2">
                 {availableLanguages.map((lang) => (

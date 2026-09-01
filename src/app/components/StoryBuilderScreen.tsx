@@ -19,7 +19,7 @@ interface StoryNode {
 
 interface StoryBuilderScreenProps {
   onClose: () => void;
-  storyId: string;
+  storyId?: string;
   initialNodes?: StoryNode[];
   onSave: (nodes: StoryNode[]) => void;
 }

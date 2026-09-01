@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { AnimatePresence } from "motion/react";
+import { AnimatePresence, MotionConfig } from "motion/react";
 import { StoryStateProvider } from "./contexts/StoryStateContext";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { NavigationProvider } from "./navigation/NavigationController";
@@ -22,6 +22,17 @@ import { ProfilePreferencesScreen } from "./components/ProfilePreferencesScreen"
 import { StoryBuilderScreen } from "./components/StoryBuilderScreen";
 import { ModerationGovernanceSystem } from "./components/ModerationGovernanceSystem";
 import { InstitutionalCollectionScreen } from "./components/InstitutionalCollectionScreen";
+import { SearchScreen } from "./components/SearchScreen";
+import { NotificationsScreen } from "./components/NotificationsScreen";
+import { EditProfileScreen } from "./components/EditProfileScreen";
+import { ChangePasswordScreen } from "./components/ChangePasswordScreen";
+import { EmailVerificationScreen } from "./components/EmailVerificationScreen";
+import { TermsPrivacyScreen } from "./components/TermsPrivacyScreen";
+import { NotificationSettingsScreen } from "./components/NotificationSettingsScreen";
+import { ReportContentScreen } from "./components/ReportContentScreen";
+import { StoryCompletionScreen } from "./components/StoryCompletionScreen";
+import { AppUpdateModal } from "./components/AppUpdateModal";
+import { OfflineBanner } from "./components/OfflineBanner";
 import { useStoryState } from "./contexts/StoryStateContext";
 import type { Language, UserIntent, UserRole } from "./contexts/StoryStateContext";
 import { initializeDemoData } from "./data/demoData";
@@ -50,7 +61,16 @@ type AppScreen =
   | "settings"
   | "story-builder"
   | "moderation-governance"
-  | "institutional-collection";
+  | "institutional-collection"
+  | "search"
+  | "notifications"
+  | "edit-profile"
+  | "change-password"
+  | "email-verification"
+  | "terms-privacy"
+  | "notification-settings"
+  | "report-content"
+  | "story-completion";
 
 function AppContent() {
   const { state, setLanguage, setIntent, setUserRole, setAccessibilityPreferences, setPersonalizationPreferences, enterStoryWorld } = useStoryState();
@@ -104,6 +124,9 @@ function AppContent() {
   
   const [currentScreen, setCurrentScreen] = useState<AppScreen>(getInitialScreen());
   const [isFirstVisit, setIsFirstVisit] = useState(!hasCompletedOnboarding);
+  const [searchOrigin, setSearchOrigin] = useState<AppScreen>("for-you");
+  const [termsPrivacyOrigin, setTermsPrivacyOrigin] = useState<AppScreen>("about");
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
 
   // getInitialScreen() runs before AuthContext's async session check resolves, so
   // authState.isAuthenticated is always false at that point and a returning user
@@ -180,6 +203,22 @@ function AppContent() {
       case "moderation-queue":
         setCurrentScreen("moderation-queue");
         break;
+      case "search":
+        setSearchOrigin(currentScreen);
+        setCurrentScreen("search");
+        break;
+      case "notifications":
+        setCurrentScreen("notifications");
+        break;
+      case "edit-profile":
+        setCurrentScreen("edit-profile");
+        break;
+      case "change-password":
+        setCurrentScreen("change-password");
+        break;
+      case "onboarding":
+        setCurrentScreen("onboarding");
+        break;
       default:
         break;
     }
@@ -211,18 +250,20 @@ function AppContent() {
         )}
         
         {currentScreen === "story-preview" && state.currentStoryWorldId && (
-          <FeaturedStoryPreview 
+          <FeaturedStoryPreview
             key="story-preview"
             onClose={() => setCurrentScreen("for-you")}
             onEnterStory={() => setCurrentScreen("story-chapter")}
+            onReport={() => setCurrentScreen("report-content")}
           />
         )}
 
         {currentScreen === "story-chapter" && state.currentStoryWorldId && (
-          <StoryChapterScreen 
+          <StoryChapterScreen
             key="story-chapter"
             onClose={() => setCurrentScreen("for-you")}
             onShowIndex={() => setCurrentScreen("chapter-index")}
+            onFinishStory={() => setCurrentScreen("story-completion")}
             storyWorldId={state.currentStoryWorldId}
           />
         )}
@@ -327,13 +368,24 @@ function AppContent() {
           <AboutScreen
             key="about"
             onClose={() => setCurrentScreen("profile")}
+            onOpenTermsPrivacy={() => {
+              setTermsPrivacyOrigin("about");
+              setCurrentScreen("terms-privacy");
+            }}
           />
         )}
 
         {currentScreen === "settings" && (
-          <ProfilePreferencesScreen 
+          <ProfilePreferencesScreen
             key="settings"
             onBack={() => setCurrentScreen("profile")}
+            onOpenChangePassword={() => setCurrentScreen("change-password")}
+            onOpenTermsPrivacy={() => {
+              setTermsPrivacyOrigin("settings");
+              setCurrentScreen("terms-privacy");
+            }}
+            onOpenEmailVerification={() => setCurrentScreen("email-verification")}
+            onCheckForUpdates={() => setShowUpdateModal(true)}
           />
         )}
 
@@ -358,19 +410,93 @@ function AppContent() {
             onClose={() => setCurrentScreen("profile")}
           />
         )}
+
+        {currentScreen === "search" && (
+          <SearchScreen
+            key="search"
+            onBack={() => setCurrentScreen(searchOrigin)}
+            onStoryClick={handleStoryClick}
+          />
+        )}
+
+        {currentScreen === "notifications" && (
+          <NotificationsScreen
+            key="notifications"
+            onBack={() => setCurrentScreen("profile")}
+            onOpenSettings={() => setCurrentScreen("notification-settings")}
+          />
+        )}
+
+        {currentScreen === "edit-profile" && (
+          <EditProfileScreen
+            key="edit-profile"
+            onBack={() => setCurrentScreen("profile")}
+          />
+        )}
+
+        {currentScreen === "change-password" && (
+          <ChangePasswordScreen
+            key="change-password"
+            onBack={() => setCurrentScreen("settings")}
+          />
+        )}
+
+        {currentScreen === "email-verification" && (
+          <EmailVerificationScreen
+            key="email-verification"
+            onBack={() => setCurrentScreen("settings")}
+          />
+        )}
+
+        {currentScreen === "terms-privacy" && (
+          <TermsPrivacyScreen
+            key="terms-privacy"
+            onBack={() => setCurrentScreen(termsPrivacyOrigin)}
+          />
+        )}
+
+        {currentScreen === "notification-settings" && (
+          <NotificationSettingsScreen
+            key="notification-settings"
+            onBack={() => setCurrentScreen("notifications")}
+          />
+        )}
+
+        {currentScreen === "report-content" && state.currentStoryWorldId && (
+          <ReportContentScreen
+            key="report-content"
+            contentId={state.currentStoryWorldId}
+            onBack={() => setCurrentScreen("story-preview")}
+          />
+        )}
+
+        {currentScreen === "story-completion" && state.currentStoryWorldId && (
+          <StoryCompletionScreen
+            key="story-completion"
+            storyWorldId={state.currentStoryWorldId}
+            onBack={() => setCurrentScreen("story-chapter")}
+            onBackToLibrary={() => setCurrentScreen("library")}
+            onExploreMore={() => setCurrentScreen("explore")}
+          />
+        )}
       </AnimatePresence>
+
+      <OfflineBanner className="fixed inset-x-0 top-0 z-[60]" />
+      <AppUpdateModal isOpen={showUpdateModal} onDismiss={() => setShowUpdateModal(false)} />
     </div>
   );
 }
 
 export default function App() {
   return (
-    <StoryStateProvider>
-      <AuthProvider>
-        <NavigationProvider>
-          <AppContent />
-        </NavigationProvider>
-      </AuthProvider>
-    </StoryStateProvider>
+    <MotionConfig reducedMotion="user">
+      <StoryStateProvider>
+        <AuthProvider>
+          <NavigationProvider>
+            <AppContent />
+          </NavigationProvider>
+        </AuthProvider>
+      </StoryStateProvider>
+    </MotionConfig>
   );
 }

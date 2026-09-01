@@ -16,10 +16,14 @@ import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ContextCardModal } from "./ContextCardModal";
 import { CommunityResponsesPanel } from "./CommunityResponsesPanel";
 import { BranchingChoiceOverlay } from "./BranchingChoiceOverlay";
+import { ContentUnavailableScreen } from "./ContentUnavailableScreen";
+import { MediaPlaybackErrorScreen } from "./MediaPlaybackErrorScreen";
+import { getStoryWorldById, getLocalizedText } from "../data/storyDatabase";
 
 interface StoryChapterScreenProps {
   onClose: () => void;
   onShowIndex: () => void;
+  onFinishStory?: () => void;
   storyWorldId?: string;
 }
 
@@ -48,9 +52,10 @@ function saveReactions(r: TimedReaction[]) {
 const LANG_LABELS: Record<string, string> = { en: 'EN', fr: 'FR', es: 'ES' };
 const LANG_NAMES: Record<string, string> = { en: 'English', fr: 'Français', es: 'Español' };
 
-export function StoryChapterScreen({ 
-  onClose, 
+export function StoryChapterScreen({
+  onClose,
   onShowIndex,
+  onFinishStory,
   storyWorldId = 'midnight-resonance'
 }: StoryChapterScreenProps) {
   const { state, navigateToChapter, updateAudioState, saveProgress, setLanguage, recordBranchChoice } = useStoryState();
@@ -81,24 +86,13 @@ export function StoryChapterScreen({
   
   // Early return if no chapter is found
   if (!currentChapter) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-white/60 text-center px-5">
-          <p className="mb-4">No chapters available</p>
-          <button 
-            onClick={onClose}
-            className="text-white/80 hover:text-white transition-colors"
-          >
-            Go Back
-          </button>
-        </div>
-      </div>
-    );
+    return <ContentUnavailableScreen storyId={storyWorldId} onBack={onClose} />;
   }
   
   const contextCards = getContextCardsForChapter(currentChapter.id);
   const communityResponses = getResponsesForChapter(currentChapter.id);
   const branchChoice = currentChapter.branchChoices?.[0];
+  const storyWorld = getStoryWorldById(storyWorldId);
   
   const audio = useAudioPlayer({ 
     src: currentChapter.audioSrc,
@@ -476,6 +470,17 @@ export function StoryChapterScreen({
         onSubmitResponse={handleSubmitResponse}
       />
 
+      {/* Media playback error — only shown on a real <audio> 'error' event */}
+      <MediaPlaybackErrorScreen
+        audioRef={audio.audioRef}
+        watchKey={currentChapter.id}
+        chapterLabel={`Chapter ${currentChapter.number} of ${chapters.length}`}
+        chapterTitle={storyWorld ? getLocalizedText(storyWorld.title, state.language as "en" | "fr" | "es") : undefined}
+        onBack={onClose}
+        onSkipChapter={canGoNext ? () => navigateChapter('next') : undefined}
+        onSwitchToTextMode={() => {}}
+      />
+
       {/* Branching Choice Overlay */}
       <AnimatePresence>
         {showBranchChoice && branchChoice && (
@@ -539,17 +544,17 @@ export function StoryChapterScreen({
             </button>
 
             <button
-              onClick={() => navigateChapter('next')}
-              disabled={!canGoNext}
+              onClick={() => (canGoNext ? navigateChapter('next') : onFinishStory?.())}
+              disabled={!canGoNext && !onFinishStory}
               className={`
                 flex items-center gap-2 px-4 py-2 rounded-full transition-all
-                ${canGoNext 
-                  ? 'bg-white/10 hover:bg-white/20 text-white' 
+                ${canGoNext || onFinishStory
+                  ? 'bg-white/10 hover:bg-white/20 text-white'
                   : 'bg-white/5 text-white/20 cursor-not-allowed'
                 }
               `}
             >
-              <span className="text-xs tracking-wider uppercase">Next</span>
+              <span className="text-xs tracking-wider uppercase">{canGoNext ? "Next" : "Finish"}</span>
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>

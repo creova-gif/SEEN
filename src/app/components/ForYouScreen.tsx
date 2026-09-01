@@ -86,7 +86,7 @@ export function ForYouScreen({
     
     return (
       <div className="min-h-screen bg-black">
-        <NavigationBar />
+        <NavigationBar onProfileTap={() => onNavigate("profile")} onSearchTap={() => onNavigate("search")} />
         <div className="pt-20 pb-24">
           <EmptyState
             icon="Compass"
@@ -109,7 +109,7 @@ export function ForYouScreen({
       transition={{ duration: 0.4 }}
       className="min-h-screen bg-black"
     >
-      <NavigationBar />
+      <NavigationBar onProfileTap={() => onNavigate("profile")} onSearchTap={() => onNavigate("search")} />
 
       {/* Main Content */}
       <main className="pt-20 pb-24 px-5 max-w-[428px] mx-auto">
@@ -319,12 +319,14 @@ export function ForYouScreen({
             />
             <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-5 px-5">
               {trendingContent.map(item => (
-                <div key={item.id} onClick={() => onStoryClick(item.id)} className="flex-shrink-0">
+                <div key={item.id} className="flex-shrink-0">
                   <StoryCard
+                    id={item.id}
                     title={item.title}
                     author={item.creator}
                     readTime={item.duration}
                     imageUrl={item.mediaSource}
+                    onSelect={onStoryClick}
                   />
                   {/* Type badge with icon */}
                   <div className="mt-2 text-xs text-white/50 uppercase tracking-wider flex items-center gap-1.5">
@@ -352,12 +354,14 @@ export function ForYouScreen({
             />
             <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-5 px-5">
               {newContent.map(item => (
-                <div key={item.id} onClick={() => onStoryClick(item.id)} className="flex-shrink-0">
+                <div key={item.id} className="flex-shrink-0">
                   <StoryCard
+                    id={item.id}
                     title={item.title}
                     author={item.creator}
                     readTime={item.duration}
                     imageUrl={item.mediaSource}
+                    onSelect={onStoryClick}
                   />
                 </div>
               ))}

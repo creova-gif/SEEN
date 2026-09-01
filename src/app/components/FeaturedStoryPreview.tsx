@@ -1,14 +1,18 @@
 import { motion, AnimatePresence } from "motion/react";
-import { ArrowLeft, Play, Volume2, Share2, Bookmark, Check, BookmarkCheck, Download, CheckCircle2, FolderPlus, Plus, X } from "lucide-react";
-import { useState, useCallback } from "react";
+import { ArrowLeft, Play, Volume2, Share2, Bookmark, Check, BookmarkCheck, Download, CheckCircle2, FolderPlus, Plus, X, Flag } from "lucide-react";
+import { useState } from "react";
 import { useStoryState } from "../contexts/StoryStateContext";
 import { getStoryWorldData } from "../data/storyService";
 import { getContentById } from "../data/database";
+import { getStoryWorldById } from "../data/storyDatabase";
 import type { Language } from "../data/storyDatabase";
+import { ShareSheet } from "./ShareSheet";
+import { ContentUnavailableScreen } from "./ContentUnavailableScreen";
 
 interface FeaturedStoryPreviewProps {
   onClose: () => void;
   onEnterStory?: () => void;
+  onReport?: () => void;
 }
 
 const CONTENT_TYPE_LABELS: Record<string, string> = {
@@ -58,9 +62,9 @@ function daysUntilExpiry(expiresAt: number) {
   return Math.max(0, Math.ceil((expiresAt - Date.now()) / (1000 * 60 * 60 * 24)));
 }
 
-export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPreviewProps) {
+export function FeaturedStoryPreview({ onClose, onEnterStory, onReport }: FeaturedStoryPreviewProps) {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [shareStatus, setShareStatus] = useState<'idle' | 'copied'>('idle');
+  const [showShareSheet, setShowShareSheet] = useState(false);
   const { state } = useStoryState();
 
   // Feature 3: Collection state
@@ -83,7 +87,7 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
 
   // Normalise to a common shape
   const storyData = storyDbData
-    ? storyDbData
+    ? { ...storyDbData, audioSrc: undefined as string | undefined }
     : contentDbItem
       ? {
           id: contentDbItem.id,
@@ -100,30 +104,6 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
           chapters: [],
         }
       : null;
-
-  const handleShareContent = useCallback(async () => {
-    if (!storyData) return;
-    const shareUrl = `https://seen.app/story/${storyData.id}`;
-    const shareData = {
-      title: `${storyData.title} — SEEN`,
-      text: `Explore this on SEEN — "${storyData.title}"`,
-      url: shareUrl,
-    };
-    try {
-      if (navigator.share) { await navigator.share(shareData); }
-      else {
-        await navigator.clipboard.writeText(shareUrl);
-        setShareStatus('copied');
-        setTimeout(() => setShareStatus('idle'), 2000);
-      }
-    } catch {
-      try {
-        await navigator.clipboard.writeText(shareUrl);
-        setShareStatus('copied');
-        setTimeout(() => setShareStatus('idle'), 2000);
-      } catch {}
-    }
-  }, [storyData]);
 
   // Feature 3: Save to existing collection
   const handleSaveToCollection = (collectionId: string) => {
@@ -186,18 +166,11 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
   const isAlreadyDownloaded = storyData ? loadDownloads().some(d => d.id === storyData.id) : false;
   const isBookmarked = storyData ? collections.some(c => c.storyIds.includes(storyData.id)) : false;
 
-  if (!storyData) {
-    return (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black z-50 flex flex-col items-center justify-center gap-4"
-      >
-        <p className="text-white/50 text-sm">Content not found</p>
-        <button onClick={onClose} className="text-white/70 underline text-sm">Go back</button>
-      </motion.div>
-    );
+  const rawStoryWorld = state.currentStoryWorldId ? getStoryWorldById(state.currentStoryWorldId) : undefined;
+  const isRestricted = !!rawStoryWorld && rawStoryWorld.visibility !== 'public';
+
+  if (!storyData || isRestricted) {
+    return <ContentUnavailableScreen storyId={state.currentStoryWorldId} onBack={onClose} />;
   }
 
   const typeLabel = (storyData as any).contentType
@@ -250,16 +223,12 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
             transition={{ delay: 0.3 }}
             className="flex gap-2"
           >
-            <button 
-              onClick={handleShareContent}
+            <button
+              onClick={() => setShowShareSheet(true)}
               className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center hover:bg-black/60 transition-colors"
               aria-label="Share"
             >
-              {shareStatus === 'copied' ? (
-                <Check className="w-4 h-4 text-green-400" />
-              ) : (
-                <Share2 className="w-4 h-4 text-white" />
-              )}
+              <Share2 className="w-4 h-4 text-white" />
             </button>
             {/* Feature 3: Bookmark → Save to Collection */}
             <button
@@ -278,6 +247,15 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
                 </span>
               )}
             </button>
+            {onReport && (
+              <button
+                onClick={onReport}
+                className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center hover:bg-black/60 transition-colors"
+                aria-label="Report content"
+              >
+                <Flag className="w-4 h-4 text-white" />
+              </button>
+            )}
           </motion.div>
         </div>
 
@@ -534,6 +512,14 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
           </motion.div>
         )}
       </AnimatePresence>
+
+      <ShareSheet
+        isOpen={showShareSheet}
+        onClose={() => setShowShareSheet(false)}
+        title={storyData.title}
+        url={`https://seen.app/story/${storyData.id}`}
+        thumbnailUrl={storyData.coverImage}
+      />
     </motion.div>
   );
 }
