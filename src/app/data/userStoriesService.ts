@@ -16,6 +16,7 @@ import type { StoryStructureData } from '../components/creator-flow/StoryStructu
 import type { MediaChaptersData, Chapter as WizardChapter } from '../components/creator-flow/MediaChaptersStep';
 import type { ContextAccessibilityData } from '../components/creator-flow/ContextAccessibilityStep';
 import type { PublishData } from '../components/creator-flow/PreviewPublishStep';
+import { load, save } from './localStore';
 
 const STORIES_KEY = 'seenos_user_stories';
 const DRAFTS_KEY = 'seenos_creator_drafts';
@@ -28,19 +29,6 @@ export interface CreatorDraft {
   structure?: Partial<StoryStructureData>;
   media?: Partial<MediaChaptersData>;
   context?: Partial<ContextAccessibilityData>;
-}
-
-function load<T>(key: string, fallback: T): T {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : fallback;
-  } catch {
-    return fallback;
-  }
-}
-
-function save<T>(key: string, value: T) {
-  localStorage.setItem(key, JSON.stringify(value));
 }
 
 function toMultilingual(text: string, languages: Language[]): MultilingualText {

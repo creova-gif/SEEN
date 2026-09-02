@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { AnimatePresence } from "motion/react";
 import { StoryStateProvider } from "./contexts/StoryStateContext";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
@@ -12,16 +12,21 @@ import { ProfileScreen } from "./components/ProfileScreen";
 import { FeaturedStoryPreview } from "./components/FeaturedStoryPreview";
 import { StoryChapterScreen } from "./components/StoryChapterScreen";
 import { ChapterIndexScreen } from "./components/ChapterIndexScreen";
-import { AboutScreen } from "./components/AboutScreen";
-import { ProfilePreferencesScreen } from "./components/ProfilePreferencesScreen";
-import { CreatorPublishFlow } from "./components/CreatorPublishFlow";
-import { ModerationGovernanceSystem } from "./components/ModerationGovernanceSystem";
-import { SearchScreen } from "./screens/SearchScreen";
-import { CreatorMonetizationScreen } from "./components/CreatorMonetizationScreen";
-import { CreatorEarningsScreen } from "./components/CreatorEarningsScreen";
-import { SubscriptionManagementScreen } from "./components/SubscriptionManagementScreen";
-import { AdminDashboardScreen } from "./components/AdminDashboardScreen";
 import { useStoryState } from "./contexts/StoryStateContext";
+
+// Lazy-loaded: secondary surfaces not needed for first paint or the core
+// reading loop. Each import().then(...) is needed because these components
+// use named exports, not default exports. Group new screens into these (or
+// new) chunks by surface area as they're added — see the beta build-out plan.
+const AboutScreen = lazy(() => import("./components/AboutScreen").then(m => ({ default: m.AboutScreen })));
+const ProfilePreferencesScreen = lazy(() => import("./components/ProfilePreferencesScreen").then(m => ({ default: m.ProfilePreferencesScreen })));
+const SearchScreen = lazy(() => import("./screens/SearchScreen").then(m => ({ default: m.SearchScreen })));
+const CreatorPublishFlow = lazy(() => import("./components/CreatorPublishFlow").then(m => ({ default: m.CreatorPublishFlow })));
+const CreatorMonetizationScreen = lazy(() => import("./components/CreatorMonetizationScreen").then(m => ({ default: m.CreatorMonetizationScreen })));
+const CreatorEarningsScreen = lazy(() => import("./components/CreatorEarningsScreen").then(m => ({ default: m.CreatorEarningsScreen })));
+const SubscriptionManagementScreen = lazy(() => import("./components/SubscriptionManagementScreen").then(m => ({ default: m.SubscriptionManagementScreen })));
+const ModerationGovernanceSystem = lazy(() => import("./components/ModerationGovernanceSystem").then(m => ({ default: m.ModerationGovernanceSystem })));
+const AdminDashboardScreen = lazy(() => import("./components/AdminDashboardScreen").then(m => ({ default: m.AdminDashboardScreen })));
 import type { Language, UserIntent, UserRole } from "./contexts/StoryStateContext";
 import { initializeDemoData } from "./data/demoData";
 
@@ -291,61 +296,68 @@ function AppContent() {
         )}
 
         {currentScreen === "creator-monetization" && (
-          <CreatorMonetizationScreen key="creator-monetization" onClose={() => setCurrentScreen("profile")} />
+          <Suspense key="creator-monetization" fallback={null}>
+            <CreatorMonetizationScreen onClose={() => setCurrentScreen("profile")} />
+          </Suspense>
         )}
 
         {currentScreen === "creator-earnings" && (
-          <CreatorEarningsScreen key="creator-earnings" onClose={() => setCurrentScreen("profile")} />
+          <Suspense key="creator-earnings" fallback={null}>
+            <CreatorEarningsScreen onClose={() => setCurrentScreen("profile")} />
+          </Suspense>
         )}
 
         {currentScreen === "subscription-management" && (
-          <SubscriptionManagementScreen key="subscription-management" onClose={() => setCurrentScreen("profile")} />
+          <Suspense key="subscription-management" fallback={null}>
+            <SubscriptionManagementScreen onClose={() => setCurrentScreen("profile")} />
+          </Suspense>
         )}
 
         {currentScreen === "admin-dashboard" && (
-          <AdminDashboardScreen key="admin-dashboard" onClose={() => setCurrentScreen("profile")} />
+          <Suspense key="admin-dashboard" fallback={null}>
+            <AdminDashboardScreen onClose={() => setCurrentScreen("profile")} />
+          </Suspense>
         )}
 
         {currentScreen === "about" && (
-          <AboutScreen
-            key="about"
-            onClose={() => setCurrentScreen("profile")}
-          />
+          <Suspense key="about" fallback={null}>
+            <AboutScreen onClose={() => setCurrentScreen("profile")} />
+          </Suspense>
         )}
 
         {currentScreen === "settings" && (
-          <ProfilePreferencesScreen 
-            key="settings"
-            onBack={() => setCurrentScreen("profile")}
-          />
+          <Suspense key="settings" fallback={null}>
+            <ProfilePreferencesScreen onBack={() => setCurrentScreen("profile")} />
+          </Suspense>
         )}
 
         {currentScreen === "creator-publish" && (
-          <CreatorPublishFlow
-            key="creator-publish"
-            onClose={() => setCurrentScreen("profile")}
-            onViewStory={storyId => {
-              enterStoryWorld(storyId);
-              setCurrentScreen("story-preview");
-            }}
-            onGoToLibrary={() => setCurrentScreen("library")}
-            onViewEarnings={() => setCurrentScreen("creator-earnings")}
-          />
+          <Suspense key="creator-publish" fallback={null}>
+            <CreatorPublishFlow
+              onClose={() => setCurrentScreen("profile")}
+              onViewStory={storyId => {
+                enterStoryWorld(storyId);
+                setCurrentScreen("story-preview");
+              }}
+              onGoToLibrary={() => setCurrentScreen("library")}
+              onViewEarnings={() => setCurrentScreen("creator-earnings")}
+            />
+          </Suspense>
         )}
 
         {currentScreen === "moderation-governance" && (
-          <ModerationGovernanceSystem 
-            key="moderation-governance"
-            onBack={() => setCurrentScreen("profile")}
-          />
+          <Suspense key="moderation-governance" fallback={null}>
+            <ModerationGovernanceSystem onBack={() => setCurrentScreen("profile")} />
+          </Suspense>
         )}
 
         {currentScreen === "search" && (
-          <SearchScreen
-            key="search"
-            onClose={handleCloseSearch}
-            onSelectStory={handleSearchSelectStory}
-          />
+          <Suspense key="search" fallback={null}>
+            <SearchScreen
+              onClose={handleCloseSearch}
+              onSelectStory={handleSearchSelectStory}
+            />
+          </Suspense>
         )}
       </AnimatePresence>
     </div>

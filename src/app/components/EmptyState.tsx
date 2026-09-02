@@ -7,11 +7,25 @@
  */
 
 import { motion } from 'motion/react';
-import * as Icons from 'lucide-react';
+import { Bookmark, Check, Compass, Heart, Play, Info } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { prefersReducedMotion } from '../utils/motion';
+
+// `import * as Icons from 'lucide-react'` pulls the entire icon library into
+// the bundle (lucide-react has 1000+ icon modules) and defeats tree-shaking.
+// Add new icon names here as new empty states need them, instead of
+// reverting to a namespace import.
+const EMPTY_STATE_ICONS: Record<string, LucideIcon> = {
+  Bookmark,
+  Check,
+  Compass,
+  Heart,
+  Play,
+  Info,
+};
 
 interface EmptyStateProps {
-  icon: string; // Lucide icon name
+  icon: string; // Lucide icon name — must be registered in EMPTY_STATE_ICONS
   title: string;
   message: string;
   actionLabel?: string;
@@ -27,14 +41,14 @@ export function EmptyState({
   onAction,
   className = ''
 }: EmptyStateProps) {
-  // Dynamically get the icon component
-  const IconComponent = (Icons[icon as keyof typeof Icons] as LucideIcon) || Icons.Info;
+  const IconComponent = EMPTY_STATE_ICONS[icon] || Info;
+  const reducedMotion = prefersReducedMotion();
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={reducedMotion ? false : { opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
+      transition={{ duration: reducedMotion ? 0 : 0.4 }}
       className={`flex flex-col items-center justify-center text-center px-8 py-16 ${className}`}
     >
       {/* Icon */}

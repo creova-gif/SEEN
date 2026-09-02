@@ -6,7 +6,7 @@
  * NO UI modifications - logic and data binding validation only
  */
 
-import { describe, test, expect, beforeEach } from '@jest/globals';
+import { describe, test, expect, beforeEach } from 'vitest';
 import {
   searchStories,
   getForYouFeed,

@@ -8,6 +8,7 @@
  */
 
 import type { UserRole } from '../contexts/StoryStateContext';
+import { load, save } from './localStore';
 
 const USERS_KEY = 'seenos_users_db';
 const MODERATION_KEY = 'seenos_moderation_queue';
@@ -20,19 +21,6 @@ export interface AdminUserRecord {
   role: UserRole;
   createdAt?: string;
   status: 'active' | 'suspended';
-}
-
-function load<T>(key: string, fallback: T): T {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : fallback;
-  } catch {
-    return fallback;
-  }
-}
-
-function save<T>(key: string, value: T) {
-  localStorage.setItem(key, JSON.stringify(value));
 }
 
 // ============================================

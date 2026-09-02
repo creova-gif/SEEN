@@ -10,7 +10,7 @@
  */
 
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import App from '../App';
 
 describe('Navigation & Tab Tests', () => {
@@ -219,7 +219,7 @@ describe('Navigation & Tab Tests', () => {
     });
 
     it('should log interaction when Search button clicked', async () => {
-      const consoleSpy = jest.spyOn(console, 'log');
+      const consoleSpy = vi.spyOn(console, 'log');
       render(<App />);
       
       const searchButton = await screen.findByLabelText(/search/i);

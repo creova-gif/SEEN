@@ -12,6 +12,15 @@ export type UserIntent = 'explore' | 'create' | 'contribute';
 // User role types
 export type UserRole = 'viewer' | 'creator' | 'moderator' | 'admin';
 
+/**
+ * Shared role-check helper. Use this instead of inline
+ * `role === 'x' || role === 'y'` checks scattered per-screen, so a change to
+ * who's allowed to do something is a one-place edit.
+ */
+export function hasRole(role: UserRole | undefined, allowed: UserRole[]): boolean {
+  return !!role && allowed.includes(role);
+}
+
 // Accessibility preferences
 export interface AccessibilityPreferences {
   captionsEnabled: boolean;

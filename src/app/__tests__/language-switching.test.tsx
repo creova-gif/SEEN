@@ -10,7 +10,7 @@
  */
 
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import App from '../App';
 
 describe('Language Switching Tests (CRITICAL)', () => {

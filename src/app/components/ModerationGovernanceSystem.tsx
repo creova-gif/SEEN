@@ -2,6 +2,7 @@ import { motion } from "motion/react";
 import { useState, useMemo } from "react";
 import { Shield, CheckCircle, XCircle, Clock, User, AlertTriangle } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
+import { hasRole, type UserRole } from "../contexts/StoryStateContext";
 import {
   getModerationQueue,
   getModerationActions,
@@ -16,7 +17,7 @@ import {
  */
 
 export type ModerationStatus = "pending" | "approved" | "rejected" | "flagged";
-export type UserRole = "contributor" | "creator" | "moderator" | "institutional_admin";
+export type { UserRole };
 
 export interface CommunityResponse {
   id: string;
@@ -64,7 +65,7 @@ export interface PermissionMatrix {
  */
 export const PERMISSION_MATRIX: PermissionMatrix[] = [
   {
-    role: "contributor",
+    role: "viewer",
     permissions: {
       submitResponse: true,
       createStory: false,
@@ -100,7 +101,7 @@ export const PERMISSION_MATRIX: PermissionMatrix[] = [
     }
   },
   {
-    role: "institutional_admin",
+    role: "admin",
     permissions: {
       submitResponse: true,
       createStory: true,
@@ -357,7 +358,7 @@ interface AuditLogViewerProps {
 }
 
 export function AuditLogViewer({ actions, userRole }: AuditLogViewerProps) {
-  const canView = userRole === "moderator" || userRole === "institutional_admin";
+  const canView = hasRole(userRole, ["moderator", "admin"]);
 
   if (!canView) {
     return (
@@ -528,6 +529,7 @@ export function ModerationGovernanceSystem({ onBack }: ModerationGovernanceSyste
 
   const moderatorId = authState.user?.id ?? "mod-demo";
   const moderatorName = authState.user?.name ?? "Moderator";
+  const currentUserRole: UserRole = authState.user?.role ?? "moderator";
 
   // Persisted queue (localStorage-backed, seeded with sample submissions on first load)
   const queuedResponses = useMemo<QueuedResponse[]>(() => getModerationQueue(), [refreshKey]);
@@ -638,13 +640,13 @@ export function ModerationGovernanceSystem({ onBack }: ModerationGovernanceSyste
             onApprove={handleApprove}
             onReject={handleReject}
             onFlag={handleFlag}
-            userRole="moderator"
+            userRole={currentUserRole}
           />
         )}
         {activeTab === "audit" && (
           <AuditLogViewer
             actions={actions}
-            userRole="moderator"
+            userRole={currentUserRole}
           />
         )}
         {activeTab === "guidelines" && <GovernanceGuidelines />}

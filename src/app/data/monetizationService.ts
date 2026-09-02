@@ -20,6 +20,7 @@ import {
   type CreatorEarningsSummary,
   DEFAULT_PLATFORM_CONFIG,
 } from './monetizationTypes';
+import { load, save } from './localStore';
 
 // Stories don't yet carry a first-class creatorId (no creator accounts
 // exist in the content database), so we derive a stable id from the
@@ -38,19 +39,6 @@ const KEYS = {
   platformConfig: 'seenos_platform_config',
   payouts: 'seenos_payout_requests',
 };
-
-function load<T>(key: string, fallback: T): T {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : fallback;
-  } catch {
-    return fallback;
-  }
-}
-
-function save<T>(key: string, value: T) {
-  localStorage.setItem(key, JSON.stringify(value));
-}
 
 // ============================================
 // PLATFORM CONFIG (configurable revenue split)
