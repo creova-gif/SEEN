@@ -27,8 +27,8 @@ export function BranchingChoiceOverlay({
   const { state } = useStoryState();
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
-  const getText = (text: { en: string; fr: string; es: string }) => {
-    return getTextHelper(text, state.language);
+  const getText = (text: MultilingualText) => {
+    return getLocalizedText(text, state.language);
   };
 
   const handleChoice = (optionId: string, nextChapterId?: string) => {

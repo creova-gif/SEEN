@@ -13,7 +13,6 @@ import {
   Volume2,
   Plus,
   Shield,
-  Building2,
   MessageCircle,
   LogOut,
   Home,
@@ -33,7 +32,6 @@ interface ProfileScreenProps {
   onOpenAbout?: () => void;
   onOpenCreatorDashboard?: () => void;
   onOpenModeration?: () => void;
-  onOpenInstitutional?: () => void;
   onOpenMonetization?: () => void;
   onOpenEarnings?: () => void;
   onOpenSubscriptions?: () => void;
@@ -50,7 +48,6 @@ export function ProfileScreen({
   onOpenAbout,
   onOpenCreatorDashboard,
   onOpenModeration,
-  onOpenInstitutional,
   onOpenMonetization,
   onOpenEarnings,
   onOpenSubscriptions,
@@ -249,12 +246,6 @@ export function ProfileScreen({
               )}
               {state.userRole === 'admin' && (
                 <>
-                  <SettingItem
-                    icon={<Building2 className="w-5 h-5 text-green-400" />}
-                    label="Institutional Collections"
-                    value="Manage archives"
-                    onClick={onOpenInstitutional}
-                  />
                   <SettingItem
                     icon={<Shield className="w-5 h-5 text-purple-400" />}
                     label="Platform Dashboard"

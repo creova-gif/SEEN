@@ -20,21 +20,6 @@ export const prefersReducedMotion = (): boolean => {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 };
 
-/**
- * Get animation props respecting reduced motion
- */
-export const getMotionProps = (props: MotionProps): MotionProps => {
-  if (prefersReducedMotion()) {
-    return {
-      initial: false,
-      animate: props.animate,
-      exit: false,
-      transition: { duration: 0 },
-    };
-  }
-  return props;
-};
-
 // ============================================
 // EASING CURVES
 // ============================================
@@ -340,7 +325,7 @@ export const AUDIO_VARIANTS = {
   },
 } as const;
 
-export const WAVEFORM_VARIANTS = {
+export const WAVEFORM_VARIANTS: Variants = {
   idle: {
     scaleY: 1,
   },
@@ -352,7 +337,7 @@ export const WAVEFORM_VARIANTS = {
       ease: "easeInOut",
     },
   },
-} as const;
+};
 
 // ============================================
 // UTILITY FUNCTIONS

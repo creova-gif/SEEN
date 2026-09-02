@@ -16,7 +16,6 @@ import { AboutScreen } from "./components/AboutScreen";
 import { ProfilePreferencesScreen } from "./components/ProfilePreferencesScreen";
 import { CreatorPublishFlow } from "./components/CreatorPublishFlow";
 import { ModerationGovernanceSystem } from "./components/ModerationGovernanceSystem";
-import { InstitutionalCollectionScreen } from "./components/InstitutionalCollectionScreen";
 import { SearchScreen } from "./screens/SearchScreen";
 import { CreatorMonetizationScreen } from "./components/CreatorMonetizationScreen";
 import { CreatorEarningsScreen } from "./components/CreatorEarningsScreen";
@@ -48,7 +47,6 @@ type AppScreen =
   | "settings"
   | "creator-publish"
   | "moderation-governance"
-  | "institutional-collection"
   | "search"
   | "creator-monetization"
   | "creator-earnings"
@@ -282,7 +280,6 @@ function AppContent() {
             onOpenAbout={() => setCurrentScreen("about")}
             onOpenCreatorDashboard={() => setCurrentScreen("creator-publish")}
             onOpenModeration={() => setCurrentScreen("moderation-governance")}
-            onOpenInstitutional={() => setCurrentScreen("institutional-collection")}
             onOpenMonetization={() => setCurrentScreen("creator-monetization")}
             onOpenEarnings={() => setCurrentScreen("creator-earnings")}
             onOpenSubscriptions={() => setCurrentScreen("subscription-management")}
@@ -310,9 +307,9 @@ function AppContent() {
         )}
 
         {currentScreen === "about" && (
-          <AboutScreen 
+          <AboutScreen
             key="about"
-            onBack={() => setCurrentScreen("profile")}
+            onClose={() => setCurrentScreen("profile")}
           />
         )}
 
@@ -339,13 +336,6 @@ function AppContent() {
         {currentScreen === "moderation-governance" && (
           <ModerationGovernanceSystem 
             key="moderation-governance"
-            onBack={() => setCurrentScreen("profile")}
-          />
-        )}
-
-        {currentScreen === "institutional-collection" && (
-          <InstitutionalCollectionScreen
-            key="institutional-collection"
             onBack={() => setCurrentScreen("profile")}
           />
         )}
