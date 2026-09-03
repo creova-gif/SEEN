@@ -20,6 +20,8 @@ import { useStoryState } from "./contexts/StoryStateContext";
 // new) chunks by surface area as they're added — see the beta build-out plan.
 const AboutScreen = lazy(() => import("./components/AboutScreen").then(m => ({ default: m.AboutScreen })));
 const ProfilePreferencesScreen = lazy(() => import("./components/ProfilePreferencesScreen").then(m => ({ default: m.ProfilePreferencesScreen })));
+const AccessibilityControlsScreen = lazy(() => import("./components/AccessibilityControlsScreen").then(m => ({ default: m.AccessibilityControlsScreen })));
+const CreatorOnboardingFlow = lazy(() => import("./components/CreatorOnboardingFlow").then(m => ({ default: m.CreatorOnboardingFlow })));
 const SearchScreen = lazy(() => import("./screens/SearchScreen").then(m => ({ default: m.SearchScreen })));
 const CreatorPublishFlow = lazy(() => import("./components/CreatorPublishFlow").then(m => ({ default: m.CreatorPublishFlow })));
 const CreatorMonetizationScreen = lazy(() => import("./components/CreatorMonetizationScreen").then(m => ({ default: m.CreatorMonetizationScreen })));
@@ -50,6 +52,8 @@ type AppScreen =
   | "chapter-index"
   | "about"
   | "settings"
+  | "accessibility"
+  | "creator-onboarding"
   | "creator-publish"
   | "moderation-governance"
   | "search"
@@ -169,6 +173,18 @@ function AppContent() {
     setCurrentScreen("for-you");
   };
 
+  // First-time creators see a short tutorial before the real publish wizard;
+  // returning creators go straight there.
+  const handleOpenCreatorDashboard = () => {
+    const hasSeenCreatorOnboarding = localStorage.getItem("seenos_creator_onboarding_seen") === "true";
+    setCurrentScreen(hasSeenCreatorOnboarding ? "creator-publish" : "creator-onboarding");
+  };
+
+  const handleCreatorOnboardingDone = () => {
+    localStorage.setItem("seenos_creator_onboarding_seen", "true");
+    setCurrentScreen("creator-publish");
+  };
+
   const handleSearchSelectStory = (storyId: string) => {
     enterStoryWorld(storyId);
     setCurrentScreen("story-preview");
@@ -283,7 +299,7 @@ function AppContent() {
             onSearch={handleOpenSearch}
             onOpenSettings={() => setCurrentScreen("settings")}
             onOpenAbout={() => setCurrentScreen("about")}
-            onOpenCreatorDashboard={() => setCurrentScreen("creator-publish")}
+            onOpenCreatorDashboard={handleOpenCreatorDashboard}
             onOpenModeration={() => setCurrentScreen("moderation-governance")}
             onOpenMonetization={() => setCurrentScreen("creator-monetization")}
             onOpenEarnings={() => setCurrentScreen("creator-earnings")}
@@ -327,7 +343,25 @@ function AppContent() {
 
         {currentScreen === "settings" && (
           <Suspense key="settings" fallback={null}>
-            <ProfilePreferencesScreen onBack={() => setCurrentScreen("profile")} />
+            <ProfilePreferencesScreen
+              onBack={() => setCurrentScreen("profile")}
+              onOpenAccessibility={() => setCurrentScreen("accessibility")}
+            />
+          </Suspense>
+        )}
+
+        {currentScreen === "accessibility" && (
+          <Suspense key="accessibility" fallback={null}>
+            <AccessibilityControlsScreen onClose={() => setCurrentScreen("settings")} />
+          </Suspense>
+        )}
+
+        {currentScreen === "creator-onboarding" && (
+          <Suspense key="creator-onboarding" fallback={null}>
+            <CreatorOnboardingFlow
+              onComplete={handleCreatorOnboardingDone}
+              onSkip={handleCreatorOnboardingDone}
+            />
           </Suspense>
         )}
 
