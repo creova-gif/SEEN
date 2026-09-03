@@ -13,7 +13,8 @@ import { ContentCard } from "./ContentCard";
 import { StoryCard } from "./StoryCard";
 import { SectionHeader } from "./SectionHeader";
 import { EmptyState } from "./EmptyState";
-import { Search, Filter, Music, Film, Archive, Globe, TrendingUp, Clock, Home, Compass, Library, User } from "lucide-react";
+import { BottomNavigation } from "./BottomNavigation";
+import { Search, Filter, Music, Film, Archive, Globe, TrendingUp, Clock } from "lucide-react";
 import type { ContentLanguage } from "../data/types";
 import { getExploreCategories, searchStories } from "../data/storyService";
 import type { Language } from "../data/storyDatabase";
@@ -82,7 +83,7 @@ export function ExploreScreen({
             onAction={() => onNavigate('for-you')}
           />
         </div>
-        <BottomNav onNavigate={onNavigate} activeTab="explore" />
+        <BottomNavigation onNavigate={onNavigate} activeTab="explore" />
       </div>
     );
   }
@@ -268,7 +269,7 @@ export function ExploreScreen({
       </main>
 
       {/* Bottom Navigation */}
-      <BottomNav onNavigate={onNavigate} activeTab="explore" />
+      <BottomNavigation onNavigate={onNavigate} activeTab="explore" />
     </motion.div>
   );
 }
@@ -297,105 +298,5 @@ function TypeFilter({
       {icon}
       {label}
     </button>
-  );
-}
-
-// Bottom Navigation Component
-function BottomNav({ 
-  onNavigate, 
-  activeTab 
-}: { 
-  onNavigate: (screen: string) => void;
-  activeTab: string;
-}) {
-  return (
-    <nav className="fixed bottom-0 left-0 right-0 backdrop-blur-xl bg-black/60 border-t border-white/5 z-50 pointer-events-auto">
-      <div className="max-w-[428px] mx-auto px-5 py-4 flex justify-around">
-        <button
-          type="button"
-          onClick={() => onNavigate("for-you")}
-          className={`flex flex-col items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
-            activeTab === 'for-you' ? 'text-white' : 'text-white/40 hover:text-white/60'
-          }`}
-        >
-          <Home 
-            className={`w-5 h-5 transition-all duration-300 ${
-              activeTab === 'for-you' 
-                ? 'drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]' 
-                : 'group-hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.2)]'
-            }`}
-            strokeWidth={activeTab === 'for-you' ? 2 : 1.5}
-          />
-          <span className={`text-[10px] tracking-widest uppercase transition-all duration-300 ${
-            activeTab === 'for-you' ? 'font-medium' : 'font-light'
-          }`}>
-            For You
-          </span>
-        </button>
-        <button
-          type="button"
-          onClick={() => onNavigate("explore")}
-          className={`flex flex-col items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
-            activeTab === 'explore' ? 'text-white' : 'text-white/40 hover:text-white/60'
-          }`}
-        >
-          <Compass 
-            className={`w-5 h-5 transition-all duration-300 ${
-              activeTab === 'explore' 
-                ? 'drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]' 
-                : 'group-hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.2)]'
-            }`}
-            strokeWidth={activeTab === 'explore' ? 2 : 1.5}
-          />
-          <span className={`text-[10px] tracking-widest uppercase transition-all duration-300 ${
-            activeTab === 'explore' ? 'font-medium' : 'font-light'
-          }`}>
-            Explore
-          </span>
-        </button>
-        <button
-          type="button"
-          onClick={() => onNavigate("library")}
-          className={`flex flex-col items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
-            activeTab === 'library' ? 'text-white' : 'text-white/40 hover:text-white/60'
-          }`}
-        >
-          <Library 
-            className={`w-5 h-5 transition-all duration-300 ${
-              activeTab === 'library' 
-                ? 'drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]' 
-                : 'group-hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.2)]'
-            }`}
-            strokeWidth={activeTab === 'library' ? 2 : 1.5}
-          />
-          <span className={`text-[10px] tracking-widest uppercase transition-all duration-300 ${
-            activeTab === 'library' ? 'font-medium' : 'font-light'
-          }`}>
-            Library
-          </span>
-        </button>
-        <button
-          type="button"
-          onClick={() => onNavigate("profile")}
-          className={`flex flex-col items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
-            activeTab === 'profile' ? 'text-white' : 'text-white/40 hover:text-white/60'
-          }`}
-        >
-          <User 
-            className={`w-5 h-5 transition-all duration-300 ${
-              activeTab === 'profile' 
-                ? 'drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]' 
-                : 'group-hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.2)]'
-            }`}
-            strokeWidth={activeTab === 'profile' ? 2 : 1.5}
-          />
-          <span className={`text-[10px] tracking-widest uppercase transition-all duration-300 ${
-            activeTab === 'profile' ? 'font-medium' : 'font-light'
-          }`}>
-            Profile
-          </span>
-        </button>
-      </div>
-    </nav>
   );
 }
