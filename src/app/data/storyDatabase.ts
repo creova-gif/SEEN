@@ -55,6 +55,11 @@ export interface ChapterBranchChoice {
     text: MultilingualText;
     nextChapterId?: string;
     tag?: string;
+    // Populated for a "soft" choice (impactsOutcome is false/unset) that's
+    // rich enough to render via SoftBranchingChoice's fuller two-path
+    // layout instead of the standard BranchingChoiceOverlay list.
+    description?: MultilingualText;
+    perspectiveNote?: MultilingualText;
   }>;
   impactsOutcome?: boolean;
 }

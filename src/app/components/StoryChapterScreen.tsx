@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "motion/react";
-import { ArrowLeft, ChevronLeft, ChevronRight, List, Share2, Bookmark, Info, MessageCircle } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, List, Share2, Bookmark, Info, MessageCircle, Sparkles } from "lucide-react";
 import { useState, useEffect } from "react";
 import { AudioPlayer } from "./AudioPlayer";
 import { useAudioPlayer } from "../hooks/useAudioPlayer";
@@ -17,6 +17,8 @@ import { ContextCardModal } from "./ContextCardModal";
 import { CommunityResponsesPanel } from "./CommunityResponsesPanel";
 import { BranchingChoiceOverlay } from "./BranchingChoiceOverlay";
 import { SubmitResponseModal } from "./SubmitResponseModal";
+import { SoundDrivenStoryView } from "./SoundDrivenStoryView";
+import { SoftBranchingChoice } from "./SoftBranchingChoice";
 import { submitCommunityResponse, getApprovedResponsesForChapter } from "../data/adminService";
 
 interface StoryChapterScreenProps {
@@ -50,6 +52,7 @@ export function StoryChapterScreen({
   const [showSubmitResponse, setShowSubmitResponse] = useState(false);
   const [showBranchChoice, setShowBranchChoice] = useState(false);
   const [hasMadeBranchChoice, setHasMadeBranchChoice] = useState(false);
+  const [showSoundDrivenView, setShowSoundDrivenView] = useState(false);
   
   // Early return if no chapter is found
   if (!currentChapter) {
@@ -82,7 +85,16 @@ export function StoryChapterScreen({
     language: r.language,
   }));
   const branchChoice = currentChapter.branchChoices?.[0]; // Get first branch choice if available
-  
+  const musicUrl = currentChapter.media?.music?.url;
+
+  // A "soft" choice (doesn't change the outcome) with the richer
+  // description/perspectiveNote fields renders via SoftBranchingChoice's
+  // fuller two-path layout instead of the standard list overlay.
+  const softChoiceOptions = !branchChoice?.impactsOutcome && branchChoice?.options.length === 2
+    ? branchChoice.options
+    : undefined;
+  const isSoftChoice = !!softChoiceOptions?.every(o => o.description && o.perspectiveNote);
+
   const audio = useAudioPlayer({
     src: currentChapter.media?.narration?.url,
     autoPlay: false
@@ -194,6 +206,25 @@ export function StoryChapterScreen({
   const canGoPrev = chapters.findIndex(ch => ch.id === currentChapter.id) > 0;
   const canGoNext = chapters.findIndex(ch => ch.id === currentChapter.id) < chapters.length - 1;
 
+  // Immersive full-screen music view — only offered for chapters that
+  // actually carry a music track, using the same real media/cover data as
+  // the standard reading view (no placeholder content).
+  if (showSoundDrivenView && musicUrl) {
+    return (
+      <SoundDrivenStoryView
+        trackTitle={getLocalizedText(currentChapter.title, state.language)}
+        artistName={storyWorld ? getLocalizedText(storyWorld.creator, state.language) : ""}
+        audioSrc={musicUrl}
+        visualUrl={currentChapter.media?.images?.[0] || storyWorld?.coverImage || ""}
+        onClose={() => setShowSoundDrivenView(false)}
+        onShowContext={() => {
+          setShowSoundDrivenView(false);
+          setSelectedContextCardIndex(contextCards.length > 0 ? 0 : null);
+        }}
+      />
+    );
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -278,6 +309,15 @@ export function StoryChapterScreen({
                     </span>
                   )}
                 </button>
+                {musicUrl && (
+                  <button
+                    onClick={() => setShowSoundDrivenView(true)}
+                    className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center hover:bg-black/60 transition-colors"
+                    aria-label="Immersive music view"
+                  >
+                    <Sparkles className="w-4 h-4 text-white" />
+                  </button>
+                )}
               </div>
             </div>
           </motion.div>
@@ -380,7 +420,27 @@ export function StoryChapterScreen({
 
       {/* Branching Choice Overlay */}
       <AnimatePresence>
-        {showBranchChoice && branchChoice && (
+        {showBranchChoice && branchChoice && isSoftChoice && softChoiceOptions && (
+          <SoftBranchingChoice
+            mainPath={{
+              id: softChoiceOptions[0].id,
+              title: softChoiceOptions[0].text,
+              description: softChoiceOptions[0].description!,
+              perspectiveNote: softChoiceOptions[0].perspectiveNote!,
+            }}
+            alternatePath={{
+              id: softChoiceOptions[1].id,
+              title: softChoiceOptions[1].text,
+              description: softChoiceOptions[1].description!,
+              perspectiveNote: softChoiceOptions[1].perspectiveNote!,
+            }}
+            onChoose={(pathId) => {
+              const option = softChoiceOptions.find(o => o.id === pathId);
+              handleBranchChoice(pathId, option?.nextChapterId);
+            }}
+          />
+        )}
+        {showBranchChoice && branchChoice && !isSoftChoice && (
           <BranchingChoiceOverlay
             branchChoice={branchChoice}
             onChoose={handleBranchChoice}
