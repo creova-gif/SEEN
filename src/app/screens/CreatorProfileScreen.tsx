@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { track } from "../observability";
 import { toast } from "sonner";
 import { UserCheck, UserPlus } from "lucide-react";
 import { api } from "../services";
@@ -31,6 +32,7 @@ export function CreatorProfileScreen({ creatorId }: { creatorId: string }) {
     resource.mutate(prev => ({ ...prev!, following: next })); // optimistic
     try {
       await api.creators.setFollowing(creatorId, next);
+      track(next ? "creator_followed" : "creator_unfollowed", { creatorId });
       toast.success(next ? `Following ${resource.data.creator.name}` : `Unfollowed ${resource.data.creator.name}`);
     } catch {
       resource.mutate(prev => ({ ...prev!, following: !next })); // roll back

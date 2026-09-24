@@ -1,4 +1,5 @@
 import { toast } from "sonner";
+import { track } from "../observability";
 import { api, type SeenNotification } from "../services";
 import { useResource } from "../hooks/useResource";
 import { NotificationItem } from "../components/seen/cards";
@@ -17,6 +18,7 @@ export function NotificationsScreen() {
       resource.mutate(prev => (prev ?? []).map(x => (x.id === n.id ? { ...x, read: true } : x)));
       api.notifications.markRead(n.id).catch(() => undefined); // best effort; re-synced on next load
     }
+    track("notification_opened", { type: n.type });
     const t = n.target;
     if (!t) return;
     if (t.screen === "story" && t.id) nav.openStory(t.id);

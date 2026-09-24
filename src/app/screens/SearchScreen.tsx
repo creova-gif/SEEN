@@ -5,6 +5,7 @@ import { useStoryState } from '../contexts/StoryStateContext';
 import { searchStories, getSearchSuggestions } from '../data/searchService';
 import type { ContentItem } from '../data/types';
 import { StoryCard } from '../components/StoryCard';
+import { track } from '../observability';
 
 interface SearchScreenProps {
   onClose: () => void;
@@ -31,6 +32,8 @@ export function SearchScreen({ onClose, onSelectStory }: SearchScreenProps) {
     const timer = setTimeout(() => {
       const searchResults = searchStories(query, language);
       setResults(searchResults);
+      // Result count only — the query text itself is never recorded.
+      track("search_performed", { results: searchResults.length });
 
       const searchSuggestions = getSearchSuggestions(query, language, 5);
       setSuggestions(searchSuggestions);

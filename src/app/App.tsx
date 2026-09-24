@@ -27,6 +27,8 @@ import { AppNavProvider, type AppNav, type RouteParams } from "./navigation/AppN
 import { type AppScreen, NOT_DEEP_LINKABLE, canAccess, fromHash, isScreen, toHash } from "./navigation/routes";
 import { api } from "./services";
 import { initializeDemoData } from "./data/demoData";
+import { ErrorBoundary } from "./components/ErrorBoundary";
+import { installGlobalHandlers, track } from "./observability";
 // Role-specific / heavy screens load on demand (recharts etc. stay out of the main bundle).
 const CreatorPublishFlow = lazy(() => import("./components/CreatorPublishFlow").then(m => ({ default: m.CreatorPublishFlow })));
 const ModerationGovernanceSystem = lazy(() => import("./components/ModerationGovernanceSystem").then(m => ({ default: m.ModerationGovernanceSystem })));
@@ -37,6 +39,7 @@ const AdminDashboardScreen = lazy(() => import("./components/AdminDashboardScree
 
 // Initialize demo data for testing (only runs once)
 initializeDemoData();
+installGlobalHandlers();
 
 type HistoryEntry = { screen: AppScreen; params: RouteParams };
 
@@ -130,7 +133,13 @@ function AppContent() {
     return () => window.removeEventListener("seen:store", onStore);
   }, []);
 
-  const openStory = useCallback((id: string) => trackedGo("story-preview", { id }), [trackedGo]);
+  const openStory = useCallback(
+    (id: string) => {
+      track("story_opened", { storyId: id });
+      trackedGo("story-preview", { id });
+    },
+    [trackedGo],
+  );
 
   const nav: AppNav = useMemo(
     () => ({
@@ -150,6 +159,7 @@ function AppContent() {
     setUserRole(data.role);
     setIntent(data.intent);
     setIsFirstVisit(false);
+    track("onboarding_completed", { role: data.role, intent: data.intent });
     go("for-you", {}, { replace: true });
   };
 
@@ -159,6 +169,9 @@ function AppContent() {
 
   const role = state.userRole;
   const allowed = canAccess(currentScreen, role);
+  useEffect(() => {
+    if (!allowed) track("access_denied", { screen: currentScreen, role });
+  }, [allowed, currentScreen, role]);
 
   return (
     <AppNavProvider value={nav}>
@@ -299,10 +312,12 @@ function AppContent() {
 
 export default function App() {
   return (
-    <StoryStateProvider>
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
-    </StoryStateProvider>
+    <ErrorBoundary>
+      <StoryStateProvider>
+        <AuthProvider>
+          <AppContent />
+        </AuthProvider>
+      </StoryStateProvider>
+    </ErrorBoundary>
   );
 }

@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { track } from "../observability";
 import { toast } from "sonner";
 import { Check, PartyPopper } from "lucide-react";
 import { api, deadlineState, formatAmount, formatDeadline, ServiceError, type ApplicationState } from "../services";
@@ -32,6 +33,8 @@ export function OpportunityDetailScreen({ opportunityId }: { opportunityId: stri
     const mine = ++seq.current;
     try {
       const application = await api.funding.updateApplication(opportunityId, patch);
+      if (patch.status === "saved") track("funding_tracked", { opportunityId });
+      if (patch.status === "applied") track("funding_marked_applied", { opportunityId });
       // Ignore responses superseded by a later tap.
       if (mine === seq.current) resource.mutate(prev => ({ ...prev!, application }));
       if (success) toast.success(success);

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { track } from "../observability";
 import { toast } from "sonner";
 import { api } from "../services";
 import { useResource } from "../hooks/useResource";
@@ -31,6 +32,7 @@ export function CollectionDetailScreen({ collectionId }: { collectionId: string 
     resource.mutate(prev => ({ ...prev!, saved: next }));
     try {
       await api.collections.setSaved(collectionId, next);
+      if (next) track("collection_saved", { collectionId });
       toast.success(next ? "Collection saved to your library" : "Removed from your library");
     } catch {
       resource.mutate(prev => ({ ...prev!, saved: !next }));
