@@ -41,10 +41,10 @@ export function SearchScreen({ onClose, onSelectStory }: SearchScreenProps) {
   }, [query, language]);
 
   const handleSelectStory = (storyId: string) => {
-    if (onSelectStory) {
-      onSelectStory(storyId);
-    }
-    onClose();
+    // Selecting a result navigates away; calling onClose() here as well used
+    // to immediately bounce the user back to For You.
+    if (onSelectStory) onSelectStory(storyId);
+    else onClose();
   };
 
   return (
@@ -119,13 +119,15 @@ export function SearchScreen({ onClose, onSelectStory }: SearchScreenProps) {
                         key={story.id}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        onClick={() => handleSelectStory(story.id)}
                       >
                         <StoryCard
+                          id={story.id}
+                          width="full"
                           title={story.title}
                           author={story.creator}
                           readTime={story.duration}
                           imageUrl={story.mediaSource}
+                          onSelect={() => handleSelectStory(story.id)}
                         />
                       </motion.div>
                     ))}

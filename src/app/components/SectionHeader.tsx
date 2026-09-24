@@ -6,9 +6,11 @@ interface SectionHeaderProps {
   title: string;
   subtitle?: string;
   icon?: ReactNode;
+  /** When omitted, no "See all" affordance is rendered (no dead buttons). */
+  onViewAll?: () => void;
 }
 
-export function SectionHeader({ title, subtitle, icon }: SectionHeaderProps) {
+export function SectionHeader({ title, subtitle, icon, onViewAll }: SectionHeaderProps) {
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
@@ -29,10 +31,17 @@ export function SectionHeader({ title, subtitle, icon }: SectionHeaderProps) {
           )}
         </div>
       </div>
-      <button className="flex items-center gap-1 text-xs tracking-wider uppercase text-white/50 hover:text-white/80 transition-colors">
-        See All
-        <ChevronRight className="w-3 h-3" />
-      </button>
+      {onViewAll && (
+        <button
+          type="button"
+          onClick={onViewAll}
+          aria-label={`See all ${title}`}
+          className="flex items-center gap-1 min-h-11 px-1 text-xs tracking-wider uppercase text-white/50 hover:text-white/80 transition-colors"
+        >
+          See All
+          <ChevronRight className="w-3 h-3" aria-hidden />
+        </button>
+      )}
     </motion.div>
   );
 }

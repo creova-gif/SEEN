@@ -25,6 +25,10 @@ import { useAuth } from "../contexts/AuthContext";
 import type { Language } from "../contexts/StoryStateContext";
 import { getStoryWorldById, getLocalizedText } from "../data/storyDatabase";
 import { listStoriesForCreator } from "../data/userStoriesService";
+import { Bell, BookmarkCheck, HandCoins, Users } from "lucide-react";
+import { useAppNav } from "../navigation/AppNav";
+import { api } from "../services";
+import { useResource } from "../hooks/useResource";
 
 interface ProfileScreenProps {
   onNavigate: (screen: string) => void;
@@ -185,11 +189,8 @@ export function ProfileScreen({
           </div>
         </motion.section>
 
-        {/* Note: a Followers/Following section previously lived here showing
-            hardcoded numbers (124/89) for every account. There is no follow
-            graph implemented, so it was removed rather than displaying
-            fabricated social-proof numbers. Reintroduce once following is
-            a real feature backed by real data. */}
+        {/* Your SEEN — real follow / save / tracker data from the services layer */}
+        <YourSeenSection />
 
         {/* Development Testing - Switch Role */}
         {process.env.NODE_ENV === 'development' && (
@@ -252,7 +253,7 @@ export function ProfileScreen({
                   <SettingItem
                     icon={<Building2 className="w-5 h-5 text-green-400" />}
                     label="Institutional Collections"
-                    value="Manage archives"
+                    value="Browse"
                     onClick={onOpenInstitutional}
                   />
                   <SettingItem
@@ -583,6 +584,30 @@ function StatCard({ value, label }: { value: number; label: string }) {
       <div className="text-xl font-bold text-white mb-1">{value}</div>
       <div className="text-xs text-white/50">{label}</div>
     </div>
+  );
+}
+
+function YourSeenSection() {
+  const nav = useAppNav();
+  const counts = useResource(async () => {
+    const [following, saved, apps] = await Promise.all([
+      api.creators.listFollowing(),
+      api.collections.listSaved(),
+      api.funding.listApplications(),
+    ]);
+    return { following: following.length, saved: saved.length, tracked: apps.filter(a => a.status !== "none").length };
+  });
+  const n = (v?: number) => (counts.status === "ready" && v !== undefined ? String(v) : "—");
+  return (
+    <section className="mb-8" aria-labelledby="your-seen">
+      <h2 id="your-seen" className="text-sm tracking-wider uppercase text-white/40 mb-4">Your SEEN</h2>
+      <div className="space-y-2">
+        <SettingItem icon={<Users className="w-5 h-5" />} label="Following" value={n(counts.data?.following)} onClick={() => nav.go("explore", { tab: "creators" })} />
+        <SettingItem icon={<BookmarkCheck className="w-5 h-5" />} label="Saved collections" value={n(counts.data?.saved)} onClick={() => nav.go("collections")} />
+        <SettingItem icon={<HandCoins className="w-5 h-5 text-amber-300" />} label="Funding tracker" value={n(counts.data?.tracked)} onClick={() => nav.go("funding")} />
+        <SettingItem icon={<Bell className="w-5 h-5" />} label="Notifications" value={nav.unreadCount ? `${nav.unreadCount} new` : undefined} onClick={nav.openNotifications} />
+      </div>
+    </section>
   );
 }
 

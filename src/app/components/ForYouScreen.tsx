@@ -8,11 +8,14 @@
 
 import { motion } from "motion/react";
 import { NavigationBar } from "./NavigationBar";
+import { useAppNav } from "../navigation/AppNav";
+import { api } from "../services";
+import { useResource } from "../hooks/useResource";
 import { ContentCard } from "./ContentCard";
 import { StoryCard } from "./StoryCard";
 import { SectionHeader } from "./SectionHeader";
 import { EmptyState } from "./EmptyState";
-import { Play, TrendingUp, Music, Film, BookOpen, Archive, Folder, Home, Compass, Library, User } from "lucide-react";
+import { Play, TrendingUp, Music, Film, BookOpen, Archive, Folder, Users, Home, Compass, Library, User } from "lucide-react";
 import type { ContentLanguage, UserIntent } from "../data/types";
 import { getForYouFeed } from "../data/storyService";
 import type { Language } from "../data/storyDatabase";
@@ -145,92 +148,8 @@ export function ForYouScreen({
             </p>
           </div>
 
-          {/* Dashboard Stats - Presence Indicators */}
-          <div className="space-y-3">
-            {/* Stories */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2, duration: 0.8 }}
-              className="flex items-center gap-4 group cursor-pointer"
-            >
-              <div className="relative">
-                <BookOpen className="w-5 h-5 text-amber-200/70" />
-                <div className="absolute inset-0 bg-amber-400/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              </div>
-              <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-light text-white/90 tabular-nums">
-                  {feedItems.filter(item => item.type === 'story').length}
-                </span>
-                <span className="text-sm text-white/40 font-light tracking-wide">
-                  {feedItems.filter(item => item.type === 'story').length === 1 ? 'Story' : 'Stories'} in motion
-                </span>
-              </div>
-            </motion.div>
-
-            {/* Music */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3, duration: 0.8 }}
-              className="flex items-center gap-4 group cursor-pointer"
-            >
-              <div className="relative">
-                <Music className="w-5 h-5 text-emerald-200/70" />
-                <div className="absolute inset-0 bg-emerald-400/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              </div>
-              <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-light text-white/90 tabular-nums">
-                  {feedItems.filter(item => item.type === 'music').length}
-                </span>
-                <span className="text-sm text-white/40 font-light tracking-wide">
-                  {feedItems.filter(item => item.type === 'music').length === 1 ? 'Track' : 'Tracks'} resonating
-                </span>
-              </div>
-            </motion.div>
-
-            {/* Films */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4, duration: 0.8 }}
-              className="flex items-center gap-4 group cursor-pointer"
-            >
-              <div className="relative">
-                <Film className="w-5 h-5 text-violet-200/70" />
-                <div className="absolute inset-0 bg-violet-400/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              </div>
-              <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-light text-white/90 tabular-nums">
-                  {feedItems.filter(item => item.type === 'film').length}
-                </span>
-                <span className="text-sm text-white/40 font-light tracking-wide">
-                  {feedItems.filter(item => item.type === 'film').length === 1 ? 'Film' : 'Films'} living
-                </span>
-              </div>
-            </motion.div>
-
-            {/* Collections */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.5, duration: 0.8 }}
-              className="flex items-center gap-4 group cursor-pointer"
-            >
-              <div className="relative">
-                <Folder className="w-5 h-5 text-orange-200/70" />
-                <div className="absolute inset-0 bg-orange-400/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              </div>
-              <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-light text-white/90 tabular-nums">
-                  {feedItems.filter(item => item.type === 'collection').length}
-                </span>
-                <span className="text-sm text-white/40 font-light tracking-wide">
-                  {feedItems.filter(item => item.type === 'collection').length === 1 ? 'Collection' : 'Collections'} forming
-                </span>
-              </div>
-            </motion.div>
-          </div>
+          {/* Presence indicators — real counts, each one a shortcut into Explore */}
+          <PresenceIndicators storyCount={feedItems.length} />
         </motion.div>
 
         {/* Featured Content */}
@@ -241,27 +160,25 @@ export function ForYouScreen({
             transition={{ delay: 0.3 }}
             className="mb-12"
           >
-            <SectionHeader 
+            <SectionHeader
               title="Featured"
               subtitle="Hand-picked for you"
+              onViewAll={() => onNavigate('explore')}
             />
             <div className="space-y-4">
-              {featuredContent.map(item => (
-                <div key={item.id} onClick={() => onStoryClick(item.id)} className="cursor-pointer relative">
-                  <ContentCard
-                    id={item.id}
-                    title={item.title}
-                    creator={item.description}
-                    imageUrl={item.mediaSource}
-                    category={item.creator}
-                    onSelect={onStoryClick}
-                  />
-                  {/* Type badge with icon */}
-                  <div className="absolute top-3 left-3 px-2 py-1 bg-black/60 backdrop-blur-sm rounded text-xs text-white/90 uppercase tracking-wider border border-white/20 flex items-center gap-1.5">
-                    {getContentTypeIcon(item.type)}
-                    {item.type}
-                  </div>
-                </div>
+              {featuredContent.map((item, i) => (
+                <ContentCard
+                  key={item.id}
+                  id={item.id}
+                  title={item.title}
+                  creator={item.creator}
+                  subtitle={item.description}
+                  duration={item.duration}
+                  imageUrl={item.mediaSource}
+                  typeLabel={<>{getContentTypeIcon(item.type)}{item.type}</>}
+                  index={i}
+                  onSelect={onStoryClick}
+                />
               ))}
             </div>
           </motion.section>
@@ -277,24 +194,22 @@ export function ForYouScreen({
           >
             <SectionHeader 
               title="Trending Now"
-              subtitle="Popular in your region"
+              subtitle="Popular on SEEN"
+              onViewAll={() => onNavigate('explore')}
               icon={<TrendingUp className="w-5 h-5" />}
             />
             <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-5 px-5">
               {trendingContent.map(item => (
-                <div key={item.id} onClick={() => onStoryClick(item.id)} className="flex-shrink-0">
-                  <StoryCard
-                    title={item.title}
-                    author={item.creator}
-                    readTime={item.duration}
-                    imageUrl={item.mediaSource}
-                  />
-                  {/* Type badge with icon */}
-                  <div className="mt-2 text-xs text-white/50 uppercase tracking-wider flex items-center gap-1.5">
-                    {getContentTypeIcon(item.type)}
-                    {item.type}
-                  </div>
-                </div>
+                <StoryCard
+                  key={item.id}
+                  id={item.id}
+                  title={item.title}
+                  author={item.creator}
+                  readTime={item.duration}
+                  imageUrl={item.mediaSource}
+                  typeLabel={<>{getContentTypeIcon(item.type)}{item.type}</>}
+                  onSelect={() => onStoryClick(item.id)}
+                />
               ))}
             </div>
           </motion.section>
@@ -311,18 +226,21 @@ export function ForYouScreen({
             <SectionHeader 
               title="New Releases"
               subtitle="Fresh content"
+              onViewAll={() => onNavigate('explore')}
               icon={<Music className="w-5 h-5" />}
             />
             <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-5 px-5">
               {newContent.map(item => (
-                <div key={item.id} onClick={() => onStoryClick(item.id)} className="flex-shrink-0">
-                  <StoryCard
-                    title={item.title}
-                    author={item.creator}
-                    readTime={item.duration}
-                    imageUrl={item.mediaSource}
-                  />
-                </div>
+                <StoryCard
+                  key={item.id}
+                  id={item.id}
+                  title={item.title}
+                  author={item.creator}
+                  readTime={item.duration}
+                  imageUrl={item.mediaSource}
+                  typeLabel={<>{getContentTypeIcon(item.type)}{item.type}</>}
+                  onSelect={() => onStoryClick(item.id)}
+                />
               ))}
             </div>
           </motion.section>
@@ -442,5 +360,36 @@ function BottomNav({
         </button>
       </div>
     </nav>
+  );
+}
+function PresenceIndicators({ storyCount }: { storyCount: number }) {
+  const nav = useAppNav();
+  const counts = useResource(async () => {
+    const [creators, collections] = await Promise.all([api.creators.list(), api.collections.list()]);
+    return { creators: creators.length, collections: collections.length };
+  });
+  const rows = [
+    { icon: <BookOpen className="w-5 h-5 text-amber-200/70" aria-hidden />, n: storyCount, label: storyCount === 1 ? "Story in motion" : "Stories in motion", tab: "stories" },
+    { icon: <Users className="w-5 h-5 text-violet-200/70" aria-hidden />, n: counts.data?.creators, label: "Creators to follow", tab: "creators" },
+    { icon: <Folder className="w-5 h-5 text-orange-200/70" aria-hidden />, n: counts.data?.collections, label: "Collections to explore", tab: "collections" },
+  ];
+  return (
+    <ul className="space-y-1">
+      {rows.map((r, i) => (
+        <motion.li key={r.tab} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 + i * 0.1, duration: 0.8 }}>
+          <button
+            type="button"
+            onClick={() => nav.go("explore", { tab: r.tab })}
+            className="flex items-center gap-4 min-h-11 w-full text-left group"
+          >
+            {r.icon}
+            <span className="flex items-baseline gap-2">
+              <span className="text-2xl font-light text-white/90 tabular-nums min-w-[1.5ch]">{r.n ?? "–"}</span>
+              <span className="text-sm text-white/40 font-light tracking-wide group-hover:text-white/70 transition-colors">{r.label}</span>
+            </span>
+          </button>
+        </motion.li>
+      ))}
+    </ul>
   );
 }

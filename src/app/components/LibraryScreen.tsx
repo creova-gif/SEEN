@@ -40,6 +40,7 @@ export function LibraryScreen({
 }: LibraryScreenProps) {
   const [activeTab, setActiveTab] = useState<LibraryTab>('inProgress');
   const { state, removeProgress } = useStoryState();
+  const [pendingRemove, setPendingRemove] = useState<string | null>(null);
 
   const handleDelete = (contentId: string, kind: 'progress') => {
     if (kind === 'progress') {
@@ -91,7 +92,11 @@ export function LibraryScreen({
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3, duration: 0.8 }}
             onClick={() => setActiveTab('inProgress')}
-            className={`flex items-center gap-4 group cursor-pointer transition-opacity duration-300 ${
+            role="button"
+            tabIndex={0}
+            aria-pressed={activeTab === 'inProgress'}
+            onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), setActiveTab('inProgress'))}
+            className={`flex items-center gap-4 min-h-11 group cursor-pointer transition-opacity duration-300 ${
               activeTab === 'inProgress' ? 'opacity-100' : 'opacity-40 hover:opacity-70'
             }`}
           >
@@ -118,7 +123,11 @@ export function LibraryScreen({
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.5, duration: 0.8 }}
             onClick={() => setActiveTab('completed')}
-            className={`flex items-center gap-4 group cursor-pointer transition-opacity duration-300 ${
+            role="button"
+            tabIndex={0}
+            aria-pressed={activeTab === 'completed'}
+            onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), setActiveTab('completed'))}
+            className={`flex items-center gap-4 min-h-11 group cursor-pointer transition-opacity duration-300 ${
               activeTab === 'completed' ? 'opacity-100' : 'opacity-40 hover:opacity-70'
             }`}
           >
@@ -153,35 +162,37 @@ export function LibraryScreen({
               <div className="space-y-4">
                 {libraryData.inProgress.map(({ content, progress }) => (
                   <div key={content.id} className="relative group">
-                    <div onClick={() => onStoryClick(content.id)} className="cursor-pointer">
-                      <ContentCard
-                        id={content.id}
-                        title={content.title}
-                        creator={content.description}
-                        imageUrl={content.mediaSource}
-                        category={content.creator}
-                        onSelect={onStoryClick}
-                      />
-                      {/* Progress badge */}
-                      <div className="absolute top-3 right-3 px-2 py-1 bg-purple-600/80 backdrop-blur-sm rounded text-xs text-white font-medium">
-                        {progress.progressPercentage}%
-                      </div>
-                      {/* Type badge */}
-                      <div className="absolute top-3 left-3 px-2 py-1 bg-black/60 backdrop-blur-sm rounded text-xs text-white/90 uppercase tracking-wider border border-white/20">
-                        {content.type}
-                      </div>
-                    </div>
-                    {/* Delete button */}
+                    <ContentCard
+                      id={content.id}
+                      title={content.title}
+                      creator={content.creator}
+                      duration={content.duration}
+                      imageUrl={content.mediaSource}
+                      typeLabel={content.type}
+                      badge={`${progress.progressPercentage}%`}
+                      aspect="landscape"
+                      onSelect={onStoryClick}
+                    />
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(content.id, 'progress');
+                      type="button"
+                      onClick={() => {
+                        if (pendingRemove === content.id) {
+                          handleDelete(content.id, 'progress');
+                          setPendingRemove(null);
+                        } else {
+                          setPendingRemove(content.id);
+                        }
                       }}
-                      className="absolute bottom-3 right-3 p-2 bg-red-600/80 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                      title="Remove from in-progress"
+                      onBlur={() => setPendingRemove(null)}
+                      className={`absolute bottom-3 right-3 z-20 min-h-9 px-3 rounded-full backdrop-blur-sm flex items-center gap-2 text-[11px] tracking-wider uppercase transition-colors ${
+                        pendingRemove === content.id ? 'bg-red-600 text-white' : 'bg-black/60 text-white/70 border border-white/15'
+                      }`}
+                      aria-label={pendingRemove === content.id ? `Confirm remove ${content.title}` : `Remove ${content.title} from in progress`}
                     >
-                      <Trash2 className="w-4 h-4 text-white" />
+                      <Trash2 className="w-3.5 h-3.5" aria-hidden />
+                      {pendingRemove === content.id ? 'Tap to confirm' : null}
                     </button>
+                  
                   </div>
                 ))}
               </div>
@@ -210,24 +221,17 @@ export function LibraryScreen({
               <div className="space-y-4">
                 {libraryData.completed.map(({ content, progress }) => (
                   <div key={content.id} className="relative group">
-                    <div onClick={() => onStoryClick(content.id)} className="cursor-pointer">
-                      <ContentCard
-                        id={content.id}
-                        title={content.title}
-                        creator={content.description}
-                        imageUrl={content.mediaSource}
-                        category={content.creator}
-                        onSelect={onStoryClick}
-                      />
-                      {/* Completed badge */}
-                      <div className="absolute top-3 right-3 px-2 py-1 bg-green-600/80 backdrop-blur-sm rounded text-xs text-white font-medium">
-                        ✓ Completed
-                      </div>
-                      {/* Type badge */}
-                      <div className="absolute top-3 left-3 px-2 py-1 bg-black/60 backdrop-blur-sm rounded text-xs text-white/90 uppercase tracking-wider border border-white/20">
-                        {content.type}
-                      </div>
-                    </div>
+                    <ContentCard
+                      id={content.id}
+                      title={content.title}
+                      creator={content.creator}
+                      duration={content.duration}
+                      imageUrl={content.mediaSource}
+                      typeLabel={content.type}
+                      badge="✓ Completed"
+                      aspect="landscape"
+                      onSelect={onStoryClick}
+                    />
                   </div>
                 ))}
               </div>

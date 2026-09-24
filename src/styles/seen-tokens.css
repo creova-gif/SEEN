@@ -1,0 +1,118 @@
+/*
+ * SEEN design tokens
+ *
+ * Source: Figma "seen.io" → 06 — COMPONENTS → 02 — Design System (node 294:2).
+ * Values are copied 1:1 from the Figma variables (see docs/design/DESIGN_TOKEN_MAP.md).
+ * Components in src/app/components/seen/ bind to these through the Tailwind
+ * utilities declared in the @theme block below (bg-seen-elevated, text-seen-muted, …).
+ */
+
+:root {
+  /* Surfaces */
+  --seen-canvas: #000000;
+  --seen-surface-base: #121214;
+  --seen-surface-elevated: #1a1a1d;
+  --seen-border-default: #222226;
+  --seen-border-focus: rgba(255, 255, 255, 0.3);
+
+  /* Text */
+  --seen-text-primary: #ffffff;
+  --seen-text-secondary: #a1a1aa;
+  --seen-text-muted: #8b8b94;
+  --seen-text-on-brand: #0b0b0c;
+
+  /* Brand */
+  --seen-brand-primary: #ffffff;
+  --seen-brand-on-primary: #000000;
+  --seen-brand-secondary: #c9c9ce;
+  --seen-brand-accent: #c084fc;
+
+  /* Status */
+  --seen-status-success: #20c997;
+  --seen-status-warning: #f5a623;
+  --seen-status-error: #e5484d;
+  --seen-status-info: #60a5fa;
+
+  /* Domain accents */
+  --seen-domain-editorial: #ffe29e;
+  --seen-domain-funding: #ffd166;
+  --seen-domain-creator: #c084fc;
+  --seen-domain-institutional: #60a5fa;
+  --seen-media-story: #fbbf24;
+
+  /* Spacing scale (Figma space-1 … space-12) */
+  --seen-space-1: 2px;
+  --seen-space-2: 4px;
+  --seen-space-3: 8px;
+  --seen-space-4: 12px;
+  --seen-space-5: 16px;
+  --seen-space-6: 20px;
+  --seen-space-7: 24px;
+  --seen-space-8: 32px;
+  --seen-space-9: 40px;
+  --seen-space-10: 56px;
+  --seen-space-12: 96px;
+
+  /* Radii */
+  --seen-radius-xs: 4px;
+  --seen-radius-sm: 8px;
+  --seen-radius-md: 12px;
+  --seen-radius-lg: 16px;
+  --seen-radius-xl: 24px;
+  --seen-radius-pill: 999px;
+
+  /* Elevation */
+  --seen-elevation-2: 0 8px 24px rgba(0, 0, 0, 0.45);
+
+  /* Layout contracts */
+  --seen-content-max: 428px;   /* mobile-first column used by every screen */
+  --seen-gutter: 20px;         /* horizontal page padding (px-5) */
+  --seen-touch-min: 44px;      /* minimum hit area (WCAG 2.5.8 / Fitts) */
+
+  /* Motion */
+  --seen-duration-fast: 150ms;
+  --seen-duration-base: 250ms;
+  --seen-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+}
+
+@theme inline {
+  --color-seen-canvas: var(--seen-canvas);
+  --color-seen-surface: var(--seen-surface-base);
+  --color-seen-elevated: var(--seen-surface-elevated);
+  --color-seen-border: var(--seen-border-default);
+  --color-seen-focus: var(--seen-border-focus);
+  --color-seen-text: var(--seen-text-primary);
+  --color-seen-secondary: var(--seen-text-secondary);
+  --color-seen-muted: var(--seen-text-muted);
+  --color-seen-accent: var(--seen-brand-accent);
+  --color-seen-success: var(--seen-status-success);
+  --color-seen-warning: var(--seen-status-warning);
+  --color-seen-error: var(--seen-status-error);
+  --color-seen-info: var(--seen-status-info);
+  --color-seen-funding: var(--seen-domain-funding);
+  --color-seen-editorial: var(--seen-domain-editorial);
+  --color-seen-creator: var(--seen-domain-creator);
+  --color-seen-institutional: var(--seen-domain-institutional);
+  --color-seen-story: var(--seen-media-story);
+  --radius-seen-sm: var(--seen-radius-sm);
+  --radius-seen-md: var(--seen-radius-md);
+  --radius-seen-lg: var(--seen-radius-lg);
+  --radius-seen-xl: var(--seen-radius-xl);
+}
+
+/* Visible keyboard focus everywhere (WCAG 2.4.7 / 2.4.11). Pointer clicks are unaffected. */
+:where(button, a, input, select, textarea, [role="button"], [tabindex]):focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.7);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

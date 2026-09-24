@@ -13,7 +13,10 @@ import { ContentCard } from "./ContentCard";
 import { StoryCard } from "./StoryCard";
 import { SectionHeader } from "./SectionHeader";
 import { EmptyState } from "./EmptyState";
-import { Search, Filter, Music, Film, Archive, Globe, TrendingUp, Clock, Home, Compass, Library, User } from "lucide-react";
+import { Search, Home, Compass, Library, User, BookOpen } from "lucide-react";
+import { SegmentedTabs } from "./seen/primitives";
+import { CreatorsPanel } from "../screens/CreatorsPanel";
+import { CollectionsPanel } from "../screens/CollectionsPanel";
 import type { ContentLanguage } from "../data/types";
 import { getExploreCategories, searchStories } from "../data/storyService";
 import type { Language } from "../data/storyDatabase";
@@ -23,7 +26,10 @@ interface ExploreScreenProps {
   onNavigate: (screen: string) => void;
   onSearch?: () => void;
   language: ContentLanguage;
+  initialTab?: ExploreTab;
 }
+
+export type ExploreTab = "stories" | "creators" | "collections";
 
 /**
  * EXPLORE SECTION - CURATED DISCOVERY
@@ -38,10 +44,11 @@ export function ExploreScreen({
   onStoryClick,
   onNavigate,
   onSearch,
-  language
+  language,
+  initialTab = "stories",
 }: ExploreScreenProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedType, setSelectedType] = useState<string | null>(null);
+  const [tab, setTab] = useState<ExploreTab>(initialTab);
 
   // Get curated categories
   const categories = getExploreCategories(language as Language);
@@ -53,13 +60,7 @@ export function ExploreScreen({
     ? searchStories(searchQuery, language as Language) 
     : [];
 
-  // Filter categories by selected type
-  const filteredCategories = selectedType
-    ? categories.map(cat => ({
-        ...cat,
-        items: cat.items.filter(item => item.type === selectedType)
-      })).filter(cat => cat.items.length > 0)
-    : categories;
+  const filteredCategories = categories;
 
   // Show empty state if no categories
   if (categories.length === 0 && !searchQuery) {
@@ -95,7 +96,7 @@ export function ExploreScreen({
       transition={{ duration: 0.4 }}
       className="min-h-screen bg-black"
     >
-      <NavigationBar />
+      <NavigationBar onSearch={onSearch} />
 
       {/* Main Content */}
       <main className="pt-20 pb-24 px-5 max-w-[428px] mx-auto">
@@ -110,65 +111,37 @@ export function ExploreScreen({
           <p className="text-sm text-white/60">Discover cultural stories and creators</p>
         </motion.div>
 
+        <div className="mb-6">
+          <SegmentedTabs<ExploreTab>
+            label="Explore sections"
+            value={tab}
+            onChange={setTab}
+            tabs={[
+              { id: "stories", label: "Stories" },
+              { id: "creators", label: "Creators" },
+              { id: "collections", label: "Collections" },
+            ]}
+          />
+        </div>
+
+        {tab === "creators" && <CreatorsPanel />}
+        {tab === "collections" && <CollectionsPanel />}
+
+        {tab === "stories" && (<>
         {/* Search Bar */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="mb-6"
-        >
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+        <div className="mb-8">
+          <label className="relative block">
+            <span className="sr-only">Search stories</span>
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" aria-hidden />
             <input
-              type="text"
+              type="search"
               placeholder="Search stories, creators, topics..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-white/30 transition-colors"
             />
-          </div>
-        </motion.div>
-
-        {/* Type Filters */}
-        <motion.section
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="mb-8"
-        >
-          <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2 -mx-5 px-5">
-            <TypeFilter
-              icon={<Globe className="w-4 h-4" />}
-              label="All"
-              active={selectedType === null}
-              onClick={() => setSelectedType(null)}
-            />
-            <TypeFilter
-              icon={<Music className="w-4 h-4" />}
-              label="Music"
-              active={selectedType === 'music'}
-              onClick={() => setSelectedType('music')}
-            />
-            <TypeFilter
-              icon={<Film className="w-4 h-4" />}
-              label="Stories"
-              active={selectedType === 'story'}
-              onClick={() => setSelectedType('story')}
-            />
-            <TypeFilter
-              icon={<Film className="w-4 h-4" />}
-              label="Films"
-              active={selectedType === 'film'}
-              onClick={() => setSelectedType('film')}
-            />
-            <TypeFilter
-              icon={<Archive className="w-4 h-4" />}
-              label="Collections"
-              active={selectedType === 'collection'}
-              onClick={() => setSelectedType('collection')}
-            />
-          </div>
-        </motion.section>
+          </label>
+        </div>
 
         {/* Search Results */}
         {searchQuery.length > 2 && (
@@ -184,19 +157,17 @@ export function ExploreScreen({
             {searchResults.length > 0 ? (
               <div className="space-y-4">
                 {searchResults.map(item => (
-                  <div key={item.id} onClick={() => onStoryClick(item.id)} className="cursor-pointer relative">
-                    <ContentCard
-                      id={item.id}
-                      title={item.title}
-                      creator={item.description}
-                      imageUrl={item.mediaSource}
-                      category={item.creator}
-                      onSelect={onStoryClick}
-                    />
-                    <div className="absolute top-3 left-3 px-2 py-1 bg-black/60 backdrop-blur-sm rounded text-xs text-white/90 uppercase tracking-wider border border-white/20">
-                      {item.type}
-                    </div>
-                  </div>
+                  <ContentCard
+                    key={item.id}
+                    id={item.id}
+                    title={item.title}
+                    creator={item.creator}
+                    subtitle={item.description}
+                    duration={item.duration}
+                    imageUrl={item.mediaSource}
+                    typeLabel={<><BookOpen className="w-3 h-3" aria-hidden />{item.type}</>}
+                    onSelect={onStoryClick}
+                  />
                 ))}
               </div>
             ) : (
@@ -226,45 +197,39 @@ export function ExploreScreen({
               // Horizontal scroll for music
               <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-5 px-5">
                 {category.items.map(item => (
-                  <div key={item.id} onClick={() => onStoryClick(item.id)} className="flex-shrink-0">
-                    <StoryCard
-                      title={item.title}
-                      author={item.creator}
-                      readTime={item.duration}
-                      imageUrl={item.mediaSource}
-                    />
-                  </div>
+                  <StoryCard
+                    key={item.id}
+                    id={item.id}
+                    title={item.title}
+                    author={item.creator}
+                    readTime={item.duration}
+                    imageUrl={item.mediaSource}
+                    onSelect={() => onStoryClick(item.id)}
+                  />
                 ))}
               </div>
             ) : (
               // Vertical list for stories/films/collections
               <div className="space-y-4">
                 {category.items.map(item => (
-                  <div key={item.id} onClick={() => onStoryClick(item.id)} className="cursor-pointer relative">
-                    <ContentCard
-                      id={item.id}
-                      title={item.title}
-                      creator={item.description}
-                      imageUrl={item.mediaSource}
-                      category={item.creator}
-                      onSelect={onStoryClick}
-                    />
-                    <div className="absolute top-3 left-3 px-2 py-1 bg-black/60 backdrop-blur-sm rounded text-xs text-white/90 uppercase tracking-wider border border-white/20">
-                      {item.type}
-                    </div>
-                  </div>
+                  <ContentCard
+                    key={item.id}
+                    id={item.id}
+                    title={item.title}
+                    creator={item.creator}
+                    subtitle={item.description}
+                    duration={item.duration}
+                    imageUrl={item.mediaSource}
+                    typeLabel={<><BookOpen className="w-3 h-3" aria-hidden />{item.type}</>}
+                    onSelect={onStoryClick}
+                  />
                 ))}
               </div>
             )}
           </motion.section>
         ))}
 
-        {/* No results for filter */}
-        {!searchQuery && filteredCategories.length === 0 && (
-          <div className="text-center py-16 text-white/40 text-sm">
-            No content found for this filter
-          </div>
-        )}
+        </>)}
       </main>
 
       {/* Bottom Navigation */}
@@ -273,32 +238,6 @@ export function ExploreScreen({
   );
 }
 
-// Type Filter Button
-function TypeFilter({ 
-  icon, 
-  label, 
-  active, 
-  onClick 
-}: { 
-  icon: React.ReactNode;
-  label: string; 
-  active: boolean; 
-  onClick: () => void;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={`px-4 py-2 rounded-full text-sm whitespace-nowrap transition-colors flex items-center gap-2 ${
-        active
-          ? "bg-white text-black"
-          : "bg-white/5 border border-white/10 text-white/80 hover:bg-white/10"
-      }`}
-    >
-      {icon}
-      {label}
-    </button>
-  );
-}
 
 // Bottom Navigation Component
 function BottomNav({ 

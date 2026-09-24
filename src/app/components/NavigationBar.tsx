@@ -1,61 +1,40 @@
 import { motion } from "motion/react";
-import { Search, User } from "lucide-react";
-import { useNavigation } from "../navigation/NavigationController";
+import { Bell, Search, User } from "lucide-react";
+import { useAppNav } from "../navigation/AppNav";
+import { IconButton } from "./seen/primitives";
 
 interface NavigationBarProps {
+  /** Optional override; defaults to the app-level search. */
   onSearch?: () => void;
 }
 
 export function NavigationBar({ onSearch }: NavigationBarProps) {
-  const { navigateToTab } = useNavigation();
-
-  const handleSearchTap = () => {
-    console.log('[Interaction] Search button tapped');
-    if (onSearch) {
-      onSearch();
-    }
-  };
-
-  const handleProfileTap = () => {
-    console.log('[Interaction] Profile button tapped from nav bar');
-    navigateToTab('profile');
-  };
+  const nav = useAppNav();
 
   return (
     <motion.header
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6 }}
-      className="fixed top-0 left-0 right-0 z-50 px-5 py-4 backdrop-blur-xl bg-black/40 border-b border-white/5"
+      className="fixed top-0 left-0 right-0 z-50 px-5 py-3 backdrop-blur-xl bg-black/60 border-b border-white/5"
     >
       <div className="max-w-[428px] mx-auto flex items-center justify-between">
-        {/* Logo */}
         <div className="flex flex-col">
-          <h1 className="text-lg tracking-tight text-white">
-            SEEN
-          </h1>
-          <p className="text-[10px] tracking-[0.3em] uppercase text-white/40">
-            by CREOVA
-          </p>
+          <span className="text-lg tracking-tight text-white">SEEN</span>
+          <span className="text-[10px] tracking-[0.3em] uppercase text-white/40">by CREOVA</span>
         </div>
 
-        {/* Actions */}
-        <div className="flex items-center gap-4">
-          <button 
-            className="w-9 h-9 rounded-full bg-white/5 backdrop-blur-sm flex items-center justify-center border border-white/10 hover:bg-white/10 transition-colors"
-            aria-label="Search"
-            onClick={handleSearchTap}
-          >
+        <nav aria-label="Quick actions" className="flex items-center gap-2">
+          <IconButton label="Search" onClick={onSearch ?? nav.openSearch}>
             <Search className="w-4 h-4 text-white/70" />
-          </button>
-          <button 
-            className="w-9 h-9 rounded-full bg-white/5 backdrop-blur-sm flex items-center justify-center border border-white/10 hover:bg-white/10 transition-colors"
-            aria-label="Profile"
-            onClick={handleProfileTap}
-          >
+          </IconButton>
+          <IconButton label="Notifications" badge={nav.unreadCount} onClick={nav.openNotifications}>
+            <Bell className="w-4 h-4 text-white/70" />
+          </IconButton>
+          <IconButton label="Profile" onClick={nav.openProfile}>
             <User className="w-4 h-4 text-white/70" />
-          </button>
-        </div>
+          </IconButton>
+        </nav>
       </div>
     </motion.header>
   );

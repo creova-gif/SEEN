@@ -1,12 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { AnimatePresence } from "motion/react";
-import { StoryStateProvider } from "./contexts/StoryStateContext";
+import { Toaster } from "sonner";
+import { StoryStateProvider, useStoryState } from "./contexts/StoryStateContext";
+import type { UserIntent, UserRole } from "./contexts/StoryStateContext";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
-import { NavigationProvider } from "./navigation/NavigationController";
 import { OnboardingSystem } from "./components/OnboardingSystem";
-import { HomeScreen } from "./components/HomeScreen";
 import { ForYouScreen } from "./components/ForYouScreen";
-import { ExploreScreen } from "./components/ExploreScreen";
+import { ExploreScreen, type ExploreTab } from "./components/ExploreScreen";
 import { LibraryScreen } from "./components/LibraryScreen";
 import { ProfileScreen } from "./components/ProfileScreen";
 import { FeaturedStoryPreview } from "./components/FeaturedStoryPreview";
@@ -16,349 +16,275 @@ import { AboutScreen } from "./components/AboutScreen";
 import { ProfilePreferencesScreen } from "./components/ProfilePreferencesScreen";
 import { CreatorPublishFlow } from "./components/CreatorPublishFlow";
 import { ModerationGovernanceSystem } from "./components/ModerationGovernanceSystem";
-import { InstitutionalCollectionScreen } from "./components/InstitutionalCollectionScreen";
 import { SearchScreen } from "./screens/SearchScreen";
 import { CreatorMonetizationScreen } from "./components/CreatorMonetizationScreen";
 import { CreatorEarningsScreen } from "./components/CreatorEarningsScreen";
 import { SubscriptionManagementScreen } from "./components/SubscriptionManagementScreen";
 import { AdminDashboardScreen } from "./components/AdminDashboardScreen";
-import { useStoryState } from "./contexts/StoryStateContext";
-import type { Language, UserIntent, UserRole } from "./contexts/StoryStateContext";
+import { CreatorProfileScreen } from "./screens/CreatorProfileScreen";
+import { CollectionDetailScreen } from "./screens/CollectionDetailScreen";
+import { CollectionsScreen } from "./screens/CollectionsScreen";
+import { FundingScreen } from "./screens/FundingScreen";
+import { OpportunityDetailScreen } from "./screens/OpportunityDetailScreen";
+import { NotificationsScreen } from "./screens/NotificationsScreen";
+import { ScreenFrame } from "./screens/ScreenFrame";
+import { StateTemplate } from "./components/seen/primitives";
+import { AppNavProvider, type AppNav, type RouteParams } from "./navigation/AppNav";
+import { type AppScreen, NOT_DEEP_LINKABLE, canAccess, fromHash, isScreen, toHash } from "./navigation/routes";
+import { api } from "./services";
 import { initializeDemoData } from "./data/demoData";
 
 // Initialize demo data for testing (only runs once)
 initializeDemoData();
 
-type AppScreen =
-  | "onboarding"
-  | "language-selection"
-  | "splash"
-  | "onboarding-purpose"
-  | "onboarding-intent"
-  | "onboarding-accessibility"
-  | "home"
-  | "for-you"
-  | "explore"
-  | "library"
-  | "profile"
-  | "story-preview"
-  | "story-chapter"
-  | "chapter-index"
-  | "about"
-  | "settings"
-  | "creator-publish"
-  | "moderation-governance"
-  | "institutional-collection"
-  | "search"
-  | "creator-monetization"
-  | "creator-earnings"
-  | "subscription-management"
-  | "admin-dashboard";
+type HistoryEntry = { screen: AppScreen; params: RouteParams };
 
 function AppContent() {
-  const { state, setLanguage, setIntent, setUserRole, setAccessibilityPreferences, setPersonalizationPreferences, enterStoryWorld } = useStoryState();
+  const { state, setLanguage, setIntent, setUserRole, enterStoryWorld } = useStoryState();
   const { state: authState } = useAuth();
-  
+
   // Sync user role from auth state when user is authenticated
-  // Use primitive values as dependencies to avoid infinite loops
   useEffect(() => {
     if (authState.isAuthenticated && authState.user?.role) {
       setUserRole(authState.user.role);
-      if (authState.user.language) {
-        setLanguage(authState.user.language);
-      }
-      if (authState.user.intent) {
-        setIntent(authState.user.intent);
-      }
+      if (authState.user.language) setLanguage(authState.user.language);
+      if (authState.user.intent) setIntent(authState.user.intent);
     }
-  }, [
-    authState.isAuthenticated, 
-    authState.user?.role, 
-    authState.user?.language, 
-    authState.user?.intent,
-    setUserRole,
-    setLanguage,
-    setIntent
-  ]); // Include setter functions in dependencies
-  
-  // Check onboarding status from localStorage
+  }, [authState.isAuthenticated, authState.user?.role, authState.user?.language, authState.user?.intent, setUserRole, setLanguage, setIntent]);
+
   const hasCompletedOnboarding = localStorage.getItem("onboarding_completed") === "true";
   const hasEnteredSEEN = localStorage.getItem("hasEnteredSEEN") === "true";
   const savedStep = localStorage.getItem("onboarding_step");
-  
-  // Determine initial screen based on onboarding status and auth
-  const getInitialScreen = (): AppScreen => {
-    // If authenticated and onboarding complete, go to For You
-    if (authState.isAuthenticated && hasCompletedOnboarding) {
-      return "for-you";
-    }
-    // If authenticated but not completed onboarding, continue onboarding
-    if (authState.isAuthenticated && (savedStep || hasEnteredSEEN)) {
-      return "onboarding";
-    }
-    // If not authenticated, show onboarding (which includes account creation)
-    if (!authState.isLoading) {
-      return "onboarding";
-    }
-    // While checking auth, show onboarding
-    return "onboarding";
-  };
-  
-  const [currentScreen, setCurrentScreen] = useState<AppScreen>(getInitialScreen());
+
+  const [route, setRoute] = useState<HistoryEntry>({ screen: "onboarding", params: {} });
   const [isFirstVisit, setIsFirstVisit] = useState(!hasCompletedOnboarding);
+  const currentScreen = route.screen;
 
-  // getInitialScreen() runs once on first render, before the async auth
-  // session finishes loading (authState.isLoading starts true). Without this,
-  // every returning authenticated user who already completed onboarding gets
-  // stuck redoing it on every page load, because currentScreen never
-  // re-syncs once auth resolves.
+  // ------------------------------------------------------------ navigation
+  // Every navigation is mirrored into browser history (hash URLs), so the
+  // browser/Android back button, refresh and shared links all work.
+  const applyRoute = useCallback(
+    (entry: HistoryEntry) => {
+      if (entry.screen === "story-preview" && entry.params.id) enterStoryWorld(entry.params.id);
+      setRoute(entry);
+      window.scrollTo?.({ top: 0 });
+    },
+    [enterStoryWorld],
+  );
+
+  const go = useCallback(
+    (screen: string, params: RouteParams = {}, opts: { replace?: boolean } = {}) => {
+      if (!isScreen(screen)) return;
+      const entry: HistoryEntry = { screen, params };
+      const url = toHash(screen, params);
+      if (opts.replace) window.history.replaceState(entry, "", url);
+      else window.history.pushState(entry, "", url);
+      applyRoute(entry);
+    },
+    [applyRoute],
+  );
+
+  const depth = useRef(0); // entries this session pushed onto browser history
+  const back = useCallback(() => {
+    // If we pushed history in this session, defer to the browser; otherwise
+    // (deep link landed here) fall back to the home tab.
+    if (window.history.state && window.history.length > 1 && depth.current > 0) window.history.back();
+    else go("for-you", {}, { replace: true });
+  }, [go]);
+
   useEffect(() => {
-    if (
-      !authState.isLoading &&
-      authState.isAuthenticated &&
-      hasCompletedOnboarding &&
-      currentScreen === "onboarding"
-    ) {
-      setCurrentScreen("for-you");
-    }
-  }, [authState.isLoading, authState.isAuthenticated, hasCompletedOnboarding, currentScreen]);
+    const onPop = (e: PopStateEvent) => {
+      depth.current = Math.max(0, depth.current - 1);
+      const entry = (e.state as HistoryEntry | null) ?? fromHash(window.location.hash);
+      if (entry && isScreen(entry.screen) && entry.screen !== "onboarding") applyRoute(entry);
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, [applyRoute]);
 
-  // Handle onboarding completion
+  const trackedGo = useCallback(
+    (screen: string, params?: RouteParams) => {
+      depth.current += 1;
+      go(screen, params);
+    },
+    [go],
+  );
+
+  // Leave onboarding once auth has resolved for a returning user; honour a deep link if present.
+  useEffect(() => {
+    if (!authState.isLoading && authState.isAuthenticated && hasCompletedOnboarding && currentScreen === "onboarding") {
+      const linked = fromHash(window.location.hash);
+      if (linked && !NOT_DEEP_LINKABLE.includes(linked.screen)) go(linked.screen, linked.params, { replace: true });
+      else go("for-you", {}, { replace: true });
+    }
+  }, [authState.isLoading, authState.isAuthenticated, hasCompletedOnboarding, currentScreen, go]);
+
+  // --------------------------------------------------------- unread badge
+  const [unreadCount, setUnreadCount] = useState(0);
+  useEffect(() => {
+    const refresh = () => api.notifications.unreadCount().then(setUnreadCount, () => undefined);
+    refresh();
+    const onStore = (e: Event) => (e as CustomEvent).detail === "notifications" && refresh();
+    window.addEventListener("seen:store", onStore);
+    return () => window.removeEventListener("seen:store", onStore);
+  }, []);
+
+  const openStory = useCallback((id: string) => trackedGo("story-preview", { id }), [trackedGo]);
+
+  const nav: AppNav = useMemo(
+    () => ({
+      go: trackedGo,
+      back,
+      openStory,
+      openSearch: () => trackedGo("search"),
+      openNotifications: () => trackedGo("notifications"),
+      openProfile: () => trackedGo("profile"),
+      unreadCount,
+    }),
+    [trackedGo, back, openStory, unreadCount],
+  );
+
+  // ---------------------------------------------------------- handlers
   const handleOnboardingComplete = (data: { role: UserRole; intent: UserIntent }) => {
     setUserRole(data.role);
     setIntent(data.intent);
     setIsFirstVisit(false);
-    setCurrentScreen("for-you");
+    go("for-you", {}, { replace: true });
   };
 
-  const handleLanguageSelect = (lang: Language) => {
-    setLanguage(lang);
-    setCurrentScreen("splash");
-  };
-
-  const handleIntentSelect = (intent: UserIntent) => {
-    setIntent(intent);
-    setCurrentScreen("onboarding-accessibility");
-  };
-
-  const handleAccessibilityComplete = (prefs: { captionsEnabled: boolean; highContrast: boolean; reducedMotion: boolean }) => {
-    setAccessibilityPreferences(prefs);
-    setCurrentScreen("for-you"); // Navigate to For You after onboarding
-  };
-
-  const handleEnterStory = (storyWorldId: string) => {
-    enterStoryWorld(storyWorldId);
-    setCurrentScreen("story-preview");
-  };
-
-  // Handle story click with content ID
-  const handleStoryClick = (contentId: string) => {
-    enterStoryWorld(contentId);
-    setCurrentScreen("story-preview");
-  };
-
-  // Handle search screen
-  const handleOpenSearch = () => {
-    setCurrentScreen("search");
-  };
-
-  const handleCloseSearch = () => {
-    setCurrentScreen("for-you");
-  };
-
-  const handleSearchSelectStory = (storyId: string) => {
-    enterStoryWorld(storyId);
-    setCurrentScreen("story-preview");
-  };
-
-  // Navigation handler for bottom tabs
   const handleNavigate = (screen: string) => {
-    switch (screen) {
-      case "for-you":
-        setCurrentScreen("for-you");
-        break;
-      case "explore":
-        setCurrentScreen("explore");
-        break;
-      case "library":
-        setCurrentScreen("library");
-        break;
-      case "profile":
-        setCurrentScreen("profile");
-        break;
-      case "home":
-        setCurrentScreen("home");
-        break;
-      default:
-        break;
-    }
+    if (["for-you", "explore", "library", "profile"].includes(screen)) trackedGo(screen);
   };
+
+  const role = state.userRole;
+  const allowed = canAccess(currentScreen, role);
 
   return (
-    <div className="size-full bg-black">
-      <AnimatePresence mode="wait">
-        {currentScreen === "onboarding" && (
-          <OnboardingSystem 
-            key="onboarding"
-            onComplete={handleOnboardingComplete}
-            initialStep={savedStep ? parseInt(savedStep) : 0}
-            hasEnteredSEEN={hasEnteredSEEN}
-          />
-        )}
+    <AppNavProvider value={nav}>
+      <div className="size-full bg-black">
+        <Toaster theme="dark" position="top-center" richColors closeButton />
+        <AnimatePresence mode="wait">
+          {currentScreen === "onboarding" && (
+            <OnboardingSystem
+              key="onboarding"
+              onComplete={handleOnboardingComplete}
+              initialStep={savedStep ? parseInt(savedStep) : 0}
+              hasEnteredSEEN={hasEnteredSEEN}
+            />
+          )}
 
-        {currentScreen === "home" && (
-          <HomeScreen 
-            key="home"
-            onStoryClick={() => handleEnterStory("midnight-resonance")}
-            userIntent={state.intent}
-          />
-        )}
-        
-        {currentScreen === "story-preview" && state.currentStoryWorldId && (
-          <FeaturedStoryPreview 
-            key="story-preview"
-            onClose={() => setCurrentScreen("for-you")}
-            onEnterStory={() => setCurrentScreen("story-chapter")}
-          />
-        )}
+          {!allowed && (
+            <ScreenFrame key="denied" title="Restricted" onBack={back}>
+              <StateTemplate
+                kind="denied"
+                title="You don't have access to this area"
+                message="This section is for a different account role. If you think you should have access, request it from Settings."
+                actionLabel="Go back"
+                onAction={back}
+              />
+            </ScreenFrame>
+          )}
 
-        {currentScreen === "story-chapter" && state.currentStoryWorldId && (
-          <StoryChapterScreen 
-            key="story-chapter"
-            onClose={() => setCurrentScreen("for-you")}
-            onShowIndex={() => setCurrentScreen("chapter-index")}
-            storyWorldId={state.currentStoryWorldId}
-          />
-        )}
+          {allowed && currentScreen === "story-preview" && state.currentStoryWorldId && (
+            <FeaturedStoryPreview key="story-preview" onClose={back} onEnterStory={() => trackedGo("story-chapter")} />
+          )}
 
-        {currentScreen === "chapter-index" && state.currentStoryWorldId && (
-          <ChapterIndexScreen 
-            key="chapter-index"
-            onClose={() => setCurrentScreen("story-chapter")}
-            onSelectChapter={(id) => {
-              setCurrentScreen("story-chapter");
-            }}
-            storyWorldId={state.currentStoryWorldId}
-          />
-        )}
+          {allowed && currentScreen === "story-chapter" && state.currentStoryWorldId && (
+            <StoryChapterScreen
+              key="story-chapter"
+              onClose={() => go("for-you")}
+              onShowIndex={() => trackedGo("chapter-index")}
+              storyWorldId={state.currentStoryWorldId}
+            />
+          )}
 
-        {currentScreen === "for-you" && (
-          <ForYouScreen
-            key="for-you"
-            onStoryClick={handleStoryClick}
-            onNavigate={handleNavigate}
-            onSearch={handleOpenSearch}
-            userIntent={state.intent}
-            language={state.language}
-            isFirstVisit={isFirstVisit}
-          />
-        )}
+          {allowed && currentScreen === "chapter-index" && state.currentStoryWorldId && (
+            <ChapterIndexScreen
+              key="chapter-index"
+              onClose={back}
+              onSelectChapter={() => back()}
+              storyWorldId={state.currentStoryWorldId}
+            />
+          )}
 
-        {currentScreen === "explore" && (
-          <ExploreScreen
-            key="explore"
-            onStoryClick={handleStoryClick}
-            onNavigate={handleNavigate}
-            onSearch={handleOpenSearch}
-            language={state.language}
-          />
-        )}
+          {currentScreen === "for-you" && (
+            <ForYouScreen
+              key="for-you"
+              onStoryClick={openStory}
+              onNavigate={handleNavigate}
+              onSearch={nav.openSearch}
+              userIntent={state.intent}
+              language={state.language}
+              isFirstVisit={isFirstVisit}
+            />
+          )}
 
-        {currentScreen === "library" && (
-          <LibraryScreen
-            key="library"
-            onStoryClick={handleStoryClick}
-            onNavigate={handleNavigate}
-            onSearch={handleOpenSearch}
-          />
-        )}
+          {currentScreen === "explore" && (
+            <ExploreScreen
+              key={`explore-${route.params.tab ?? "stories"}`}
+              onStoryClick={openStory}
+              onNavigate={handleNavigate}
+              onSearch={nav.openSearch}
+              language={state.language}
+              initialTab={(route.params.tab as ExploreTab) ?? "stories"}
+            />
+          )}
 
-        {currentScreen === "profile" && (
-          <ProfileScreen
-            key="profile"
-            onNavigate={handleNavigate}
-            onSearch={handleOpenSearch}
-            onOpenSettings={() => setCurrentScreen("settings")}
-            onOpenAbout={() => setCurrentScreen("about")}
-            onOpenCreatorDashboard={() => setCurrentScreen("creator-publish")}
-            onOpenModeration={() => setCurrentScreen("moderation-governance")}
-            onOpenInstitutional={() => setCurrentScreen("institutional-collection")}
-            onOpenMonetization={() => setCurrentScreen("creator-monetization")}
-            onOpenEarnings={() => setCurrentScreen("creator-earnings")}
-            onOpenSubscriptions={() => setCurrentScreen("subscription-management")}
-            onOpenAdmin={() => setCurrentScreen("admin-dashboard")}
-            onOpenStory={handleStoryClick}
-            userIntent={state.intent}
-            language={state.language}
-          />
-        )}
+          {currentScreen === "library" && (
+            <LibraryScreen key="library" onStoryClick={openStory} onNavigate={handleNavigate} onSearch={nav.openSearch} />
+          )}
 
-        {currentScreen === "creator-monetization" && (
-          <CreatorMonetizationScreen key="creator-monetization" onClose={() => setCurrentScreen("profile")} />
-        )}
+          {currentScreen === "profile" && (
+            <ProfileScreen
+              key="profile"
+              onNavigate={handleNavigate}
+              onSearch={nav.openSearch}
+              onOpenSettings={() => trackedGo("settings")}
+              onOpenAbout={() => trackedGo("about")}
+              onOpenCreatorDashboard={() => trackedGo("creator-publish")}
+              onOpenModeration={() => trackedGo("moderation-governance")}
+              onOpenInstitutional={() => trackedGo("collections")}
+              onOpenMonetization={() => trackedGo("creator-monetization")}
+              onOpenEarnings={() => trackedGo("creator-earnings")}
+              onOpenSubscriptions={() => trackedGo("subscription-management")}
+              onOpenAdmin={() => trackedGo("admin-dashboard")}
+              onOpenStory={openStory}
+              userIntent={state.intent}
+              language={state.language}
+            />
+          )}
 
-        {currentScreen === "creator-earnings" && (
-          <CreatorEarningsScreen key="creator-earnings" onClose={() => setCurrentScreen("profile")} />
-        )}
+          {currentScreen === "search" && <SearchScreen key="search" onClose={back} onSelectStory={id => go("story-preview", { id }, { replace: true })} />}
+          {currentScreen === "notifications" && <NotificationsScreen key="notifications" />}
+          {currentScreen === "creator-profile" && route.params.id && <CreatorProfileScreen key={`creator-${route.params.id}`} creatorId={route.params.id} />}
+          {currentScreen === "collections" && <CollectionsScreen key="collections" />}
+          {currentScreen === "collection-detail" && route.params.id && (
+            <CollectionDetailScreen key={`collection-${route.params.id}`} collectionId={route.params.id} />
+          )}
+          {currentScreen === "funding" && <FundingScreen key="funding" />}
+          {currentScreen === "opportunity" && route.params.id && <OpportunityDetailScreen key={`opp-${route.params.id}`} opportunityId={route.params.id} />}
 
-        {currentScreen === "subscription-management" && (
-          <SubscriptionManagementScreen key="subscription-management" onClose={() => setCurrentScreen("profile")} />
-        )}
+          {allowed && currentScreen === "creator-monetization" && <CreatorMonetizationScreen key="creator-monetization" onClose={back} />}
+          {allowed && currentScreen === "creator-earnings" && <CreatorEarningsScreen key="creator-earnings" onClose={back} />}
+          {currentScreen === "subscription-management" && <SubscriptionManagementScreen key="subscription-management" onClose={back} />}
+          {allowed && currentScreen === "admin-dashboard" && <AdminDashboardScreen key="admin-dashboard" onClose={back} />}
+          {currentScreen === "about" && <AboutScreen key="about" onClose={back} />}
+          {currentScreen === "settings" && <ProfilePreferencesScreen key="settings" onBack={back} />}
 
-        {currentScreen === "admin-dashboard" && (
-          <AdminDashboardScreen key="admin-dashboard" onClose={() => setCurrentScreen("profile")} />
-        )}
+          {currentScreen === "creator-publish" && (
+            <CreatorPublishFlow
+              key="creator-publish"
+              onClose={back}
+              onViewStory={openStory}
+              onGoToLibrary={() => trackedGo("library")}
+              onViewEarnings={() => trackedGo("creator-earnings")}
+            />
+          )}
 
-        {currentScreen === "about" && (
-          <AboutScreen 
-            key="about"
-            onBack={() => setCurrentScreen("profile")}
-          />
-        )}
-
-        {currentScreen === "settings" && (
-          <ProfilePreferencesScreen 
-            key="settings"
-            onBack={() => setCurrentScreen("profile")}
-          />
-        )}
-
-        {currentScreen === "creator-publish" && (
-          <CreatorPublishFlow
-            key="creator-publish"
-            onClose={() => setCurrentScreen("profile")}
-            onViewStory={storyId => {
-              enterStoryWorld(storyId);
-              setCurrentScreen("story-preview");
-            }}
-            onGoToLibrary={() => setCurrentScreen("library")}
-            onViewEarnings={() => setCurrentScreen("creator-earnings")}
-          />
-        )}
-
-        {currentScreen === "moderation-governance" && (
-          <ModerationGovernanceSystem 
-            key="moderation-governance"
-            onBack={() => setCurrentScreen("profile")}
-          />
-        )}
-
-        {currentScreen === "institutional-collection" && (
-          <InstitutionalCollectionScreen
-            key="institutional-collection"
-            onBack={() => setCurrentScreen("profile")}
-          />
-        )}
-
-        {currentScreen === "search" && (
-          <SearchScreen
-            key="search"
-            onClose={handleCloseSearch}
-            onSelectStory={handleSearchSelectStory}
-          />
-        )}
-      </AnimatePresence>
-    </div>
+          {allowed && currentScreen === "moderation-governance" && <ModerationGovernanceSystem key="moderation-governance" onBack={back} />}
+        </AnimatePresence>
+      </div>
+    </AppNavProvider>
   );
 }
 
@@ -366,9 +292,7 @@ export default function App() {
   return (
     <StoryStateProvider>
       <AuthProvider>
-        <NavigationProvider>
-          <AppContent />
-        </NavigationProvider>
+        <AppContent />
       </AuthProvider>
     </StoryStateProvider>
   );
