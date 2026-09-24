@@ -7,7 +7,9 @@ import type {
   SeenNotification,
 } from "../contracts";
 import { ServiceError, call, readStore, writeStore } from "../runtime";
-import { FUNDING_SEED, buildCollections, buildCreators, seedNotifications } from "./catalog";
+import { isApplyable, opportunityStatus } from "../funding";
+import { buildCollections, buildCreators, seedNotifications } from "./catalog";
+import { FUNDING_LISTINGS as FUNDING_SEED } from "../data/fundingListings";
 
 // Derived once per session; the story catalog is static.
 let creatorsCache: Creator[] | null = null;
@@ -94,6 +96,9 @@ export const demoAdapter: SeenApi = {
         const apps = readStore<Record<string, ApplicationState>>("applications", {});
         const prev = apps[id] ?? { opportunityId: id, status: "none" as const, completedSteps: [], updatedAt: "" };
         const completedSteps = (patch.completedSteps ?? prev.completedSteps).filter(i => i >= 0 && i < opp.steps.length);
+        if (patch.status === "applied" && !isApplyable(opportunityStatus(opp))) {
+          throw new ServiceError("This intake isn't open, so it can't be marked as applied yet.", "invalid");
+        }
         if (patch.status === "applied" && completedSteps.length < opp.steps.length) {
           throw new ServiceError("Complete every checklist step before marking as applied.", "invalid");
         }

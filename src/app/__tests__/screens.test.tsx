@@ -80,7 +80,7 @@ describe("CreatorProfileScreen", () => {
 
 describe("OpportunityDetailScreen", () => {
   it("save → complete checklist → mark applied", async () => {
-    wrap(<OpportunityDetailScreen opportunityId="opp-migration-stories-commission" />);
+    wrap(<OpportunityDetailScreen opportunityId="cca-explore-create-research-creation" />);
     await userEvent.click(await screen.findByRole("button", { name: /save & track/i }));
     const boxes = await screen.findAllByRole("checkbox");
     const applied = screen.getByRole("button", { name: /mark as applied/i });
@@ -93,10 +93,20 @@ describe("OpportunityDetailScreen", () => {
     expect(await screen.findByText(/marked as applied\. we'll keep it/i)).toBeInTheDocument();
   });
 
-  it("does not offer tracking on a closed call", async () => {
-    wrap(<OpportunityDetailScreen opportunityId="opp-emerging-editor-fellowship" />);
-    expect(await screen.findByText(/this call has closed/i)).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /save & track/i })).toBeNull();
+  it("explains a closed intake, still allows preparing, and never allows 'applied'", async () => {
+    wrap(<OpportunityDetailScreen opportunityId="telefilm-talent-to-watch" />);
+    expect(await screen.findByText(/not open for applications right now/i)).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: /save & track/i }));
+    for (const box of await screen.findAllByRole("checkbox")) await userEvent.click(box);
+    expect(screen.getByRole("button", { name: /mark as applied/i })).toBeDisabled();
+  });
+
+  it("links to the funder's official page and cites sources", async () => {
+    wrap(<OpportunityDetailScreen opportunityId="cmf-digital-creators-pilot-2026" />);
+    const link = await screen.findByRole("link", { name: /on funder's site/i });
+    expect(link).toHaveAttribute("href", "https://cmf-fmc.ca/program/digital-creators-pilot-program/");
+    expect(link).toHaveAttribute("rel", expect.stringContaining("noopener"));
+    expect(screen.getByText(/checked .* against/i)).toBeInTheDocument();
   });
 });
 
@@ -107,7 +117,7 @@ describe("NotificationsScreen", () => {
     const items = await screen.findAllByTestId("notification-item");
     expect(items.some(i => i.getAttribute("data-read") === "false")).toBe(true);
     await userEvent.click(screen.getByText(/funding closing soon/i));
-    expect(n.go).toHaveBeenCalledWith("opportunity", { id: "opp-community-archive-microgrant" });
+    expect(n.go).toHaveBeenCalledWith("opportunity", { id: "cmf-digital-creators-pilot-2026" });
     await userEvent.click(screen.getByRole("button", { name: /mark all read/i }));
     await waitFor(() => screen.getAllByTestId("notification-item").forEach(i => expect(i).toHaveAttribute("data-read", "true")));
   });

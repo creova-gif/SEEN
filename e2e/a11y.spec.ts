@@ -6,7 +6,7 @@ import { expect, signInAs, test } from "./fixtures";
  * serious violations. Automated checks catch roughly a third of issues; the
  * manual keyboard/screen-reader pass is in docs/testing/TEST_STRATEGY.md.
  */
-const ROUTES = ["for-you", "explore/stories", "explore/creators", "explore/collections", "library", "profile", "funding", "opportunity/opp-migration-stories-commission", "notifications", "creator/kira-chen", "search"];
+const ROUTES = ["for-you", "explore/stories", "explore/creators", "explore/collections", "library", "profile", "funding", "opportunity/cca-explore-create-research-creation", "notifications", "creator/kira-chen", "search"];
 
 for (const route of ROUTES) {
   test(`a11y: ${route}`, async ({ page }) => {

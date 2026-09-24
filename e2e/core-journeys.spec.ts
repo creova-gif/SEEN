@@ -71,7 +71,7 @@ test.describe("signed-in viewer", () => {
 
   test("funding → save → checklist → applied", async ({ page }) => {
     await page.goto("/#/funding");
-    await page.getByTestId("opportunity-card").filter({ hasText: "Migration Stories Commission" }).click();
+    await page.getByTestId("opportunity-card").filter({ hasText: "Research and Creation" }).click();
     await page.getByRole("button", { name: /save & track/i }).click();
     const boxes = page.getByRole("checkbox");
     const count = await boxes.count();
@@ -113,6 +113,17 @@ test.describe("signed-in viewer", () => {
     }
   });
 
+  test("funding list shows real listings with official links", async ({ page }) => {
+    await page.goto("/#/funding");
+    await expect(page.getByText(/checked against each funder's website/i)).toBeVisible();
+    await expect(page.getByTestId("opportunity-card").first()).toBeVisible();
+    await expect(page.getByText(/demo listing/i)).toHaveCount(0);
+    await page.getByRole("tab", { name: /coming up/i }).click();
+    await expect(page.getByTestId("opportunity-card").filter({ hasText: "Hot Docs" }).first()).toBeVisible();
+    await page.getByTestId("opportunity-card").filter({ hasText: "Rogers Documentary Fund" }).click();
+    await expect(page.getByRole("link", { name: /on funder's site/i })).toHaveAttribute("href", /rogersgroupoffunds\.com/);
+  });
+
   test("offline and error states are recoverable", async ({ page }) => {
     await page.goto("/?simulate=offline#/funding");
     await expect(page.getByText(/you're offline/i)).toBeVisible();
@@ -137,7 +148,7 @@ test.describe("responsive layout", () => {
     test(`no horizontal overflow at ${width}px`, async ({ page }) => {
       await signInAs(page, "creator");
       await page.setViewportSize({ width, height: 900 });
-      for (const route of ["for-you", "explore/stories", "explore/creators", "explore/collections", "library", "profile", "funding", "notifications", "opportunity/opp-migration-stories-commission"]) {
+      for (const route of ["for-you", "explore/stories", "explore/creators", "explore/collections", "library", "profile", "funding", "notifications", "opportunity/cca-explore-create-research-creation"]) {
         await page.goto(`/#/${route}`);
         await page.waitForTimeout(400);
         const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);

@@ -6,8 +6,8 @@ Owners are roles until named. P0 = blocks open beta · P1 = next sprint · P2 = 
 |---|---|---|---|---|
 | D1 | Supabase adapter for `SeenApi` + Supabase Auth (replace local accounts) | Needs project access, migrations, RLS policies | Backend | P0 (open beta) |
 | D2 | Server/RLS enforcement of roles and tenancy; two-tenant tests | Depends on D1 | Backend + Security | P0 |
-| D3 | Decide real-organisation names in story data ("Canadian Museum of Immigration", "National Film Board") — confirm partnerships in writing or remove | Legal/product decision; left untouched | Founder | P0 |
-| D4 | Real funding listings: source, editorial owner, apply links, `is_demo=false` | Product decision + data source | Product | P1 |
+| D3 | ~~Real-organisation partner claims~~ — **removed** 2026-09-24 (story data + publish wizard). Re-add institutional partners only from signed agreements | Done | — | — |
+| D4 | Funding listings: **12 real listings added** 2026-09-24. Still needed: an owner who re-verifies monthly (docs/product/FUNDING_LISTINGS.md), then move listings to the database | Owner | Product | P1 |
 | D5 | Role-request approval UI in Admin | Needs D1 for real effect | Frontend | P1 |
 | D6 | Library "Saved" tab (stories, collections, creators) and search across creators/collections | Scope | Frontend | P1 |
 | D7 | Reader E2E + test ids; creator publish E2E | Legacy screens | QA | P1 |

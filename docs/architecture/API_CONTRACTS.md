@@ -10,9 +10,9 @@ throw `ServiceError` with `code ∈ not_found | offline | unavailable | forbidde
 | | `listFollowing()` / `setFollowing(id, bool)` | Idempotent; `not_found` for unknown creator |
 | collections | `list(kind?)` / `get(id)` | Institutional first, then thematic by size |
 | | `listSaved()` / `setSaved(id, bool)` | Idempotent |
-| funding | `list()` / `get(id)` | Every item carries `isDemo`; UI must label demo items |
+| funding | `list()` / `get(id)` | Real listings with `applyUrl`, `sourceUrls`, `verifiedAt`; `availability` = deadline / rolling / upcoming / tba; `deadline` is null unless the funder published it |
 | | `listApplications()` / `getApplication(id)` | Missing application ⇒ `status: "none"` |
-| | `updateApplication(id, patch)` | `invalid` if `status: "applied"` while steps incomplete; steps de-duplicated and range-checked |
+| | `updateApplication(id, patch)` | `invalid` if `status: "applied"` while steps are incomplete or the intake is not open; steps de-duplicated and range-checked |
 | notifications | `list()` | Newest first |
 | | `markRead(id)` / `markAllRead()` / `unreadCount()` | — |
 

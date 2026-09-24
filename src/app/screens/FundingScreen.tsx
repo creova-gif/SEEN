@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { api, deadlineState, type ApplicationStatus, type OpportunityType } from "../services";
+import { api, isApplyable, opportunityStatus, type ApplicationStatus, type OpportunityType } from "../services";
 import { useResource } from "../hooks/useResource";
 import { OpportunityCard } from "../components/seen/cards";
 import { ResourceView } from "../components/seen/ResourceView";
@@ -7,8 +7,8 @@ import { Banner, Chip, SegmentedTabs, Skeleton, StateTemplate } from "../compone
 import { useAppNav } from "../navigation/AppNav";
 import { ScreenFrame } from "./ScreenFrame";
 
-type View = "open" | "mine" | "closed";
-const TYPES: OpportunityType[] = ["grant", "residency", "commission", "fellowship"];
+type View = "open" | "upcoming" | "mine";
+const TYPES: OpportunityType[] = ["grant", "fund", "lab", "pitch"];
 
 export function FundingScreen({ initialView = "open" }: { initialView?: View }) {
   const nav = useAppNav();
@@ -25,19 +25,19 @@ export function FundingScreen({ initialView = "open" }: { initialView?: View }) 
   return (
     <ScreenFrame title="Funding" onBack={nav.back}>
       <p className="text-sm text-seen-secondary leading-relaxed mb-4">
-        Grants, residencies and commissions for storytellers. Save an opportunity to track your application checklist.
+        Real grants, funds and labs for Canadian storytellers. Save one to keep its deadline and your application checklist in one place.
       </p>
       <Banner tone="info" className="mb-5">
-        These are demo listings for testing. Real calls for applications will be marked with their funder and a link to apply.
+        Listings were checked against each funder's website on Sep 24, 2026. Programs change — always confirm details on the funder's site before applying.
       </Banner>
       <SegmentedTabs<View>
         label="Funding views"
         value={view}
         onChange={setView}
         tabs={[
-          { id: "open", label: "Open" },
+          { id: "open", label: "Open now" },
+          { id: "upcoming", label: "Coming up" },
           { id: "mine", label: "My tracker" },
-          { id: "closed", label: "Closed" },
         ]}
       />
       <div className="flex gap-2 my-5 overflow-x-auto scrollbar-hide -mx-5 px-5" role="group" aria-label="Filter by type">
@@ -63,12 +63,13 @@ export function FundingScreen({ initialView = "open" }: { initialView?: View }) 
           const list = opps
             .filter(o => !type || o.type === type)
             .filter(o => {
-              const closed = deadlineState(o.deadline) === "closed";
-              if (view === "closed") return closed;
+              const applyable = isApplyable(opportunityStatus(o));
               if (view === "mine") return statusOf(o.id) !== "none";
-              return !closed;
+              if (view === "upcoming") return !applyable;
+              return applyable;
             })
-            .sort((a, b) => a.deadline.localeCompare(b.deadline));
+            // Fixed deadlines soonest first, then rolling / not-yet-dated programmes.
+            .sort((a, b) => (a.deadline ?? "9999").localeCompare(b.deadline ?? "9999") || a.title.localeCompare(b.title));
           if (list.length === 0) {
             return view === "mine" ? (
               <StateTemplate
@@ -79,7 +80,13 @@ export function FundingScreen({ initialView = "open" }: { initialView?: View }) 
                 onAction={() => setView("open")}
               />
             ) : (
-              <StateTemplate kind="empty" title="No matches" message="Nothing matches this filter right now. Try another type." actionLabel="Clear filter" onAction={() => setType(null)} />
+              <StateTemplate
+                kind="empty"
+                title="No matches"
+                message={type ? "Nothing of this type in this list right now. Try another type." : "Nothing here right now."}
+                actionLabel={type ? "Clear filter" : undefined}
+                onAction={type ? () => setType(null) : undefined}
+              />
             );
           }
           return (

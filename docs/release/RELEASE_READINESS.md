@@ -25,7 +25,7 @@
 | Missing high-priority Figma features implemented | ✅ creators, collections, funding, notifications, state templates, segmented tabs |
 | No dead primary navigation / fake CTAs | ✅ (social login buttons remain disabled + labelled "coming soon" — product decision) |
 | Core journeys complete end to end | ✅ automated |
-| Demo data stable and separable | ✅ derived / `isDemo` |
+| Demo data stable and separable | ✅ creators/collections derived from the catalogue; funding listings are real and sourced |
 | Backend adapter boundaries clean | ✅ contracts + one-line swap |
 | Auth works | ✅ demo auth; 🔜 Supabase Auth |
 | Tenant isolation designed / enforced where live | ✅ designed (ADR-003, DATA_MODEL); nothing live to enforce yet |
@@ -39,6 +39,7 @@
 
 ## Release notes (for testers)
 
-- New: **Creators** (browse, profiles, follow), **Collections** (thematic and institutional, save), **Funding** (demo listings, eligibility, application tracker), **Notifications** (bell with unread count).
+- New: **Creators** (browse, profiles, follow), **Collections** (thematic and institutional, save), **Funding** (12 real Canadian programs with official links, eligibility, application tracker), **Notifications** (bell with unread count).
 - Fixed: header search and profile buttons, search result selection, About and Institutional screens no longer crash, "See all" works, back button and links work, broken images replaced with a clean placeholder, clearer text contrast, remove-from-library works on phones and asks to confirm.
+- Removed: partner claims that weren't true (story "partners" and publish-wizard institution names).
 - Changed: choosing *Moderator* when signing up now sends a request instead of granting access immediately. Test accounts listed in `docs/testing/USER_TESTING_RC_CHECKLIST.md`.

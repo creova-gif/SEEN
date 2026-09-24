@@ -30,7 +30,7 @@ role. Each finding was reproduced before it was fixed; the fix commit is listed.
 - **Contrast.** Secondary text at white/30–45 on black (~3.9:1) fails WCAG AA on every screen (axe `color-contrast`, serious).
 - **Performance.** `EmptyState` imported all of `lucide-react` (`import * as Icons`) — ~1,500 icons in the main chunk.
 - **Honesty issues.** Zero-count stats for non-existent media types; demo checkout "succeeded" for any card number.
-- **Real organisations named as partners.** Two stories list "Canadian Museum of Immigration" and "National Film Board" as `institutionalPartner`. Flagged as a product/legal decision (see `KNOWN_DEFERRED_ITEMS.md`); left unchanged.
+- **Real organisations named as partners.** Two stories list "Canadian Museum of Immigration" and "National Film Board" as `institutionalPartner`. Confirmed by the founder as **false claims** and removed (2026-09-24), together with three hard-coded "institutional collections" in the publish wizard naming the NFB, a Canadian museum and Toronto Public Library.
 
-All items above except the partner-name decision and social login are fixed on
+All items above except social login are fixed on
 `claude/clever-gates-cs9out`; see `docs/product/MASTER_FEATURE_MATRIX.md`.

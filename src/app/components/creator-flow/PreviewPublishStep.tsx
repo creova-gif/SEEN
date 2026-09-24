@@ -5,7 +5,6 @@ import {
   Eye, 
   Globe, 
   Lock,
-  Building2,
   Play,
   Check,
   Shield,
@@ -38,12 +37,9 @@ const VISIBILITY_OPTIONS = [
     description: 'Visible to all SEEN audiences',
     icon: Globe,
   },
-  {
-    value: 'institutional',
-    label: 'Institutional Collection',
-    description: 'Shared with partnered institutions',
-    icon: Building2,
-  },
+  // "Institutional Collection" is intentionally not offered: SEEN has no
+  // confirmed institutional partners yet. Re-add it with a list loaded from
+  // real partner agreements, never hard-coded organisation names.
   {
     value: 'private',
     label: 'Private',
@@ -233,31 +229,7 @@ export function PreviewPublishStep({
 
         {/* Institutional Collection Input */}
         <AnimatePresence>
-          {visibility === 'institutional' && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={TRANSITIONS.organic}
-              className="mt-3"
-            >
-              <label className="block">
-                <span className="text-xs tracking-wider uppercase text-white/60 mb-2 block">
-                  Select Collection
-                </span>
-                <select
-                  value={institutionalCollection}
-                  onChange={(e) => setInstitutionalCollection(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-white/30 focus:outline-none"
-                >
-                  <option value="">Choose a collection...</option>
-                  <option value="nfb-indigenous">NFB Indigenous Voices</option>
-                  <option value="cmh-franco">Canadian Museum - Franco Heritage</option>
-                  <option value="tpl-multicultural">Toronto Public Library - Multicultural</option>
-                </select>
-              </label>
-            </motion.div>
-          )}
+
         </AnimatePresence>
       </div>
 

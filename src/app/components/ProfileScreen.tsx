@@ -252,7 +252,7 @@ export function ProfileScreen({
                 <>
                   <SettingItem
                     icon={<Building2 className="w-5 h-5 text-green-400" />}
-                    label="Institutional Collections"
+                    label="Collections"
                     value="Browse"
                     onClick={onOpenInstitutional}
                   />

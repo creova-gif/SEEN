@@ -29,6 +29,7 @@ npm run check        # typecheck + test + build
 - Every async surface uses `useResource` + `ResourceView` (loading, empty, error+retry, offline, stale).
 - Mutations are optimistic with rollback and a toast; never show success before the write succeeds.
 - Secondary text is `text-white/55` or `text-seen-muted` (AA contrast); touch targets ≥ 44 px.
-- Demo data must be labelled (`isDemo`) and derived from real catalogue data where possible.
+- Demo data must be labelled (`isDemo`) and derived from real catalogue data where possible. Never name real organisations as partners without a signed agreement.
+- Funding listings (`services/data/fundingListings.ts`) are real: store a deadline only if the funder published it, cite `sourceUrls`, update `verifiedAt` (process: `docs/product/FUNDING_LISTINGS.md`).
 - Role checks in the UI are UX only; real enforcement belongs in the backend (see `docs/security/`).
 - Analytics: only `track()` with allow-listed events and id/enum properties — no names, emails, free text.

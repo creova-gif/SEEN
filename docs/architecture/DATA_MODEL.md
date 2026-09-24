@@ -20,7 +20,9 @@ collections(id, slug unique, kind check (kind in ('thematic','institutional')), 
 collection_items(collection_id, story_id, position, primary key(collection_id, story_id))
 saved_collections(user_id, collection_id, created_at, primary key(user_id, collection_id))
 
-opportunities(id, slug unique, org_id → organizations (funder), title, type, amount_min, amount_max, currency char(3), deadline timestamptz,
+opportunities(id, slug unique, org_id → organizations (funder), title, type, amount_min null, amount_max null, amount_note, currency char(3),
+              availability check (availability in ('deadline','rolling','upcoming','tba')), deadline timestamptz null, opens_at null, deadline_tz, deadline_note,
+              region, apply_url, source_urls text[], verified_at,
               summary, eligibility text[], disciplines text[], languages text[], steps text[], apply_url, is_demo bool default false, status, …)
 applications(user_id, opportunity_id, status check (status in ('saved','in-progress','applied')), completed_steps int[], updated_at,
              primary key(user_id, opportunity_id))
@@ -35,4 +37,4 @@ Indexes: `stories(status, visibility, published_at desc)`, `stories using gin(th
 
 Retention: notifications 180 days; audit_log and moderation_actions indefinitely; analytics events 13 months, no user identifiers beyond a random session id.
 
-Demo/test data: seeds live in `supabase/seed.sql` (to be written) generated from `services/demo/catalog.ts`; demo opportunities keep `is_demo = true` so they can be filtered out of production with one predicate.
+Demo/test data: seeds live in `supabase/seed.sql` (to be written) generated from `services/demo/catalog.ts`; funding listings are imported from `services/data/fundingListings.ts` (real data, `is_demo = false`). Any future test-only listing must set `is_demo = true` so it can be filtered out of production with one predicate.

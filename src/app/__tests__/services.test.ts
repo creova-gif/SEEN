@@ -1,18 +1,28 @@
 import { describe, expect, it } from "vitest";
-import { api, deadlineState, formatAmount, formatDeadline, ServiceError } from "../services";
+import { api, deadlineState, formatAmount, formatDeadline, isApplyable, opportunityStatus, ServiceError } from "../services";
 import { setSimulation } from "../services/runtime";
 import { getStoryWorldById } from "../data/storyDatabase";
 
 describe("funding rules", () => {
   const now = new Date("2026-09-24T12:00:00Z");
-  it("computes deadline state", () => {
+  it("computes fixed-deadline state", () => {
     expect(deadlineState("2026-09-01T00:00:00Z", now)).toBe("closed");
     expect(deadlineState("2026-10-01T00:00:00Z", now)).toBe("closing-soon");
     expect(deadlineState("2026-12-01T00:00:00Z", now)).toBe("open");
   });
-  it("formats amounts and deadlines", () => {
-    expect(formatAmount({ amountMin: 1500, amountMax: 5000, currency: "CAD" })).toBe("$1,500–$5,000 CAD");
-    expect(formatAmount({ amountMin: 8000, amountMax: 8000, currency: "CAD" })).toBe("$8,000 CAD");
+  it("handles rolling, upcoming and not-yet-announced intakes", () => {
+    expect(opportunityStatus({ availability: "rolling", deadline: null }, now)).toBe("rolling");
+    expect(opportunityStatus({ availability: "upcoming", deadline: null }, now)).toBe("upcoming");
+    expect(opportunityStatus({ availability: "tba", deadline: null }, now)).toBe("tba");
+    expect(opportunityStatus({ availability: "deadline", deadline: "2026-12-01T00:00:00Z", opensAt: "2026-10-15T00:00:00Z" }, now)).toBe("upcoming");
+    expect(isApplyable("rolling")).toBe(true);
+    expect(isApplyable("tba")).toBe(false);
+    expect(isApplyable("closed")).toBe(false);
+  });
+  it("formats amounts without inventing figures", () => {
+    expect(formatAmount({ amountMin: 15000, amountMax: 60000, currency: "CAD" })).toBe("$15,000–$60,000 CAD");
+    expect(formatAmount({ amountMin: null, amountMax: 40000, currency: "CAD" })).toBe("Up to $40,000 CAD");
+    expect(formatAmount({ amountMin: null, amountMax: null, currency: "CAD", amountNote: "See guidelines" })).toBe("See guidelines");
     expect(formatDeadline("2026-09-25T12:00:00Z", now)).toBe("Closes tomorrow");
     expect(formatDeadline("2026-09-01T00:00:00Z", now)).toMatch(/^Closed /);
   });
@@ -60,8 +70,11 @@ describe("collections", () => {
 });
 
 describe("funding tracker", () => {
+  const ROLLING = "cca-explore-create-research-creation";
+  const CLOSED = "telefilm-talent-to-watch";
+
   it("only allows 'applied' once every checklist step is done", async () => {
-    const opp = (await api.funding.list())[0];
+    const opp = await api.funding.get(ROLLING);
     await api.funding.updateApplication(opp.id, { status: "saved" });
     await expect(api.funding.updateApplication(opp.id, { status: "applied" })).rejects.toMatchObject({ code: "invalid" });
     const all = opp.steps.map((_, i) => i);
@@ -71,14 +84,43 @@ describe("funding tracker", () => {
     expect((await api.funding.listApplications()).map(a => a.opportunityId)).toContain(opp.id);
   });
 
-  it("drops out-of-range and duplicate steps", async () => {
-    const opp = (await api.funding.list())[0];
-    const app = await api.funding.updateApplication(opp.id, { completedSteps: [0, 0, 99, -1] });
-    expect(app.completedSteps).toEqual([0]);
+  it("refuses 'applied' when the intake is not open, but allows preparing", async () => {
+    const opp = await api.funding.get(CLOSED);
+    await api.funding.updateApplication(opp.id, { status: "saved", completedSteps: opp.steps.map((_, i) => i) });
+    await expect(api.funding.updateApplication(opp.id, { status: "applied" })).rejects.toMatchObject({ code: "invalid" });
   });
 
-  it("labels every seeded listing as demo", async () => {
-    (await api.funding.list()).forEach(o => expect(o.isDemo).toBe(true));
+  it("drops out-of-range and duplicate steps", async () => {
+    const app = await api.funding.updateApplication(ROLLING, { completedSteps: [0, 0, 99, -1] });
+    expect(app.completedSteps).toEqual([0]);
+  });
+});
+
+describe("funding listings are real and traceable", () => {
+  it("every listing is non-demo, links to its funder and cites sources", async () => {
+    const list = await api.funding.list();
+    expect(list.length).toBeGreaterThanOrEqual(10);
+    for (const o of list) {
+      expect(o.isDemo).toBe(false);
+      expect(o.applyUrl).toMatch(/^https:\/\//);
+      expect(o.sourceUrls.length).toBeGreaterThan(0);
+      o.sourceUrls.forEach(u => expect(u).toMatch(/^https:\/\//));
+      expect(o.steps.length).toBeGreaterThan(0);
+      expect(o.verifiedAt).toMatch(/^\d{4}-\d{2}-\d{2}/);
+    }
+  });
+
+  it("never stores a deadline for rolling, upcoming or unannounced intakes", async () => {
+    for (const o of await api.funding.list()) {
+      if (o.availability !== "deadline") expect(o.deadline).toBeNull();
+      else expect(o.deadline).not.toBeNull();
+    }
+  });
+
+  it("uses unique ids and contains no fictional funders", async () => {
+    const list = await api.funding.list();
+    expect(new Set(list.map(o => o.id)).size).toBe(list.length);
+    list.forEach(o => expect(o.funder).not.toMatch(/demo/i));
   });
 });
 
@@ -102,5 +144,12 @@ describe("failure simulation", () => {
     await expect(api.funding.list()).rejects.toMatchObject({ code: "unavailable" });
     setSimulation("none");
     await expect(api.funding.list()).resolves.toBeInstanceOf(Array);
+  });
+});
+
+describe("deadline time zones", () => {
+  it("shows the date in the funder's zone", async () => {
+    const iso = await api.funding.get("iso-marketing-promotion-distribution");
+    expect(formatDeadline(iso.deadline!, new Date("2026-09-24T00:00:00Z"), iso.deadlineTimeZone)).toBe("Closes Mar 1, 2027");
   });
 });

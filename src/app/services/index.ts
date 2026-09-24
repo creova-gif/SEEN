@@ -11,4 +11,4 @@ export const api: SeenApi = demoAdapter;
 export * from "./contracts";
 export { ServiceError, getSimulation, setSimulation } from "./runtime";
 export { pushNotification } from "./demo/adapter";
-export { deadlineState, formatAmount, formatDeadline } from "./funding";
+export { deadlineState, formatAmount, formatDeadline, formatStatus, isApplyable, opportunityStatus } from "./funding";

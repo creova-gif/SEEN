@@ -11,7 +11,7 @@ import type { ReactNode } from "react";
 import { Bell, BookOpen, Coins, HandCoins, ShieldCheck, Bookmark, BookmarkCheck, ChevronRight } from "lucide-react";
 import { getStoryWorldById, getLocalizedText, type Language } from "../../data/storyDatabase";
 import type { Collection, Creator, FundingOpportunity, SeenNotification, ApplicationStatus } from "../../services/contracts";
-import { deadlineState, formatAmount, formatDeadline } from "../../services/funding";
+import { formatAmount, formatStatus, opportunityStatus } from "../../services/funding";
 import { Avatar, Badge } from "./primitives";
 import { SeenImage } from "./SeenImage";
 
@@ -107,12 +107,23 @@ export function OpportunityCard({
   onOpen: (id: string) => void;
   now?: Date;
 }) {
-  const state = deadlineState(opportunity.deadline, now);
+  const state = opportunityStatus(opportunity, now);
+  const tone =
+    state === "closed" || state === "tba"
+      ? "text-seen-muted"
+      : state === "closing-soon"
+        ? "text-seen-warning"
+        : state === "upcoming"
+          ? "text-seen-info"
+          : state === "rolling"
+            ? "text-seen-success"
+            : "text-seen-secondary";
   return (
-    <button type="button" data-testid="opportunity-card" onClick={() => onOpen(opportunity.id)} className={`${cardBase} p-4 gap-3`}>
+    <button type="button" data-testid="opportunity-card" data-status={state} onClick={() => onOpen(opportunity.id)} className={`${cardBase} p-4 gap-3`}>
       <div className="flex items-start justify-between gap-3">
         <div className="flex flex-wrap gap-1.5">
           <Badge tone="gold">{opportunity.type}</Badge>
+          <Badge tone="surface">{opportunity.region}</Badge>
           {opportunity.isDemo && <Badge tone="surface">Demo listing</Badge>}
         </div>
         {STATUS_LABEL[status] && <Badge tone={status === "applied" ? "mint" : "purple"}>{STATUS_LABEL[status]}</Badge>}
@@ -123,13 +134,7 @@ export function OpportunityCard({
       </div>
       <div className="mt-auto flex items-end justify-between gap-3 pt-2 border-t border-white/5">
         <span className="text-sm text-seen-funding">{formatAmount(opportunity)}</span>
-        <span
-          className={`text-xs ${
-            state === "closed" ? "text-seen-muted" : state === "closing-soon" ? "text-seen-warning" : "text-seen-secondary"
-          }`}
-        >
-          {formatDeadline(opportunity.deadline, now)}
-        </span>
+        <span className={`text-xs text-right ${tone}`}>{formatStatus(opportunity, now)}</span>
       </div>
     </button>
   );

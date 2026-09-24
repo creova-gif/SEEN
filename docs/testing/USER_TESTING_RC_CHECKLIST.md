@@ -5,9 +5,9 @@
 | Stable URL | ⏳ Merge branch → Vercel preview URL; promote to production after review |
 | Typecheck, unit (38), E2E (17), a11y (11 screens), build all green in CI | ✅ locally; CI workflow added (`.github/workflows/ci.yml`) |
 | No primary navigation destination dead | ✅ header Search/Profile/Notifications, tabs, See-all wired or removed |
-| No fake success states | ✅ demo checkout test-card only; funding "applied" requires checklist; demo listings labelled |
+| No fake success states | ✅ demo checkout test-card only; funding "applied" requires the checklist and an open intake; funding listings are real and link to funders |
 | Controlled test accounts | ✅ seeded per browser (below) |
-| Demo seed data deterministic and labelled | ✅ creators/collections derived from catalogue; funding `isDemo` |
+| Seed data deterministic and honest | ✅ creators/collections derived from catalogue; funding listings real and sourced; no partner claims |
 | Reset instructions | ✅ below |
 | Privacy-safe analytics | ✅ allow-listed events, identifying keys stripped; no vendor connected |
 | Feedback channel + issue template | ✅ `.github/ISSUE_TEMPLATE/user-testing-feedback.md` |

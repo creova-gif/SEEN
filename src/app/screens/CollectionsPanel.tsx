@@ -12,20 +12,24 @@ export function CollectionsPanel({ initialKind }: { initialKind?: CollectionKind
   const nav = useAppNav();
   const { state } = useStoryState();
   const [kind, setKind] = useState<CollectionKind | undefined>(initialKind);
-  const resource = useResource(() => Promise.all([api.collections.list(kind), api.collections.listSaved()]), [kind]);
+  // Load everything once and filter locally, so a filter is only offered when it can match something.
+  const resource = useResource(() => Promise.all([api.collections.list(), api.collections.listSaved()]));
+  const hasInstitutional = resource.data?.[0].some(c => c.kind === "institutional") ?? false;
 
   return (
     <div>
       <div className="flex gap-2 mb-5 overflow-x-auto scrollbar-hide -mx-5 px-5" role="group" aria-label="Filter collections">
         <Chip selected={!kind} onClick={() => setKind(undefined)}>All</Chip>
         <Chip selected={kind === "thematic"} onClick={() => setKind("thematic")}>Thematic</Chip>
-        <Chip selected={kind === "institutional"} onClick={() => setKind("institutional")}>Institutional</Chip>
+        {hasInstitutional && (
+          <Chip selected={kind === "institutional"} onClick={() => setKind("institutional")}>Institutional</Chip>
+        )}
       </div>
       <ResourceView
         resource={resource}
         what="collections"
-        isEmpty={([list]) => list.length === 0}
-        empty={<StateTemplate kind="empty" title="No collections here yet" message="Try a different filter, or check back as curators add new selections." />}
+        isEmpty={([list]) => list.filter(c => !kind || c.kind === kind).length === 0}
+        empty={<StateTemplate kind="empty" title="No collections here yet" message="Institutional collections will appear here once SEEN has confirmed partners." />}
         skeleton={
           <div className="space-y-4" aria-busy>
             {Array.from({ length: 3 }).map((_, i) => (
@@ -34,7 +38,9 @@ export function CollectionsPanel({ initialKind }: { initialKind?: CollectionKind
           </div>
         }
       >
-        {([collections, saved]) => (
+        {([all, saved]) => {
+          const collections = all.filter(c => !kind || c.kind === kind);
+          return (
           <ul className="grid grid-cols-1 gap-4" aria-label="Collections">
             {collections.map(c => (
               <li key={c.id}>
@@ -47,7 +53,8 @@ export function CollectionsPanel({ initialKind }: { initialKind?: CollectionKind
               </li>
             ))}
           </ul>
-        )}
+          );
+        }}
       </ResourceView>
     </div>
   );

@@ -6,7 +6,7 @@ describe("hash routes", () => {
     for (const [screen, id] of [
       ["creator-profile", "kira-chen"],
       ["collection-detail", "theme-migration-diaspora"],
-      ["opportunity", "opp-first-voices-residency"],
+      ["opportunity", "cca-explore-create-research-creation"],
       ["story-preview", "midnight-resonance"],
     ] as [AppScreen, string][]) {
       const hash = toHash(screen, { id });

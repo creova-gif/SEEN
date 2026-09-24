@@ -21,7 +21,7 @@ Backend column: *Demo* = typed contract + local demo adapter (ADR-002); *None* =
 | F14 | Profile + Your SEEN | Profile | EXISTS + WORKS | List Item | Following / saved / tracker / notifications rows | Demo | ✅ | E2E | Done | P1 |
 | F15 | Settings / preferences | Settings | EXISTS + WORKS | Toggle | unchanged | localStorage | 🟡 | — | Keep | P2 |
 | F16 | Notifications | Bell → `#/notifications` | MISSING | Notification Item | Built (badge, read, mark all, deep targets) | Demo | ✅ all | component, E2E | Done | P1 |
-| F17 | Funding opportunities | `#/funding` | MISSING | Opportunity Card | Built (open / tracker / closed, type filters) | Demo (seeded, labelled) | ✅ all | unit, E2E, a11y | Done; real listings = product decision | P1 |
+| F17 | Funding opportunities | `#/funding` | MISSING | Opportunity Card | Built (open / tracker / closed, type filters) | Real listings (static, sourced) | ✅ all | unit, E2E, a11y | Done; needs monthly re-verification owner | P1 |
 | F18 | Opportunity detail + tracker | `#/opportunity/:id` | MISSING | Opportunity Card, Checkbox, Progress | Built (save → checklist → applied, closed state) | Demo | ✅ all + optimistic | unit, component, E2E | Done | P1 |
 | F19 | Creator publishing wizard | Profile › Creator Dashboard | EXISTS + WORKS | — | lazy-loaded | localStorage | 🟡 | — | Keep; E2E later | P1 |
 | F20 | Creator monetization / earnings | Profile › Creator tools | EXISTS + WORKS (mock) | Metric Card, Subscription Card | role-guarded, lazy | Mock | 🟡 | guard E2E | Keep | P2 |

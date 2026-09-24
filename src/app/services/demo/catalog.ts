@@ -3,13 +3,10 @@
  *
  * Creators and collections are DERIVED from the real story catalog
  * (storyDatabase.ts), so they can never drift from what readers can open.
- * Funding opportunities have no source in the catalog yet, so they are seeded
- * here and every one is flagged `isDemo: true` and uses a fictional funder —
- * the UI labels them "Demo listing" so testers never mistake them for real
- * calls for applications.
+ * Funding opportunities are real, researched listings: services/data/fundingListings.ts.
  */
 import { STORY_WORLDS, type StoryWorld } from "../../data/storyDatabase";
-import type { Collection, Creator, FundingOpportunity, SeenNotification } from "../contracts";
+import type { Collection, Creator, SeenNotification } from "../contracts";
 import { slugify } from "../runtime";
 
 function publicStories(): StoryWorld[] {
@@ -86,82 +83,6 @@ export function buildCollections(): Collection[] {
   return [...institutional, ...themed];
 }
 
-/** Seed date keeps deadlines deterministic for tests; statuses are computed against "now". */
-export const FUNDING_SEED: FundingOpportunity[] = [
-  {
-    id: "opp-community-archive-microgrant",
-    title: "Community Archive Microgrant",
-    funder: "SEEN Demo Fund",
-    type: "grant",
-    amountMin: 1500,
-    amountMax: 5000,
-    currency: "CAD",
-    deadline: "2026-10-01T23:59:00Z",
-    summary: "Small grants to digitise, translate and share family and community archives as multimedia stories.",
-    eligibility: [
-      "Individual creators or unincorporated collectives",
-      "Based in Canada",
-      "Project uses archival material you have permission to share",
-    ],
-    disciplines: ["Archives", "Oral history", "Photography"],
-    languages: ["en", "fr"],
-    steps: ["Describe your archive in 300 words", "Upload 3 sample images or audio clips", "Confirm rights and permissions", "Submit budget (one page)"],
-    isDemo: true,
-    orgId: null,
-  },
-  {
-    id: "opp-first-voices-residency",
-    title: "First Voices Audio Residency",
-    funder: "Northern Sound Lab (demo)",
-    type: "residency",
-    amountMin: 8000,
-    amountMax: 8000,
-    currency: "CAD",
-    deadline: "2026-11-15T23:59:00Z",
-    summary: "An eight-week remote residency for audio storytellers producing work in Indigenous languages, with mentorship and studio time.",
-    eligibility: ["Indigenous creators", "Some prior audio or radio work", "Project primarily in an Indigenous language"],
-    disciplines: ["Audio", "Language revitalisation"],
-    languages: ["en", "fr"],
-    steps: ["Share a 2-minute audio sample", "Write a project statement", "Name a community reference"],
-    isDemo: true,
-    orgId: "org_northern-sound-lab",
-  },
-  {
-    id: "opp-migration-stories-commission",
-    title: "Migration Stories Commission",
-    funder: "SEEN Demo Fund",
-    type: "commission",
-    amountMin: 12000,
-    amountMax: 20000,
-    currency: "CAD",
-    deadline: "2027-01-31T23:59:00Z",
-    summary: "Commissions for multi-chapter SEEN story worlds about migration, diaspora and belonging, published on SEEN in EN/FR/ES.",
-    eligibility: ["At least one published story (any platform)", "Able to deliver in English or French", "Available for a 6-month production window"],
-    disciplines: ["Interactive storytelling", "Documentary", "Writing"],
-    languages: ["en", "fr", "es"],
-    steps: ["Pitch (one page)", "Chapter outline", "Portfolio links", "Production timeline", "Budget"],
-    isDemo: true,
-    orgId: null,
-  },
-  {
-    id: "opp-emerging-editor-fellowship",
-    title: "Emerging Story Editor Fellowship",
-    funder: "Harbour Media Collective (demo)",
-    type: "fellowship",
-    amountMin: 15000,
-    amountMax: 15000,
-    currency: "CAD",
-    deadline: "2026-09-10T23:59:00Z",
-    summary: "A paid fellowship pairing emerging editors with community storytellers across a full publishing cycle.",
-    eligibility: ["Under 3 years of professional editing experience", "Bilingual EN/FR an asset"],
-    disciplines: ["Editing", "Curation"],
-    languages: ["en", "fr"],
-    steps: ["CV", "Editing sample", "Letter of interest"],
-    isDemo: true,
-    orgId: "org_harbour-media",
-  },
-];
-
 export function seedNotifications(now: Date): SeenNotification[] {
   const ago = (h: number) => new Date(now.getTime() - h * 3600_000).toISOString();
   const newest = publicStories().find(s => s.new) ?? publicStories()[0];
@@ -184,13 +105,13 @@ export function seedNotifications(now: Date): SeenNotification[] {
       target: { screen: "story", id: newest.id },
     },
     {
-      id: "n-funding-microgrant",
+      id: "n-funding-cmf-dcpp",
       type: "funding",
       title: "Funding closing soon",
-      body: "Community Archive Microgrant (demo listing) closes soon.",
+      body: "Canada Media Fund's Digital Creators Pilot Program closes October 1, 2026 at 11:59 p.m. ET.",
       createdAt: ago(26),
       read: false,
-      target: { screen: "opportunity", id: "opp-community-archive-microgrant" },
+      target: { screen: "opportunity", id: "cmf-digital-creators-pilot-2026" },
     },
   ];
 }

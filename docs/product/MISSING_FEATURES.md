@@ -9,7 +9,7 @@ Creators directory + profiles + follow · Collections (thematic + institutional)
 | Feature | Why it waits | Figma |
 |---|---|---|
 | Real accounts across devices, password reset email, OTP sign-in | Needs Supabase Auth + email provider | OTP Field, Password Field |
-| Real funding listings | Needs a listings source and an editorial owner; demo listings are labelled | Opportunity Card |
+| Funding listings managed in a database (currently a sourced static file) | Needs admin tooling + owner | Opportunity Card |
 | Payments / payouts | Needs Stripe (server-side PaymentIntents, webhooks) | Subscription Card |
 | Moderation queue shared between moderators | Needs server storage | Notification: Moderation |
 | Role-elevation approval | Needs admin UI + server-side role change | — |
