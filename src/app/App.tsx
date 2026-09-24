@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { lazy, Suspense, useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { AnimatePresence } from "motion/react";
 import { Toaster } from "sonner";
 import { StoryStateProvider, useStoryState } from "./contexts/StoryStateContext";
@@ -14,13 +14,7 @@ import { StoryChapterScreen } from "./components/StoryChapterScreen";
 import { ChapterIndexScreen } from "./components/ChapterIndexScreen";
 import { AboutScreen } from "./components/AboutScreen";
 import { ProfilePreferencesScreen } from "./components/ProfilePreferencesScreen";
-import { CreatorPublishFlow } from "./components/CreatorPublishFlow";
-import { ModerationGovernanceSystem } from "./components/ModerationGovernanceSystem";
 import { SearchScreen } from "./screens/SearchScreen";
-import { CreatorMonetizationScreen } from "./components/CreatorMonetizationScreen";
-import { CreatorEarningsScreen } from "./components/CreatorEarningsScreen";
-import { SubscriptionManagementScreen } from "./components/SubscriptionManagementScreen";
-import { AdminDashboardScreen } from "./components/AdminDashboardScreen";
 import { CreatorProfileScreen } from "./screens/CreatorProfileScreen";
 import { CollectionDetailScreen } from "./screens/CollectionDetailScreen";
 import { CollectionsScreen } from "./screens/CollectionsScreen";
@@ -28,11 +22,18 @@ import { FundingScreen } from "./screens/FundingScreen";
 import { OpportunityDetailScreen } from "./screens/OpportunityDetailScreen";
 import { NotificationsScreen } from "./screens/NotificationsScreen";
 import { ScreenFrame } from "./screens/ScreenFrame";
-import { StateTemplate } from "./components/seen/primitives";
+import { SkeletonList, StateTemplate } from "./components/seen/primitives";
 import { AppNavProvider, type AppNav, type RouteParams } from "./navigation/AppNav";
 import { type AppScreen, NOT_DEEP_LINKABLE, canAccess, fromHash, isScreen, toHash } from "./navigation/routes";
 import { api } from "./services";
 import { initializeDemoData } from "./data/demoData";
+// Role-specific / heavy screens load on demand (recharts etc. stay out of the main bundle).
+const CreatorPublishFlow = lazy(() => import("./components/CreatorPublishFlow").then(m => ({ default: m.CreatorPublishFlow })));
+const ModerationGovernanceSystem = lazy(() => import("./components/ModerationGovernanceSystem").then(m => ({ default: m.ModerationGovernanceSystem })));
+const CreatorMonetizationScreen = lazy(() => import("./components/CreatorMonetizationScreen").then(m => ({ default: m.CreatorMonetizationScreen })));
+const CreatorEarningsScreen = lazy(() => import("./components/CreatorEarningsScreen").then(m => ({ default: m.CreatorEarningsScreen })));
+const SubscriptionManagementScreen = lazy(() => import("./components/SubscriptionManagementScreen").then(m => ({ default: m.SubscriptionManagementScreen })));
+const AdminDashboardScreen = lazy(() => import("./components/AdminDashboardScreen").then(m => ({ default: m.AdminDashboardScreen })));
 
 // Initialize demo data for testing (only runs once)
 initializeDemoData();
@@ -163,6 +164,13 @@ function AppContent() {
     <AppNavProvider value={nav}>
       <div className="size-full bg-black">
         <Toaster theme="dark" position="top-center" richColors closeButton />
+        <Suspense
+          fallback={
+            <div className="max-w-[428px] mx-auto px-5 pt-20">
+              <SkeletonList count={4} label="Loading" />
+            </div>
+          }
+        >
         <AnimatePresence mode="wait">
           {currentScreen === "onboarding" && (
             <OnboardingSystem
@@ -283,6 +291,7 @@ function AppContent() {
 
           {allowed && currentScreen === "moderation-governance" && <ModerationGovernanceSystem key="moderation-governance" onBack={back} />}
         </AnimatePresence>
+        </Suspense>
       </div>
     </AppNavProvider>
   );
