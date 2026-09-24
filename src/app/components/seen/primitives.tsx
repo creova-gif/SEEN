@@ -337,7 +337,7 @@ export function SectionTitle({ title, subtitle, action }: { title: string; subti
     <div className="flex items-end justify-between gap-4 mb-4">
       <div className="min-w-0">
         <h2 className="text-xl font-light tracking-tight text-white">{title}</h2>
-        {subtitle && <p className="text-xs text-white/40 mt-1">{subtitle}</p>}
+        {subtitle && <p className="text-xs text-white/55 mt-1">{subtitle}</p>}
       </div>
       {action}
     </div>

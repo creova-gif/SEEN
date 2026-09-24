@@ -94,7 +94,7 @@ export function PreviewPublishStep({
         className="px-5 pt-8 pb-6 border-b border-white/10"
       >
         <div className="flex items-center gap-2 mb-3">
-          <span className="text-xs tracking-widest uppercase text-white/40">Step 5 of 5</span>
+          <span className="text-xs tracking-widest uppercase text-white/55">Step 5 of 5</span>
           <div className="w-1 h-1 rounded-full bg-white/40" />
           <span className="text-xs tracking-widest uppercase text-white/60">Preview & Publish</span>
         </div>
@@ -175,9 +175,9 @@ export function PreviewPublishStep({
         {/* Preview Area */}
         <div className="aspect-[9/16] bg-white/5 border border-white/10 rounded-lg flex items-center justify-center">
           <div className="text-center px-8">
-            <Play className="w-12 h-12 text-white/40 mx-auto mb-4" strokeWidth={1.5} />
+            <Play className="w-12 h-12 text-white/55 mx-auto mb-4" strokeWidth={1.5} />
             <p className="text-sm text-white/60 mb-2">Preview Mode: {previewMode}</p>
-            <p className="text-xs text-white/40">Interactive preview coming soon</p>
+            <p className="text-xs text-white/55">Interactive preview coming soon</p>
           </div>
         </div>
       </div>
@@ -412,7 +412,7 @@ export function PreviewPublishStep({
             className={`flex items-center gap-2 px-8 py-3 rounded-lg text-sm tracking-wide font-medium transition-all ${
               canPublish
                 ? 'bg-white text-black hover:bg-white/90'
-                : 'bg-white/10 text-white/40 cursor-not-allowed'
+                : 'bg-white/10 text-white/55 cursor-not-allowed'
             }`}
           >
             <Sparkles className="w-4 h-4" strokeWidth={2} />

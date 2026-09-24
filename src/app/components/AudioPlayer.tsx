@@ -68,7 +68,7 @@ export function AudioPlayer({
             transition={TRANSITIONS.fade}
           >
             {title && <h3 className="text-sm font-light tracking-wide text-white mb-1 truncate">{title}</h3>}
-            {artist && <p className="text-xs text-white/40 truncate">{artist}</p>}
+            {artist && <p className="text-xs text-white/55 truncate">{artist}</p>}
           </motion.div>
         )}
 
@@ -119,7 +119,7 @@ export function AudioPlayer({
         </div>
 
         {/* Time */}
-        <div className="flex justify-between text-xs text-white/40 mb-6">
+        <div className="flex justify-between text-xs text-white/55 mb-6">
           <span>{formatSeconds(currentTime)}</span>
           <span>{formatSeconds(duration)}</span>
         </div>
@@ -134,7 +134,7 @@ export function AudioPlayer({
             whileTap={!reducedMotion ? { scale: 0.95 } : undefined}
             transition={TRANSITIONS.interaction}
             className={`w-10 h-10 flex items-center justify-center transition-colors ${
-              showCaptions ? "text-white" : "text-white/40 hover:text-white/70"
+              showCaptions ? "text-white" : "text-white/55 hover:text-white/70"
             }`}
             aria-label={showCaptions ? "Hide captions" : "Show captions"}
             aria-pressed={showCaptions}
@@ -238,7 +238,7 @@ export function AudioPlayer({
               transition={TRANSITIONS.organic}
               className="mt-4 text-center"
             >
-              <span className="text-xs text-white/40">Next chapter starting...</span>
+              <span className="text-xs text-white/55">Next chapter starting...</span>
             </motion.div>
           )}
         </AnimatePresence>

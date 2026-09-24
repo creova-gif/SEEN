@@ -21,7 +21,7 @@ export function NavigationBar({ onSearch }: NavigationBarProps) {
       <div className="max-w-[428px] mx-auto flex items-center justify-between">
         <div className="flex flex-col">
           <span className="text-lg tracking-tight text-white">SEEN</span>
-          <span className="text-[10px] tracking-[0.3em] uppercase text-white/40">by CREOVA</span>
+          <span className="text-[10px] tracking-[0.3em] uppercase text-white/55">by CREOVA</span>
         </div>
 
         <nav aria-label="Quick actions" className="flex items-center gap-2">

@@ -111,7 +111,7 @@ export function LibraryScreen({
               <span className="text-2xl font-light text-white/90 tabular-nums">
                 {libraryData.inProgress.length}
               </span>
-              <span className="text-sm text-white/40 font-light tracking-wide">
+              <span className="text-sm text-white/55 font-light tracking-wide">
                 {libraryData.inProgress.length === 1 ? 'Story' : 'Stories'} in progress
               </span>
             </div>
@@ -142,7 +142,7 @@ export function LibraryScreen({
               <span className="text-2xl font-light text-white/90 tabular-nums">
                 {libraryData.completed.length}
               </span>
-              <span className="text-sm text-white/40 font-light tracking-wide">
+              <span className="text-sm text-white/55 font-light tracking-wide">
                 {libraryData.completed.length === 1 ? 'Journey' : 'Journeys'} complete
               </span>
             </div>
@@ -270,7 +270,7 @@ function BottomNav({
           onClick={() => onNavigate("for-you")}
           aria-current={activeTab === 'for-you' ? 'page' : undefined}
           className={`flex flex-col min-w-11 min-h-11 justify-center items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
-            activeTab === 'for-you' ? 'text-white' : 'text-white/40 hover:text-white/60'
+            activeTab === 'for-you' ? 'text-white' : 'text-white/55 hover:text-white/60'
           }`}
         >
           <Home 
@@ -292,7 +292,7 @@ function BottomNav({
           onClick={() => onNavigate("explore")}
           aria-current={activeTab === 'explore' ? 'page' : undefined}
           className={`flex flex-col min-w-11 min-h-11 justify-center items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
-            activeTab === 'explore' ? 'text-white' : 'text-white/40 hover:text-white/60'
+            activeTab === 'explore' ? 'text-white' : 'text-white/55 hover:text-white/60'
           }`}
         >
           <Compass 
@@ -314,7 +314,7 @@ function BottomNav({
           onClick={() => onNavigate("library")}
           aria-current={activeTab === 'library' ? 'page' : undefined}
           className={`flex flex-col min-w-11 min-h-11 justify-center items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
-            activeTab === 'library' ? 'text-white' : 'text-white/40 hover:text-white/60'
+            activeTab === 'library' ? 'text-white' : 'text-white/55 hover:text-white/60'
           }`}
         >
           <Library 
@@ -336,7 +336,7 @@ function BottomNav({
           onClick={() => onNavigate("profile")}
           aria-current={activeTab === 'profile' ? 'page' : undefined}
           className={`flex flex-col min-w-11 min-h-11 justify-center items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
-            activeTab === 'profile' ? 'text-white' : 'text-white/40 hover:text-white/60'
+            activeTab === 'profile' ? 'text-white' : 'text-white/55 hover:text-white/60'
           }`}
         >
           <User 

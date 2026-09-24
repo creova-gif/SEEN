@@ -99,12 +99,12 @@ export function CommunityResponsesPanel({
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
-                    <MessageCircle className="w-4 h-4 text-white/40" />
+                    <MessageCircle className="w-4 h-4 text-white/55" />
                     <h2 className="text-base tracking-tight text-white">
                       {getText("title")}
                     </h2>
                   </div>
-                  <p className="text-xs text-white/40">
+                  <p className="text-xs text-white/55">
                     {chapterTitle}
                   </p>
                 </div>
@@ -145,7 +145,7 @@ export function CommunityResponsesPanel({
             <div className="overflow-y-auto px-6 py-4" style={{ maxHeight: "calc(85vh - 240px)" }}>
               {filteredResponses.length === 0 ? (
                 <div className="py-12 text-center">
-                  <p className="text-sm text-white/40">
+                  <p className="text-sm text-white/55">
                     {getText("noResponses")}
                   </p>
                 </div>
@@ -176,7 +176,7 @@ export function CommunityResponsesPanel({
                             <MessageCircle className="w-3 h-3 text-green-300" />
                           </div>
                         )}
-                        <span className="text-xs text-white/40 uppercase tracking-wider">
+                        <span className="text-xs text-white/55 uppercase tracking-wider">
                           {response.type}
                         </span>
                       </div>
@@ -197,21 +197,21 @@ export function CommunityResponsesPanel({
                             <div className="flex-1 h-1 rounded-full bg-white/10">
                               <div className="w-1/3 h-full rounded-full bg-white/30" />
                             </div>
-                            <span className="text-xs text-white/40">0:45</span>
+                            <span className="text-xs text-white/55">0:45</span>
                           </div>
                         </div>
                       )}
 
                       {response.type === "image" && (
                         <div className="mb-3 rounded-lg overflow-hidden bg-white/5 aspect-video">
-                          <div className="w-full h-full flex items-center justify-center text-white/30">
+                          <div className="w-full h-full flex items-center justify-center text-white/55">
                             <ImageIcon className="w-8 h-8" />
                           </div>
                         </div>
                       )}
 
                       {/* Metadata */}
-                      <div className="flex items-center justify-between text-xs text-white/30">
+                      <div className="flex items-center justify-between text-xs text-white/55">
                         <span>{response.authorName || "Anonymous"}</span>
                         <span>{response.language.toUpperCase()}</span>
                       </div>
@@ -232,7 +232,7 @@ export function CommunityResponsesPanel({
               </button>
 
               {/* Moderation note */}
-              <p className="text-xs text-white/30 text-center mt-4 leading-relaxed">
+              <p className="text-xs text-white/55 text-center mt-4 leading-relaxed">
                 {getText("note")}
               </p>
             </div>

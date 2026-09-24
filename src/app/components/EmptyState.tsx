@@ -43,7 +43,7 @@ export function EmptyState({
     >
       {/* Icon */}
       <div className="mb-6 w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
-        <IconComponent className="w-8 h-8 text-white/40" />
+        <IconComponent className="w-8 h-8 text-white/55" />
       </div>
 
       {/* Title */}

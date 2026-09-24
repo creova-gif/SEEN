@@ -85,7 +85,7 @@ export function LanguageSwitcher({
 
               {/* Note about availability */}
               <div className="px-4 py-3 border-t border-white/5">
-                <p className="text-xs text-white/40 leading-relaxed">
+                <p className="text-xs text-white/55 leading-relaxed">
                   Content adapts to your language. Original language shown when translation unavailable.
                 </p>
               </div>

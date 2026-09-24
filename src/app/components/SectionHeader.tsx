@@ -25,7 +25,7 @@ export function SectionHeader({ title, subtitle, icon, onViewAll }: SectionHeade
             {title}
           </h2>
           {subtitle && (
-            <p className="text-xs text-white/40 mt-1">
+            <p className="text-xs text-white/55 mt-1">
               {subtitle}
             </p>
           )}

@@ -83,7 +83,7 @@ export function AdminDashboardScreen({ onClose }: AdminDashboardScreenProps) {
                 key={key}
                 onClick={() => setTab(key)}
                 className={`flex-1 py-2.5 text-xs transition-all ${
-                  tab === key ? "text-white border-b-2 border-blue-400" : "text-white/40 hover:text-white/60"
+                  tab === key ? "text-white border-b-2 border-blue-400" : "text-white/55 hover:text-white/60"
                 }`}
               >
                 {label}
@@ -116,7 +116,7 @@ export function AdminDashboardScreen({ onClose }: AdminDashboardScreenProps) {
             <div className="space-y-3">
               {users.length === 0 ? (
                 <div className="p-8 rounded-xl bg-white/5 border border-white/10 text-center">
-                  <p className="text-sm text-white/40">{t("No users have signed up yet.", "Aucun utilisateur inscrit.", "Aún no hay usuarios registrados.")}</p>
+                  <p className="text-sm text-white/55">{t("No users have signed up yet.", "Aucun utilisateur inscrit.", "Aún no hay usuarios registrados.")}</p>
                 </div>
               ) : (
                 users.map(u => (
@@ -124,7 +124,7 @@ export function AdminDashboardScreen({ onClose }: AdminDashboardScreenProps) {
                     <div className="flex items-center justify-between mb-2">
                       <div>
                         <p className="text-sm text-white">{u.name}</p>
-                        <p className="text-xs text-white/40">{u.email}</p>
+                        <p className="text-xs text-white/55">{u.email}</p>
                       </div>
                       {u.status === "suspended" ? (
                         <span className="text-xs px-2 py-0.5 rounded-full bg-red-500/20 text-red-300">{t("Suspended", "Suspendu", "Suspendido")}</span>
@@ -170,7 +170,7 @@ export function AdminDashboardScreen({ onClose }: AdminDashboardScreenProps) {
                 <Row label={t("Total transactions", "Transactions totales", "Transacciones totales")} value={String(revenueStats.totalTransactions)} />
                 <Row label={t("Current platform fee", "Frais de plateforme actuels", "Comisión de plataforma actual")} value={`${revenueStats.platformFeePercent}%`} />
               </div>
-              <p className="text-xs text-white/30 leading-relaxed px-1">
+              <p className="text-xs text-white/55 leading-relaxed px-1">
                 {t(
                   "Every subscription and purchase automatically splits between the creator and CREOVA at the configured platform fee rate.",
                   "Chaque abonnement et achat se répartit automatiquement entre le créateur et CREOVA selon le taux de frais de plateforme configuré.",
@@ -187,7 +187,7 @@ export function AdminDashboardScreen({ onClose }: AdminDashboardScreenProps) {
                   <Settings className="w-4 h-4 text-white/50" />
                   {t("Platform Fee", "Frais de Plateforme", "Comisión de Plataforma")}
                 </h3>
-                <p className="text-xs text-white/40 mb-4">
+                <p className="text-xs text-white/55 mb-4">
                   {t(
                     "Percentage CREOVA retains from every creator transaction.",
                     "Pourcentage que CREOVA retient de chaque transaction créateur.",
@@ -204,7 +204,7 @@ export function AdminDashboardScreen({ onClose }: AdminDashboardScreenProps) {
                       onChange={e => setFeeInput(e.target.value)}
                       className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-white/30"
                     />
-                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40">%</span>
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-white/55">%</span>
                   </div>
                   <button
                     onClick={handleSaveFee}
@@ -217,7 +217,7 @@ export function AdminDashboardScreen({ onClose }: AdminDashboardScreenProps) {
 
               <div className="p-5 rounded-2xl bg-white/5 border border-white/10">
                 <h3 className="text-sm text-white mb-1">{t("CREOVA Platform Subscription", "Abonnement Plateforme CREOVA", "Suscripción de Plataforma CREOVA")}</h3>
-                <p className="text-xs text-white/40 mb-3">
+                <p className="text-xs text-white/55 mb-3">
                   {t("Monthly price for the platform-wide subscription tier.", "Prix mensuel du palier d'abonnement de la plateforme.", "Precio mensual del nivel de suscripción de la plataforma.")}
                 </p>
                 <p className="text-lg text-white font-semibold">{formatCents(config.platformSubscriptionPriceMonthly)}/{t("mo", "mois", "mes")}</p>
@@ -235,7 +235,7 @@ function StatCard({ icon, value, label }: { icon: JSX.Element; value: string; la
     <div className="p-4 rounded-xl bg-white/5 border border-white/10">
       <div className="mb-2">{icon}</div>
       <div className="text-lg text-white font-semibold truncate">{value}</div>
-      <div className="text-[11px] text-white/40 mt-0.5">{label}</div>
+      <div className="text-[11px] text-white/55 mt-0.5">{label}</div>
     </div>
   );
 }

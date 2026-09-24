@@ -132,7 +132,7 @@ export function ExploreScreen({
         <div className="mb-8">
           <label className="relative block">
             <span className="sr-only">Search stories</span>
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" aria-hidden />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/55" aria-hidden />
             <input
               type="search"
               placeholder="Search stories, creators, topics..."
@@ -171,7 +171,7 @@ export function ExploreScreen({
                 ))}
               </div>
             ) : (
-              <div className="text-center py-8 text-white/40 text-sm">
+              <div className="text-center py-8 text-white/55 text-sm">
                 No results found for "{searchQuery}"
               </div>
             )}
@@ -255,7 +255,7 @@ function BottomNav({
           onClick={() => onNavigate("for-you")}
           aria-current={activeTab === 'for-you' ? 'page' : undefined}
           className={`flex flex-col min-w-11 min-h-11 justify-center items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
-            activeTab === 'for-you' ? 'text-white' : 'text-white/40 hover:text-white/60'
+            activeTab === 'for-you' ? 'text-white' : 'text-white/55 hover:text-white/60'
           }`}
         >
           <Home 
@@ -277,7 +277,7 @@ function BottomNav({
           onClick={() => onNavigate("explore")}
           aria-current={activeTab === 'explore' ? 'page' : undefined}
           className={`flex flex-col min-w-11 min-h-11 justify-center items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
-            activeTab === 'explore' ? 'text-white' : 'text-white/40 hover:text-white/60'
+            activeTab === 'explore' ? 'text-white' : 'text-white/55 hover:text-white/60'
           }`}
         >
           <Compass 
@@ -299,7 +299,7 @@ function BottomNav({
           onClick={() => onNavigate("library")}
           aria-current={activeTab === 'library' ? 'page' : undefined}
           className={`flex flex-col min-w-11 min-h-11 justify-center items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
-            activeTab === 'library' ? 'text-white' : 'text-white/40 hover:text-white/60'
+            activeTab === 'library' ? 'text-white' : 'text-white/55 hover:text-white/60'
           }`}
         >
           <Library 
@@ -321,7 +321,7 @@ function BottomNav({
           onClick={() => onNavigate("profile")}
           aria-current={activeTab === 'profile' ? 'page' : undefined}
           className={`flex flex-col min-w-11 min-h-11 justify-center items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
-            activeTab === 'profile' ? 'text-white' : 'text-white/40 hover:text-white/60'
+            activeTab === 'profile' ? 'text-white' : 'text-white/55 hover:text-white/60'
           }`}
         >
           <User 

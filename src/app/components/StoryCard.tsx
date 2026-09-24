@@ -45,7 +45,7 @@ export function StoryCard({ id, title, author, imageUrl, readTime, typeLabel, on
         )}
       </div>
       <div className="pt-3 flex flex-col gap-1">
-        <p className="text-[10px] tracking-[0.14em] uppercase text-white/45 truncate">{readTime}</p>
+        <p className="text-[10px] tracking-[0.14em] uppercase text-white/55 truncate">{readTime}</p>
         <h4 className="text-base leading-snug text-white line-clamp-2 min-h-[2.75em]">{title}</h4>
         <p className="text-xs text-white/55 truncate">by {author}</p>
       </div>

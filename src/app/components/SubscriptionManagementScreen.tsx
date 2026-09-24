@@ -62,13 +62,13 @@ export function SubscriptionManagementScreen({ onClose }: SubscriptionManagement
         <div className="px-6 py-6 space-y-8">
           {/* Active subscriptions */}
           <section>
-            <h3 className="text-sm tracking-wider uppercase text-white/40 mb-4 flex items-center gap-2">
+            <h3 className="text-sm tracking-wider uppercase text-white/55 mb-4 flex items-center gap-2">
               <Users className="w-3.5 h-3.5" />
               {t("Active Subscriptions", "Abonnements Actifs", "Suscripciones Activas")}
             </h3>
             {activeSubscriptions.length === 0 ? (
               <div className="p-8 rounded-xl bg-white/5 border border-white/10 text-center">
-                <p className="text-sm text-white/40">
+                <p className="text-sm text-white/55">
                   {t("No active subscriptions yet.", "Aucun abonnement actif.", "Aún no tienes suscripciones activas.")}
                 </p>
               </div>
@@ -82,10 +82,10 @@ export function SubscriptionManagementScreen({ onClose }: SubscriptionManagement
                         {t("Active", "Actif", "Activo")}
                       </span>
                     </div>
-                    <p className="text-xs text-white/40 mb-3">
+                    <p className="text-xs text-white/55 mb-3">
                       {sub.tierName} · {formatCents(sub.priceMonthly)}/{t("mo", "mois", "mes")}
                     </p>
-                    <p className="text-xs text-white/30 mb-3">
+                    <p className="text-xs text-white/55 mb-3">
                       {t("Renews", "Renouvelle", "Renueva")} {new Date(sub.currentPeriodEnd).toLocaleDateString()}
                     </p>
                     <button
@@ -104,14 +104,14 @@ export function SubscriptionManagementScreen({ onClose }: SubscriptionManagement
           {/* Past subscriptions */}
           {pastSubscriptions.length > 0 && (
             <section>
-              <h3 className="text-sm tracking-wider uppercase text-white/40 mb-4">
+              <h3 className="text-sm tracking-wider uppercase text-white/55 mb-4">
                 {t("Past Subscriptions", "Abonnements Passés", "Suscripciones Anteriores")}
               </h3>
               <div className="space-y-2">
                 {pastSubscriptions.map(sub => (
                   <div key={sub.id} className="p-3 rounded-lg bg-white/5 border border-white/5 flex items-center justify-between">
                     <span className="text-sm text-white/50">{sub.creatorName}</span>
-                    <span className="text-xs text-white/30">{t("Canceled", "Annulé", "Cancelado")}</span>
+                    <span className="text-xs text-white/55">{t("Canceled", "Annulé", "Cancelado")}</span>
                   </div>
                 ))}
               </div>
@@ -120,13 +120,13 @@ export function SubscriptionManagementScreen({ onClose }: SubscriptionManagement
 
           {/* Purchase history */}
           <section>
-            <h3 className="text-sm tracking-wider uppercase text-white/40 mb-4 flex items-center gap-2">
+            <h3 className="text-sm tracking-wider uppercase text-white/55 mb-4 flex items-center gap-2">
               <Receipt className="w-3.5 h-3.5" />
               {t("One-time Purchases", "Achats Uniques", "Compras Únicas")}
             </h3>
             {purchases.length === 0 ? (
               <div className="p-6 rounded-xl bg-white/5 border border-white/10 text-center">
-                <p className="text-sm text-white/40">{t("No purchases yet.", "Aucun achat.", "Sin compras.")}</p>
+                <p className="text-sm text-white/55">{t("No purchases yet.", "Aucun achat.", "Sin compras.")}</p>
               </div>
             ) : (
               <div className="space-y-2">
@@ -134,7 +134,7 @@ export function SubscriptionManagementScreen({ onClose }: SubscriptionManagement
                   <div key={p.id} className="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/10">
                     <div>
                       <p className="text-sm text-white">{p.contentTitle}</p>
-                      <p className="text-xs text-white/40">{new Date(p.purchasedAt).toLocaleDateString()}</p>
+                      <p className="text-xs text-white/55">{new Date(p.purchasedAt).toLocaleDateString()}</p>
                     </div>
                     <span className="text-sm text-white/70">{formatCents(p.amount)}</span>
                   </div>
@@ -145,13 +145,13 @@ export function SubscriptionManagementScreen({ onClose }: SubscriptionManagement
 
           {/* Billing history */}
           <section>
-            <h3 className="text-sm tracking-wider uppercase text-white/40 mb-4 flex items-center gap-2">
+            <h3 className="text-sm tracking-wider uppercase text-white/55 mb-4 flex items-center gap-2">
               <RefreshCcw className="w-3.5 h-3.5" />
               {t("Billing History", "Historique de Facturation", "Historial de Facturación")}
             </h3>
             {transactions.length === 0 ? (
               <div className="p-6 rounded-xl bg-white/5 border border-white/10 text-center">
-                <p className="text-sm text-white/40">{t("No charges yet.", "Aucun débit.", "Sin cargos.")}</p>
+                <p className="text-sm text-white/55">{t("No charges yet.", "Aucun débit.", "Sin cargos.")}</p>
               </div>
             ) : (
               <div className="space-y-2">
@@ -161,7 +161,7 @@ export function SubscriptionManagementScreen({ onClose }: SubscriptionManagement
                       <p className="text-sm text-white">
                         {txn.creatorName ?? t("CREOVA", "CREOVA", "CREOVA")} {txn.last4 && `•••• ${txn.last4}`}
                       </p>
-                      <p className="text-xs text-white/40">{new Date(txn.createdAt).toLocaleDateString()}</p>
+                      <p className="text-xs text-white/55">{new Date(txn.createdAt).toLocaleDateString()}</p>
                     </div>
                     <span className="text-sm text-white/70">{formatCents(txn.amountGross)}</span>
                   </div>

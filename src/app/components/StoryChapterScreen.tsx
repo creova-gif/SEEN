@@ -293,7 +293,7 @@ export function StoryChapterScreen({
             animate={{ opacity: 1, y: 0 }}
             className="flex items-center gap-3"
           >
-            <span className="text-xs tracking-[0.3em] uppercase text-white/40">
+            <span className="text-xs tracking-[0.3em] uppercase text-white/55">
               Chapter {currentChapter.order} of {chapters.length}
             </span>
             {/* Soft progress indicator */}
@@ -415,7 +415,7 @@ export function StoryChapterScreen({
                 flex items-center gap-2 px-4 py-2 rounded-full transition-all
                 ${canGoPrev 
                   ? 'bg-white/10 hover:bg-white/20 text-white' 
-                  : 'bg-white/5 text-white/20 cursor-not-allowed'
+                  : 'bg-white/5 text-white/55 cursor-not-allowed'
                 }
               `}
             >
@@ -430,7 +430,7 @@ export function StoryChapterScreen({
                 flex items-center gap-2 px-4 py-2 rounded-full transition-all
                 ${canGoNext 
                   ? 'bg-white/10 hover:bg-white/20 text-white' 
-                  : 'bg-white/5 text-white/20 cursor-not-allowed'
+                  : 'bg-white/5 text-white/55 cursor-not-allowed'
                 }
               `}
             >

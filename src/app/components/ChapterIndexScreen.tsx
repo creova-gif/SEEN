@@ -55,7 +55,7 @@ export function ChapterIndexScreen({
             transition={{ delay: 0.1 }}
             className="space-y-3"
           >
-            <span className="text-xs tracking-[0.3em] uppercase text-white/40">
+            <span className="text-xs tracking-[0.3em] uppercase text-white/55">
               {storyWorld.culturalThemes?.[0] || 'Story'}
             </span>
             <h1 className="text-2xl tracking-tight text-white">
@@ -65,10 +65,10 @@ export function ChapterIndexScreen({
               {getLocalizedText(storyWorld.description, state.language)}
             </p>
             <div className="flex items-center gap-4 pt-2">
-              <span className="text-xs text-white/40">
+              <span className="text-xs text-white/55">
                 {chapters.reduce((total, ch) => total + (ch.estimatedDuration || 0), 0)} min total
               </span>
-              <span className="text-xs text-white/40">
+              <span className="text-xs text-white/55">
                 • {chapters.length} chapters
               </span>
             </div>
@@ -127,11 +127,11 @@ export function ChapterIndexScreen({
                   {/* Chapter info */}
                   <div className="flex-1 min-w-0 space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs tracking-wider uppercase text-white/40">
+                      <span className="text-xs tracking-wider uppercase text-white/55">
                         Chapter {chapter.order}
                       </span>
                       {isCompleted && !isCurrent && (
-                        <span className="text-xs text-white/30">
+                        <span className="text-xs text-white/55">
                           • Completed
                         </span>
                       )}
@@ -147,7 +147,7 @@ export function ChapterIndexScreen({
                     <p className="text-sm text-white/50">
                       {getLocalizedText(chapter.description, state.language)}
                     </p>
-                    <span className="text-xs text-white/30">
+                    <span className="text-xs text-white/55">
                       {chapter.estimatedDuration} min
                     </span>
                   </div>

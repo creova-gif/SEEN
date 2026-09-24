@@ -304,7 +304,7 @@ function InvocationLayer({ onComplete }: { onComplete: () => void }) {
           <h1 className="text-4xl tracking-tight text-white mb-2">
             SEEN
           </h1>
-          <p className="text-xs tracking-[0.4em] uppercase text-white/30">
+          <p className="text-xs tracking-[0.4em] uppercase text-white/55">
             by CREOVA
           </p>
         </motion.div>
@@ -471,7 +471,7 @@ function RoleButton({
       <div className="text-base text-white/90 mb-1 group-hover:text-white transition-colors duration-500">
         {label}
       </div>
-      <div className="text-sm text-white/40 group-hover:text-white/60 transition-colors duration-500">
+      <div className="text-sm text-white/55 group-hover:text-white/60 transition-colors duration-500">
         {subtitle}
       </div>
     </motion.button>
@@ -729,19 +729,19 @@ function AccountStep({
                   animate={{ opacity: 1 }}
                   className="text-xs space-y-1.5 text-left"
                 >
-                  <div className={`flex items-center gap-2 ${passwordValidation.length ? 'text-green-500/80' : 'text-white/40'}`}>
+                  <div className={`flex items-center gap-2 ${passwordValidation.length ? 'text-green-500/80' : 'text-white/55'}`}>
                     <span>{passwordValidation.length ? '✓' : '○'}</span>
                     <span>At least 8 characters</span>
                   </div>
-                  <div className={`flex items-center gap-2 ${passwordValidation.uppercase ? 'text-green-500/80' : 'text-white/40'}`}>
+                  <div className={`flex items-center gap-2 ${passwordValidation.uppercase ? 'text-green-500/80' : 'text-white/55'}`}>
                     <span>{passwordValidation.uppercase ? '✓' : '○'}</span>
                     <span>One uppercase letter</span>
                   </div>
-                  <div className={`flex items-center gap-2 ${passwordValidation.lowercase ? 'text-green-500/80' : 'text-white/40'}`}>
+                  <div className={`flex items-center gap-2 ${passwordValidation.lowercase ? 'text-green-500/80' : 'text-white/55'}`}>
                     <span>{passwordValidation.lowercase ? '✓' : '○'}</span>
                     <span>One lowercase letter</span>
                   </div>
-                  <div className={`flex items-center gap-2 ${passwordValidation.number ? 'text-green-500/80' : 'text-white/40'}`}>
+                  <div className={`flex items-center gap-2 ${passwordValidation.number ? 'text-green-500/80' : 'text-white/55'}`}>
                     <span>{passwordValidation.number ? '✓' : '○'}</span>
                     <span>One number</span>
                   </div>
@@ -751,7 +751,7 @@ function AccountStep({
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="text-xs text-white/40 space-y-1"
+                  className="text-xs text-white/55 space-y-1"
                 >
                   <p>Password must include:</p>
                   <ul className="list-disc list-inside space-y-0.5 ml-2">
@@ -821,7 +821,7 @@ function AccountStep({
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
               onClick={() => setMode('recovery')}
-              className="w-full py-2 text-xs text-white/40 hover:text-white/60 transition-all duration-300"
+              className="w-full py-2 text-xs text-white/55 hover:text-white/60 transition-all duration-300"
             >
               Forgot password?
             </motion.button>
@@ -873,7 +873,7 @@ function AccountStep({
                 <div className="w-full border-t border-white/5"></div>
               </div>
               <div className="relative flex justify-center text-xs">
-                <span className="px-4 text-white/30 bg-black">Or continue with</span>
+                <span className="px-4 text-white/55 bg-black">Or continue with</span>
               </div>
             </div>
             
@@ -892,7 +892,7 @@ function AccountStep({
                 GitHub
               </button>
             </div>
-            <p className="text-[10px] text-white/20 text-center">
+            <p className="text-[10px] text-white/55 text-center">
               Social login coming soon
             </p>
           </motion.div>

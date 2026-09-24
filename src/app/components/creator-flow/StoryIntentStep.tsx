@@ -103,7 +103,7 @@ export function StoryIntentStep({
         className="px-5 pt-8 pb-6 border-b border-white/10"
       >
         <div className="flex items-center gap-2 mb-3">
-          <span className="text-xs tracking-widest uppercase text-white/40">Step 1 of 5</span>
+          <span className="text-xs tracking-widest uppercase text-white/55">Step 1 of 5</span>
           <div className="w-1 h-1 rounded-full bg-white/40" />
           <span className="text-xs tracking-widest uppercase text-white/60">Story Intent</span>
         </div>
@@ -132,10 +132,10 @@ export function StoryIntentStep({
                 setTimeout(handleAutoSave, 500);
               }}
               placeholder="Give your story a meaningful title"
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder:text-white/30 focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/10 transition-all"
+              className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder:text-white/55 focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/10 transition-all"
               maxLength={100}
             />
-            <span className="text-xs text-white/40 mt-1.5 block">{title.length}/100</span>
+            <span className="text-xs text-white/55 mt-1.5 block">{title.length}/100</span>
           </label>
         </motion.div>
 
@@ -155,11 +155,11 @@ export function StoryIntentStep({
                 setTimeout(handleAutoSave, 500);
               }}
               placeholder="What is this story about? Who should experience it?"
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder:text-white/30 focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/10 transition-all resize-none"
+              className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder:text-white/55 focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/10 transition-all resize-none"
               rows={4}
               maxLength={500}
             />
-            <span className="text-xs text-white/40 mt-1.5 block">{description.length}/500</span>
+            <span className="text-xs text-white/55 mt-1.5 block">{description.length}/500</span>
           </label>
         </motion.div>
 
@@ -249,7 +249,7 @@ export function StoryIntentStep({
                     </div>
                     <div className="text-left">
                       <div className="text-sm text-white">{lang.label}</div>
-                      <div className="text-xs text-white/40">{lang.native}</div>
+                      <div className="text-xs text-white/55">{lang.native}</div>
                     </div>
                   </div>
                 </motion.button>
@@ -268,7 +268,7 @@ export function StoryIntentStep({
           <label className="block mb-3">
             <div className="flex items-center gap-2 mb-2">
               <span className="text-sm tracking-wide text-white/80">Intended Audience</span>
-              <span className="text-xs tracking-wider uppercase text-white/40 bg-white/5 px-2 py-0.5 rounded">
+              <span className="text-xs tracking-wider uppercase text-white/55 bg-white/5 px-2 py-0.5 rounded">
                 Optional
               </span>
             </div>
@@ -280,7 +280,7 @@ export function StoryIntentStep({
                 setTimeout(handleAutoSave, 500);
               }}
               placeholder="Who is this story for? (e.g., educators, community members, youth)"
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder:text-white/30 focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/10 transition-all"
+              className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder:text-white/55 focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/10 transition-all"
             />
           </label>
         </motion.div>
@@ -312,7 +312,7 @@ export function StoryIntentStep({
           <motion.span
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-xs text-white/40"
+            className="text-xs text-white/55"
           >
             Draft saved
           </motion.span>
@@ -327,7 +327,7 @@ export function StoryIntentStep({
             className={`flex items-center gap-2 px-6 py-3 rounded-lg text-sm tracking-wide font-medium transition-all duration-300 ${
               canProceed
                 ? 'bg-white text-black hover:bg-white/90'
-                : 'bg-white/10 text-white/40 cursor-not-allowed'
+                : 'bg-white/10 text-white/55 cursor-not-allowed'
             }`}
           >
             <span>Next: Structure</span>

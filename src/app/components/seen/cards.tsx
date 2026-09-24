@@ -173,7 +173,7 @@ export function NotificationItem({ notification, onOpen }: { notification: SeenN
         <span className="block text-xs text-seen-secondary mt-1 leading-relaxed">{notification.body}</span>
         <span className="block text-[10px] tracking-[0.12em] uppercase text-seen-muted mt-2">{relativeTime(notification.createdAt)}</span>
       </span>
-      {notification.target && <ChevronRight className="w-4 h-4 text-white/30 self-center flex-shrink-0" aria-hidden />}
+      {notification.target && <ChevronRight className="w-4 h-4 text-white/55 self-center flex-shrink-0" aria-hidden />}
     </button>
   );
 }

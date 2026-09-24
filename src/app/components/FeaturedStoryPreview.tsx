@@ -147,7 +147,7 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
             <span className="text-xs tracking-[0.2em] uppercase text-white/60 backdrop-blur-sm bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
               {storyData.culturalThemes?.[0] || 'Story'}
             </span>
-            <span className="text-xs text-white/40">• {storyData.totalDuration}</span>
+            <span className="text-xs text-white/55">• {storyData.totalDuration}</span>
             {isLocked && (
               <span className="text-xs text-amber-300 flex items-center gap-1 backdrop-blur-sm bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-400/20">
                 <Lock className="w-3 h-3" />
@@ -171,7 +171,7 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
             <p className="text-sm text-white/50">
               Created by <span className="text-white/80">{storyData.creator}</span>
             </p>
-            <p className="text-xs text-white/40">
+            <p className="text-xs text-white/55">
               Released {storyData.releaseDate}
             </p>
           </div>
@@ -204,7 +204,7 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
             className="flex items-center gap-2 pt-2"
           >
             <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-            <p className="text-xs text-white/40">
+            <p className="text-xs text-white/55">
               Ambient soundscape playing
             </p>
           </motion.div>

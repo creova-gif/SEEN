@@ -251,7 +251,7 @@ export function ForYouScreen({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
-          className="text-center text-xs text-white/30 mt-8"
+          className="text-center text-xs text-white/55 mt-8"
         >
           Content personalized for {userIntent === 'explore' ? 'exploration' : userIntent === 'create' ? 'creators' : 'contributors'}
         </motion.div>
@@ -279,7 +279,7 @@ function BottomNav({
           onClick={() => onNavigate("for-you")}
           aria-current={activeTab === 'for-you' ? 'page' : undefined}
           className={`flex flex-col min-w-11 min-h-11 justify-center items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
-            activeTab === 'for-you' ? 'text-white' : 'text-white/40 hover:text-white/60'
+            activeTab === 'for-you' ? 'text-white' : 'text-white/55 hover:text-white/60'
           }`}
         >
           <Home 
@@ -301,7 +301,7 @@ function BottomNav({
           onClick={() => onNavigate("explore")}
           aria-current={activeTab === 'explore' ? 'page' : undefined}
           className={`flex flex-col min-w-11 min-h-11 justify-center items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
-            activeTab === 'explore' ? 'text-white' : 'text-white/40 hover:text-white/60'
+            activeTab === 'explore' ? 'text-white' : 'text-white/55 hover:text-white/60'
           }`}
         >
           <Compass 
@@ -323,7 +323,7 @@ function BottomNav({
           onClick={() => onNavigate("library")}
           aria-current={activeTab === 'library' ? 'page' : undefined}
           className={`flex flex-col min-w-11 min-h-11 justify-center items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
-            activeTab === 'library' ? 'text-white' : 'text-white/40 hover:text-white/60'
+            activeTab === 'library' ? 'text-white' : 'text-white/55 hover:text-white/60'
           }`}
         >
           <Library 
@@ -345,7 +345,7 @@ function BottomNav({
           onClick={() => onNavigate("profile")}
           aria-current={activeTab === 'profile' ? 'page' : undefined}
           className={`flex flex-col min-w-11 min-h-11 justify-center items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
-            activeTab === 'profile' ? 'text-white' : 'text-white/40 hover:text-white/60'
+            activeTab === 'profile' ? 'text-white' : 'text-white/55 hover:text-white/60'
           }`}
         >
           <User 
@@ -389,7 +389,7 @@ function PresenceIndicators({ storyCount }: { storyCount: number }) {
             {r.icon}
             <span className="flex items-baseline gap-2">
               <span className="text-2xl font-light text-white/90 tabular-nums min-w-[1.5ch]">{r.n ?? "–"}</span>
-              <span className="text-sm text-white/40 font-light tracking-wide group-hover:text-white/70 transition-colors">{r.label}</span>
+              <span className="text-sm text-white/55 font-light tracking-wide group-hover:text-white/70 transition-colors">{r.label}</span>
             </span>
           </button>
         </motion.li>

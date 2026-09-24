@@ -125,8 +125,8 @@ export function ProfilePreferencesScreen({
             className="space-y-4"
           >
             <div className="flex items-center gap-2">
-              <Globe className="w-4 h-4 text-white/40" />
-              <h3 className="text-sm tracking-wider uppercase text-white/40">
+              <Globe className="w-4 h-4 text-white/55" />
+              <h3 className="text-sm tracking-wider uppercase text-white/55">
                 {getText("language")}
               </h3>
             </div>
@@ -193,7 +193,7 @@ export function ProfilePreferencesScreen({
                     </p>
                   </div>
                 </div>
-                <ChevronRight className="w-5 h-5 text-white/30" />
+                <ChevronRight className="w-5 h-5 text-white/55" />
               </div>
             </button>
           </motion.section>
@@ -206,8 +206,8 @@ export function ProfilePreferencesScreen({
             className="space-y-4"
           >
             <div className="flex items-center gap-2">
-              <Volume2 className="w-4 h-4 text-white/40" />
-              <h3 className="text-sm tracking-wider uppercase text-white/40">
+              <Volume2 className="w-4 h-4 text-white/55" />
+              <h3 className="text-sm tracking-wider uppercase text-white/55">
                 {state.language === 'en' ? 'Audio' : state.language === 'fr' ? 'Audio' : 'Audio'}
               </h3>
             </div>
@@ -219,7 +219,7 @@ export function ProfilePreferencesScreen({
                   <span className="text-sm text-white/70">
                     {getText("audioQuality")}
                   </span>
-                  <span className="text-xs text-white/40">
+                  <span className="text-xs text-white/55">
                     {state.language === 'en' ? 'High' : state.language === 'fr' ? 'Élevée' : 'Alta'}
                   </span>
                 </div>
@@ -264,12 +264,12 @@ export function ProfilePreferencesScreen({
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Bookmark className="w-4 h-4 text-white/40" />
-                <h3 className="text-sm tracking-wider uppercase text-white/40">
+                <Bookmark className="w-4 h-4 text-white/55" />
+                <h3 className="text-sm tracking-wider uppercase text-white/55">
                   {getText("saved")}
                 </h3>
               </div>
-              <span className="text-xs text-white/30">
+              <span className="text-xs text-white/55">
                 {savedStories.length}
               </span>
             </div>
@@ -317,8 +317,8 @@ export function ProfilePreferencesScreen({
               </div>
             ) : (
               <div className="p-8 rounded-xl bg-white/5 border border-white/10 text-center">
-                <Bookmark className="w-8 h-8 text-white/20 mx-auto mb-3" />
-                <p className="text-sm text-white/40">
+                <Bookmark className="w-8 h-8 text-white/55 mx-auto mb-3" />
+                <p className="text-sm text-white/55">
                   {state.language === 'en' 
                     ? 'No saved stories yet'
                     : state.language === 'fr'
@@ -338,8 +338,8 @@ export function ProfilePreferencesScreen({
             className="space-y-3"
           >
             <div className="flex items-center gap-2">
-              <Shield className="w-4 h-4 text-white/40" />
-              <h3 className="text-sm tracking-wider uppercase text-white/40">
+              <Shield className="w-4 h-4 text-white/55" />
+              <h3 className="text-sm tracking-wider uppercase text-white/55">
                 {getText("privacy")}
               </h3>
             </div>
@@ -373,7 +373,7 @@ export function ProfilePreferencesScreen({
                 <span className="text-sm text-white/70">
                   {getText("about")}
                 </span>
-                <ChevronRight className="w-5 h-5 text-white/30" />
+                <ChevronRight className="w-5 h-5 text-white/55" />
               </div>
             </button>
           </motion.section>
@@ -385,7 +385,7 @@ export function ProfilePreferencesScreen({
             transition={{ delay: 0.9 }}
             className="text-center pt-8 border-t border-white/5"
           >
-            <p className="text-xs text-white/30">
+            <p className="text-xs text-white/55">
               SEEN v1.0.0 • CREOVA
             </p>
           </motion.div>

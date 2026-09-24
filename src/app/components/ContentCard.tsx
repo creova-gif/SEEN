@@ -94,7 +94,7 @@ export function ContentCard({
         <h3 className="text-xl font-light tracking-tight text-white leading-tight line-clamp-2">{title}</h3>
         {subtitle && <p className="text-xs text-white/60 leading-relaxed line-clamp-2">{subtitle}</p>}
         <div className="flex items-center justify-between mt-1 min-h-8">
-          {duration ? <span className="text-xs text-white/45">{duration}</span> : <span />}
+          {duration ? <span className="text-xs text-white/55">{duration}</span> : <span />}
           <span
             aria-hidden
             className="w-8 h-8 rounded-full bg-white/90 flex items-center justify-center opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity"

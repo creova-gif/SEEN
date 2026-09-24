@@ -61,7 +61,7 @@ const STRUCTURE_OPTIONS: StructureOption[] = [
         </div>
         <div className="absolute left-[72px] top-8 flex flex-col items-center">
           <div className="w-0.5 h-4 bg-white/20" />
-          <div className="w-6 h-6 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[10px] text-white/40">2a</div>
+          <div className="w-6 h-6 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[10px] text-white/55">2a</div>
         </div>
       </div>
     ),
@@ -81,7 +81,7 @@ const STRUCTURE_OPTIONS: StructureOption[] = [
             </div>
           ))}
         </div>
-        <div className="text-[10px] text-white/30 text-center">Independent episodes</div>
+        <div className="text-[10px] text-white/55 text-center">Independent episodes</div>
       </div>
     ),
   },
@@ -132,7 +132,7 @@ export function StoryStructureStep({
         className="px-5 pt-8 pb-6 border-b border-white/10"
       >
         <div className="flex items-center gap-2 mb-3">
-          <span className="text-xs tracking-widest uppercase text-white/40">Step 2 of 5</span>
+          <span className="text-xs tracking-widest uppercase text-white/55">Step 2 of 5</span>
           <div className="w-1 h-1 rounded-full bg-white/40" />
           <span className="text-xs tracking-widest uppercase text-white/60">Story Structure</span>
         </div>
@@ -181,7 +181,7 @@ export function StoryStructureStep({
                   </div>
                   <div>
                     <h3 className="text-base font-light tracking-wide mb-1">{option.label}</h3>
-                    <p className="text-xs text-white/40">{option.example}</p>
+                    <p className="text-xs text-white/55">{option.example}</p>
                   </div>
                 </div>
 
@@ -258,9 +258,9 @@ export function StoryStructureStep({
           
           {/* Value Display */}
           <div className="flex justify-between mt-3">
-            <span className="text-xs text-white/40">1 chapter</span>
+            <span className="text-xs text-white/55">1 chapter</span>
             <span className="text-sm text-white font-medium">{estimatedChapters} chapters</span>
-            <span className="text-xs text-white/40">12 chapters</span>
+            <span className="text-xs text-white/55">12 chapters</span>
           </div>
         </div>
       </motion.div>

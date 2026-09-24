@@ -24,7 +24,7 @@ export function StoryRow({ storyId, language, onOpen }: { storyId: string; langu
           {story.chapterCount} chapters · {story.totalDuration}
         </span>
       </span>
-      <ChevronRight className="w-4 h-4 text-white/30 flex-shrink-0" aria-hidden />
+      <ChevronRight className="w-4 h-4 text-white/55 flex-shrink-0" aria-hidden />
     </button>
   );
 }
