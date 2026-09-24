@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth, SELF_ASSIGNABLE_ROLES } from "../contexts/AuthContext";
+import { toast } from "sonner";
 import { useStoryState } from "../contexts/StoryStateContext";
 import type { UserRole, UserIntent, Language, PersonalizationPreferences } from "../contexts/StoryStateContext";
 import { LanguageSelectionScreen } from "./LanguageSelectionScreen";
@@ -113,6 +114,11 @@ export function OnboardingSystem({
 
     try {
       await signUp(email, password, name, selectedRole, state.language, selectedIntent);
+      if (!SELF_ASSIGNABLE_ROLES.includes(selectedRole)) {
+        toast.info("Moderator access requested", {
+          description: "You can explore SEEN as a viewer while an admin reviews your request.",
+        });
+      }
       setCurrentStep("accessibility");
     } catch (error) {
       console.error("Error creating account:", error);
@@ -170,13 +176,15 @@ export function OnboardingSystem({
 
   // Handle complete onboarding
   const handleComplete = () => {
-    if (selectedRole && selectedIntent) {
+    // The account's stored role is authoritative. The role tapped during
+    // onboarding is only a request: signing in to an existing viewer account
+    // after tapping "Moderator" must not grant moderator access.
+    const role = authState.user?.role ?? "viewer";
+    const intent = authState.user?.intent ?? selectedIntent;
+    if (intent) {
       localStorage.setItem("onboarding_completed", "true");
       localStorage.removeItem("onboarding_step");
-      onComplete({
-        role: selectedRole,
-        intent: selectedIntent
-      });
+      onComplete({ role, intent });
     }
   };
 

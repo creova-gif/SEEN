@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { Check, PartyPopper } from "lucide-react";
 import { api, deadlineState, formatAmount, formatDeadline, ServiceError, type ApplicationState } from "../services";
@@ -14,6 +14,7 @@ const LANG_LABEL: Record<string, string> = { en: "English", fr: "French", es: "S
 export function OpportunityDetailScreen({ opportunityId }: { opportunityId: string }) {
   const nav = useAppNav();
   const [busy, setBusy] = useState(false);
+  const seq = useRef(0);
   const resource = useResource(
     async () => {
       const [opportunity, application] = await Promise.all([api.funding.get(opportunityId), api.funding.getApplication(opportunityId)]);
@@ -22,13 +23,20 @@ export function OpportunityDetailScreen({ opportunityId }: { opportunityId: stri
     [opportunityId],
   );
 
+  // Optimistic: the checkbox/status changes the instant it's tapped, the save
+  // happens in the background, and a failure rolls back with a toast.
   const update = async (patch: Partial<Pick<ApplicationState, "status" | "completedSteps">>, success?: string) => {
+    const previous = resource.data?.application;
+    if (previous) resource.mutate(prev => ({ ...prev!, application: { ...previous, ...patch } }));
     setBusy(true);
+    const mine = ++seq.current;
     try {
       const application = await api.funding.updateApplication(opportunityId, patch);
-      resource.mutate(prev => ({ ...prev!, application }));
+      // Ignore responses superseded by a later tap.
+      if (mine === seq.current) resource.mutate(prev => ({ ...prev!, application }));
       if (success) toast.success(success);
     } catch (e) {
+      if (previous && mine === seq.current) resource.mutate(prev => ({ ...prev!, application: previous }));
       toast.error(e instanceof ServiceError && e.code === "invalid" ? e.message : "Couldn't save your progress. Try again.");
     } finally {
       setBusy(false);
@@ -116,7 +124,7 @@ export function OpportunityDetailScreen({ opportunityId }: { opportunityId: stri
                                   type="checkbox"
                                   className="w-5 h-5 accent-white"
                                   checked={checked}
-                                  disabled={busy || app.status === "applied"}
+                                  disabled={app.status === "applied"}
                                   onChange={() => toggleStep(i)}
                                 />
                                 <span className={`text-sm ${checked ? "text-white/50 line-through" : "text-white/85"}`}>{s}</span>

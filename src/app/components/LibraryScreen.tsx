@@ -263,12 +263,13 @@ function BottomNav({
   activeTab: string;
 }) {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 backdrop-blur-xl bg-black/60 border-t border-white/5 z-50 pointer-events-auto">
+    <nav aria-label="Main" className="fixed bottom-0 left-0 right-0 backdrop-blur-xl bg-black/60 border-t border-white/5 z-50 pointer-events-auto">
       <div className="max-w-[428px] mx-auto px-5 py-4 flex justify-around">
         <button
           type="button"
           onClick={() => onNavigate("for-you")}
-          className={`flex flex-col items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
+          aria-current={activeTab === 'for-you' ? 'page' : undefined}
+          className={`flex flex-col min-w-11 min-h-11 justify-center items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
             activeTab === 'for-you' ? 'text-white' : 'text-white/40 hover:text-white/60'
           }`}
         >
@@ -289,7 +290,8 @@ function BottomNav({
         <button
           type="button"
           onClick={() => onNavigate("explore")}
-          className={`flex flex-col items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
+          aria-current={activeTab === 'explore' ? 'page' : undefined}
+          className={`flex flex-col min-w-11 min-h-11 justify-center items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
             activeTab === 'explore' ? 'text-white' : 'text-white/40 hover:text-white/60'
           }`}
         >
@@ -310,7 +312,8 @@ function BottomNav({
         <button
           type="button"
           onClick={() => onNavigate("library")}
-          className={`flex flex-col items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
+          aria-current={activeTab === 'library' ? 'page' : undefined}
+          className={`flex flex-col min-w-11 min-h-11 justify-center items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
             activeTab === 'library' ? 'text-white' : 'text-white/40 hover:text-white/60'
           }`}
         >
@@ -331,7 +334,8 @@ function BottomNav({
         <button
           type="button"
           onClick={() => onNavigate("profile")}
-          className={`flex flex-col items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
+          aria-current={activeTab === 'profile' ? 'page' : undefined}
+          className={`flex flex-col min-w-11 min-h-11 justify-center items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
             activeTab === 'profile' ? 'text-white' : 'text-white/40 hover:text-white/60'
           }`}
         >

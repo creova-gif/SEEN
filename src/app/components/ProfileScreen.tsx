@@ -486,7 +486,7 @@ export function ProfileScreen({
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 backdrop-blur-xl bg-black/60 border-t border-white/5 z-50 pointer-events-auto">
+      <nav aria-label="Main" className="fixed bottom-0 left-0 right-0 backdrop-blur-xl bg-black/60 border-t border-white/5 z-50 pointer-events-auto">
         <div className="max-w-[428px] mx-auto px-5 py-4 flex justify-around">
           <button
             type="button"

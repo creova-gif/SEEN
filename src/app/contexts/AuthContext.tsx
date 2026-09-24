@@ -46,6 +46,53 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const AUTH_STORAGE_KEY = 'seenos_auth_session';
+const ELEVATION_KEY = 'seenos_role_elevation_requests';
+
+/**
+ * Roles a person may pick for themselves at sign-up. Moderator/admin are
+ * privileged: choosing one creates a viewer account plus a pending elevation
+ * request for an admin to review, instead of granting the role on the spot.
+ */
+export const SELF_ASSIGNABLE_ROLES: UserRole[] = ['viewer', 'creator'];
+
+export function resolveSignupRole(requested: UserRole): { role: UserRole; pendingElevation: UserRole | null } {
+  return SELF_ASSIGNABLE_ROLES.includes(requested)
+    ? { role: requested, pendingElevation: null }
+    : { role: 'viewer', pendingElevation: requested };
+}
+
+function recordElevationRequest(user: Pick<User, 'id' | 'name' | 'role'>, requestedRole: UserRole, reason: string) {
+  let requests: unknown[] = [];
+  try {
+    requests = JSON.parse(localStorage.getItem(ELEVATION_KEY) || '[]');
+  } catch {
+    requests = [];
+  }
+  requests.push({
+    id: `elev_${crypto.randomUUID()}`,
+    userId: user.id,
+    userName: user.name,
+    currentRole: user.role,
+    requestedRole,
+    reason,
+    status: 'pending',
+    createdAt: new Date().toISOString(),
+  });
+  localStorage.setItem(ELEVATION_KEY, JSON.stringify(requests));
+}
+
+/**
+ * Demo test accounts (local demo mode only — they live in this browser's
+ * localStorage, never on a server). Documented in docs/testing/USER_TESTING_RC_CHECKLIST.md.
+ * Disable with VITE_DEMO_ACCOUNTS=false.
+ */
+export const DEMO_PASSWORD = 'SeenDemo2026!';
+const DEMO_ACCOUNTS: Array<Pick<User, 'id' | 'email' | 'name' | 'role'>> = [
+  { id: 'user_demo_viewer', email: 'viewer@seen.demo', name: 'Demo Viewer', role: 'viewer' },
+  { id: 'user_demo_creator', email: 'creator@seen.demo', name: 'Demo Creator', role: 'creator' },
+  { id: 'user_demo_moderator', email: 'moderator@seen.demo', name: 'Demo Moderator', role: 'moderator' },
+  { id: 'user_demo_admin', email: 'admin@seen.demo', name: 'Demo Admin', role: 'admin' },
+];
 const USERS_STORAGE_KEY = 'seenos_users_db';
 
 // ============================================
@@ -92,6 +139,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
 
   // Load session from localStorage on mount
+  useEffect(() => {
+    if (import.meta.env.VITE_DEMO_ACCOUNTS !== 'false') {
+      void (async () => {
+        const db = loadUsersDb();
+        let changed = false;
+        for (const acct of DEMO_ACCOUNTS) {
+          if (db[acct.id]) continue;
+          db[acct.id] = {
+            ...acct,
+            language: 'en',
+            intent: 'explore',
+            passwordHash: await hashPassword(DEMO_PASSWORD),
+            createdAt: '2026-01-01T00:00:00.000Z',
+          };
+          changed = true;
+        }
+        if (changed) saveUsersDb(db);
+      })();
+    }
+  }, []);
+
   useEffect(() => {
     try {
       const stored = localStorage.getItem(AUTH_STORAGE_KEY);
@@ -161,11 +229,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const passwordHash = await hashPassword(password);
     const now = new Date().toISOString();
+    const { role: grantedRole, pendingElevation } = resolveSignupRole(role);
     const newUser: User = {
       id: `user_${crypto.randomUUID()}`,
       email: normalizedEmail,
       name,
-      role,
+      role: grantedRole,
       language,
       intent,
       passwordHash,
@@ -175,6 +244,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     usersDb[newUser.id] = newUser;
     saveUsersDb(usersDb);
+    if (pendingElevation) {
+      recordElevationRequest(newUser, pendingElevation, 'Requested at sign-up');
+    }
 
     const accessToken = generateToken();
     setState({
@@ -248,10 +320,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error('User not found');
     }
 
+    // Role, id, email and password are never changeable through a profile
+    // update — roles change only via the elevation/approval flow.
+    const { role: _role, id: _id, email: _email, passwordHash: _ph, ...safeUpdates } = updates;
     const updated: User = {
       ...existing,
-      ...updates,
-      id: existing.id, // never allow id/password overwrite via profile updates
+      ...safeUpdates,
+      id: existing.id,
+      role: existing.role,
+      email: existing.email,
       passwordHash: existing.passwordHash,
       updatedAt: new Date().toISOString(),
     };
@@ -266,22 +343,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!state.user) {
       throw new Error('Not authenticated');
     }
-    // Demo mode: role elevation requests are auto-logged for admin review
-    // via the moderation/admin data layer rather than applied immediately.
-    const key = 'seenos_role_elevation_requests';
-    const raw = localStorage.getItem(key);
-    const requests = raw ? JSON.parse(raw) : [];
-    requests.push({
-      id: `elev_${crypto.randomUUID()}`,
-      userId: state.user.id,
-      userName: state.user.name,
-      currentRole: state.user.role,
-      requestedRole,
-      reason,
-      status: 'pending',
-      createdAt: new Date().toISOString(),
-    });
-    localStorage.setItem(key, JSON.stringify(requests));
+    // Logged for admin review; never applied immediately.
+    recordElevationRequest(state.user, requestedRole, reason);
   };
 
   const requestPasswordRecovery = async (email: string) => {
