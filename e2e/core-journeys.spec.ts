@@ -124,6 +124,51 @@ test.describe("signed-in viewer", () => {
     await expect(page.getByRole("link", { name: /on funder's site/i })).toHaveAttribute("href", /rogersgroupoffunds\.com/);
   });
 
+  test("reader: save, pick a chapter, and keep listening in the mini player", async ({ page }) => {
+    await page.goto("/#/story/midnight-resonance");
+    await page.getByRole("button", { name: /enter story/i }).click();
+    await expect(page.getByTestId("expanded-player")).toBeVisible();
+    await page.getByRole("button", { name: "Save story" }).click();
+    await expect(page.getByRole("button", { name: "Remove from saved" })).toHaveAttribute("aria-pressed", "true");
+    await page.getByRole("button", { name: "Chapter index" }).click();
+    const rows = page.getByTestId("chapter-row");
+    await expect(rows.first()).toHaveAttribute("data-state", "playing");
+    await rows.nth(2).click();
+    await expect(page.getByText(/chapter 3 of/i)).toBeVisible();
+    await page.getByRole("button", { name: "Close", exact: true }).first().click();
+    const mini = page.getByTestId("mini-player");
+    await expect(mini).toBeVisible();
+    await mini.getByRole("button", { name: /open player/i }).click();
+    await expect(page.getByRole("dialog", { name: /now playing/i })).toBeVisible();
+    await page.keyboard.press("Escape");
+    await page.goto("/#/library");
+    await page.getByRole("button", { name: /saved stor/i }).click();
+    await expect(page.getByTestId("story-row").filter({ hasText: "Midnight Resonance" })).toBeVisible();
+  });
+
+  test("settings apply high contrast and reduced motion app-wide", async ({ page }) => {
+    await page.goto("/#/settings");
+    await page.getByRole("switch", { name: /high contrast/i }).click();
+    await page.getByRole("switch", { name: /reduce motion/i }).click();
+    await expect(page.locator("html")).toHaveAttribute("data-contrast", "high");
+    await expect(page.locator("html")).toHaveAttribute("data-motion", "reduced");
+    await page.getByRole("radio", { name: /français/i }).check();
+    await expect(page.getByRole("heading", { name: "Préférences" })).toBeVisible();
+  });
+
+  test("funding filters in the drawer", async ({ page }) => {
+    await page.goto("/#/funding");
+    await page.getByRole("tab", { name: /coming up/i }).click();
+    await page.getByRole("button", { name: /^filters/i }).click();
+    const drawer = page.getByRole("dialog", { name: /filter funding/i });
+    await drawer.getByRole("radio", { name: "Lab" }).check();
+    await drawer.getByRole("button", { name: /show results/i }).click();
+    await expect(page.getByTestId("opportunity-card")).toHaveCount(1);
+    await expect(page.getByTestId("opportunity-card")).toContainText("Shared Ground");
+    await page.getByRole("button", { name: /remove type filter/i }).click();
+    await expect(page.getByTestId("opportunity-card").nth(1)).toBeVisible();
+  });
+
   test("offline and error states are recoverable", async ({ page }) => {
     await page.goto("/?simulate=offline#/funding");
     await expect(page.getByText(/you're offline/i)).toBeVisible();

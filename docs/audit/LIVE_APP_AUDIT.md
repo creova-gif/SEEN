@@ -34,3 +34,19 @@ role. Each finding was reproduced before it was fixed; the fix commit is listed.
 
 All items above except social login are fixed on
 `claude/clever-gates-cs9out`; see `docs/product/MASTER_FEATURE_MATRIX.md`.
+
+## Found while finishing the Figma components (2026-09-24)
+
+| Finding | Fix |
+|---|---|
+| No narration audio files exist (`/media/narration/*.mp3` 404) — the reader's Play button silently did nothing | Shared playback engine: recorded audio when present, otherwise the chapter text read by the device voice (labelled), otherwise an explicit "not available" state |
+| Reader was `overflow-hidden` with controls over the text — long chapters could not be read | Header / scrollable text / docked controls layout |
+| Reader "captions" showed the same hard-coded line for every chapter | Removed (the chapter text is the transcript) |
+| Reader Share and Bookmark buttons had no handlers | Share sheet / copy link; bookmark saves to a new Library "Saved" tab |
+| Choosing a chapter in the chapter index ignored the choice | Fixed |
+| Settings: Accessibility and About buttons not wired, audio-quality buttons and autoplay box did nothing, privacy link dead, privacy text inaccurate | Rebuilt with working controls only; High contrast and Reduce motion now apply app-wide (they were stored but never read) |
+| Onboarding: server errors rendered unstyled and "Sign in instead" never appeared (`a || b && c` precedence) | Fixed |
+| Onboarding inputs had no labels (placeholder only); password rules list mis-aligned | Labelled fields, left-aligned live rules list |
+| Toasts at the top covered header actions (Close/Back) for seconds | Toasts moved above the bottom navigation |
+| Subscription cancel happened instantly with no confirmation | Confirmation dialog |
+| Library inactive tabs at 40% opacity failed AA contrast | Accent bar indicates the active tab instead |

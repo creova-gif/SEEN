@@ -1,19 +1,17 @@
 # Component coverage
 
-How much of the UI is built from the shared system versus bespoke markup.
-
-| Area | Uses SEEN primitives/tokens | Bespoke styling remaining |
+| Area | Built from SEEN components | Remaining bespoke styling |
 |---|---|---|
-| Header (`NavigationBar`) | ✅ IconButton, badge | — |
-| Feature screens (creators, collections, funding, notifications) | ✅ 100% | — |
-| Cards across For You / Explore / Library / Search | ✅ ContentCard / StoryCard contract, SeenImage | — |
-| Explore tabs | ✅ SegmentedTabs | story sections still use legacy `SectionHeader` (fine) |
-| Library | 🟡 ContentCard | Presence-indicator tabs bespoke |
-| Profile | 🟡 Your SEEN rows | `SettingItem`, stats and creator promo bespoke |
-| Onboarding | ❌ | Fully bespoke (works; restyle to Input/Button components later) |
-| Reader, chapter index | ❌ | Bespoke |
-| Creator tools, subscriptions, moderation, admin | ❌ | Bespoke; candidates for MetricCard / Subscription Card |
-| Bottom navigation | ❌ | Three copies; extract one `BottomNav` |
+| Header, bottom nav, top bars | ✅ | — |
+| Feature screens (creators, collections, funding, notifications) | ✅ | — |
+| Cards in all feeds, Library, Search | ✅ | — |
+| Onboarding account form | ✅ TextField / PasswordField | Other onboarding steps keep their cinematic bespoke layout (intentional brand moment) |
+| Settings | ✅ RadioGroup, Toggle, ListItem | — |
+| Profile | ✅ ListItem rows | Header/stats/creator promo bespoke |
+| Reader | ✅ ExpandedPlayer, SeenImage | Header icon buttons bespoke (same look) |
+| Chapter index | ✅ ChapterRow, Progress, Button | — |
+| Library | ✅ ContentCard, CircularProgress, ConfirmDialog, StoryRow | Tab indicators bespoke (accessible, AA) |
+| Subscriptions, Earnings | ✅ SubscriptionCard, MetricCard, ConfirmDialog | Headers and history rows bespoke |
+| Creator publish wizard, moderation, admin | ❌ | Bespoke; works; restyle when those flows are next revised |
 
-Adoption rule for new work: build from `components/seen/*`; if a component is
-missing, add it there (with its Figma node id in the comment) rather than inline.
+Rule for new work: build from `components/seen/*`; if a component is missing, add it there with its Figma node id.

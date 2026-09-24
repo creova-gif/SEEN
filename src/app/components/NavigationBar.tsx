@@ -2,6 +2,7 @@ import { motion } from "motion/react";
 import { Bell, Search, User } from "lucide-react";
 import { useAppNav } from "../navigation/AppNav";
 import { IconButton } from "./seen/primitives";
+import { Tooltip } from "./seen/overlays";
 
 interface NavigationBarProps {
   /** Optional override; defaults to the app-level search. */
@@ -25,15 +26,21 @@ export function NavigationBar({ onSearch }: NavigationBarProps) {
         </div>
 
         <nav aria-label="Quick actions" className="flex items-center gap-2">
-          <IconButton label="Search" onClick={onSearch ?? nav.openSearch}>
-            <Search className="w-4 h-4 text-white/70" />
-          </IconButton>
-          <IconButton label="Notifications" badge={nav.unreadCount} onClick={nav.openNotifications}>
-            <Bell className="w-4 h-4 text-white/70" />
-          </IconButton>
-          <IconButton label="Profile" onClick={nav.openProfile}>
-            <User className="w-4 h-4 text-white/70" />
-          </IconButton>
+          <Tooltip content="Search">
+            <IconButton label="Search" onClick={onSearch ?? nav.openSearch}>
+              <Search className="w-4 h-4 text-white/70" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip content={nav.unreadCount ? `Notifications · ${nav.unreadCount} new` : "Notifications"}>
+            <IconButton label="Notifications" badge={nav.unreadCount} onClick={nav.openNotifications}>
+              <Bell className="w-4 h-4 text-white/70" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip content="Profile">
+            <IconButton label="Profile" onClick={nav.openProfile}>
+              <User className="w-4 h-4 text-white/70" />
+            </IconButton>
+          </Tooltip>
         </nav>
       </div>
     </motion.header>

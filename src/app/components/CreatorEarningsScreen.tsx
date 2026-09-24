@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion } from "motion/react";
+import { MetricCard } from "./seen/primitives";
 import { ArrowLeft, TrendingUp, Users, Wallet, ArrowDownToLine, Check } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid } from "recharts";
 import { useStoryState } from "../contexts/StoryStateContext";
@@ -101,10 +102,10 @@ export function CreatorEarningsScreen({ onClose }: CreatorEarningsScreenProps) {
           </section>
 
           {/* Stats grid */}
-          <section className="grid grid-cols-3 gap-3">
-            <StatTile icon={<TrendingUp className="w-4 h-4 text-blue-300" />} value={formatCents(summary.totalNetEarnings)} label={t("Lifetime", "À vie", "De por vida")} />
-            <StatTile icon={<Users className="w-4 h-4 text-purple-300" />} value={String(summary.activeSubscriberCount)} label={t("Subscribers", "Abonnés", "Suscriptores")} />
-            <StatTile icon={<Wallet className="w-4 h-4 text-amber-300" />} value={String(summary.totalTransactionCount)} label={t("Sales", "Ventes", "Ventas")} />
+          <section className="grid grid-cols-3 gap-3 auto-rows-fr">
+            <MetricCard label={t("Lifetime", "À vie", "De por vida")} value={formatCents(summary.totalNetEarnings)} />
+            <MetricCard label={t("Subscribers", "Abonnés", "Suscriptores")} value={summary.activeSubscriberCount} />
+            <MetricCard label={t("Sales", "Ventes", "Ventas")} value={summary.totalTransactionCount} />
           </section>
 
           {/* Revenue chart */}
@@ -170,16 +171,6 @@ export function CreatorEarningsScreen({ onClose }: CreatorEarningsScreenProps) {
         </div>
       </div>
     </motion.div>
-  );
-}
-
-function StatTile({ icon, value, label }: { icon: JSX.Element; value: string; label: string }) {
-  return (
-    <div className="p-3 rounded-xl bg-white/5 border border-white/10 text-center">
-      <div className="flex justify-center mb-1.5">{icon}</div>
-      <div className="text-sm text-white font-semibold truncate">{value}</div>
-      <div className="text-[10px] text-white/55 mt-0.5">{label}</div>
-    </div>
   );
 }
 

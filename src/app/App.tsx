@@ -1,5 +1,5 @@
 import { lazy, Suspense, useState, useEffect, useCallback, useMemo, useRef } from "react";
-import { AnimatePresence } from "motion/react";
+import { AnimatePresence, MotionConfig } from "motion/react";
 import { Toaster } from "sonner";
 import { StoryStateProvider, useStoryState } from "./contexts/StoryStateContext";
 import type { UserIntent, UserRole } from "./contexts/StoryStateContext";
@@ -28,6 +28,9 @@ import { type AppScreen, NOT_DEEP_LINKABLE, canAccess, fromHash, isScreen, toHas
 import { api } from "./services";
 import { initializeDemoData } from "./data/demoData";
 import { ErrorBoundary } from "./components/ErrorBoundary";
+import { PlaybackProvider } from "./playback/PlaybackProvider";
+import { MediaPlayerBar } from "./components/seen/MediaPlayerBar";
+import { TooltipProvider } from "./components/seen/overlays";
 import { installGlobalHandlers, track } from "./observability";
 // Role-specific / heavy screens load on demand (recharts etc. stay out of the main bundle).
 const CreatorPublishFlow = lazy(() => import("./components/CreatorPublishFlow").then(m => ({ default: m.CreatorPublishFlow })));
@@ -44,7 +47,7 @@ installGlobalHandlers();
 type HistoryEntry = { screen: AppScreen; params: RouteParams };
 
 function AppContent() {
-  const { state, setLanguage, setIntent, setUserRole, enterStoryWorld } = useStoryState();
+  const { state, setLanguage, setIntent, setUserRole, enterStoryWorld, navigateToChapter } = useStoryState();
   const { state: authState } = useAuth();
 
   // Sync user role from auth state when user is authenticated
@@ -123,6 +126,13 @@ function AppContent() {
     }
   }, [authState.isLoading, authState.isAuthenticated, hasCompletedOnboarding, currentScreen, go]);
 
+  // Accessibility preferences apply app-wide via root data attributes (see seen-tokens.css).
+  useEffect(() => {
+    const root = document.documentElement;
+    root.dataset.contrast = state.accessibilityPreferences.highContrast ? "high" : "normal";
+    root.dataset.motion = state.accessibilityPreferences.reducedMotion ? "reduced" : "full";
+  }, [state.accessibilityPreferences.highContrast, state.accessibilityPreferences.reducedMotion]);
+
   // --------------------------------------------------------- unread badge
   const [unreadCount, setUnreadCount] = useState(0);
   useEffect(() => {
@@ -175,8 +185,10 @@ function AppContent() {
 
   return (
     <AppNavProvider value={nav}>
+      <MotionConfig reducedMotion={state.accessibilityPreferences.reducedMotion ? "always" : "user"}>
       <div className="size-full bg-black">
-        <Toaster theme="dark" position="top-center" richColors closeButton />
+        {/* Bottom, above the nav + mini player, so toasts never cover header actions (Close, Back). */}
+        <Toaster theme="dark" position="bottom-center" offset={{ bottom: 150 }} mobileOffset={{ bottom: 150 }} richColors closeButton />
         <Suspense
           fallback={
             <div className="max-w-[428px] mx-auto px-5 pt-20">
@@ -223,7 +235,11 @@ function AppContent() {
             <ChapterIndexScreen
               key="chapter-index"
               onClose={back}
-              onSelectChapter={() => back()}
+              onSelectChapter={id => {
+                // The reader re-mounts on return and opens state.currentChapterId.
+                navigateToChapter(id);
+                back();
+              }}
               storyWorldId={state.currentStoryWorldId}
             />
           )}
@@ -305,7 +321,18 @@ function AppContent() {
           {allowed && currentScreen === "moderation-governance" && <ModerationGovernanceSystem key="moderation-governance" onBack={back} />}
         </AnimatePresence>
         </Suspense>
+        {currentScreen !== "onboarding" && currentScreen !== "story-chapter" && (
+          <MediaPlayerBar
+            bottomOffset={["for-you", "explore", "library", "profile"].includes(currentScreen)}
+            onOpenChapter={(storyId, chapterId) => {
+              enterStoryWorld(storyId);
+              navigateToChapter(chapterId);
+              trackedGo("story-chapter");
+            }}
+          />
+        )}
       </div>
+      </MotionConfig>
     </AppNavProvider>
   );
 }
@@ -315,7 +342,11 @@ export default function App() {
     <ErrorBoundary>
       <StoryStateProvider>
         <AuthProvider>
-          <AppContent />
+          <PlaybackProvider>
+            <TooltipProvider>
+              <AppContent />
+            </TooltipProvider>
+          </PlaybackProvider>
         </AuthProvider>
       </StoryStateProvider>
     </ErrorBoundary>

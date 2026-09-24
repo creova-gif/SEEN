@@ -116,3 +116,35 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* User preference: Settings → Reduce motion (mirrors the OS media query above). */
+:root[data-motion="reduced"] *,
+:root[data-motion="reduced"] *::before,
+:root[data-motion="reduced"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* User preference: Settings → High contrast. Lifts dim text and hairlines. */
+:root[data-contrast="high"] {
+  --seen-text-secondary: #d4d4d8;
+  --seen-text-muted: #c4c4cc;
+  --seen-border-default: #4a4a52;
+}
+:root[data-contrast="high"] [class*="text-white/5"],
+:root[data-contrast="high"] [class*="text-white/6"],
+:root[data-contrast="high"] [class*="text-white/7"] {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+:root[data-contrast="high"] [class*="border-white/5"],
+:root[data-contrast="high"] [class*="border-white/10"],
+:root[data-contrast="high"] [class*="border-white/15"] {
+  border-color: rgba(255, 255, 255, 0.35) !important;
+}
+
+/* While the mini player is docked, keep the end of every screen reachable above it. */
+:root[data-player="on"] main {
+  padding-bottom: 12rem !important;
+}

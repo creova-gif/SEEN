@@ -67,9 +67,13 @@ interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   badge?: number;
 }
 
-export function IconButton({ label, variant = "filled", badge, className, children, ...rest }: IconButtonProps) {
+export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(function IconButton(
+  { label, variant = "filled", badge, className, children, ...rest },
+  ref,
+) {
   return (
     <button
+      ref={ref}
       type="button"
       aria-label={badge ? `${label} (${badge} unread)` : label}
       className={cx(
@@ -97,7 +101,7 @@ export function IconButton({ label, variant = "filled", badge, className, childr
       )}
     </button>
   );
-}
+});
 
 // ---------------------------------------------------------------------------
 // Chip — Figma 295:37 (Default / Selected / Disabled)

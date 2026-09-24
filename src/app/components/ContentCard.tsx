@@ -82,11 +82,14 @@ export function ContentCard({
         ) : (
           <span />
         )}
-        {badge && (
-          <span className="text-[10px] tracking-[0.14em] uppercase text-white backdrop-blur-md bg-white/10 px-2.5 py-1 rounded-full border border-white/20">
-            {badge}
-          </span>
-        )}
+        {badge &&
+          (typeof badge === "string" ? (
+            <span className="text-[10px] tracking-[0.14em] uppercase text-white backdrop-blur-md bg-white/10 px-2.5 py-1 rounded-full border border-white/20">
+              {badge}
+            </span>
+          ) : (
+            <span className="rounded-full backdrop-blur-md bg-black/50 p-0.5">{badge}</span>
+          ))}
       </div>
 
       <div className="absolute inset-x-0 bottom-0 p-5 z-10 flex flex-col gap-1.5">

@@ -6,6 +6,7 @@ import { searchStories, getSearchSuggestions } from '../data/searchService';
 import type { ContentItem } from '../data/types';
 import { StoryCard } from '../components/StoryCard';
 import { track } from '../observability';
+import { SearchBar } from '../components/seen/forms';
 
 interface SearchScreenProps {
   onClose: () => void;
@@ -83,18 +84,15 @@ export function SearchScreen({ onClose, onSelectStory }: SearchScreenProps) {
               </h2>
             </div>
 
-            {/* Search Input */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/55" />
-              <input
-                type="text"
-                placeholder={language === 'en' ? 'Search by title, author, or theme...' : language === 'fr' ? 'Rechercher par titre, auteur ou thème...' : language === 'es' ? 'Buscar por título, autor o tema...' : 'Search by title, author, or theme...'}
-                value={query}
-                onChange={e => setQuery(e.target.value)}
-                autoFocus
-                className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-white/30 transition-colors"
-              />
-            </div>
+            {/* Search Input — Figma Search Bar (Empty / Focused / Filled) */}
+            <SearchBar
+              id="global-search"
+              label={language === 'fr' ? 'Rechercher des histoires' : language === 'es' ? 'Buscar historias' : 'Search stories'}
+              placeholder={language === 'en' ? 'Search by title, author, or theme...' : language === 'fr' ? 'Rechercher par titre, auteur ou thème...' : 'Buscar por título, autor o tema...'}
+              value={query}
+              onChange={setQuery}
+              autoFocus
+            />
           </div>
 
           {/* Results */}

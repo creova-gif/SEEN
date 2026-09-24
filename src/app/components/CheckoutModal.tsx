@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { pushNotification } from "../services";
 import { motion, AnimatePresence } from "motion/react";
 import { X, CreditCard, Lock, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import { useStoryState } from "../contexts/StoryStateContext";
@@ -40,6 +41,11 @@ export function CheckoutModal({ isOpen, onClose, title, description, amount, onS
 
     if (result.success) {
       setStep("success");
+      pushNotification({
+        type: "money",
+        title: "Payment confirmed",
+        body: `${title}: demo payment of ${formatCents(amount)} accepted with test card •••• ${result.last4}. Nobody was charged.`,
+      });
       setTimeout(() => {
         onSuccess(result.last4);
         reset();

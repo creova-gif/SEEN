@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion } from "motion/react";
-import { ArrowLeft, Users, Receipt, XCircle, RefreshCcw } from "lucide-react";
+import { ArrowLeft, Users, Receipt, RefreshCcw } from "lucide-react";
 import { useStoryState } from "../contexts/StoryStateContext";
 import { useAuth } from "../contexts/AuthContext";
 import {
@@ -10,6 +10,9 @@ import {
   cancelSubscription,
 } from "../data/monetizationService";
 import { formatCents } from "../data/monetizationTypes";
+import { SubscriptionCard } from "./seen/display";
+import { ConfirmDialog } from "./seen/overlays";
+import { toast } from "sonner";
 
 interface SubscriptionManagementScreenProps {
   onClose: () => void;
@@ -30,9 +33,11 @@ export function SubscriptionManagementScreen({ onClose }: SubscriptionManagement
   const activeSubscriptions = subscriptions.filter(s => s.status === "active");
   const pastSubscriptions = subscriptions.filter(s => s.status !== "active");
 
+  const [confirmCancel, setConfirmCancel] = useState<{ id: string; name: string } | null>(null);
   const handleCancel = (id: string) => {
     cancelSubscription(id);
     setRefreshKey(k => k + 1);
+    toast.success(t("Subscription canceled", "Abonnement annulé", "Suscripción cancelada"));
   };
 
   return (
@@ -75,27 +80,19 @@ export function SubscriptionManagementScreen({ onClose }: SubscriptionManagement
             ) : (
               <div className="space-y-3">
                 {activeSubscriptions.map(sub => (
-                  <div key={sub.id} className="p-4 rounded-xl bg-white/5 border border-white/10">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="text-sm text-white">{sub.creatorName}</h4>
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-300">
-                        {t("Active", "Actif", "Activo")}
-                      </span>
-                    </div>
-                    <p className="text-xs text-white/55 mb-3">
-                      {sub.tierName} · {formatCents(sub.priceMonthly)}/{t("mo", "mois", "mes")}
-                    </p>
-                    <p className="text-xs text-white/55 mb-3">
-                      {t("Renews", "Renouvelle", "Renueva")} {new Date(sub.currentPeriodEnd).toLocaleDateString()}
-                    </p>
-                    <button
-                      onClick={() => handleCancel(sub.id)}
-                      className="w-full py-2 rounded-lg bg-red-500/10 border border-red-400/20 text-red-300 text-xs hover:bg-red-500/20 transition-colors flex items-center justify-center gap-2"
-                    >
-                      <XCircle className="w-3.5 h-3.5" />
-                      {t("Cancel subscription", "Annuler l'abonnement", "Cancelar suscripción")}
-                    </button>
-                  </div>
+                  <SubscriptionCard
+                    key={sub.id}
+                    name={`${sub.creatorName} · ${sub.tierName}`}
+                    price={formatCents(sub.priceMonthly)}
+                    period={t("month", "mois", "mes")}
+                    current
+                    features={[
+                      t(`All of ${sub.creatorName}'s paid stories`, `Toutes les histoires payantes de ${sub.creatorName}`, `Todas las historias de pago de ${sub.creatorName}`),
+                      `${t("Renews", "Renouvelle", "Renueva")} ${new Date(sub.currentPeriodEnd).toLocaleDateString()}`,
+                    ]}
+                    actionLabel={t("Cancel subscription", "Annuler l'abonnement", "Cancelar suscripción")}
+                    onAction={() => setConfirmCancel({ id: sub.id, name: sub.creatorName })}
+                  />
                 ))}
               </div>
             )}
@@ -171,6 +168,22 @@ export function SubscriptionManagementScreen({ onClose }: SubscriptionManagement
           </section>
         </div>
       </div>
+      <ConfirmDialog
+        open={confirmCancel !== null}
+        onOpenChange={open => !open && setConfirmCancel(null)}
+        title={t("Cancel subscription?", "Annuler l'abonnement ?", "¿Cancelar suscripción?")}
+        description={
+          confirmCancel
+            ? t(
+                `You'll lose access to ${confirmCancel.name}'s paid stories. No further charges will be made.`,
+                `Vous perdrez l'accès aux histoires payantes de ${confirmCancel.name}. Aucun autre prélèvement ne sera effectué.`,
+                `Perderás el acceso a las historias de pago de ${confirmCancel.name}. No se harán más cargos.`,
+              )
+            : ""
+        }
+        confirmLabel={t("Cancel subscription", "Annuler", "Cancelar")}
+        onConfirm={() => confirmCancel && handleCancel(confirmCancel.id)}
+      />
     </motion.div>
   );
 }

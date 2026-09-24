@@ -19,9 +19,7 @@ Creators directory + profiles + follow · Collections (thematic + institutional)
 
 | Feature | Notes | Priority |
 |---|---|---|
-| Library "Saved" tab (stories, collections, followed creators in one place) | Profile rows cover it for now | P1 |
+| Saved collections and followed creators inside Library (saved stories are done) | Profile rows cover it for now | P1 |
 | Search across creators + collections | Search is stories-only | P1 |
-| Persistent mini media player | Figma Media Player Bar | P3 |
-| Chapter Row state styling | Figma 300:60 | P2 |
+| Recorded narration audio | Files don't exist; device voice is the labelled fallback | P1 |
 | FR/ES strings for the new screens | Content is multilingual; new UI strings are EN | P2 |
-| Unified bottom navigation component | Three copies remain | P2 |

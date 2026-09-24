@@ -17,6 +17,8 @@ import { MotionProps, Transition, Variants } from "motion/react";
  */
 export const prefersReducedMotion = (): boolean => {
   if (typeof window === 'undefined') return false;
+  // In-app setting (Settings → Reduce motion) or the OS preference.
+  if (document.documentElement.dataset.motion === 'reduced') return true;
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 };
 

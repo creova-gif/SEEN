@@ -8,6 +8,8 @@ import { ResourceView } from "../components/seen/ResourceView";
 import { Badge, Banner, Button, SectionTitle, SkeletonList } from "../components/seen/primitives";
 import { SaveToggle } from "../components/seen/cards";
 import { useAppNav } from "../navigation/AppNav";
+import { Checkbox } from "../components/seen/forms";
+import { LinearProgress } from "../components/seen/display";
 import { ScreenFrame } from "./ScreenFrame";
 
 const LANG_LABEL: Record<string, string> = { en: "English", fr: "French", es: "Spanish" };
@@ -122,31 +124,15 @@ export function OpportunityDetailScreen({ opportunityId }: { opportunityId: stri
                     <SaveToggle saved={false} busy={busy} label="Save & track" onToggle={() => update({ status: "saved" }, "Saved to your funding tracker")} />
                   ) : (
                     <>
-                      <div
-                        className="h-1.5 rounded-full bg-white/10 overflow-hidden mb-4"
-                        role="progressbar"
-                        aria-label="Checklist progress"
-                        aria-valuemin={0}
-                        aria-valuemax={o.steps.length}
-                        aria-valuenow={done}
-                      >
-                        <div className="h-full bg-seen-funding transition-all" style={{ width: `${(done / o.steps.length) * 100}%` }} />
+                      <div className="mb-4">
+                        <LinearProgress value={done} max={o.steps.length} label="Checklist progress" tone="funding" />
                       </div>
                       <ul className="space-y-2">
                         {o.steps.map((s, i) => {
                           const checked = app.completedSteps.includes(i);
                           return (
-                            <li key={s}>
-                              <label className="flex items-center gap-3 min-h-11 px-4 rounded-seen-md border border-seen-border bg-seen-surface cursor-pointer">
-                                <input
-                                  type="checkbox"
-                                  className="w-5 h-5 accent-white"
-                                  checked={checked}
-                                  disabled={app.status === "applied"}
-                                  onChange={() => toggleStep(i)}
-                                />
-                                <span className={`text-sm ${checked ? "text-white/50 line-through" : "text-white/85"}`}>{s}</span>
-                              </label>
+                            <li key={s} className="px-4 rounded-seen-md border border-seen-border bg-seen-surface">
+                              <Checkbox checked={checked} disabled={app.status === "applied"} onChange={() => toggleStep(i)} label={s} strikeWhenChecked />
                             </li>
                           );
                         })}

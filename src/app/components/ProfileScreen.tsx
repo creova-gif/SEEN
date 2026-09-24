@@ -1,5 +1,7 @@
 import { motion } from "motion/react";
 import { NavigationBar } from "./NavigationBar";
+import { BottomNav } from "./seen/BottomNav";
+import { ListItem } from "./seen/display";
 import { 
   Settings, 
   Info, 
@@ -486,94 +488,7 @@ export function ProfileScreen({
       </main>
 
       {/* Bottom Navigation */}
-      <nav aria-label="Main" className="fixed bottom-0 left-0 right-0 backdrop-blur-xl bg-black/60 border-t border-white/5 z-50 pointer-events-auto">
-        <div className="max-w-[428px] mx-auto px-5 py-4 flex justify-around">
-          <button
-            type="button"
-            onClick={() => onNavigate("for-you")}
-            className={`flex flex-col items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
-              false ? 'text-white' : 'text-white/55 hover:text-white/60'
-            }`}
-          >
-            <Home 
-              className={`w-5 h-5 transition-all duration-300 ${
-                false 
-                  ? 'drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]' 
-                  : 'group-hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.2)]'
-              }`}
-              strokeWidth={false ? 2 : 1.5}
-            />
-            <span className={`text-[10px] tracking-widest uppercase transition-all duration-300 ${
-              false ? 'font-medium' : 'font-light'
-            }`}>
-              For You
-            </span>
-          </button>
-          <button
-            type="button"
-            onClick={() => onNavigate("explore")}
-            className={`flex flex-col items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
-              false ? 'text-white' : 'text-white/55 hover:text-white/60'
-            }`}
-          >
-            <Compass 
-              className={`w-5 h-5 transition-all duration-300 ${
-                false 
-                  ? 'drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]' 
-                  : 'group-hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.2)]'
-              }`}
-              strokeWidth={false ? 2 : 1.5}
-            />
-            <span className={`text-[10px] tracking-widest uppercase transition-all duration-300 ${
-              false ? 'font-medium' : 'font-light'
-            }`}>
-              Explore
-            </span>
-          </button>
-          <button
-            type="button"
-            onClick={() => onNavigate("library")}
-            className={`flex flex-col items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
-              false ? 'text-white' : 'text-white/55 hover:text-white/60'
-            }`}
-          >
-            <Library 
-              className={`w-5 h-5 transition-all duration-300 ${
-                false 
-                  ? 'drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]' 
-                  : 'group-hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.2)]'
-              }`}
-              strokeWidth={false ? 2 : 1.5}
-            />
-            <span className={`text-[10px] tracking-widest uppercase transition-all duration-300 ${
-              false ? 'font-medium' : 'font-light'
-            }`}>
-              Library
-            </span>
-          </button>
-          <button
-            type="button"
-            onClick={() => onNavigate("profile")}
-            className={`flex flex-col items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
-              true ? 'text-white' : 'text-white/55 hover:text-white/60'
-            }`}
-          >
-            <User 
-              className={`w-5 h-5 transition-all duration-300 ${
-                true 
-                  ? 'drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]' 
-                  : 'group-hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.2)]'
-              }`}
-              strokeWidth={true ? 2 : 1.5}
-            />
-            <span className={`text-[10px] tracking-widest uppercase transition-all duration-300 ${
-              true ? 'font-medium' : 'font-light'
-            }`}>
-              Profile
-            </span>
-          </button>
-        </div>
-      </nav>
+      <BottomNav onNavigate={onNavigate} activeTab="profile" />
     </motion.div>
   );
 }
@@ -611,30 +526,7 @@ function YourSeenSection() {
   );
 }
 
-function SettingItem({ 
-  icon, 
-  label, 
-  value, 
-  onClick 
-}: { 
-  icon: React.ReactNode; 
-  label: string; 
-  value?: string;
-  onClick?: () => void;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className="w-full bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-colors flex items-center justify-between"
-    >
-      <div className="flex items-center gap-3">
-        <div className="text-white/60">{icon}</div>
-        <span className="text-sm text-white">{label}</span>
-      </div>
-      <div className="flex items-center gap-2">
-        {value && <span className="text-sm text-white/50">{value}</span>}
-        <ChevronRight className="w-4 h-4 text-white/55" />
-      </div>
-    </button>
-  );
+/** Profile rows use the Figma List Item. */
+function SettingItem({ icon, label, value, onClick }: { icon: React.ReactNode; label: string; value?: string; onClick?: () => void }) {
+  return <ListItem icon={icon} label={label} value={value} onClick={onClick} />;
 }

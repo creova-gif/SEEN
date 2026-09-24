@@ -3,18 +3,27 @@ import { api, isApplyable, opportunityStatus, type ApplicationStatus, type Oppor
 import { useResource } from "../hooks/useResource";
 import { OpportunityCard } from "../components/seen/cards";
 import { ResourceView } from "../components/seen/ResourceView";
-import { Banner, Chip, SegmentedTabs, Skeleton, StateTemplate } from "../components/seen/primitives";
+import { Banner, Button, Chip, SegmentedTabs, Skeleton, StateTemplate } from "../components/seen/primitives";
+import { Drawer } from "../components/seen/overlays";
+import { RadioGroup } from "../components/seen/forms";
+import { SlidersHorizontal } from "lucide-react";
 import { useAppNav } from "../navigation/AppNav";
 import { ScreenFrame } from "./ScreenFrame";
 
 type View = "open" | "upcoming" | "mine";
-const TYPES: OpportunityType[] = ["grant", "fund", "lab", "pitch"];
+const ALL_TYPES: OpportunityType[] = ["grant", "fund", "lab", "pitch", "residency", "commission", "fellowship"];
 
 export function FundingScreen({ initialView = "open" }: { initialView?: View }) {
   const nav = useAppNav();
   const [view, setView] = useState<View>(initialView);
   const [type, setType] = useState<OpportunityType | null>(null);
+  const [region, setRegion] = useState<string | null>(null);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const resource = useResource(() => Promise.all([api.funding.list(), api.funding.listApplications()]));
+
+  const regions = useMemo(() => [...new Set(resource.data?.[0].map(o => o.region) ?? [])].sort(), [resource.data]);
+  const typesPresent = useMemo(() => new Set(resource.data?.[0].map(o => o.type) ?? []), [resource.data]);
+  const TYPES = ALL_TYPES.filter(t => typesPresent.has(t));
 
   const statusOf = useMemo(() => {
     const map = new Map<string, ApplicationStatus>();
@@ -40,14 +49,51 @@ export function FundingScreen({ initialView = "open" }: { initialView?: View }) 
           { id: "mine", label: "My tracker" },
         ]}
       />
-      <div className="flex gap-2 my-5 overflow-x-auto scrollbar-hide -mx-5 px-5" role="group" aria-label="Filter by type">
-        <Chip selected={type === null} onClick={() => setType(null)}>All types</Chip>
-        {TYPES.map(t => (
-          <Chip key={t} selected={type === t} onClick={() => setType(type === t ? null : t)}>
-            {t}
+      <div className="flex items-center gap-2 my-5 flex-wrap">
+        <Button variant="secondary" size="sm" icon={<SlidersHorizontal className="w-3.5 h-3.5" aria-hidden />} onClick={() => setFiltersOpen(true)}>
+          Filters{type || region ? ` · ${[type, region].filter(Boolean).length}` : ""}
+        </Button>
+        {type && (
+          <Chip selected onClick={() => setType(null)} aria-label={`Remove type filter ${type}`}>
+            {type} ✕
           </Chip>
-        ))}
+        )}
+        {region && (
+          <Chip selected onClick={() => setRegion(null)} aria-label={`Remove region filter ${region}`}>
+            {region} ✕
+          </Chip>
+        )}
       </div>
+      <Drawer
+        open={filtersOpen}
+        onOpenChange={setFiltersOpen}
+        title="Filter funding"
+        footer={
+          <div className="flex gap-3">
+            <Button variant="ghost" onClick={() => { setType(null); setRegion(null); }}>
+              Clear
+            </Button>
+            <Button fullWidth onClick={() => setFiltersOpen(false)}>
+              Show results
+            </Button>
+          </div>
+        }
+      >
+        <div className="space-y-8">
+          <RadioGroup<string>
+            label="Type"
+            value={type ?? "all"}
+            onChange={v => setType(v === "all" ? null : (v as OpportunityType))}
+            options={[{ value: "all", label: "All types" }, ...TYPES.map(t => ({ value: t, label: t[0].toUpperCase() + t.slice(1) }))]}
+          />
+          <RadioGroup<string>
+            label="Region"
+            value={region ?? "all"}
+            onChange={v => setRegion(v === "all" ? null : v)}
+            options={[{ value: "all", label: "Anywhere" }, ...regions.map(r => ({ value: r, label: r }))]}
+          />
+        </div>
+      </Drawer>
       <ResourceView
         resource={resource}
         what="funding opportunities"
@@ -62,6 +108,7 @@ export function FundingScreen({ initialView = "open" }: { initialView?: View }) 
         {([opps]) => {
           const list = opps
             .filter(o => !type || o.type === type)
+            .filter(o => !region || o.region === region)
             .filter(o => {
               const applyable = isApplyable(opportunityStatus(o));
               if (view === "mine") return statusOf(o.id) !== "none";
@@ -83,9 +130,9 @@ export function FundingScreen({ initialView = "open" }: { initialView?: View }) 
               <StateTemplate
                 kind="empty"
                 title="No matches"
-                message={type ? "Nothing of this type in this list right now. Try another type." : "Nothing here right now."}
-                actionLabel={type ? "Clear filter" : undefined}
-                onAction={type ? () => setType(null) : undefined}
+                message={type || region ? "Nothing matches these filters in this list right now." : "Nothing here right now."}
+                actionLabel={type || region ? "Clear filters" : undefined}
+                onAction={type || region ? () => { setType(null); setRegion(null); } : undefined}
               />
             );
           }

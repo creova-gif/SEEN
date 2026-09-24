@@ -16,7 +16,7 @@ Backend column: *Demo* = typed contract + local demo adapter (ADR-002); *None* =
 | F09 | Collections (thematic + institutional) | Explore › Collections, `#/collections` | EXISTS + BROKEN (crash) | Collection Card | Built; crash removed | Demo (derived) | ✅ all | unit, E2E | Done | P0 |
 | F10 | Collection detail + save | `#/collection/:id` | MISSING | Collection Card | Built | Demo | ✅ all | E2E | Done | P1 |
 | F11 | Search | Header → Search | EXISTS + BROKEN (dead on 2 tabs, result bounce) | Search Bar | Fixed | Fuse.js local | ✅ empty/loading | E2E | Done; add creators/collections to results later | P0 |
-| F12 | Story preview / reader / chapters | Story screens | EXISTS + WORKS | Chapter Row, Player Bar | unchanged + branch overlay crash fixed | Static catalogue | 🟡 | — (manual) | Add E2E for reader | P1 |
+| F12 | Story preview / reader / chapters | Story screens | EXISTS + BROKEN (text clipped, dead Share/Bookmark, chapter pick ignored, fake captions) | Chapter Row, Player Bar | Fixed; scrollable reader, Chapter Rows, Share, Save | Static catalogue | 🟡 | E2E | Done | P0 |
 | F13 | Library (progress / completed) | Library | EXISTS + UI INCONSISTENT | — | Keyboard tabs, visible remove w/ confirm, fixed cards | localStorage | ✅ empty | a11y | Done; "Saved" tab deferred | P1 |
 | F14 | Profile + Your SEEN | Profile | EXISTS + WORKS | List Item | Following / saved / tracker / notifications rows | Demo | ✅ | E2E | Done | P1 |
 | F15 | Settings / preferences | Settings | EXISTS + WORKS | Toggle | unchanged | localStorage | 🟡 | — | Keep | P2 |
@@ -31,7 +31,10 @@ Backend column: *Demo* = typed contract + local demo adapter (ADR-002); *None* =
 | F24 | Role elevation | Settings / sign-up | EXISTS (request log) | — | Sign-up uses it; no approval UI | Local | 🟡 | unit | Approval UI in admin | P1 |
 | F25 | URLs / back button / deep links | all | MISSING | — | Built (hash routes) | — | ✅ | unit, E2E | Done | P0 |
 | F26 | Error boundary / telemetry | global | MISSING | State Template | Built | beacon to optional endpoint | ✅ | unit | Done; choose sink | P1 |
-| F27 | Mini media player | — | MISSING | FIGMA ONLY | deferred | — | — | — | Needs global audio state | P3 |
+| F27 | Media player (mini + expanded) | Global | EXISTS + BROKEN (no audio files; Play did nothing) | Media Player Bar | Built: persistent player, device-voice fallback, explicit unavailable state | — | ✅ | unit, E2E | Done; record real narration | P1 |
 | F28 | Multilingual EN/FR/ES | all | EXISTS + WORKS (content) | — | new screens EN-only strings | — | — | — | Extract strings (i18n) | P2 |
 | F29 | Mobile app (Expo) | `mobile/` | CODE ONLY | — | not changed | — | — | — | Separate audit | P3 |
 | F30 | Home screen (legacy) | — | CODE ONLY, unreachable | — | archived | — | — | — | DEPRECATED | — |
+
+| F31 | Settings | `#/settings` | EXISTS + BROKEN (dead buttons, unsaved controls) | Toggle, Radio, List Item | Rebuilt; contrast + motion apply app-wide | local | ✅ | E2E | Done | P1 |
+| F32 | Library › Saved stories | Library | MISSING (subtitle promised it) | — | Built | localStorage | ✅ empty | E2E | Done | P1 |

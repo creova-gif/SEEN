@@ -9,12 +9,18 @@
 import { motion } from "motion/react";
 import { useState } from "react";
 import { NavigationBar } from "./NavigationBar";
+import { BottomNav } from "./seen/BottomNav";
+import { ConfirmDialog } from "./seen/overlays";
+import { CircularProgress } from "./seen/display";
+import { toast } from "sonner";
 import { ContentCard } from "./ContentCard";
 import { EmptyState } from "./EmptyState";
 import { Play, Bookmark, Check, Trash2, Home, Compass, Library, User } from "lucide-react";
 import { useStoryState } from "../contexts/StoryStateContext";
 import { getLibraryStories } from "../data/storyService";
-import type { Language } from "../data/storyDatabase";
+import { getStoryWorldById, type Language } from "../data/storyDatabase";
+import { getSavedIds } from "../data/userDataService";
+import { StoryRow } from "./seen/StoryRow";
 
 interface LibraryScreenProps {
   onStoryClick: (contentId: string) => void;
@@ -22,7 +28,7 @@ interface LibraryScreenProps {
   onSearch?: () => void;
 }
 
-type LibraryTab = 'inProgress' | 'completed';
+type LibraryTab = 'inProgress' | 'completed' | 'saved';
 
 /**
  * LIBRARY SECTION - USER-OWNED CONTENT ONLY
@@ -40,7 +46,9 @@ export function LibraryScreen({
 }: LibraryScreenProps) {
   const [activeTab, setActiveTab] = useState<LibraryTab>('inProgress');
   const { state, removeProgress } = useStoryState();
-  const [pendingRemove, setPendingRemove] = useState<string | null>(null);
+  // Only bookmarks that resolve to a real story (older demo data used placeholder ids).
+  const savedIds = getSavedIds().filter(id => getStoryWorldById(id));
+  const [pendingRemove, setPendingRemove] = useState<{ id: string; title: string } | null>(null);
 
   const handleDelete = (contentId: string, kind: 'progress') => {
     if (kind === 'progress') {
@@ -96,8 +104,8 @@ export function LibraryScreen({
             tabIndex={0}
             aria-pressed={activeTab === 'inProgress'}
             onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), setActiveTab('inProgress'))}
-            className={`flex items-center gap-4 min-h-11 group cursor-pointer transition-opacity duration-300 ${
-              activeTab === 'inProgress' ? 'opacity-100' : 'opacity-40 hover:opacity-70'
+            className={`flex items-center gap-4 min-h-11 pl-3 border-l-2 group cursor-pointer transition-colors duration-300 ${
+              activeTab === 'inProgress' ? 'border-white' : 'border-transparent hover:border-white/30'
             }`}
           >
             <div className="relative">
@@ -127,8 +135,8 @@ export function LibraryScreen({
             tabIndex={0}
             aria-pressed={activeTab === 'completed'}
             onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), setActiveTab('completed'))}
-            className={`flex items-center gap-4 min-h-11 group cursor-pointer transition-opacity duration-300 ${
-              activeTab === 'completed' ? 'opacity-100' : 'opacity-40 hover:opacity-70'
+            className={`flex items-center gap-4 min-h-11 pl-3 border-l-2 group cursor-pointer transition-colors duration-300 ${
+              activeTab === 'completed' ? 'border-white' : 'border-transparent hover:border-white/30'
             }`}
           >
             <div className="relative">
@@ -147,7 +155,48 @@ export function LibraryScreen({
               </span>
             </div>
           </motion.div>
+
+          {/* Saved */}
+          <div
+            onClick={() => setActiveTab('saved')}
+            role="button"
+            tabIndex={0}
+            aria-pressed={activeTab === 'saved'}
+            onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), setActiveTab('saved'))}
+            className={`flex items-center gap-4 min-h-11 pl-3 border-l-2 cursor-pointer transition-colors duration-300 ${
+              activeTab === 'saved' ? 'border-white' : 'border-transparent hover:border-white/30'
+            }`}
+          >
+            <Bookmark className="w-5 h-5 text-violet-200/70" aria-hidden />
+            <div className="flex items-baseline gap-2">
+              <span className="text-2xl font-light text-white/90 tabular-nums">{savedIds.length}</span>
+              <span className="text-sm text-white/55 font-light tracking-wide">Saved {savedIds.length === 1 ? 'story' : 'stories'}</span>
+            </div>
+          </div>
         </motion.div>
+
+        {/* Saved Tab */}
+        {activeTab === 'saved' && (
+          <div>
+            {savedIds.length > 0 ? (
+              <ul className="space-y-3" aria-label="Saved stories">
+                {savedIds.map(id => (
+                  <li key={id}>
+                    <StoryRow storyId={id} language={state.language as Language} onOpen={onStoryClick} />
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <EmptyState
+                icon="Bookmark"
+                title="Nothing saved yet"
+                message="Tap the bookmark while reading to keep a story here."
+                actionLabel="Explore Stories"
+                onAction={() => onNavigate('explore')}
+              />
+            )}
+          </div>
+        )}
 
         {/* In Progress Tab */}
         {activeTab === 'inProgress' && (
@@ -169,28 +218,17 @@ export function LibraryScreen({
                       duration={content.duration}
                       imageUrl={content.mediaSource}
                       typeLabel={content.type}
-                      badge={`${progress.progressPercentage}%`}
+                      badge={<CircularProgress value={progress.progressPercentage} size={30} label={`${progress.progressPercentage}% read`} />}
                       aspect="landscape"
                       onSelect={onStoryClick}
                     />
                     <button
                       type="button"
-                      onClick={() => {
-                        if (pendingRemove === content.id) {
-                          handleDelete(content.id, 'progress');
-                          setPendingRemove(null);
-                        } else {
-                          setPendingRemove(content.id);
-                        }
-                      }}
-                      onBlur={() => setPendingRemove(null)}
-                      className={`absolute bottom-3 right-3 z-20 min-h-9 px-3 rounded-full backdrop-blur-sm flex items-center gap-2 text-[11px] tracking-wider uppercase transition-colors ${
-                        pendingRemove === content.id ? 'bg-red-600 text-white' : 'bg-black/60 text-white/70 border border-white/15'
-                      }`}
-                      aria-label={pendingRemove === content.id ? `Confirm remove ${content.title}` : `Remove ${content.title} from in progress`}
+                      onClick={() => setPendingRemove({ id: content.id, title: content.title })}
+                      className="absolute bottom-3 right-3 z-20 w-11 h-11 rounded-full backdrop-blur-sm flex items-center justify-center bg-black/60 text-white/80 border border-white/15 hover:bg-black/80"
+                      aria-label={`Remove ${content.title} from in progress`}
                     >
-                      <Trash2 className="w-3.5 h-3.5" aria-hidden />
-                      {pendingRemove === content.id ? 'Tap to confirm' : null}
+                      <Trash2 className="w-4 h-4" aria-hidden />
                     </button>
                   
                   </div>
@@ -249,111 +287,20 @@ export function LibraryScreen({
       </main>
 
       {/* Bottom Navigation */}
+      <ConfirmDialog
+        open={pendingRemove !== null}
+        onOpenChange={open => !open && setPendingRemove(null)}
+        title="Remove from In progress?"
+        description={pendingRemove ? `“${pendingRemove.title}” will leave your library and your reading position will be forgotten. The story itself stays on SEEN.` : ""}
+        confirmLabel="Remove"
+        onConfirm={() => {
+          if (!pendingRemove) return;
+          handleDelete(pendingRemove.id, 'progress');
+          toast.success("Removed from your library");
+        }}
+      />
+
       <BottomNav onNavigate={onNavigate} activeTab="library" />
     </motion.div>
-  );
-}
-
-// Bottom Navigation Component
-function BottomNav({ 
-  onNavigate, 
-  activeTab 
-}: { 
-  onNavigate: (screen: string) => void;
-  activeTab: string;
-}) {
-  return (
-    <nav aria-label="Main" className="fixed bottom-0 left-0 right-0 backdrop-blur-xl bg-black/60 border-t border-white/5 z-50 pointer-events-auto">
-      <div className="max-w-[428px] mx-auto px-5 py-4 flex justify-around">
-        <button
-          type="button"
-          onClick={() => onNavigate("for-you")}
-          aria-current={activeTab === 'for-you' ? 'page' : undefined}
-          className={`flex flex-col min-w-11 min-h-11 justify-center items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
-            activeTab === 'for-you' ? 'text-white' : 'text-white/55 hover:text-white/60'
-          }`}
-        >
-          <Home 
-            className={`w-5 h-5 transition-all duration-300 ${
-              activeTab === 'for-you' 
-                ? 'drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]' 
-                : 'group-hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.2)]'
-            }`}
-            strokeWidth={activeTab === 'for-you' ? 2 : 1.5}
-          />
-          <span className={`text-[10px] tracking-widest uppercase transition-all duration-300 ${
-            activeTab === 'for-you' ? 'font-medium' : 'font-light'
-          }`}>
-            For You
-          </span>
-        </button>
-        <button
-          type="button"
-          onClick={() => onNavigate("explore")}
-          aria-current={activeTab === 'explore' ? 'page' : undefined}
-          className={`flex flex-col min-w-11 min-h-11 justify-center items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
-            activeTab === 'explore' ? 'text-white' : 'text-white/55 hover:text-white/60'
-          }`}
-        >
-          <Compass 
-            className={`w-5 h-5 transition-all duration-300 ${
-              activeTab === 'explore' 
-                ? 'drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]' 
-                : 'group-hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.2)]'
-            }`}
-            strokeWidth={activeTab === 'explore' ? 2 : 1.5}
-          />
-          <span className={`text-[10px] tracking-widest uppercase transition-all duration-300 ${
-            activeTab === 'explore' ? 'font-medium' : 'font-light'
-          }`}>
-            Explore
-          </span>
-        </button>
-        <button
-          type="button"
-          onClick={() => onNavigate("library")}
-          aria-current={activeTab === 'library' ? 'page' : undefined}
-          className={`flex flex-col min-w-11 min-h-11 justify-center items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
-            activeTab === 'library' ? 'text-white' : 'text-white/55 hover:text-white/60'
-          }`}
-        >
-          <Library 
-            className={`w-5 h-5 transition-all duration-300 ${
-              activeTab === 'library' 
-                ? 'drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]' 
-                : 'group-hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.2)]'
-            }`}
-            strokeWidth={activeTab === 'library' ? 2 : 1.5}
-          />
-          <span className={`text-[10px] tracking-widest uppercase transition-all duration-300 ${
-            activeTab === 'library' ? 'font-medium' : 'font-light'
-          }`}>
-            Library
-          </span>
-        </button>
-        <button
-          type="button"
-          onClick={() => onNavigate("profile")}
-          aria-current={activeTab === 'profile' ? 'page' : undefined}
-          className={`flex flex-col min-w-11 min-h-11 justify-center items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
-            activeTab === 'profile' ? 'text-white' : 'text-white/55 hover:text-white/60'
-          }`}
-        >
-          <User 
-            className={`w-5 h-5 transition-all duration-300 ${
-              activeTab === 'profile' 
-                ? 'drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]' 
-                : 'group-hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.2)]'
-            }`}
-            strokeWidth={activeTab === 'profile' ? 2 : 1.5}
-          />
-          <span className={`text-[10px] tracking-widest uppercase transition-all duration-300 ${
-            activeTab === 'profile' ? 'font-medium' : 'font-light'
-          }`}>
-            Profile
-          </span>
-        </button>
-      </div>
-    </nav>
   );
 }
