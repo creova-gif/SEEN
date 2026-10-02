@@ -588,10 +588,6 @@ function AccountStep({
       onRecover(recoveryEmail).then((message) => {
         if (message) {
           setRecoveryMessage(message);
-          setTimeout(() => {
-            setMode('signin');
-            setRecoveryMessage("");
-          }, 3000);
         }
       });
     }
@@ -660,7 +656,7 @@ function AccountStep({
                 <motion.p
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="text-sm text-green-500/80"
+                  className="text-sm text-white/50"
                 >
                   {recoveryMessage}
                 </motion.p>
@@ -790,7 +786,7 @@ function AccountStep({
               <>
                 {mode === 'signup' && 'Create Account'}
                 {mode === 'signin' && 'Sign In'}
-                {mode === 'recovery' && 'Send Recovery Link'}
+                {mode === 'recovery' && 'Contact support'}
               </>
             )}
           </span>
