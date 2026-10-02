@@ -22,6 +22,7 @@ import { CreatorMonetizationScreen } from "./components/CreatorMonetizationScree
 import { CreatorEarningsScreen } from "./components/CreatorEarningsScreen";
 import { SubscriptionManagementScreen } from "./components/SubscriptionManagementScreen";
 import { AdminDashboardScreen } from "./components/AdminDashboardScreen";
+import { ScreenErrorBoundary } from "./components/ScreenErrorBoundary";
 import { useStoryState } from "./contexts/StoryStateContext";
 import type { Language, UserIntent, UserRole } from "./contexts/StoryStateContext";
 import { initializeDemoData } from "./data/demoData";
@@ -196,6 +197,10 @@ function AppContent() {
 
   return (
     <div className="size-full bg-black">
+      <ScreenErrorBoundary
+        resetKey={currentScreen}
+        onReset={() => setCurrentScreen("for-you")}
+      >
       <AnimatePresence mode="wait">
         {currentScreen === "onboarding" && (
           <OnboardingSystem 
@@ -347,6 +352,7 @@ function AppContent() {
           <InstitutionalCollectionScreen
             key="institutional-collection"
             onBack={() => setCurrentScreen("profile")}
+            onStoryClick={handleStoryClick}
           />
         )}
 
@@ -358,6 +364,7 @@ function AppContent() {
           />
         )}
       </AnimatePresence>
+      </ScreenErrorBoundary>
     </div>
   );
 }
