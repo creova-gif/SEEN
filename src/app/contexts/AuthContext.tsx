@@ -284,23 +284,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(key, JSON.stringify(requests));
   };
 
-  const requestPasswordRecovery = async (email: string) => {
-    await sleep(300);
-    const usersDb = loadUsersDb();
-    const user = Object.values(usersDb).find(u => u.email.toLowerCase() === email.trim().toLowerCase());
-    if (!user) {
-      // Do not reveal whether the account exists
-      return {};
-    }
-    // Demo mode: return a reset token directly instead of emailing it,
-    // since no email provider is connected in this environment.
-    const resetToken = generateToken();
-    const key = 'seenos_password_resets';
-    const raw = localStorage.getItem(key);
-    const resets = raw ? JSON.parse(raw) : {};
-    resets[resetToken] = { userId: user.id, expiresAt: Date.now() + 30 * 60 * 1000 };
-    localStorage.setItem(key, JSON.stringify(resets));
-    return { resetToken };
+  const requestPasswordRecovery = async (_email: string) => {
+    // No mail provider is connected, and /reset-password is not a route.
+    // Refuse instead of storing a local token and implying a link was sent.
+    throw new Error("Password reset isn't available yet. Contact support.");
   };
 
   return (
