@@ -4,9 +4,10 @@ import { useNavigation } from "../navigation/NavigationController";
 
 interface NavigationBarProps {
   onSearch?: () => void;
+  onProfile?: () => void;
 }
 
-export function NavigationBar({ onSearch }: NavigationBarProps) {
+export function NavigationBar({ onSearch, onProfile }: NavigationBarProps) {
   const { navigateToTab } = useNavigation();
 
   const handleSearchTap = () => {
@@ -18,6 +19,10 @@ export function NavigationBar({ onSearch }: NavigationBarProps) {
 
   const handleProfileTap = () => {
     console.log('[Interaction] Profile button tapped from nav bar');
+    if (onProfile) {
+      onProfile();
+      return;
+    }
     navigateToTab('profile');
   };
 

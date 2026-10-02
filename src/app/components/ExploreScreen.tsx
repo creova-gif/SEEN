@@ -72,7 +72,7 @@ export function ExploreScreen({
     
     return (
       <div className="min-h-screen bg-black">
-        <NavigationBar onSearch={onSearch} />
+        <NavigationBar onSearch={onSearch} onProfile={() => onNavigate("profile")} />
         <div className="pt-20 pb-24">
           <EmptyState
             icon="Compass"
@@ -95,7 +95,7 @@ export function ExploreScreen({
       transition={{ duration: 0.4 }}
       className="min-h-screen bg-black"
     >
-      <NavigationBar />
+      <NavigationBar onSearch={onSearch} onProfile={() => onNavigate("profile")} />
 
       {/* Main Content */}
       <main className="pt-20 pb-24 px-5 max-w-[428px] mx-auto">
