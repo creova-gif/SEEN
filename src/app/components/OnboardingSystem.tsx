@@ -759,13 +759,15 @@ function AccountStep({
         </AnimatePresence>
 
         {/* Error Messages */}
-        {error || localError && (
+        {/* && binds tighter than ||, so a truthy `error` string was rendered
+            raw (near-black foreground on black) instead of this styled node. */}
+        {(error || localError) && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             className="space-y-2"
           >
-            <p className="text-sm text-red-500/80">
+            <p className="text-sm text-red-400">
               {error || localError}
             </p>
             {showSignInSuggestion && (
