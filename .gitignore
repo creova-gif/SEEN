@@ -11,3 +11,4 @@ build/
 out/
 .vercel/
 *.log
+.claude/skills/gstack/
