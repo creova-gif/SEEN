@@ -110,9 +110,9 @@ function AppContent() {
   }, [applyRoute]);
 
   const trackedGo = useCallback(
-    (screen: string, params?: RouteParams) => {
-      depth.current += 1;
-      go(screen, params);
+    (screen: string, params?: RouteParams, opts: { replace?: boolean } = {}) => {
+      if (!opts.replace) depth.current += 1;
+      go(screen, params, opts);
     },
     [go],
   );
@@ -258,7 +258,7 @@ function AppContent() {
 
           {currentScreen === "explore" && (
             <ExploreScreen
-              key={`explore-${route.params.tab ?? "stories"}`}
+              key="explore"
               onStoryClick={openStory}
               onNavigate={handleNavigate}
               onSearch={nav.openSearch}

@@ -231,6 +231,80 @@ describe("playback engine", () => {
     expect(screen.getByTestId("status")).toHaveTextContent("playing");
   });
 
+  /** Mimics Chrome: cancel() empties the queue but does not clear a paused engine. */
+  function installFakeVoice() {
+    const engine = {
+      paused: false,
+      queue: [] as { text: string }[],
+      speak: vi.fn((u: { text: string }) => engine.queue.push(u)),
+      cancel: vi.fn(() => (engine.queue = [])),
+      pause: vi.fn(() => (engine.paused = true)),
+      resume: vi.fn(() => (engine.paused = false)),
+      getVoices: () => [],
+    };
+    Object.assign(window, {
+      speechSynthesis: engine,
+      SpeechSynthesisUtterance: class {
+        text: string;
+        lang = "";
+        constructor(t: string) {
+          this.text = t;
+        }
+      },
+    });
+    return engine;
+  }
+
+  const chapterTwo = { ...track, chapterId: "c2", title: "Chapter two", text: "seven eight nine ten eleven twelve" };
+
+  function Switcher() {
+    const p = usePlayback();
+    return (
+      <>
+        <button onClick={() => p.load(track)}>load one</button>
+        <button onClick={() => p.load(chapterTwo)}>load two</button>
+        <button onClick={() => p.seek(0.5)}>seek half</button>
+        <span data-testid="status">{p.status}</span>
+        <ExpandedPlayer compact />
+      </>
+    );
+  }
+
+  it("speaks the next chapter after pausing the previous one", async () => {
+    const engine = installFakeVoice();
+    render(
+      <PlaybackProvider>
+        <Switcher />
+      </PlaybackProvider>,
+    );
+    await userEvent.click(screen.getByText("load one"));
+    await userEvent.click(screen.getByRole("button", { name: "Play" }));
+    await userEvent.click(screen.getByRole("button", { name: "Pause" }));
+    expect(engine.paused).toBe(true);
+    await userEvent.click(screen.getByText("load two"));
+    await userEvent.click(screen.getByRole("button", { name: "Play" }));
+    expect(engine.paused).toBe(false);
+    expect(engine.queue.map(u => u.text)).toEqual([chapterTwo.text]);
+    expect(screen.getByTestId("status")).toHaveTextContent("playing");
+  });
+
+  it("resumes from the new position after seeking while paused", async () => {
+    const engine = installFakeVoice();
+    render(
+      <PlaybackProvider>
+        <Switcher />
+      </PlaybackProvider>,
+    );
+    await userEvent.click(screen.getByText("load one"));
+    await userEvent.click(screen.getByRole("button", { name: "Play" }));
+    await userEvent.click(screen.getByRole("button", { name: "Pause" }));
+    await userEvent.click(screen.getByText("seek half"));
+    await userEvent.click(screen.getByRole("button", { name: "Play" }));
+    const spoken = engine.queue.map(u => u.text);
+    expect(spoken).toHaveLength(1);
+    expect(spoken[0]).toBe(track.text.slice(Math.round(0.5 * track.text.length)));
+  });
+
   it("formats times", () => {
     expect(formatTime(0)).toBe("0:00");
     expect(formatTime(75)).toBe("1:15");

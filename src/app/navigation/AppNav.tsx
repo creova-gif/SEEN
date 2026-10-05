@@ -11,7 +11,8 @@ import { createContext, useContext } from "react";
 export type RouteParams = { id?: string; tab?: string };
 
 export interface AppNav {
-  go: (screen: string, params?: RouteParams) => void;
+  /** `replace` swaps the current history entry instead of adding one (e.g. switching tabs). */
+  go: (screen: string, params?: RouteParams, opts?: { replace?: boolean }) => void;
   back: () => void;
   openStory: (storyId: string) => void;
   openSearch: () => void;

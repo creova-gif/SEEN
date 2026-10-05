@@ -7,7 +7,8 @@
  */
 
 import { motion } from "motion/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useAppNav } from "../navigation/AppNav";
 import { NavigationBar } from "./NavigationBar";
 import { BottomNav } from "./seen/BottomNav";
 import { ContentCard } from "./ContentCard";
@@ -50,7 +51,14 @@ export function ExploreScreen({
   initialTab = "stories",
 }: ExploreScreenProps) {
   const [searchQuery, setSearchQuery] = useState("");
+  const nav = useAppNav();
   const [tab, setTab] = useState<ExploreTab>(initialTab);
+  useEffect(() => setTab(initialTab), [initialTab]);
+  // Keep the tab in the URL so Back from a creator or collection returns to it.
+  const changeTab = (next: ExploreTab) => {
+    setTab(next);
+    nav.go("explore", { tab: next }, { replace: true });
+  };
 
   // Get curated categories
   const categories = getExploreCategories(language as Language);
@@ -116,7 +124,7 @@ export function ExploreScreen({
           <SegmentedTabs<ExploreTab>
             label="Explore sections"
             value={tab}
-            onChange={setTab}
+            onChange={changeTab}
             tabs={[
               { id: "stories", label: "Stories" },
               { id: "creators", label: "Creators" },

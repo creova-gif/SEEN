@@ -102,7 +102,14 @@ test.describe("signed-in viewer", () => {
     await page.getByTestId("creator-card").first().click();
     await expect(page).toHaveURL(/#\/creator\//);
     await page.goBack();
-    await expect(page).toHaveURL(/#\/explore/);
+    await expect(page).toHaveURL(/#\/explore\/creators$/);
+    await expect(page.getByRole("tab", { name: /creators/i })).toHaveAttribute("aria-selected", "true");
+  });
+
+  test("a malformed link falls back instead of crashing", async ({ page }) => {
+    await page.goto("/#/creator/50%");
+    await page.reload();
+    await expect(page.getByRole("heading", { name: "For You" })).toBeVisible();
   });
 
   test("viewer cannot open admin or moderation screens", async ({ page }) => {

@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import { api, deadlineState, formatAmount, formatDeadline, isApplyable, opportunityStatus, ServiceError } from "../services";
 import { setSimulation } from "../services/runtime";
 import { getStoryWorldById } from "../data/storyDatabase";
+import { seedNotifications } from "../services/demo/catalog";
+import { FUNDING_LISTINGS } from "../services/data/fundingListings";
 
 describe("funding rules", () => {
   const now = new Date("2026-09-24T12:00:00Z");
@@ -151,5 +153,23 @@ describe("deadline time zones", () => {
   it("shows the date in the funder's zone", async () => {
     const iso = await api.funding.get("iso-marketing-promotion-distribution");
     expect(formatDeadline(iso.deadline!, new Date("2026-09-24T00:00:00Z"), iso.deadlineTimeZone)).toBe("Closes Mar 1, 2027");
+  });
+});
+
+describe("review fixes", () => {
+  it("labels a deadline that passed under a day ago as closed, not 'Closes today'", () => {
+    const deadline = "2026-10-02T03:59:00Z";
+    const anHourLater = new Date(new Date(deadline).getTime() + 3600_000);
+    expect(formatDeadline(deadline, anHourLater)).toMatch(/^Closed /);
+    expect(deadlineState(deadline, anHourLater)).toBe("closed");
+  });
+
+  it("only alerts about a funding deadline that is still open", () => {
+    const now = new Date("2026-10-05T12:00:00Z");
+    const alert = seedNotifications(now).find(n => n.type === "funding");
+    expect(alert).toBeDefined();
+    const listing = FUNDING_LISTINGS.find(o => o.id === alert!.target!.id)!;
+    expect(new Date(listing.deadline!).getTime()).toBeGreaterThan(now.getTime());
+    expect(seedNotifications(new Date("2035-01-01T00:00:00Z")).some(n => n.type === "funding")).toBe(false);
   });
 });
