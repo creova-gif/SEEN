@@ -1,13 +1,48 @@
 {
   "codeReview": {
     "autoReview": true,
-    "focusAreas": ["security", "performance", "types", "i18n"]
+    "focusAreas": [
+      "security",
+      "performance",
+      "types",
+      "i18n"
+    ]
+  },
+  "hooks": {
+    "onToolUse": "sh .claude/hooks/on-tool-use.sh",
+    "beforeGitPush": "sh .claude/hooks/pre-push.sh",
+    "PreToolUse": [
+      {
+        "matcher": "Skill|skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/check-gstack.sh\""
+          }
+        ]
+      }
+    ],
+    "UserPromptExpansion": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/check-gstack.sh\""
+          }
+        ]
+      }
+    ]
   },
   "customSkills": {
     "audit-seen": {
       "description": "Run comprehensive SEEN platform audit (Critical/High/Medium/Low issues)",
       "command": "npm run audit:full",
-      "watchFiles": ["src/**/*.ts", "src/**/*.tsx", "src/app/data/**"]
+      "watchFiles": [
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "src/app/data/**"
+      ]
     },
     "fix-critical": {
       "description": "Apply all CRITICAL fixes (data conflict, incomplete stories, search button)",
@@ -50,18 +85,32 @@
     }
   },
   "permissions": {
-    "allow": [
-      "Bash(git clone https://github.com/garrytan/gstack.git:*)",
-      "Bash(git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git:*)",
-      "Bash(cd ~/.claude/skills/gstack && ./setup:*)",
-      "Bash(~/.claude/skills/gstack/setup:*)",
-      "Bash(./setup:*)",
-      "Bash(git status:*)",
-      "Bash(git add:*)",
-      "Bash(git commit:*)",
-      "Bash(npm install:*)",
-      "Bash(npm run:*)"
-    ]
+    "default": "prompt",
+    "bash": {
+      "allowList": [
+        "git status",
+        "git add",
+        "git commit",
+        "git push",
+        "npm install",
+        "npm run",
+        "ls",
+        "find",
+        "grep",
+        "mkdir",
+        "cat"
+      ]
+    },
+    "fileOperations": {
+      "allowList": [
+        ".claude/**",
+        "src/**",
+        "package.json",
+        ".gitignore",
+        "DESIGN.md",
+        "CHANGELOG.md"
+      ]
+    }
   },
   "development": {
     "framework": "React 18.3.1 + TypeScript",
@@ -69,8 +118,17 @@
     "styling": "Tailwind CSS 4.1.12",
     "ui": "Radix UI + Motion (Framer Motion)",
     "state": "Context API (StoryStateContext + AuthContext)",
-    "languages": ["en", "fr", "es"],
-    "roles": ["viewer", "creator", "moderator", "admin"],
+    "languages": [
+      "en",
+      "fr",
+      "es"
+    ],
+    "roles": [
+      "viewer",
+      "creator",
+      "moderator",
+      "admin"
+    ],
     "database": "Supabase"
   },
   "importantPaths": {
