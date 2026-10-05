@@ -55,7 +55,6 @@ export function ExploreScreen({
   // Get curated categories
   const categories = getExploreCategories(language as Language);
   
-  console.log(`[ExploreScreen] Loaded ${categories.length} categories for language: ${language}`);
 
   // Search results
   const searchResults = searchQuery.length > 2 

@@ -154,7 +154,8 @@ export function OnboardingSystem({
 
     try {
       await requestPasswordRecovery(email);
-      return "Recovery link sent";
+      // No email provider is connected yet, so don't claim a link was sent.
+      return "Email delivery isn't switched on in this preview yet, so no reset link was sent. Use a demo account or create a new one.";
     } catch (error) {
       console.error("Error requesting password recovery:", error);
       setAccountError(error instanceof Error ? error.message : "Failed to request password recovery");
@@ -606,13 +607,7 @@ function AccountStep({
     } else if (mode === 'recovery') {
       setLocalError(null);
       onRecover(recoveryEmail).then((message) => {
-        if (message) {
-          setRecoveryMessage(message);
-          setTimeout(() => {
-            setMode('signin');
-            setRecoveryMessage("");
-          }, 3000);
-        }
+        if (message) setRecoveryMessage(message);
       });
     }
   };
@@ -682,7 +677,8 @@ function AccountStep({
                 <motion.p
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="text-sm text-green-500/80"
+                  role="status"
+                  className="text-sm text-seen-secondary"
                 >
                   {recoveryMessage}
                 </motion.p>
@@ -804,8 +800,8 @@ function AccountStep({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
-              onClick={() => setMode('recovery')}
-              className="w-full py-2 text-xs text-white/55 hover:text-white/60 transition-all duration-300"
+              onClick={() => { setRecoveryMessage(""); setMode('recovery'); }}
+              className="w-full min-h-11 py-2 text-xs text-white/55 hover:text-white/75 transition-all duration-300"
             >
               Forgot password?
             </motion.button>
@@ -817,7 +813,7 @@ function AccountStep({
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
               onClick={() => setMode('signin')}
-              className="w-full py-2 text-xs text-white/50 hover:text-white/70 transition-all duration-300"
+              className="w-full min-h-11 py-2 text-xs text-white/55 hover:text-white/75 transition-all duration-300"
             >
               Already have an account? Sign in
             </motion.button>
@@ -827,7 +823,7 @@ function AccountStep({
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
               onClick={() => setMode('signup')}
-              className="w-full py-2 text-xs text-white/50 hover:text-white/70 transition-all duration-300"
+              className="w-full min-h-11 py-2 text-xs text-white/55 hover:text-white/75 transition-all duration-300"
             >
               Need an account? Create one
             </motion.button>
@@ -837,7 +833,7 @@ function AccountStep({
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
               onClick={() => setMode('signin')}
-              className="w-full py-2 text-xs text-white/50 hover:text-white/70 transition-all duration-300"
+              className="w-full min-h-11 py-2 text-xs text-white/55 hover:text-white/75 transition-all duration-300"
             >
               Back to sign in
             </motion.button>

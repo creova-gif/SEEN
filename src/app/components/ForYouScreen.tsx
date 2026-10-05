@@ -53,7 +53,6 @@ export function ForYouScreen({
     limit: 20,
   });
   
-  console.log(`[ForYouScreen] Loaded ${feedItems.length} stories for language: ${language}`);
 
   // Separate content types
   const featuredContent = feedItems.filter(item => item.featured).slice(0, 2);

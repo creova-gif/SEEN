@@ -62,7 +62,6 @@ export function LibraryScreen({
     state.language as Language
   );
   
-  console.log(`[LibraryScreen] In progress: ${libraryData.inProgress.length}, Completed: ${libraryData.completed.length}`);
 
   return (
     <motion.div

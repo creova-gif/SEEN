@@ -359,8 +359,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // since no email provider is connected in this environment.
     const resetToken = generateToken();
     const key = 'seenos_password_resets';
-    const raw = localStorage.getItem(key);
-    const resets = raw ? JSON.parse(raw) : {};
+    let resets: Record<string, { userId: string; expiresAt: number }> = {};
+    try {
+      resets = JSON.parse(localStorage.getItem(key) || '{}');
+    } catch {
+      resets = {};
+    }
     resets[resetToken] = { userId: user.id, expiresAt: Date.now() + 30 * 60 * 1000 };
     localStorage.setItem(key, JSON.stringify(resets));
     return { resetToken };
