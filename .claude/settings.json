@@ -3,10 +3,6 @@
     "autoReview": true,
     "focusAreas": ["security", "performance", "types", "i18n"]
   },
-  "hooks": {
-    "onToolUse": "sh .claude/hooks/on-tool-use.sh",
-    "beforeGitPush": "sh .claude/hooks/pre-push.sh"
-  },
   "customSkills": {
     "audit-seen": {
       "description": "Run comprehensive SEEN platform audit (Critical/High/Medium/Low issues)",
