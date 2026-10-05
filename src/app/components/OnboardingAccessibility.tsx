@@ -135,7 +135,7 @@ export function OnboardingAccessibility({ onComplete }: OnboardingAccessibilityP
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.5, duration: 1 }}
-        className="text-xs text-white/30 mb-8"
+        className="text-xs text-white/55 mb-8"
       >
         This is an invitation, not a requirement—adjust these anytime in settings
       </motion.p>

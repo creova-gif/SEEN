@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { pushNotification } from "../services";
 import { motion, AnimatePresence } from "motion/react";
 import { X, CreditCard, Lock, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import { useStoryState } from "../contexts/StoryStateContext";
@@ -40,6 +41,11 @@ export function CheckoutModal({ isOpen, onClose, title, description, amount, onS
 
     if (result.success) {
       setStep("success");
+      pushNotification({
+        type: "money",
+        title: "Payment confirmed",
+        body: `${title}: demo payment of ${formatCents(amount)} accepted with test card •••• ${result.last4}. Nobody was charged.`,
+      });
       setTimeout(() => {
         onSuccess(result.last4);
         reset();
@@ -86,7 +92,7 @@ export function CheckoutModal({ isOpen, onClose, title, description, amount, onS
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
                   <Lock className="w-4 h-4 text-green-400" />
-                  <span className="text-xs tracking-wider uppercase text-white/40">
+                  <span className="text-xs tracking-wider uppercase text-white/55">
                     {t("Secure Checkout", "Paiement Sécurisé", "Pago Seguro")}
                   </span>
                 </div>
@@ -111,7 +117,7 @@ export function CheckoutModal({ isOpen, onClose, title, description, amount, onS
 
                   <div className="space-y-4 mb-6">
                     <div>
-                      <label className="text-xs text-white/40 mb-1.5 block">
+                      <label className="text-xs text-white/55 mb-1.5 block">
                         {t("Cardholder name", "Nom du titulaire", "Nombre del titular")}
                       </label>
                       <input
@@ -123,11 +129,11 @@ export function CheckoutModal({ isOpen, onClose, title, description, amount, onS
                       />
                     </div>
                     <div>
-                      <label className="text-xs text-white/40 mb-1.5 block">
+                      <label className="text-xs text-white/55 mb-1.5 block">
                         {t("Card number", "Numéro de carte", "Número de tarjeta")}
                       </label>
                       <div className="relative">
-                        <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                        <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/55" />
                         <input
                           type="text"
                           value={cardNumber}
@@ -139,7 +145,7 @@ export function CheckoutModal({ isOpen, onClose, title, description, amount, onS
                     </div>
                     <div className="flex gap-3">
                       <div className="flex-1">
-                        <label className="text-xs text-white/40 mb-1.5 block">
+                        <label className="text-xs text-white/55 mb-1.5 block">
                           {t("Expiry", "Expiration", "Vencimiento")}
                         </label>
                         <input
@@ -151,7 +157,7 @@ export function CheckoutModal({ isOpen, onClose, title, description, amount, onS
                         />
                       </div>
                       <div className="flex-1">
-                        <label className="text-xs text-white/40 mb-1.5 block">CVC</label>
+                        <label className="text-xs text-white/55 mb-1.5 block">CVC</label>
                         <input
                           type="text"
                           value={cvc}
@@ -163,7 +169,7 @@ export function CheckoutModal({ isOpen, onClose, title, description, amount, onS
                     </div>
                   </div>
 
-                  <p className="text-[11px] text-white/30 mb-4 leading-relaxed">
+                  <p className="text-[11px] text-white/55 mb-4 leading-relaxed">
                     {t(
                       "Demo mode: no real charge occurs. Use the pre-filled test card, or 4000 0000 0000 0002 to preview a declined payment.",
                       "Mode démo : aucun débit réel n'a lieu. Utilisez la carte de test préremplie, ou 4000 0000 0000 0002 pour un refus.",

@@ -28,7 +28,7 @@ export function OnboardingPurpose({ onNext }: OnboardingPurposeProps) {
         {/* Top: Logo */}
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs tracking-[0.3em] uppercase text-white/40">
+            <p className="text-xs tracking-[0.3em] uppercase text-white/55">
               SEEN
             </p>
           </div>

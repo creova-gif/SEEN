@@ -3,10 +3,6 @@
     "autoReview": true,
     "focusAreas": ["security", "performance", "types", "i18n"]
   },
-  "hooks": {
-    "onToolUse": "sh .claude/hooks/on-tool-use.sh",
-    "beforeGitPush": "sh .claude/hooks/pre-push.sh"
-  },
   "customSkills": {
     "audit-seen": {
       "description": "Run comprehensive SEEN platform audit (Critical/High/Medium/Low issues)",
@@ -54,32 +50,18 @@
     }
   },
   "permissions": {
-    "default": "prompt",
-    "bash": {
-      "allowList": [
-        "git status",
-        "git add",
-        "git commit",
-        "git push",
-        "npm install",
-        "npm run",
-        "ls",
-        "find",
-        "grep",
-        "mkdir",
-        "cat"
-      ]
-    },
-    "fileOperations": {
-      "allowList": [
-        ".claude/**",
-        "src/**",
-        "package.json",
-        ".gitignore",
-        "DESIGN.md",
-        "CHANGELOG.md"
-      ]
-    }
+    "allow": [
+      "Bash(git clone https://github.com/garrytan/gstack.git:*)",
+      "Bash(git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git:*)",
+      "Bash(cd ~/.claude/skills/gstack && ./setup:*)",
+      "Bash(~/.claude/skills/gstack/setup:*)",
+      "Bash(./setup:*)",
+      "Bash(git status:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run:*)"
+    ]
   },
   "development": {
     "framework": "React 18.3.1 + TypeScript",

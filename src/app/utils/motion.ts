@@ -17,6 +17,8 @@ import { MotionProps, Transition, Variants } from "motion/react";
  */
 export const prefersReducedMotion = (): boolean => {
   if (typeof window === 'undefined') return false;
+  // In-app setting (Settings → Reduce motion) or the OS preference.
+  if (document.documentElement.dataset.motion === 'reduced') return true;
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 };
 
@@ -28,7 +30,7 @@ export const getMotionProps = (props: MotionProps): MotionProps => {
     return {
       initial: false,
       animate: props.animate,
-      exit: false,
+      exit: undefined,
       transition: { duration: 0 },
     };
   }
@@ -340,7 +342,7 @@ export const AUDIO_VARIANTS = {
   },
 } as const;
 
-export const WAVEFORM_VARIANTS = {
+export const WAVEFORM_VARIANTS: Variants = {
   idle: {
     scaleY: 1,
   },
@@ -352,7 +354,7 @@ export const WAVEFORM_VARIANTS = {
       ease: "easeInOut",
     },
   },
-} as const;
+};
 
 // ============================================
 // UTILITY FUNCTIONS

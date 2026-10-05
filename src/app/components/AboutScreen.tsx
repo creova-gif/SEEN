@@ -136,7 +136,7 @@ export function AboutScreen({ onClose }: AboutScreenProps) {
             <h1 className="text-3xl tracking-tight text-white mb-4 leading-tight">
               SEEN
             </h1>
-            <p className="text-sm tracking-[0.3em] uppercase text-white/40">
+            <p className="text-sm tracking-[0.3em] uppercase text-white/55">
               by CREOVA
             </p>
           </motion.div>
@@ -252,7 +252,7 @@ export function AboutScreen({ onClose }: AboutScreenProps) {
             transition={{ delay: 1.2 }}
             className="text-center space-y-4"
           >
-            <p className="text-sm text-white/40">
+            <p className="text-sm text-white/55">
               {state.language === 'en' 
                 ? 'Connect with us'
                 : state.language === 'fr'
@@ -277,8 +277,8 @@ export function AboutScreen({ onClose }: AboutScreenProps) {
             transition={{ delay: 1.4 }}
             className="pt-12 pb-8 text-center"
           >
-            <p className="text-xs text-white/30 mb-2">SEEN v1.0.0</p>
-            <div className="flex justify-center gap-4 text-xs text-white/40">
+            <p className="text-xs text-white/55 mb-2">SEEN v1.0.0</p>
+            <div className="flex justify-center gap-4 text-xs text-white/55">
               <button className="hover:text-white/60 transition-colors underline">
                 {state.language === 'en' ? 'Privacy Policy' : state.language === 'fr' ? 'Politique de Confidentialité' : 'Política de Privacidad'}
               </button>
@@ -286,7 +286,7 @@ export function AboutScreen({ onClose }: AboutScreenProps) {
                 {state.language === 'en' ? 'Terms of Use' : state.language === 'fr' ? 'Conditions d\'Utilisation' : 'Términos de Uso'}
               </button>
             </div>
-            <p className="text-xs text-white/30 leading-relaxed max-w-[300px] mx-auto">
+            <p className="text-xs text-white/55 leading-relaxed max-w-[300px] mx-auto">
               {state.language === 'en' 
                 ? 'Made with care for cultural workers, storytellers, and communities who believe in narrative as resistance.'
                 : state.language === 'fr'

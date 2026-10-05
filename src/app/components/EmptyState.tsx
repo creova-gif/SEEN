@@ -7,7 +7,11 @@
  */
 
 import { motion } from 'motion/react';
-import * as Icons from 'lucide-react';
+import { Play, Bookmark, Check, Heart, Compass, Info, type LucideIcon as LucideIconType } from 'lucide-react';
+
+// Explicit map instead of `import * as Icons` — the wildcard pulled the whole
+// lucide library (~1,500 icons) into the main bundle.
+const ICONS: Record<string, LucideIconType> = { Play, Bookmark, Check, Heart, Compass, Info };
 import type { LucideIcon } from 'lucide-react';
 
 interface EmptyStateProps {
@@ -28,7 +32,7 @@ export function EmptyState({
   className = ''
 }: EmptyStateProps) {
   // Dynamically get the icon component
-  const IconComponent = (Icons[icon as keyof typeof Icons] as LucideIcon) || Icons.Info;
+  const IconComponent = ICONS[icon] ?? Info;
 
   return (
     <motion.div
@@ -39,7 +43,7 @@ export function EmptyState({
     >
       {/* Icon */}
       <div className="mb-6 w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
-        <IconComponent className="w-8 h-8 text-white/40" />
+        <IconComponent className="w-8 h-8 text-white/55" />
       </div>
 
       {/* Title */}

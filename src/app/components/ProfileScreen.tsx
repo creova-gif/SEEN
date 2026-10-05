@@ -1,5 +1,7 @@
 import { motion } from "motion/react";
 import { NavigationBar } from "./NavigationBar";
+import { BottomNav } from "./seen/BottomNav";
+import { ListItem } from "./seen/display";
 import { 
   Settings, 
   Info, 
@@ -25,6 +27,10 @@ import { useAuth } from "../contexts/AuthContext";
 import type { Language } from "../contexts/StoryStateContext";
 import { getStoryWorldById, getLocalizedText } from "../data/storyDatabase";
 import { listStoriesForCreator } from "../data/userStoriesService";
+import { Bell, BookmarkCheck, HandCoins, Users } from "lucide-react";
+import { useAppNav } from "../navigation/AppNav";
+import { api } from "../services";
+import { useResource } from "../hooks/useResource";
 
 interface ProfileScreenProps {
   onNavigate: (screen: string) => void;
@@ -151,7 +157,7 @@ export function ProfileScreen({
                 )}
               </div>
               {user.email && <p className="text-sm text-white/60 mb-2">{user.email}</p>}
-              {user.joinDate && <p className="text-xs text-white/40">Member since {user.joinDate}</p>}
+              {user.joinDate && <p className="text-xs text-white/55">Member since {user.joinDate}</p>}
             </div>
           </div>
 
@@ -159,7 +165,7 @@ export function ProfileScreen({
           {user.bio ? (
             <p className="text-sm text-white/80 mb-4">{user.bio}</p>
           ) : (
-            <p className="text-sm text-white/30 italic mb-4">No bio yet.</p>
+            <p className="text-sm text-white/55 italic mb-4">No bio yet.</p>
           )}
 
           {/* Edit Profile Button */}
@@ -185,11 +191,8 @@ export function ProfileScreen({
           </div>
         </motion.section>
 
-        {/* Note: a Followers/Following section previously lived here showing
-            hardcoded numbers (124/89) for every account. There is no follow
-            graph implemented, so it was removed rather than displaying
-            fabricated social-proof numbers. Reintroduce once following is
-            a real feature backed by real data. */}
+        {/* Your SEEN — real follow / save / tracker data from the services layer */}
+        <YourSeenSection />
 
         {/* Development Testing - Switch Role */}
         {process.env.NODE_ENV === 'development' && (
@@ -211,7 +214,7 @@ export function ProfileScreen({
             transition={{ delay: 0.28 }}
             className="mb-8"
           >
-            <h2 className="text-sm tracking-wider uppercase text-white/40 mb-4">
+            <h2 className="text-sm tracking-wider uppercase text-white/55 mb-4">
               {state.userRole === 'creator' ? 'Creator Tools' :
                state.userRole === 'moderator' ? 'Moderation Tools' :
                'Admin Tools'}
@@ -251,8 +254,8 @@ export function ProfileScreen({
                 <>
                   <SettingItem
                     icon={<Building2 className="w-5 h-5 text-green-400" />}
-                    label="Institutional Collections"
-                    value="Manage archives"
+                    label="Collections"
+                    value="Browse"
                     onClick={onOpenInstitutional}
                   />
                   <SettingItem
@@ -309,7 +312,7 @@ export function ProfileScreen({
             transition={{ delay: 0.32 }}
             className="mb-8"
           >
-            <h2 className="text-sm tracking-wider uppercase text-white/40 mb-4">My Stories</h2>
+            <h2 className="text-sm tracking-wider uppercase text-white/55 mb-4">My Stories</h2>
             <div className="space-y-2">
               {myStories.map(story => (
                 <div
@@ -319,9 +322,9 @@ export function ProfileScreen({
                 >
                   <div className="min-w-0">
                     <p className="text-sm text-white truncate">{story.title.en}</p>
-                    <p className="text-xs text-white/40 capitalize">{story.visibility} · {story.chapterCount} chapter{story.chapterCount !== 1 ? "s" : ""}</p>
+                    <p className="text-xs text-white/55 capitalize">{story.visibility} · {story.chapterCount} chapter{story.chapterCount !== 1 ? "s" : ""}</p>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-white/30 flex-shrink-0" />
+                  <ChevronRight className="w-4 h-4 text-white/55 flex-shrink-0" />
                 </div>
               ))}
             </div>
@@ -362,11 +365,11 @@ export function ProfileScreen({
           transition={{ delay: 0.35 }}
           className="mb-8"
         >
-          <h2 className="text-sm tracking-wider uppercase text-white/40 mb-4">Recent Activity</h2>
+          <h2 className="text-sm tracking-wider uppercase text-white/55 mb-4">Recent Activity</h2>
           {recentActivity.length === 0 ? (
             <div className="bg-white/5 border border-white/10 rounded-xl p-6 text-center">
-              <p className="text-sm text-white/40 mb-1">No activity yet</p>
-              <p className="text-xs text-white/30">Start a story to see your progress here.</p>
+              <p className="text-sm text-white/55 mb-1">No activity yet</p>
+              <p className="text-xs text-white/55">Start a story to see your progress here.</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -380,9 +383,9 @@ export function ProfileScreen({
                     <div className="text-sm text-white mb-1">
                       <span className="text-purple-400">{item.action}</span> {item.title}
                     </div>
-                    <div className="text-xs text-white/40">{item.date}</div>
+                    <div className="text-xs text-white/55">{item.date}</div>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-white/30" />
+                  <ChevronRight className="w-4 h-4 text-white/55" />
                 </div>
               ))}
             </div>
@@ -396,7 +399,7 @@ export function ProfileScreen({
           transition={{ delay: 0.4 }}
           className="mb-8"
         >
-          <h2 className="text-sm tracking-wider uppercase text-white/40 mb-4">Preferences</h2>
+          <h2 className="text-sm tracking-wider uppercase text-white/55 mb-4">Preferences</h2>
           <div className="space-y-2">
             <SettingItem
               icon={<Globe className="w-5 h-5" />}
@@ -442,7 +445,7 @@ export function ProfileScreen({
           transition={{ delay: 0.45 }}
           className="mb-8"
         >
-          <h2 className="text-sm tracking-wider uppercase text-white/40 mb-4">Community</h2>
+          <h2 className="text-sm tracking-wider uppercase text-white/55 mb-4">Community</h2>
           <div className="space-y-2">
             <SettingItem
               icon={<Heart className="w-5 h-5" />}
@@ -479,100 +482,13 @@ export function ProfileScreen({
         </motion.section>
 
         {/* App Version */}
-        <div className="text-center text-xs text-white/30">
+        <div className="text-center text-xs text-white/55">
           SEEN v1.0.0 • Made with ❤️ by CREOVA
         </div>
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 backdrop-blur-xl bg-black/60 border-t border-white/5 z-50 pointer-events-auto">
-        <div className="max-w-[428px] mx-auto px-5 py-4 flex justify-around">
-          <button
-            type="button"
-            onClick={() => onNavigate("for-you")}
-            className={`flex flex-col items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
-              false ? 'text-white' : 'text-white/40 hover:text-white/60'
-            }`}
-          >
-            <Home 
-              className={`w-5 h-5 transition-all duration-300 ${
-                false 
-                  ? 'drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]' 
-                  : 'group-hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.2)]'
-              }`}
-              strokeWidth={false ? 2 : 1.5}
-            />
-            <span className={`text-[10px] tracking-widest uppercase transition-all duration-300 ${
-              false ? 'font-medium' : 'font-light'
-            }`}>
-              For You
-            </span>
-          </button>
-          <button
-            type="button"
-            onClick={() => onNavigate("explore")}
-            className={`flex flex-col items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
-              false ? 'text-white' : 'text-white/40 hover:text-white/60'
-            }`}
-          >
-            <Compass 
-              className={`w-5 h-5 transition-all duration-300 ${
-                false 
-                  ? 'drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]' 
-                  : 'group-hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.2)]'
-              }`}
-              strokeWidth={false ? 2 : 1.5}
-            />
-            <span className={`text-[10px] tracking-widest uppercase transition-all duration-300 ${
-              false ? 'font-medium' : 'font-light'
-            }`}>
-              Explore
-            </span>
-          </button>
-          <button
-            type="button"
-            onClick={() => onNavigate("library")}
-            className={`flex flex-col items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
-              false ? 'text-white' : 'text-white/40 hover:text-white/60'
-            }`}
-          >
-            <Library 
-              className={`w-5 h-5 transition-all duration-300 ${
-                false 
-                  ? 'drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]' 
-                  : 'group-hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.2)]'
-              }`}
-              strokeWidth={false ? 2 : 1.5}
-            />
-            <span className={`text-[10px] tracking-widest uppercase transition-all duration-300 ${
-              false ? 'font-medium' : 'font-light'
-            }`}>
-              Library
-            </span>
-          </button>
-          <button
-            type="button"
-            onClick={() => onNavigate("profile")}
-            className={`flex flex-col items-center gap-1.5 transition-all duration-300 pointer-events-auto group ${
-              true ? 'text-white' : 'text-white/40 hover:text-white/60'
-            }`}
-          >
-            <User 
-              className={`w-5 h-5 transition-all duration-300 ${
-                true 
-                  ? 'drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]' 
-                  : 'group-hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.2)]'
-              }`}
-              strokeWidth={true ? 2 : 1.5}
-            />
-            <span className={`text-[10px] tracking-widest uppercase transition-all duration-300 ${
-              true ? 'font-medium' : 'font-light'
-            }`}>
-              Profile
-            </span>
-          </button>
-        </div>
-      </nav>
+      <BottomNav onNavigate={onNavigate} activeTab="profile" />
     </motion.div>
   );
 }
@@ -586,30 +502,31 @@ function StatCard({ value, label }: { value: number; label: string }) {
   );
 }
 
-function SettingItem({ 
-  icon, 
-  label, 
-  value, 
-  onClick 
-}: { 
-  icon: React.ReactNode; 
-  label: string; 
-  value?: string;
-  onClick?: () => void;
-}) {
+function YourSeenSection() {
+  const nav = useAppNav();
+  const counts = useResource(async () => {
+    const [following, saved, apps] = await Promise.all([
+      api.creators.listFollowing(),
+      api.collections.listSaved(),
+      api.funding.listApplications(),
+    ]);
+    return { following: following.length, saved: saved.length, tracked: apps.filter(a => a.status !== "none").length };
+  });
+  const n = (v?: number) => (counts.status === "ready" && v !== undefined ? String(v) : "—");
   return (
-    <button
-      onClick={onClick}
-      className="w-full bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-colors flex items-center justify-between"
-    >
-      <div className="flex items-center gap-3">
-        <div className="text-white/60">{icon}</div>
-        <span className="text-sm text-white">{label}</span>
+    <section className="mb-8" aria-labelledby="your-seen">
+      <h2 id="your-seen" className="text-sm tracking-wider uppercase text-white/55 mb-4">Your SEEN</h2>
+      <div className="space-y-2">
+        <SettingItem icon={<Users className="w-5 h-5" />} label="Following" value={n(counts.data?.following)} onClick={() => nav.go("explore", { tab: "creators" })} />
+        <SettingItem icon={<BookmarkCheck className="w-5 h-5" />} label="Saved collections" value={n(counts.data?.saved)} onClick={() => nav.go("collections")} />
+        <SettingItem icon={<HandCoins className="w-5 h-5 text-amber-300" />} label="Funding tracker" value={n(counts.data?.tracked)} onClick={() => nav.go("funding")} />
+        <SettingItem icon={<Bell className="w-5 h-5" />} label="Notifications" value={nav.unreadCount ? `${nav.unreadCount} new` : undefined} onClick={nav.openNotifications} />
       </div>
-      <div className="flex items-center gap-2">
-        {value && <span className="text-sm text-white/50">{value}</span>}
-        <ChevronRight className="w-4 h-4 text-white/30" />
-      </div>
-    </button>
+    </section>
   );
+}
+
+/** Profile rows use the Figma List Item. */
+function SettingItem({ icon, label, value, onClick }: { icon: React.ReactNode; label: string; value?: string; onClick?: () => void }) {
+  return <ListItem icon={icon} label={label} value={value} onClick={onClick} />;
 }
