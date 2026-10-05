@@ -10,6 +10,10 @@ for _D in "${GSTACK_ROOT:-}" "$HOME/.claude/skills/gstack" "$HOME/.codex/skills/
   [ -z "$_GSTACK_ROOT" ] && [ -n "$_D" ] && [ -d "$_D/bin" ] && _GSTACK_ROOT="$_D"
 done
 
+# Hooks pass a JSON payload on stdin. Drain it either way so a closed pipe
+# cannot stall the caller.
+HOOK_INPUT=$(cat || true)
+
 if [ -z "$_GSTACK_ROOT" ]; then
   cat >&2 <<'MSG'
 BLOCKED: gstack is not installed globally.
@@ -22,9 +26,37 @@ Install it:
 
 Then restart your AI coding tool.
 MSG
-  # Exit 2 denies on Claude Code (#2413) and on Copilot CLI, which treats a
-  # preToolUse exit 2 as deny (#2229).
-  echo '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"gstack is required but not installed. See stderr for install instructions."}}'
+  # Exit 2 denies the action. PreToolUse (model-called Skill) uses
+  # permissionDecision. UserPromptExpansion (a typed /skillname, which never
+  # calls the Skill tool) uses a top-level decision.
+  # https://code.claude.com/docs/en/hooks
+  if ! HOOK_INPUT="$HOOK_INPUT" python3 - <<'PY'
+import json, os
+raw = os.environ.get("HOOK_INPUT", "")
+event = "PreToolUse"
+try:
+    event = json.loads(raw).get("hook_event_name") or event
+except Exception:
+    pass
+reason = "gstack is required but not installed. See stderr for install instructions."
+if event == "UserPromptExpansion":
+    print(json.dumps({
+        "decision": "block",
+        "reason": reason,
+        "hookSpecificOutput": {"hookEventName": "UserPromptExpansion"},
+    }))
+else:
+    print(json.dumps({
+        "hookSpecificOutput": {
+            "hookEventName": "PreToolUse",
+            "permissionDecision": "deny",
+            "permissionDecisionReason": reason,
+        }
+    }))
+PY
+  then
+    echo '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"gstack is required but not installed. See stderr for install instructions."}}'
+  fi
   exit 2
 fi
 
