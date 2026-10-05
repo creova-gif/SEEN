@@ -112,7 +112,7 @@ export function ForYouScreen({
       transition={{ duration: 0.4 }}
       className="min-h-screen bg-black"
     >
-      <NavigationBar />
+      <NavigationBar onSearch={onSearch} />
 
       {/* Main Content */}
       <main className="pt-20 pb-24 px-5 max-w-[428px] mx-auto">

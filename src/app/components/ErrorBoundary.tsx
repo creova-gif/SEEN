@@ -1,6 +1,35 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
+import { fromHash } from "../navigation/routes";
 import { reportError } from "../observability";
 import { StateTemplate } from "./seen/primitives";
+
+/**
+ * Where a crashed screen can send the user. For You — and a blank hash, which
+ * the app opens as For You — must not reload the same screen.
+ */
+export function crashEscape(hash: string): { actionLabel: string; target: string; continuation: string } {
+  const path = hash.split("?")[0];
+  const route = fromHash(path);
+  const blank = path === "" || path === "#" || path === "#/";
+  if (blank || route?.screen === "for-you") {
+    return {
+      actionLabel: "Open Explore",
+      target: "#/explore",
+      continuation: "Open Explore to keep going.",
+    };
+  }
+  return {
+    actionLabel: "Back to For You",
+    target: "#/for-you",
+    continuation: "Go back to For You to keep going.",
+  };
+}
+
+export function leaveCrashedScreen(hash: string, location: { hash: string; reload: () => void }) {
+  const escape = crashEscape(hash);
+  location.hash = escape.target;
+  location.reload();
+}
 
 /**
  * Last line of defence: a render crash anywhere shows a recoverable SEEN
@@ -19,18 +48,16 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, { errorId:
 
   render() {
     if (!this.state.errorId) return this.props.children;
+    const escape = crashEscape(typeof window === "undefined" ? "" : window.location.hash);
     return (
       <div className="min-h-screen bg-black flex items-center justify-center px-5">
         <div className="max-w-[428px] w-full">
           <StateTemplate
             kind="error"
             title="Something broke on this screen"
-            message={`Your saved stories and progress are safe. Go back to For You to keep going. Reference: ${this.state.errorId}`}
-            actionLabel="Back to For You"
-            onAction={() => {
-              window.location.hash = "#/for-you";
-              window.location.reload();
-            }}
+            message={`Your saved stories and progress are safe. ${escape.continuation} Reference: ${this.state.errorId}`}
+            actionLabel={escape.actionLabel}
+            onAction={() => leaveCrashedScreen(window.location.hash, window.location)}
           />
         </div>
       </div>
