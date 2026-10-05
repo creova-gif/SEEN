@@ -130,7 +130,8 @@ export const FUNDING_LISTINGS: FundingOpportunity[] = [
     amountNote: "$25,000 for shorts, web series and interactive; $50,000 for features and TV series",
     currency: "CAD",
     availability: "deadline",
-    deadline: "2027-03-02T07:59:00Z",
+    // 11:59 pm Pacific; B.C. stays on UTC-7 year-round from Mar 2026 (tzdata 2026b), so this is 06:59Z, not 07:59Z.
+    deadline: "2027-03-02T06:59:00Z",
     deadlineTimeZone: "America/Vancouver",
     deadlineNote: "Open until March 1, 2027 or until funds run out",
     region: "Canada",
