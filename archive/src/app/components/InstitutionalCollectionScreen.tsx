@@ -1,9 +1,6 @@
-import { useState } from "react";
 import { motion } from "motion/react";
 import { ArrowLeft, GraduationCap, Users, Play } from "lucide-react";
 import { useStoryState } from "../contexts/StoryStateContext";
-import { INSTITUTIONAL_COLLECTIONS } from "../data/institutionalCollectionsCatalog";
-import { getStoryWorldById } from "../data/storyDatabase";
 
 interface CollectionStory {
   id: string;
@@ -16,26 +13,26 @@ interface CollectionStory {
   category: string;
 }
 
-type Localized = { en: string; fr: string; es: string };
-
 interface InstitutionalCollectionScreenProps {
-  onClose?: () => void;
-  /** App opens this screen with onBack. Same action as onClose. */
-  onBack?: () => void;
-  institutionName?: string;
+  onClose: () => void;
+  institutionName: string;
   institutionLogo?: string;
-  description?: Localized;
-  curatorNote?: Localized;
-  stories?: CollectionStory[];
-  onStoryClick?: (storyId: string) => void;
+  description: {
+    en: string;
+    fr: string;
+    es: string;
+  };
+  curatorNote: {
+    en: string;
+    fr: string;
+    es: string;
+  };
+  stories: CollectionStory[];
+  onStoryClick: (storyId: string) => void;
 }
-
-const COLLECTION_THUMB =
-  "https://images.unsplash.com/photo-1680444873773-7c106c23ac52?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx1bml2ZXJzaXR5JTIwY2FtcHVzJTIwYXJjaGl0ZWN0dXJlJTIwbW9kZXJufGVufDF8fHx8MTc3MDEzOTc2MXww&ixlib=rb-4.1.0&q=80&w=1080";
 
 export function InstitutionalCollectionScreen({
   onClose,
-  onBack,
   institutionName,
   institutionLogo,
   description,
@@ -44,80 +41,10 @@ export function InstitutionalCollectionScreen({
   onStoryClick
 }: InstitutionalCollectionScreenProps) {
   const { state } = useStoryState();
-  const [openedId, setOpenedId] = useState<string | null>(null);
-  const lang = state.language === "fr" || state.language === "es" ? state.language : "en";
 
-  const getText = (text?: Localized | null) => {
-    if (!text) return "";
-    return text[lang] || text.en || "";
+  const getText = (text: { en: string; fr: string; es: string }) => {
+    return text[state.language] || text.en;
   };
-
-  const leave = onClose ?? onBack ?? (() => {});
-  const explicit = Boolean(institutionName && description && curatorNote);
-  const opened = !explicit && openedId
-    ? INSTITUTIONAL_COLLECTIONS.find((collection) => collection.collectionId === openedId)
-    : undefined;
-
-  const toStoryCard = (storyId: string): CollectionStory | null => {
-    const story = getStoryWorldById(storyId);
-    if (!story) return null;
-    return {
-      id: story.id,
-      title: getText(story.title),
-      creatorName: getText(story.creator),
-      creatorRole: story.institutionalPartner || "Story",
-      thumbnailUrl: story.coverImage || COLLECTION_THUMB,
-      duration: story.totalDuration,
-      language: (story.languagesAvailable[0] || lang).toUpperCase(),
-      category: story.culturalThemes[0] || "Story",
-    };
-  };
-
-  let viewName = institutionName ?? "";
-  let viewDescription = description;
-  let viewCuratorNote = curatorNote;
-  let viewStories = stories ?? [];
-  let handleClose = leave;
-  let handleStoryClick = (storyId: string) => onStoryClick?.(storyId);
-
-  if (!explicit) {
-    if (opened) {
-      viewName = getText(opened.title);
-      viewDescription = opened.institutionalDescription;
-      viewCuratorNote = opened.editorialRationale;
-      viewStories = (opened.includedContent.stories ?? [])
-        .map(toStoryCard)
-        .filter((story): story is CollectionStory => story !== null);
-      handleClose = () => setOpenedId(null);
-    } else {
-      viewName = lang === "fr"
-        ? "Collections institutionnelles"
-        : lang === "es"
-          ? "Colecciones institucionales"
-          : "Institutional Collections";
-      viewDescription = {
-        en: "Archive-grade collections for classrooms, museums, and cultural institutions.",
-        fr: "Collections de niveau archivistique pour les salles de classe, les musées et les institutions culturelles.",
-        es: "Colecciones de nivel de archivo para aulas, museos e instituciones culturales.",
-      };
-      viewCuratorNote = {
-        en: "Select a collection to review its scope, editorial rationale, and linked stories.",
-        fr: "Sélectionnez une collection pour examiner sa portée, sa justification éditoriale et les histoires liées.",
-        es: "Seleccione una colección para revisar su alcance, su justificación editorial y las historias vinculadas.",
-      };
-      viewStories = INSTITUTIONAL_COLLECTIONS.map((collection) => ({
-        id: collection.collectionId,
-        title: getText(collection.title),
-        creatorName: collection.institutionalPartners?.[0] || "SEEN Archives",
-        creatorRole: collection.educationalSuitability.levels[0] || "Institution",
-        thumbnailUrl: COLLECTION_THUMB,
-        duration: collection.createdDate,
-        language: lang.toUpperCase(),
-        category: collection.historicalScope.themes[0] || "Archive",
-      }));
-      handleStoryClick = (storyId: string) => setOpenedId(storyId);
-    }
-  }
 
   return (
     <motion.div
@@ -137,7 +64,7 @@ export function InstitutionalCollectionScreen({
           >
             <img
               src="https://images.unsplash.com/photo-1680444873773-7c106c23ac52?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx1bml2ZXJzaXR5JTIwY2FtcHVzJTIwYXJjaGl0ZWN0dXJlJTIwbW9kZXJufGVufDF8fHx8MTc3MDEzOTc2MXww&ixlib=rb-4.1.0&q=80&w=1080"
-              alt={viewName}
+              alt={institutionName}
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/70 to-black" />
@@ -147,7 +74,7 @@ export function InstitutionalCollectionScreen({
           <div className="absolute top-0 left-0 right-0 z-10">
             <div className="flex items-center justify-between p-5 pt-8">
               <button
-                onClick={handleClose}
+                onClick={onClose}
                 className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center hover:bg-black/60 transition-colors"
                 aria-label="Close"
               >
@@ -166,7 +93,7 @@ export function InstitutionalCollectionScreen({
               <div className="flex items-center gap-3 mb-4">
                 {institutionLogo ? (
                   <div className="w-12 h-12 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 overflow-hidden">
-                    <img src={institutionLogo} alt={viewName} className="w-full h-full object-cover" />
+                    <img src={institutionLogo} alt={institutionName} className="w-full h-full object-cover" />
                   </div>
                 ) : (
                   <div className="w-12 h-12 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center">
@@ -178,7 +105,7 @@ export function InstitutionalCollectionScreen({
                     {state.language === 'en' ? 'Curated Collection' : state.language === 'fr' ? 'Collection Curée' : 'Colección Curada'}
                   </span>
                   <h1 className="text-xl tracking-tight text-white">
-                    {viewName}
+                    {institutionName}
                   </h1>
                 </div>
               </div>
@@ -195,7 +122,7 @@ export function InstitutionalCollectionScreen({
             transition={{ delay: 0.5 }}
           >
             <p className="text-base text-white/80 leading-relaxed">
-              {getText(viewDescription)}
+              {getText(description)}
             </p>
           </motion.div>
 
@@ -213,7 +140,7 @@ export function InstitutionalCollectionScreen({
               </span>
             </div>
             <p className="text-sm text-white/70 leading-relaxed italic">
-              "{getText(viewCuratorNote)}"
+              "{getText(curatorNote)}"
             </p>
           </motion.div>
 
@@ -229,12 +156,12 @@ export function InstitutionalCollectionScreen({
                 {state.language === 'en' ? 'Featured Stories' : state.language === 'fr' ? 'Histoires en Vedette' : 'Historias Destacadas'}
               </h2>
               <span className="text-xs text-white/30">
-                {viewStories.length} {state.language === 'en' ? 'stories' : state.language === 'fr' ? 'histoires' : 'historias'}
+                {stories.length} {state.language === 'en' ? 'stories' : state.language === 'fr' ? 'histoires' : 'historias'}
               </span>
             </div>
 
             <div className="space-y-4">
-              {viewStories.map((story, index) => (
+              {stories.map((story, index) => (
                 <motion.button
                   key={story.id}
                   initial={{ opacity: 0, y: 20 }}
@@ -242,7 +169,7 @@ export function InstitutionalCollectionScreen({
                   transition={{ delay: 0.8 + index * 0.1 }}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={() => handleStoryClick(story.id)}
+                  onClick={() => onStoryClick(story.id)}
                   className="w-full rounded-2xl overflow-hidden bg-white/5 border border-white/10 hover:bg-white/10 transition-all text-left"
                 >
                   <div className="flex gap-4 p-4">
