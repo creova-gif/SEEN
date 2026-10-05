@@ -208,7 +208,7 @@ export function ModerationQueue({
 
       {/* Pending items */}
       <div className="space-y-3">
-        <h3 className="text-sm tracking-wider uppercase text-white/40">Pending Review</h3>
+        <h3 className="text-sm tracking-wider uppercase text-white/55">Pending Review</h3>
         {pendingResponses.length > 0 ? (
           pendingResponses.map((response) => (
             <ModerationCard
@@ -268,7 +268,7 @@ function ModerationCard({
           </div>
           <div>
             <h4 className="text-sm text-white">{response.contributorName}</h4>
-            <div className="flex items-center gap-2 text-xs text-white/40">
+            <div className="flex items-center gap-2 text-xs text-white/55">
               <Clock className="w-3 h-3" />
               <span>{formatRelativeTime(response.timestamp)}</span>
               <span>•</span>
@@ -411,7 +411,7 @@ export function AuditLogViewer({ actions, userRole }: AuditLogViewerProps) {
                 </p>
 
                 {action.reason && (
-                  <p className="text-xs text-white/40 mb-2">
+                  <p className="text-xs text-white/55 mb-2">
                     Reason: {action.reason}
                   </p>
                 )}
@@ -423,7 +423,7 @@ export function AuditLogViewer({ actions, userRole }: AuditLogViewerProps) {
                 )}
               </div>
 
-              <div className="text-xs text-white/30">
+              <div className="text-xs text-white/55">
                 {formatRelativeTime(action.timestamp)}
               </div>
             </div>

@@ -5,6 +5,8 @@ import { useStoryState } from '../contexts/StoryStateContext';
 import { searchStories, getSearchSuggestions } from '../data/searchService';
 import type { ContentItem } from '../data/types';
 import { StoryCard } from '../components/StoryCard';
+import { track } from '../observability';
+import { SearchBar } from '../components/seen/forms';
 
 interface SearchScreenProps {
   onClose: () => void;
@@ -31,6 +33,8 @@ export function SearchScreen({ onClose, onSelectStory }: SearchScreenProps) {
     const timer = setTimeout(() => {
       const searchResults = searchStories(query, language);
       setResults(searchResults);
+      // Result count only — the query text itself is never recorded.
+      track("search_performed", { results: searchResults.length });
 
       const searchSuggestions = getSearchSuggestions(query, language, 5);
       setSuggestions(searchSuggestions);
@@ -41,10 +45,10 @@ export function SearchScreen({ onClose, onSelectStory }: SearchScreenProps) {
   }, [query, language]);
 
   const handleSelectStory = (storyId: string) => {
-    if (onSelectStory) {
-      onSelectStory(storyId);
-    }
-    onClose();
+    // Selecting a result navigates away; calling onClose() here as well used
+    // to immediately bounce the user back to For You.
+    if (onSelectStory) onSelectStory(storyId);
+    else onClose();
   };
 
   return (
@@ -80,18 +84,15 @@ export function SearchScreen({ onClose, onSelectStory }: SearchScreenProps) {
               </h2>
             </div>
 
-            {/* Search Input */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/40" />
-              <input
-                type="text"
-                placeholder={language === 'en' ? 'Search by title, author, or theme...' : language === 'fr' ? 'Rechercher par titre, auteur ou thème...' : language === 'es' ? 'Buscar por título, autor o tema...' : 'Search by title, author, or theme...'}
-                value={query}
-                onChange={e => setQuery(e.target.value)}
-                autoFocus
-                className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-white/30 transition-colors"
-              />
-            </div>
+            {/* Search Input — Figma Search Bar (Empty / Focused / Filled) */}
+            <SearchBar
+              id="global-search"
+              label={language === 'fr' ? 'Rechercher des histoires' : language === 'es' ? 'Buscar historias' : 'Search stories'}
+              placeholder={language === 'en' ? 'Search by title, author, or theme...' : language === 'fr' ? 'Rechercher par titre, auteur ou thème...' : 'Buscar por título, autor o tema...'}
+              value={query}
+              onChange={setQuery}
+              autoFocus
+            />
           </div>
 
           {/* Results */}
@@ -106,7 +107,7 @@ export function SearchScreen({ onClose, onSelectStory }: SearchScreenProps) {
 
                 {!isSearching && results.length === 0 && (
                   <div className="text-center py-8">
-                    <p className="text-white/40 text-sm">
+                    <p className="text-white/55 text-sm">
                       {language === 'en' ? 'No stories found' : language === 'fr' ? 'Aucune histoire trouvée' : language === 'es' ? 'No se encontraron historias' : 'No stories found'}
                     </p>
                   </div>
@@ -119,13 +120,15 @@ export function SearchScreen({ onClose, onSelectStory }: SearchScreenProps) {
                         key={story.id}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        onClick={() => handleSelectStory(story.id)}
                       >
                         <StoryCard
+                          id={story.id}
+                          width="full"
                           title={story.title}
                           author={story.creator}
                           readTime={story.duration}
                           imageUrl={story.mediaSource}
+                          onSelect={() => handleSelectStory(story.id)}
                         />
                       </motion.div>
                     ))}
@@ -136,7 +139,7 @@ export function SearchScreen({ onClose, onSelectStory }: SearchScreenProps) {
 
             {!query.trim() && (
               <div className="px-5 py-8 text-center">
-                <p className="text-white/40 text-sm mb-4">
+                <p className="text-white/55 text-sm mb-4">
                   {language === 'en' ? 'Start typing to search...' : language === 'fr' ? 'Commencez à taper pour rechercher...' : language === 'es' ? 'Comience a escribir para buscar...' : 'Start typing to search...'}
                 </p>
               </div>
@@ -145,7 +148,7 @@ export function SearchScreen({ onClose, onSelectStory }: SearchScreenProps) {
 
           {/* Footer Info */}
           <div className="px-5 py-4 border-t border-white/5 text-center">
-            <p className="text-white/30 text-xs">
+            <p className="text-white/55 text-xs">
               {results.length > 0 && `${results.length} ${language === 'en' ? 'result' : language === 'fr' ? 'résultat' : language === 'es' ? 'resultado' : 'result'}${results.length !== 1 ? 's' : ''}`}
             </p>
           </div>

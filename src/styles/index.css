@@ -1,6 +1,7 @@
 @import './fonts.css';
 @import './tailwind.css';
 @import './theme.css';
+@import './seen-tokens.css';
 
 /* Custom scrollbar styling for horizontal scroll */
 .scrollbar-hide {
