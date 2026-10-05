@@ -1494,19 +1494,19 @@ Preserve this separation unless the audit demonstrates a better architecture.
 
 Use the following as a starting hypothesis, not a mandate:
 
-### Core interoperability
+## Core interoperability
 
 **MCP** for agent-to-tool/data integration.
 
 **A2A** for communication between independently deployed agents.
 
-### Primary agent runtimes
+## Primary agent runtimes
 
 **Google ADK** as one supported multi-agent runtime, especially where A2A, Google Cloud, agent discovery, or multi-agent services are useful.
 
 **OpenAI Agents SDK** as another supported runtime, especially for OpenAI-native agents, handoffs, guardrails, sessions, tracing, sandbox workspaces, or realtime use cases.
 
-### Important principle
+## Important principle
 
 Do not make either framework the foundation of the entire developer environment.
 
