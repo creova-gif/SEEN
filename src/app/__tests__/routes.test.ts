@@ -31,6 +31,13 @@ describe("hash routes", () => {
   });
 });
 
+describe("malformed links", () => {
+  it("ignores a bad percent-escape instead of throwing", () => {
+    expect(() => fromHash("#/creator/50%")).not.toThrow();
+    expect(fromHash("#/creator/50%")).toBeNull();
+  });
+});
+
 describe("screen permissions", () => {
   it("restricts admin to admins", () => {
     expect(canAccess("admin-dashboard", "admin")).toBe(true);

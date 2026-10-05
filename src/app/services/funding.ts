@@ -33,8 +33,10 @@ const fmtDate = (d: Date, timeZone = "America/Toronto") =>
 /** Dates are shown in the funder's own time zone so "Mar 1" never becomes "Mar 2". */
 export function formatDeadline(deadline: string, now: Date = new Date(), timeZone?: string): string {
   const d = new Date(deadline);
-  const days = Math.ceil((d.getTime() - now.getTime()) / DAY);
-  if (days < 0) return `Closed ${fmtDate(d, timeZone)}`;
+  const ms = d.getTime() - now.getTime();
+  // Check the sign before rounding: Math.ceil turns "closed an hour ago" into -0, which equals 0.
+  if (ms < 0) return `Closed ${fmtDate(d, timeZone)}`;
+  const days = Math.ceil(ms / DAY);
   if (days === 0) return `Closes today`;
   if (days === 1) return `Closes tomorrow`;
   if (days <= 14) return `Closes in ${days} days`;

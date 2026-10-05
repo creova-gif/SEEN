@@ -77,7 +77,12 @@ export function toHash(screen: AppScreen, params: RouteParams = {}): string {
 }
 
 export function fromHash(hash: string): { screen: AppScreen; params: RouteParams } | null {
-  const parts = hash.replace(/^#\/?/, "").split("/").filter(Boolean).map(decodeURIComponent);
+  let parts: string[];
+  try {
+    parts = hash.replace(/^#\/?/, "").split("/").filter(Boolean).map(decodeURIComponent);
+  } catch {
+    return null; // malformed escape such as "50%": treat as an unknown link, not a crash
+  }
   if (parts.length === 0) return null;
   const [head, arg] = parts;
   if (ID_ROUTES_REVERSE[head] && arg) return { screen: ID_ROUTES_REVERSE[head], params: { id: arg } };
