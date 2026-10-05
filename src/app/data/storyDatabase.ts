@@ -305,7 +305,6 @@ export const STORY_WORLDS: StoryWorld[] = [
     trending: false,
     new: false,
     visibility: 'institutional',
-    institutionalPartner: 'Canadian Museum of Immigration',
     chapters: [
       {
         id: 'voices-ch1',
@@ -499,7 +498,6 @@ export const STORY_WORLDS: StoryWorld[] = [
     trending: true,
     new: false,
     visibility: 'public',
-    institutionalPartner: 'National Film Board',
     chapters: [
       {
         id: 'indigenous-ch1',

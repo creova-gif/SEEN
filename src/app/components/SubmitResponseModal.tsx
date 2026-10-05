@@ -111,7 +111,7 @@ export function SubmitResponseModal({
                   <h2 className="text-lg tracking-tight text-white mb-1">
                     {getText("title")}
                   </h2>
-                  <p className="text-xs text-white/40">
+                  <p className="text-xs text-white/55">
                     {chapterTitle}
                   </p>
                 </div>
@@ -128,7 +128,7 @@ export function SubmitResponseModal({
               <div className="flex-1 overflow-y-auto p-6 space-y-6">
                 {/* Response type selector */}
                 <div>
-                  <label className="text-xs tracking-wider uppercase text-white/40 mb-3 block">
+                  <label className="text-xs tracking-wider uppercase text-white/55 mb-3 block">
                     {state.language === 'en' ? 'Response Type' : state.language === 'fr' ? 'Type de Réponse' : 'Tipo de Respuesta'}
                   </label>
                   <div className="flex gap-2">
@@ -181,11 +181,11 @@ export function SubmitResponseModal({
                       value={textContent}
                       onChange={(e) => setTextContent(e.target.value)}
                       placeholder={getText("placeholder")}
-                      className="w-full h-40 p-4 rounded-xl bg-white/5 border border-white/10 text-white text-sm leading-relaxed placeholder:text-white/30 focus:bg-white/10 focus:border-white/20 outline-none resize-none"
+                      className="w-full h-40 p-4 rounded-xl bg-white/5 border border-white/10 text-white text-sm leading-relaxed placeholder:text-white/55 focus:bg-white/10 focus:border-white/20 outline-none resize-none"
                       maxLength={500}
                     />
                     <div className="flex justify-between items-center mt-2">
-                      <span className="text-xs text-white/30">
+                      <span className="text-xs text-white/55">
                         {textContent.length}/500
                       </span>
                     </div>
@@ -195,7 +195,7 @@ export function SubmitResponseModal({
                 {/* Audio/Image placeholders */}
                 {responseType === "audio" && (
                   <div className="p-8 rounded-xl bg-white/5 border border-white/10 text-center">
-                    <Mic className="w-8 h-8 text-white/30 mx-auto mb-3" />
+                    <Mic className="w-8 h-8 text-white/55 mx-auto mb-3" />
                     <p className="text-sm text-white/50">
                       {state.language === 'en' ? 'Audio recording coming soon' : state.language === 'fr' ? 'Enregistrement audio à venir' : 'Grabación de audio próximamente'}
                     </p>
@@ -204,7 +204,7 @@ export function SubmitResponseModal({
 
                 {responseType === "image" && (
                   <div className="p-8 rounded-xl bg-white/5 border border-white/10 text-center">
-                    <ImageIcon className="w-8 h-8 text-white/30 mx-auto mb-3" />
+                    <ImageIcon className="w-8 h-8 text-white/55 mx-auto mb-3" />
                     <p className="text-sm text-white/50">
                       {state.language === 'en' ? 'Image upload coming soon' : state.language === 'fr' ? 'Téléchargement d\'image à venir' : 'Carga de imagen próximamente'}
                     </p>
@@ -248,7 +248,7 @@ export function SubmitResponseModal({
                   className={`
                     w-full py-4 rounded-full text-sm tracking-wider uppercase transition-all
                     ${!textContent.trim() || isSubmitting
-                      ? 'bg-white/5 text-white/30 cursor-not-allowed'
+                      ? 'bg-white/5 text-white/55 cursor-not-allowed'
                       : 'bg-white text-black hover:bg-white/90'
                     }
                   `}

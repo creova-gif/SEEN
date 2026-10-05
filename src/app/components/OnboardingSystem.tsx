@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth, SELF_ASSIGNABLE_ROLES } from "../contexts/AuthContext";
+import { toast } from "sonner";
+import { PasswordField, TextField } from "./seen/forms";
 import { useStoryState } from "../contexts/StoryStateContext";
 import type { UserRole, UserIntent, Language, PersonalizationPreferences } from "../contexts/StoryStateContext";
 import { LanguageSelectionScreen } from "./LanguageSelectionScreen";
@@ -113,6 +115,11 @@ export function OnboardingSystem({
 
     try {
       await signUp(email, password, name, selectedRole, state.language, selectedIntent);
+      if (!SELF_ASSIGNABLE_ROLES.includes(selectedRole)) {
+        toast.info("Moderator access requested", {
+          description: "You can explore SEEN as a viewer while an admin reviews your request.",
+        });
+      }
       setCurrentStep("accessibility");
     } catch (error) {
       console.error("Error creating account:", error);
@@ -147,7 +154,8 @@ export function OnboardingSystem({
 
     try {
       await requestPasswordRecovery(email);
-      return "Recovery link sent";
+      // No email provider is connected yet, so don't claim a link was sent.
+      return "Email delivery isn't switched on in this preview yet, so no reset link was sent. Use a demo account or create a new one.";
     } catch (error) {
       console.error("Error requesting password recovery:", error);
       setAccountError(error instanceof Error ? error.message : "Failed to request password recovery");
@@ -170,13 +178,15 @@ export function OnboardingSystem({
 
   // Handle complete onboarding
   const handleComplete = () => {
-    if (selectedRole && selectedIntent) {
+    // The account's stored role is authoritative. The role tapped during
+    // onboarding is only a request: signing in to an existing viewer account
+    // after tapping "Moderator" must not grant moderator access.
+    const role = authState.user?.role ?? "viewer";
+    const intent = authState.user?.intent ?? selectedIntent;
+    if (intent) {
       localStorage.setItem("onboarding_completed", "true");
       localStorage.removeItem("onboarding_step");
-      onComplete({
-        role: selectedRole,
-        intent: selectedIntent
-      });
+      onComplete({ role, intent });
     }
   };
 
@@ -296,7 +306,7 @@ function InvocationLayer({ onComplete }: { onComplete: () => void }) {
           <h1 className="text-4xl tracking-tight text-white mb-2">
             SEEN
           </h1>
-          <p className="text-xs tracking-[0.4em] uppercase text-white/30">
+          <p className="text-xs tracking-[0.4em] uppercase text-white/55">
             by CREOVA
           </p>
         </motion.div>
@@ -463,7 +473,7 @@ function RoleButton({
       <div className="text-base text-white/90 mb-1 group-hover:text-white transition-colors duration-500">
         {label}
       </div>
-      <div className="text-sm text-white/40 group-hover:text-white/60 transition-colors duration-500">
+      <div className="text-sm text-white/55 group-hover:text-white/60 transition-colors duration-500">
         {subtitle}
       </div>
     </motion.button>
@@ -597,13 +607,7 @@ function AccountStep({
     } else if (mode === 'recovery') {
       setLocalError(null);
       onRecover(recoveryEmail).then((message) => {
-        if (message) {
-          setRecoveryMessage(message);
-          setTimeout(() => {
-            setMode('signin');
-            setRecoveryMessage("");
-          }, 3000);
-        }
+        if (message) setRecoveryMessage(message);
       });
     }
   };
@@ -660,18 +664,21 @@ function AccountStep({
               transition={{ duration: 0.5 }}
               className="space-y-4"
             >
-              <input
+              <TextField
+                label="Email"
                 type="email"
+                inputMode="email"
+                autoComplete="email"
                 value={recoveryEmail}
                 onChange={(e) => setRecoveryEmail(e.target.value)}
                 placeholder="Email"
-                className="w-full py-3 px-4 text-sm text-white/90 bg-black border border-white/10 rounded focus:outline-none focus:border-white/30 transition-colors duration-300"
               />
               {recoveryMessage && (
                 <motion.p
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="text-sm text-green-500/80"
+                  role="status"
+                  className="text-sm text-seen-secondary"
                 >
                   {recoveryMessage}
                 </motion.p>
@@ -688,84 +695,65 @@ function AccountStep({
               className="space-y-4"
             >
               {mode === 'signup' && (
-                <motion.input
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.4 }}
+                <TextField
+                  label="Name"
                   type="text"
+                  autoComplete="name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Name"
-                  className="w-full py-3 px-4 text-sm text-white/90 bg-black border border-white/10 rounded focus:outline-none focus:border-white/30 transition-colors duration-300"
                 />
               )}
-              <input
+              <TextField
+                label="Email"
                 type="email"
+                inputMode="email"
+                autoComplete="email"
+                autoCapitalize="none"
+                spellCheck={false}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Email"
-                className="w-full py-3 px-4 text-sm text-white/90 bg-black border border-white/10 rounded focus:outline-none focus:border-white/30 transition-colors duration-300"
               />
-              <input
-                type="password"
+              <PasswordField
+                label="Password"
+                autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password"
-                className="w-full py-3 px-4 text-sm text-white/90 bg-black border border-white/10 rounded focus:outline-none focus:border-white/30 transition-colors duration-300"
+                aria-describedby={mode === 'signup' ? 'password-rules' : undefined}
               />
-              {/* Password Requirements */}
-              {mode === 'signup' && password.length > 0 && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="text-xs space-y-1.5 text-left"
-                >
-                  <div className={`flex items-center gap-2 ${passwordValidation.length ? 'text-green-500/80' : 'text-white/40'}`}>
-                    <span>{passwordValidation.length ? '✓' : '○'}</span>
-                    <span>At least 8 characters</span>
-                  </div>
-                  <div className={`flex items-center gap-2 ${passwordValidation.uppercase ? 'text-green-500/80' : 'text-white/40'}`}>
-                    <span>{passwordValidation.uppercase ? '✓' : '○'}</span>
-                    <span>One uppercase letter</span>
-                  </div>
-                  <div className={`flex items-center gap-2 ${passwordValidation.lowercase ? 'text-green-500/80' : 'text-white/40'}`}>
-                    <span>{passwordValidation.lowercase ? '✓' : '○'}</span>
-                    <span>One lowercase letter</span>
-                  </div>
-                  <div className={`flex items-center gap-2 ${passwordValidation.number ? 'text-green-500/80' : 'text-white/40'}`}>
-                    <span>{passwordValidation.number ? '✓' : '○'}</span>
-                    <span>One number</span>
-                  </div>
-                </motion.div>
-              )}
-              {mode === 'signup' && password.length === 0 && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="text-xs text-white/40 space-y-1"
-                >
-                  <p>Password must include:</p>
-                  <ul className="list-disc list-inside space-y-0.5 ml-2">
-                    <li>At least 8 characters</li>
-                    <li>One uppercase letter</li>
-                    <li>One lowercase letter</li>
-                    <li>One number</li>
-                  </ul>
-                </motion.div>
+              {mode === 'signup' && (
+                <ul id="password-rules" aria-label="Password requirements" aria-live="polite" className="text-xs space-y-1.5 text-left">
+                  {([
+                    ['length', 'At least 8 characters'],
+                    ['uppercase', 'One uppercase letter'],
+                    ['lowercase', 'One lowercase letter'],
+                    ['number', 'One number'],
+                  ] as const).map(([key, text]) => {
+                    const ok = passwordValidation[key];
+                    return (
+                      <li key={key} className={`flex items-center gap-2 ${ok ? 'text-seen-success' : 'text-white/55'}`}>
+                        <span aria-hidden>{ok ? '✓' : '○'}</span>
+                        <span>{text}</span>
+                        <span className="sr-only">{ok ? '(met)' : '(not met)'}</span>
+                      </li>
+                    );
+                  })}
+                </ul>
               )}
             </motion.div>
           )}
         </AnimatePresence>
 
         {/* Error Messages */}
-        {error || localError && (
+        {(error || localError) && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             className="space-y-2"
           >
-            <p className="text-sm text-red-500/80">
+            <p role="alert" className="text-sm text-seen-error">
               {error || localError}
             </p>
             {showSignInSuggestion && (
@@ -812,8 +800,8 @@ function AccountStep({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
-              onClick={() => setMode('recovery')}
-              className="w-full py-2 text-xs text-white/40 hover:text-white/60 transition-all duration-300"
+              onClick={() => { setRecoveryMessage(""); setMode('recovery'); }}
+              className="w-full min-h-11 py-2 text-xs text-white/55 hover:text-white/75 transition-all duration-300"
             >
               Forgot password?
             </motion.button>
@@ -825,7 +813,7 @@ function AccountStep({
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
               onClick={() => setMode('signin')}
-              className="w-full py-2 text-xs text-white/50 hover:text-white/70 transition-all duration-300"
+              className="w-full min-h-11 py-2 text-xs text-white/55 hover:text-white/75 transition-all duration-300"
             >
               Already have an account? Sign in
             </motion.button>
@@ -835,7 +823,7 @@ function AccountStep({
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
               onClick={() => setMode('signup')}
-              className="w-full py-2 text-xs text-white/50 hover:text-white/70 transition-all duration-300"
+              className="w-full min-h-11 py-2 text-xs text-white/55 hover:text-white/75 transition-all duration-300"
             >
               Need an account? Create one
             </motion.button>
@@ -845,7 +833,7 @@ function AccountStep({
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
               onClick={() => setMode('signin')}
-              className="w-full py-2 text-xs text-white/50 hover:text-white/70 transition-all duration-300"
+              className="w-full min-h-11 py-2 text-xs text-white/55 hover:text-white/75 transition-all duration-300"
             >
               Back to sign in
             </motion.button>
@@ -865,7 +853,7 @@ function AccountStep({
                 <div className="w-full border-t border-white/5"></div>
               </div>
               <div className="relative flex justify-center text-xs">
-                <span className="px-4 text-white/30 bg-black">Or continue with</span>
+                <span className="px-4 text-white/55 bg-black">Or continue with</span>
               </div>
             </div>
             
@@ -884,7 +872,7 @@ function AccountStep({
                 GitHub
               </button>
             </div>
-            <p className="text-[10px] text-white/20 text-center">
+            <p className="text-[10px] text-white/55 text-center">
               Social login coming soon
             </p>
           </motion.div>

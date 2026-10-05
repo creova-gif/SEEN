@@ -28,7 +28,7 @@ export function BranchingChoiceOverlay({
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
   const getText = (text: { en: string; fr: string; es: string }) => {
-    return getTextHelper(text, state.language);
+    return getLocalizedText(text, state.language);
   };
 
   const handleChoice = (optionId: string, nextChapterId?: string) => {
@@ -56,8 +56,8 @@ export function BranchingChoiceOverlay({
           className="text-center mb-10"
         >
           <div className="flex items-center justify-center gap-2 mb-4">
-            <GitBranch className="w-5 h-5 text-white/40" />
-            <span className="text-xs tracking-[0.3em] uppercase text-white/40">
+            <GitBranch className="w-5 h-5 text-white/55" />
+            <span className="text-xs tracking-[0.3em] uppercase text-white/55">
               {branchChoice.impactsOutcome ? (
                 state.language === 'en' ? 'Your Choice Matters' : 
                 state.language === 'fr' ? 'Votre Choix Compte' : 
@@ -124,7 +124,7 @@ export function BranchingChoiceOverlay({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6 }}
-            className="text-center text-xs text-white/40 mt-6"
+            className="text-center text-xs text-white/55 mt-6"
           >
             {state.language === 'en' 
               ? 'This choice will shape your journey' 
