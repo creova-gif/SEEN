@@ -88,7 +88,7 @@ test.describe("signed-in viewer", () => {
 
   test("notifications: badge, open, mark all read", async ({ page }) => {
     await page.goto("/#/for-you");
-    await expect(page.getByRole("button", { name: /notifications \(3 unread\)/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /notifications \(\d+ unread\)/i })).toBeVisible();
     await page.getByRole("button", { name: /notifications/i }).click();
     await page.getByRole("button", { name: /mark all read/i }).click();
     await page.goBack();

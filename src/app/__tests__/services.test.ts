@@ -168,6 +168,7 @@ describe("review fixes", () => {
     const now = new Date("2026-10-05T12:00:00Z");
     const alert = seedNotifications(now).find(n => n.type === "funding");
     expect(alert).toBeDefined();
+    expect(alert!.target!.id).toBe("cca-creating-knowing-sharing"); // nearest open deadline on that date
     const listing = FUNDING_LISTINGS.find(o => o.id === alert!.target!.id)!;
     expect(new Date(listing.deadline!).getTime()).toBeGreaterThan(now.getTime());
     expect(seedNotifications(new Date("2035-01-01T00:00:00Z")).some(n => n.type === "funding")).toBe(false);
