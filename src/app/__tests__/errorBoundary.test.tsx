@@ -1,7 +1,6 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { ErrorBoundary, crashEscape } from "../components/ErrorBoundary";
+import { ErrorBoundary, crashEscape, leaveCrashedScreen } from "../components/ErrorBoundary";
 
 describe("crash escape route", () => {
   it("leaves For You for Explore, including a blank hash", () => {
@@ -22,35 +21,39 @@ function Boom(): never {
 }
 
 describe("ErrorBoundary fallback", () => {
-  it("reloads Explore when For You is the screen that crashed", async () => {
-    window.location.hash = "#/for-you";
-    const reload = vi.fn();
-    vi.spyOn(window.location, "reload").mockImplementation(reload);
-
-    render(
-      <ErrorBoundary>
-        <Boom />
-      </ErrorBoundary>,
-    );
-
-    await userEvent.click(screen.getByRole("button", { name: /open explore/i }));
-    expect(window.location.hash).toBe("#/explore");
-    expect(reload).toHaveBeenCalledOnce();
+  beforeEach(() => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+  });
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
-  it("reloads For You when another screen crashed", async () => {
-    window.location.hash = "#/library";
-    const reload = vi.fn();
-    vi.spyOn(window.location, "reload").mockImplementation(reload);
+  it("labels the escape for the screen that crashed", () => {
+    window.location.hash = "#/for-you";
+    const { unmount } = render(
+      <ErrorBoundary>
+        <Boom />
+      </ErrorBoundary>,
+    );
+    expect(screen.getByRole("button", { name: /open explore/i })).toBeInTheDocument();
+    expect(screen.getByText(/Open Explore to keep going/)).toBeInTheDocument();
+    unmount();
 
+    window.location.hash = "#/library";
     render(
       <ErrorBoundary>
         <Boom />
       </ErrorBoundary>,
     );
+    expect(screen.getByRole("button", { name: /back to for you/i })).toBeInTheDocument();
+    expect(screen.getByText(/Go back to For You to keep going/)).toBeInTheDocument();
+  });
 
-    await userEvent.click(screen.getByRole("button", { name: /back to for you/i }));
-    expect(window.location.hash).toBe("#/for-you");
+  it("reloads the escape target", () => {
+    const reload = vi.fn();
+    const location = { hash: "#/for-you", reload };
+    leaveCrashedScreen(location.hash, location);
+    expect(location.hash).toBe("#/explore");
     expect(reload).toHaveBeenCalledOnce();
   });
 });

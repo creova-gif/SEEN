@@ -25,6 +25,12 @@ export function crashEscape(hash: string): { actionLabel: string; target: string
   };
 }
 
+export function leaveCrashedScreen(hash: string, location: { hash: string; reload: () => void }) {
+  const escape = crashEscape(hash);
+  location.hash = escape.target;
+  location.reload();
+}
+
 /**
  * Last line of defence: a render crash anywhere shows a recoverable SEEN
  * error state (with a reference id testers can quote) instead of a blank page.
@@ -51,10 +57,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, { errorId:
             title="Something broke on this screen"
             message={`Your saved stories and progress are safe. ${escape.continuation} Reference: ${this.state.errorId}`}
             actionLabel={escape.actionLabel}
-            onAction={() => {
-              window.location.hash = escape.target;
-              window.location.reload();
-            }}
+            onAction={() => leaveCrashedScreen(window.location.hash, window.location)}
           />
         </div>
       </div>
