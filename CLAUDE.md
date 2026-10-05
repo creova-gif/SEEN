@@ -1,5 +1,7 @@
 # SEEN Platform - Development Guide
 
+Current product audit, canonical decision, backlog and open founder decisions: [`docs/planning/SEEN_CURRENT_STATE_RECONCILIATION_REPORT.md`](docs/planning/SEEN_CURRENT_STATE_RECONCILIATION_REPORT.md). Index: [`docs/README.md`](docs/README.md).
+
 ## Project Overview
 
 **SEEN by CREOVA** is a React/TypeScript platform for interactive, multilingual story content with audio, video, and community features.
