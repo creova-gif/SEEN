@@ -53,21 +53,18 @@
       "command": "npm run audit:cmf"
     }
   },
-  "permissions": {
-    "default": "prompt",
-    "bash": {
-      "allowList": [
-        "git status",
-        "git add",
-        "git commit",
-        "git push",
-        "npm install",
-        "npm run",
-        "ls",
-        "find",
-        "grep",
-        "mkdir",
-        "cat"
+    "permissions": {
+    "allow": [
+      "Bash(git clone https://github.com/garrytan/gstack.git:*)",
+      "Bash(git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git:*)",
+      "Bash(cd ~/.claude/skills/gstack && ./setup:*)",
+      "Bash(~/.claude/skills/gstack/setup:*)",
+      "Bash(./setup:*)",
+      "Bash(git status:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run:*)"
       ]
     },
     "fileOperations": {
