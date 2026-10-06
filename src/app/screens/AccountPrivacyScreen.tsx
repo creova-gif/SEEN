@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Bell, Download, LogOut, ShieldCheck, Trash2, UserX } from "lucide-react";
+import { Bell, FileText, KeyRound, Download, LogOut, ShieldCheck, Trash2, UserX } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { api } from "../services";
 import { track } from "../observability";
@@ -156,6 +156,14 @@ export function AccountPrivacyScreen() {
             </ul>
           )}
         </ResourceView>
+      </section>
+
+      <section className="mb-10">
+        <SectionTitle title={t("account.security")} />
+        <div className="flex flex-col gap-3">
+          <ListItem icon={<KeyRound className="w-5 h-5" />} label={t("account.changePw")} description={t("account.changePw.d")} onClick={() => nav.go("change-password")} />
+          <ListItem icon={<FileText className="w-5 h-5" />} label={t("account.legal")} description={t("account.legal.d")} onClick={() => nav.go("legal")} />
+        </div>
       </section>
 
       <section className="mb-10">

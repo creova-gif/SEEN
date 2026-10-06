@@ -85,7 +85,7 @@ export function ProfileScreen({
   const user = {
     name: authState.user?.name || "Guest",
     email: authState.user?.email || "",
-    bio: "", // no bio-authoring feature exists yet — empty is honest, not "fake filled in"
+    bio: authState.user?.bio ?? "",
     joinDate: authState.user?.createdAt
       ? new Date(authState.user.createdAt).toLocaleDateString(undefined, { month: "long", year: "numeric" })
       : null,
@@ -119,6 +119,7 @@ export function ProfileScreen({
       };
     });
 
+  const nav = useAppNav();
   const myStories = authState.user ? listStoriesForCreator(authState.user.id) : [];
 
   return (
@@ -161,7 +162,7 @@ export function ProfileScreen({
             </div>
           </div>
 
-          {/* Bio — honest empty state; no bio-authoring feature exists yet */}
+          {/* Bio — written in Edit profile */}
           {user.bio ? (
             <p className="text-sm text-white/80 mb-4">{user.bio}</p>
           ) : (
@@ -170,7 +171,7 @@ export function ProfileScreen({
 
           {/* Edit Profile Button */}
           <button
-            onClick={onOpenSettings}
+            onClick={() => nav.go("edit-profile")}
             className="w-full py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm hover:bg-white/10 transition-colors flex items-center justify-center gap-2"
           >
             <User className="w-4 h-4" />

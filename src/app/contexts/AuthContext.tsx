@@ -357,6 +357,24 @@ function DemoAuthProvider({ children }: { children: ReactNode }) {
     recordElevationRequest(state.user, requestedRole, reason);
   };
 
+  const changePassword = async (currentPassword: string, newPassword: string) => {
+    await sleep(300);
+    if (!state.user) throw new Error('Not authenticated');
+    if (newPassword.length < 8) throw new Error('Password must be at least 8 characters.');
+    const usersDb = loadUsersDb();
+    const existing = usersDb[state.user.id];
+    if (!existing) throw new Error('User not found');
+    const key = existing.email.toLowerCase();
+    if (isRateLimited(key)) throw new Error(RATE_LIMITED_MESSAGE);
+    if (existing.passwordHash !== (await hashPassword(currentPassword))) {
+      recordFailure(key);
+      throw new Error('Your current password is not correct.');
+    }
+    clearFailures(key);
+    usersDb[existing.id] = { ...existing, passwordHash: await hashPassword(newPassword), updatedAt: new Date().toISOString() };
+    saveUsersDb(usersDb);
+  };
+
   const requestPasswordRecovery = async (email: string) => {
     await sleep(300);
     const usersDb = loadUsersDb();
@@ -424,6 +442,7 @@ function DemoAuthProvider({ children }: { children: ReactNode }) {
         requestRoleElevation,
         requestPasswordRecovery,
         resetPassword,
+        changePassword,
       }}
     >
       {children}

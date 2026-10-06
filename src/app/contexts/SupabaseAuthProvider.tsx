@@ -15,7 +15,7 @@ const empty: AuthState = { user: null, accessToken: null, isLoading: false, isAu
 
 async function loadUser(session: Session): Promise<User> {
   const client = await getSupabaseClient();
-  const { data } = await client.from("profiles").select("display_name, role, created_at").eq("id", session.user.id).maybeSingle();
+  const { data } = await client.from("profiles").select("display_name, role, created_at, bio").eq("id", session.user.id).maybeSingle();
   const meta = (session.user.user_metadata ?? {}) as Record<string, string | undefined>;
   return {
     id: session.user.id,
@@ -24,6 +24,7 @@ async function loadUser(session: Session): Promise<User> {
     role: (data?.role as UserRole) ?? "viewer",
     language: (meta.language as Language) ?? "en",
     intent: (meta.intent as UserIntent) ?? "explore",
+    bio: (data as { bio?: string | null } | null)?.bio ?? undefined,
     createdAt: data?.created_at ?? session.user.created_at,
   };
 }
@@ -98,14 +99,17 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
       if (!state.user) throw new Error("Not authenticated");
       const client = await getSupabaseClient();
       // Role, id and email are never changed from the client; display name goes to profiles, the rest to metadata.
-      if (updates.name !== undefined) {
-        const { error } = await client.from("profiles").update({ display_name: updates.name }).eq("id", state.user.id);
+      if (updates.name !== undefined || updates.bio !== undefined) {
+        const patch: Record<string, string> = {};
+        if (updates.name !== undefined) patch.display_name = updates.name;
+        if (updates.bio !== undefined) patch.bio = updates.bio;
+        const { error } = await client.from("profiles").update(patch).eq("id", state.user.id);
         if (error) throw friendly(error);
       }
       if (updates.language !== undefined || updates.intent !== undefined) {
         await client.auth.updateUser({ data: { language: updates.language ?? state.user.language, intent: updates.intent ?? state.user.intent } });
       }
-      setState(prev => (prev.user ? { ...prev, user: { ...prev.user, name: updates.name ?? prev.user.name, language: updates.language ?? prev.user.language, intent: updates.intent ?? prev.user.intent } } : prev));
+      setState(prev => (prev.user ? { ...prev, user: { ...prev.user, name: updates.name ?? prev.user.name, bio: updates.bio ?? prev.user.bio, language: updates.language ?? prev.user.language, intent: updates.intent ?? prev.user.intent } } : prev));
     },
     async requestRoleElevation() {
       throw new Error("Role requests aren't available yet. Ask an admin.");
@@ -115,6 +119,15 @@ export function SupabaseAuthProvider({ children }: { children: ReactNode }) {
       // The same result whether or not the account exists.
       await client.auth.resetPasswordForEmail(email.trim(), { redirectTo: window.location.origin + "/#/reset-password/recovery" });
       return {};
+    },
+    async changePassword(currentPassword, newPassword) {
+      if (!state.user) throw new Error("Not authenticated");
+      if (newPassword.length < 8) throw new Error("Password must be at least 8 characters.");
+      const client = await getSupabaseClient();
+      const check = await client.auth.signInWithPassword({ email: state.user.email, password: currentPassword });
+      if (check.error) throw new Error("Your current password is not correct.");
+      const { error } = await client.auth.updateUser({ password: newPassword });
+      if (error) throw friendly(error);
     },
     async resetPassword(_token, newPassword) {
       if (newPassword.length < 8) throw new Error("Password must be at least 8 characters.");

@@ -6,6 +6,9 @@ import { pushNotification } from "../services";
 import { deleteBookmark, isBookmarked, saveBookmark } from "../data/userDataService";
 import { toast } from "sonner";
 import { ExpandedPlayer } from "./seen/MediaPlayerBar";
+import { CaptionBar, PlayerAlert, ReaderTools, StoryCompletion, TranscriptSheet } from "./StoryReaderExtras";
+import { useAppNav } from "../navigation/AppNav";
+import { useT } from "../i18n/useT";
 import { SeenImage } from "./seen/SeenImage";
 import { useStoryState } from "../contexts/StoryStateContext";
 import { useAuth } from "../contexts/AuthContext";
@@ -35,7 +38,8 @@ export function StoryChapterScreen({
   onShowIndex,
   storyWorldId = 'midnight-resonance'
 }: StoryChapterScreenProps) {
-  const { state, navigateToChapter, updateAudioState, saveProgress, setLanguage, recordBranchChoice } = useStoryState();
+  const { state, navigateToChapter, updateAudioState, saveProgress, setLanguage, recordBranchChoice, setAccessibilityPreferences } = useStoryState();
+  const nav = useAppNav();
   const { state: authState } = useAuth();
   const chapters = getChaptersForStory(storyWorldId);
   const storyWorld = getStoryWorldById(storyWorldId);
@@ -90,7 +94,7 @@ export function StoryChapterScreen({
   // Shared playback engine: keeps narrating if the reader is left, and falls
   // back to the device voice when no recorded narration exists.
   const playback = usePlayback();
-  useEffect(() => {
+  const loadChapter = () =>
     playback.load({
       storyId: storyWorldId,
       chapterId: currentChapter.id,
@@ -101,7 +105,27 @@ export function StoryChapterScreen({
       lang: state.language,
       coverImage: storyWorld?.coverImage,
     });
+  useEffect(() => {
+    loadChapter();
   }, [currentChapter.id, state.language]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const t = useT();
+  const [transcriptOpen, setTranscriptOpen] = useState(false);
+  const [completionOpen, setCompletionOpen] = useState(false);
+  const [completionSeen, setCompletionSeen] = useState(false);
+  const chapterText = getLocalizedText(currentChapter.text, state.language);
+  const captionsOn = state.accessibilityPreferences.captionsEnabled;
+  const onLastChapter = chapters.findIndex(ch => ch.id === currentChapter.id) === chapters.length - 1;
+  // Reaching the end of the last chapter completes the story (once per visit to that chapter).
+  useEffect(() => {
+    setCompletionSeen(false);
+  }, [currentChapter.id]);
+  useEffect(() => {
+    if (onLastChapter && playback.status === "ended" && !completionSeen) {
+      setCompletionOpen(true);
+      setCompletionSeen(true);
+    }
+  }, [onLastChapter, playback.status, completionSeen]);
 
   useEffect(() => {
     updateAudioState({ isPlaying: playback.status === "playing", playbackPosition: playback.elapsed });
@@ -387,6 +411,20 @@ export function StoryChapterScreen({
         </div>
       </div>
 
+      <TranscriptSheet open={transcriptOpen} onOpenChange={setTranscriptOpen} chapterTitle={getLocalizedText(currentChapter.title, state.language)} text={chapterText} />
+
+      {completionOpen && storyWorld && (
+        <StoryCompletion
+          story={storyWorld}
+          language={state.language}
+          minutes={chapters.reduce((n, c) => n + (c.estimatedDuration || 0), 0)}
+          chapterCount={chapters.length}
+          onReflect={() => { setCompletionOpen(false); setShowSubmitResponse(true); }}
+          onKeepReading={() => setCompletionOpen(false)}
+          onLibrary={() => { setCompletionOpen(false); nav.go("library"); }}
+        />
+      )}
+
       {/* Context Card Modal */}
       {selectedContextCardIndex !== null && contextCards[selectedContextCardIndex] && (
         <ContextCardModal
@@ -427,8 +465,20 @@ export function StoryChapterScreen({
       {/* Bottom controls */}
       <div className="relative z-20 flex-shrink-0 bg-black/90 backdrop-blur-xl border-t border-white/5">
         <div className="max-w-[428px] mx-auto px-5 pt-4 pb-5 space-y-3">
+          <PlayerAlert status={playback.status} onRetry={loadChapter} />
+          <CaptionBar text={chapterText} progress={playback.progress} show={captionsOn && playback.source === "voice" && (playback.status === "playing" || playback.status === "paused")} />
+          {captionsOn && playback.source === "recording" && <p className="text-xs text-seen-muted text-center">{t("reader.captions.voiceOnly")}</p>}
+
           {/* Audio player */}
           <ExpandedPlayer compact />
+
+          <div className="flex justify-center">
+            <ReaderTools
+              captionsOn={captionsOn}
+              onToggleCaptions={() => setAccessibilityPreferences({ captionsEnabled: !captionsOn })}
+              onOpenTranscript={() => setTranscriptOpen(true)}
+            />
+          </div>
 
           {/* Chapter navigation */}
           <div className="flex items-center justify-between pt-2">
@@ -448,8 +498,7 @@ export function StoryChapterScreen({
             </button>
 
             <button
-              onClick={() => navigateChapter('next')}
-              disabled={!canGoNext}
+              onClick={() => (canGoNext ? navigateChapter('next') : setCompletionOpen(true))}
               className={`
                 flex items-center gap-2 px-4 py-2 rounded-full transition-all
                 ${canGoNext 
@@ -458,7 +507,7 @@ export function StoryChapterScreen({
                 }
               `}
             >
-              <span className="text-xs tracking-wider uppercase">Next</span>
+              <span className="text-xs tracking-wider uppercase">{canGoNext ? "Next" : t("reader.finish")}</span>
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>

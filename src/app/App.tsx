@@ -23,6 +23,9 @@ import { OpportunityDetailScreen } from "./screens/OpportunityDetailScreen";
 import { NotificationsScreen } from "./screens/NotificationsScreen";
 import { AccountPrivacyScreen } from "./screens/AccountPrivacyScreen";
 import { NotesScreen } from "./screens/NotesScreen";
+import { EditProfileScreen } from "./screens/EditProfileScreen";
+import { ChangePasswordScreen } from "./screens/ChangePasswordScreen";
+import { LegalScreen } from "./screens/LegalScreen";
 import { ResetPasswordScreen } from "./screens/ResetPasswordScreen";
 import { ScreenFrame } from "./screens/ScreenFrame";
 import { SkeletonList, StateTemplate } from "./components/seen/primitives";
@@ -335,6 +338,9 @@ function AppContent() {
           {currentScreen === "settings" && <ProfilePreferencesScreen key="settings" onBack={back} />}
           {currentScreen === "account" && <AccountPrivacyScreen key="account" />}
           {allowed && currentScreen === "notes" && <NotesScreen key="notes" />}
+          {currentScreen === "edit-profile" && <EditProfileScreen key="edit-profile" />}
+          {currentScreen === "change-password" && <ChangePasswordScreen key="change-password" />}
+          {currentScreen === "legal" && <LegalScreen key="legal" />}
           {currentScreen === "reset-password" && route.params.id && <ResetPasswordScreen key="reset-password" token={route.params.id} />}
 
           {currentScreen === "creator-publish" && (

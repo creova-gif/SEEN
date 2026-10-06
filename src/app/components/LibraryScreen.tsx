@@ -6,6 +6,7 @@
  * NO default or promotional content - empty states only
  */
 
+import { FollowingPanel, SavedCollectionsPanel, useLibraryCounts } from "./LibraryPanels";
 import { DemoModeNotice } from "./DemoModeNotice";
 import { PageTitle } from "./seen/primitives";
 import { motion } from "motion/react";
@@ -15,7 +16,7 @@ import { CircularProgress } from "./seen/display";
 import { toast } from "sonner";
 import { ContentCard } from "./ContentCard";
 import { EmptyState } from "./EmptyState";
-import { Play, Bookmark, Check, Trash2, Home, Compass, Library, User } from "lucide-react";
+import { Play, Bookmark, Check, Trash2, Users, Folder, Home, Compass, Library, User } from "lucide-react";
 import { useStoryState } from "../contexts/StoryStateContext";
 import { getLibraryStories } from "../data/storyService";
 import { getStoryWorldById, type Language } from "../data/storyDatabase";
@@ -28,7 +29,7 @@ interface LibraryScreenProps {
   onSearch?: () => void;
 }
 
-type LibraryTab = 'inProgress' | 'completed' | 'saved';
+type LibraryTab = 'inProgress' | 'completed' | 'saved' | 'following' | 'collections';
 
 /**
  * LIBRARY SECTION - USER-OWNED CONTENT ONLY
@@ -45,6 +46,7 @@ export function LibraryScreen({
   onSearch
 }: LibraryScreenProps) {
   const [activeTab, setActiveTab] = useState<LibraryTab>('inProgress');
+  const counts = useLibraryCounts();
   const { state, removeProgress } = useStoryState();
   // Only bookmarks that resolve to a real story (older demo data used placeholder ids).
   const savedIds = getSavedIds().filter(id => getStoryWorldById(id));
@@ -172,7 +174,45 @@ export function LibraryScreen({
               <span className="text-sm text-white/55 font-light tracking-wide">Saved {savedIds.length === 1 ? 'story' : 'stories'}</span>
             </div>
           </div>
+          {/* Following */}
+          <div
+            onClick={() => setActiveTab('following')}
+            role="button"
+            tabIndex={0}
+            aria-pressed={activeTab === 'following'}
+            onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), setActiveTab('following'))}
+            className={`flex items-center gap-4 min-h-11 pl-3 border-l-2 cursor-pointer transition-colors duration-300 ${
+              activeTab === 'following' ? 'border-white' : 'border-transparent hover:border-white/30'
+            }`}
+          >
+            <Users className="w-5 h-5 text-sky-200/70" aria-hidden />
+            <div className="flex items-baseline gap-2">
+              <span className="text-2xl font-light text-white/90 tabular-nums">{counts.data?.following ?? '–'}</span>
+              <span className="text-sm text-white/55 font-light tracking-wide">Following</span>
+            </div>
+          </div>
+
+          {/* Collections */}
+          <div
+            onClick={() => setActiveTab('collections')}
+            role="button"
+            tabIndex={0}
+            aria-pressed={activeTab === 'collections'}
+            onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), setActiveTab('collections'))}
+            className={`flex items-center gap-4 min-h-11 pl-3 border-l-2 cursor-pointer transition-colors duration-300 ${
+              activeTab === 'collections' ? 'border-white' : 'border-transparent hover:border-white/30'
+            }`}
+          >
+            <Folder className="w-5 h-5 text-orange-200/70" aria-hidden />
+            <div className="flex items-baseline gap-2">
+              <span className="text-2xl font-light text-white/90 tabular-nums">{counts.data?.collections ?? '–'}</span>
+              <span className="text-sm text-white/55 font-light tracking-wide">Saved {counts.data?.collections === 1 ? 'collection' : 'collections'}</span>
+            </div>
+          </div>
         </motion.div>
+
+        {activeTab === 'following' && <FollowingPanel onChanged={counts.retry} />}
+        {activeTab === 'collections' && <SavedCollectionsPanel />}
 
         {/* Saved Tab */}
         {activeTab === 'saved' && (

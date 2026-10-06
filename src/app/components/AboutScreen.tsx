@@ -1,6 +1,7 @@
 import { motion } from "motion/react";
 import { ArrowLeft, Heart, Globe, Users, Shield } from "lucide-react";
 import { useStoryState } from "../contexts/StoryStateContext";
+import { useAppNav } from "../navigation/AppNav";
 
 interface AboutScreenProps {
   onClose: () => void;
@@ -8,6 +9,7 @@ interface AboutScreenProps {
 
 export function AboutScreen({ onClose }: AboutScreenProps) {
   const { state } = useStoryState();
+  const nav = useAppNav();
 
   const getText = (key: string, type: 'title' | 'body') => {
     const content: Record<string, Record<string, { title: string; body: string }>> = {
@@ -254,7 +256,7 @@ export function AboutScreen({ onClose }: AboutScreenProps) {
             className="pt-12 pb-8 text-center"
           >
             <p className="text-xs text-white/55 mb-2">SEEN v1.0.0</p>
-            <p className="text-xs text-white/55">Privacy policy and terms of use are published before public launch.</p>
+            <button type="button" onClick={() => nav.go("legal")} className="min-h-11 px-3 text-xs text-white/70 underline underline-offset-2 hover:text-white">Terms &amp; privacy (draft)</button>
             <p className="text-xs text-white/55 leading-relaxed max-w-[300px] mx-auto">
               {state.language === 'en' 
                 ? 'Made with care for cultural workers, storytellers, and communities who believe in narrative as resistance.'

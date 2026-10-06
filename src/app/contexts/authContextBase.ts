@@ -8,6 +8,8 @@ export interface User {
   role: UserRole;
   language: Language;
   intent: UserIntent;
+  /** Up to 280 characters, written by the person in Edit profile. */
+  bio?: string;
   passwordHash?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -33,6 +35,8 @@ export interface AuthContextType {
   requestPasswordRecovery: (email: string) => Promise<{ resetToken?: string }>;
   /** Sets a new password from a reset token. Rejects with a readable message when the token is invalid or expired. */
   resetPassword: (token: string, newPassword: string) => Promise<void>;
+  /** Verifies the current password, then sets a new one. Rejects with a readable message. */
+  changePassword: (currentPassword: string, newPassword: string) => Promise<void>;
   /** Present only when Google sign-in is configured (Supabase backend). Redirects away to Google. */
   signInWithGoogle?: () => Promise<void>;
 }

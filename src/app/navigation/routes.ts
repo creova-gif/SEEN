@@ -27,6 +27,9 @@ export const SCREENS = [
   "about",
   "settings",
   "account",
+  "edit-profile",
+  "change-password",
+  "legal",
   "notes",
   "reset-password",
   "creator-publish",
@@ -95,4 +98,4 @@ export function fromHash(hash: string): { screen: AppScreen; params: RouteParams
 export const NOT_DEEP_LINKABLE: AppScreen[] = ["onboarding", "story-chapter", "chapter-index"];
 
 /** Screens a signed-out visitor may open directly (the reset link from an email). */
-export const PUBLIC_SCREENS: AppScreen[] = ["reset-password"];
+export const PUBLIC_SCREENS: AppScreen[] = ["reset-password", "legal"];

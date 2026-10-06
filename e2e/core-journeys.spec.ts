@@ -413,3 +413,86 @@ test.describe("search: landing, filters, zero results", () => {
     await expect(recents).toBeHidden();
   });
 });
+
+test.describe("reader: transcript, captions, completion", () => {
+  test.beforeEach(async ({ page }) => { await signInAs(page, "viewer"); });
+
+  test("transcript shows the chapter text; captions toggle; finishing the last chapter shows completion", async ({ page }) => {
+    await page.goto("/#/story/midnight-resonance");
+    await page.getByRole("button", { name: /enter story/i }).click();
+    await page.getByRole("button", { name: /^transcript$/i }).click();
+    const dialog = page.getByRole("dialog", { name: /transcript/i });
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByText(/timed captions are not available yet/i)).toBeVisible();
+    await page.keyboard.press("Escape");
+    const cc = page.getByRole("button", { name: /^captions$/i });
+    await expect(cc).toHaveAttribute("aria-pressed", "false");
+    await cc.click();
+    await expect(cc).toHaveAttribute("aria-pressed", "true");
+    // walk to the last chapter, then Finish
+    for (let i = 0; i < 6; i++) {
+      const next = page.getByRole("button", { name: /^(next|finish)$/i });
+      if (/finish/i.test((await next.innerText()).trim())) break;
+      await next.click();
+      await page.waitForTimeout(700);
+    }
+    await page.getByRole("button", { name: /^finish$/i }).click();
+    const done = page.getByRole("dialog", { name: /you finished/i });
+    await expect(done).toBeVisible();
+    await expect(done.getByRole("button", { name: /share a reflection/i })).toBeVisible();
+    await done.getByRole("button", { name: /keep reading/i }).click();
+    await expect(done).toBeHidden();
+  });
+});
+
+test.describe("library: following and collections tabs", () => {
+  test.beforeEach(async ({ page }) => { await signInAs(page, "viewer"); });
+
+  test("followed creators appear in Library and can be unfollowed", async ({ page }) => {
+    await page.goto("/#/creator/kira-chen");
+    await page.getByRole("button", { name: /^follow$/i }).click();
+    await page.goto("/#/library");
+    await page.getByRole("button", { name: /following/i }).first().click();
+    const row = page.getByRole("button", { name: /open kira chen/i });
+    await expect(row).toBeVisible();
+    await page.getByRole("button", { name: /unfollow kira chen/i }).click();
+    await expect(page.getByText(/not following anyone yet/i)).toBeVisible();
+  });
+
+  test("saved collections appear in Library", async ({ page }) => {
+    await page.goto("/#/library");
+    await page.getByRole("button", { name: /saved collections?$/i }).click();
+    await expect(page.getByText(/no saved collections/i)).toBeVisible();
+    await page.getByRole("button", { name: /browse collections/i }).click();
+    await expect(page).toHaveURL(/#\/explore\/collections/);
+  });
+});
+
+test.describe("profile: edit, password, legal", () => {
+  test("edit profile saves name and bio; legal opens signed out", async ({ page }) => {
+    await signInAs(page, "viewer");
+    await page.goto("/#/edit-profile");
+    await expect(page.getByRole("heading", { name: /edit profile/i })).toBeVisible();
+    await page.getByLabel(/display name/i).fill("Ada Reader");
+    await page.locator("#edit-bio").fill("I read at night.");
+    await page.getByRole("button", { name: /save changes/i }).click();
+    await page.goto("/#/edit-profile");
+    await expect(page.getByLabel(/display name/i)).toHaveValue("Ada Reader");
+    await expect(page.locator("#edit-bio")).toHaveValue("I read at night.");
+  });
+
+  test("change password screen renders and blocks mismatched confirm", async ({ page }) => {
+    await signInAs(page, "viewer");
+    await page.goto("/#/change-password");
+    await page.getByLabel(/^current password/i).fill("whatever1A");
+    await page.getByLabel(/^new password/i).fill("Str0ngPass!word");
+    await page.getByLabel(/confirm new password/i).fill("different");
+    await expect(page.getByText(/passwords don't match/i)).toBeVisible();
+    await expect(page.getByRole("button", { name: /update password/i })).toBeDisabled();
+  });
+
+  test("legal screen is public", async ({ page }) => {
+    await page.goto("/#/legal");
+    await expect(page.getByRole("heading", { name: /terms/i }).first()).toBeVisible();
+  });
+});
