@@ -8,8 +8,8 @@ Rule: Vercel is the foundation. A frame is IMPLEMENTED only when it exists in th
 
 | Status | Frames |
 |---|---|
-| IMPLEMENTED | 75 |
-| PARTIAL | 9 |
+| IMPLEMENTED | 83 |
+| PARTIAL | 1 |
 | MISSING | 0 |
 | STATE | 35 |
 | RESPONSIVE_VARIANT | 7 |
@@ -23,15 +23,7 @@ Rule: Vercel is the foundation. A frame is IMPLEMENTED only when it exists in th
 
 | Figma screen | Node | Route | Code component | Status | Functional? | Matches Vercel UX? | Action / reason |
 |---|---|---|---|---|---|---|---|
-| CREATOR / Dashboard · Overview / Mobile | 332:2 | #/profile creator tools, #/creator-publish | ProfileScreen creator section | PARTIAL | yes | yes | Add creator overview card (stories, notes, earnings links) |
-| FUNDING / Application · Eligibility Check / Mobile | 336:2 | #/opportunity/:id | OpportunityDetailScreen eligibility list | PARTIAL | yes | yes | Add eligibility checklist the user confirms |
-| FUNDING / Application · Review & Submit / Mobile | 336:97 | #/opportunity/:id | OpportunityDetailScreen 'Mark as applied' | PARTIAL | yes | yes | Submission happens on the funder's site; SEEN records 'marked submitted by me' |
-| FUNDING / Application · Submitted / Mobile | 336:129 | #/opportunity/:id | ApplicationStatus 'applied' | PARTIAL | yes | yes | Label as 'Submitted (marked by you)' |
-| FUNDING / Application · Workspace / Mobile | 336:34 | #/opportunity/:id | OpportunityDetailScreen checklist + saved/in-progress/applied | PARTIAL | yes | yes | Add notes and the 'tracked by you' status control |
-| INSTITUTIONS / Public Profile / Mobile | 340:2 | #/collections (institutional) | CollectionsScreen institutional kind | PARTIAL | yes | yes | Institutional collections exist; a partner workspace needs signed partners (D-12) |
-| STORY / Soft Branching / Perspective Shift / Mobile | 397:20 | story-chapter | BranchingChoiceOverlay (branch choices) | PARTIAL | yes | yes | Perspective-shift styling handled by the same overlay; verify copy |
-| institutional-collection | 7:1053 | - | Institutional collection detail exists (CollectionDetailScreen); management is excluded (D-12) | PARTIAL | - | - | Legacy single-screen frame |
-| share-sheet | 68:250 | - | Share uses the system share sheet or copies the link (FeaturedStoryPreview, StoryChapterScreen); a custom sheet is not needed | PARTIAL | - | - | Legacy single-screen frame |
+| INSTITUTIONS / Public Profile / Mobile | 340:2 | #/collection/:id (institutional) | CollectionDetailScreen | PARTIAL | yes | yes | Institutional collections show curator, description and stories. There is no institution entity or profile page; that needs signed partners (D-12). |
 | 03-11 — Context Card Modal | 103:159 | - | - | DUPLICATE | - | - | Same screen (canonical: 329:2 STORY / Context Card Modal / Mobile) |
 | 06-20 — Collaboration Management | 103:7 | - | - | EXCLUDED | - | - | Needs server accounts (collaboration) |
 | 06-21 — Contributor Profile | 103:90 | - | - | EXCLUDED | - | - | Needs collaboration accounts |
@@ -67,6 +59,7 @@ Rule: Vercel is the foundation. A frame is IMPLEMENTED only when it exists in th
 | Button | 248:82 | - | seen/primitives Button | COMPONENT | yes | yes | Design-system component, not a screen |
 | CREATOR / Become a Creator · Intro / Mobile | 407:2 | #/profile (Share Your Story card) -> creator-publish | ProfileScreen | IMPLEMENTED | yes | yes |  |
 | CREATOR / Creator Milestones / Concept · Mobile | 351:36 | - | - | EXCLUDED | - | - | Concept frame: exploratory feature labelled Concept in Figma, no product decision |
+| CREATOR / Dashboard · Overview / Mobile | 332:2 | #/profile (creator section) | ProfileScreen creator card | IMPLEMENTED | yes | yes | Published and Drafts counts plus Your stories, Notes, New story and Analytics links. |
 | CREATOR / Invite Collaborator · Sheet / Mobile | 407:29 | - | - | EXCLUDED | - | - | Collaboration needs accounts on a server (invites, permissions); waits on the Supabase backend |
 | CREATOR / Publish · Failed / Mobile | 334:60 | #/creator-publish | PreviewPublishStep error | STATE | yes | yes | State of publish |
 | CREATOR / Publish · In Review / Mobile | 334:46 | - | - | EXCLUDED | - | - | Stories publish immediately; there is no pre-publication review pipeline to represent. Revisit with moderation policy owner |
@@ -97,9 +90,13 @@ Rule: Vercel is the foundation. A frame is IMPLEMENTED only when it exists in th
 | DISCOVERY / — PAGE NOTES | 322:161 | - | - | NOTE | - | - | Design notes / prototype wiring, not a screen |
 | FUNDING / Application · Approved / Mobile | 337:81 | #/opportunity/:id | OpportunityDetailScreen outcome selector | STATE | yes | yes | Approved is a user-recorded outcome labelled "tracked by you"; SEEN receives no funder decisions, so no separate screen. |
 | FUNDING / Application · Declined / Mobile | 337:110 | #/opportunity/:id | OpportunityDetailScreen outcome selector | STATE | yes | yes | Declined is a user-recorded outcome labelled "tracked by you"; SEEN receives no funder decisions, so no separate screen. |
+| FUNDING / Application · Eligibility Check / Mobile | 336:2 | #/opportunity/:id | OpportunityDetailScreen eligibility self-check | IMPLEMENTED | yes | yes | Yes / Not sure / No per listed criterion; result copy is guidance, 'the funder decides'. |
 | FUNDING / Application · Info Requested / Mobile | 337:54 | #/opportunity/:id | OpportunityDetailScreen outcome selector | STATE | yes | yes | Info Requested is a user-recorded outcome labelled "tracked by you"; SEEN receives no funder decisions, so no separate screen. |
+| FUNDING / Application · Review & Submit / Mobile | 336:97 | #/opportunity/:id | OpportunityDetailScreen 'Mark as applied' | IMPLEMENTED | yes | yes | Submission happens on the funder's site by design; SEEN records 'marked applied by you'. |
 | FUNDING / Application · Shortlisted / Mobile | 337:27 | #/opportunity/:id | OpportunityDetailScreen outcome selector | STATE | yes | yes | Shortlisted is a user-recorded outcome labelled "tracked by you"; SEEN receives no funder decisions, so no separate screen. |
+| FUNDING / Application · Submitted / Mobile | 336:129 | #/opportunity/:id | OpportunityDetailScreen applied state | IMPLEMENTED | yes | yes | Shown as 'Marked as applied', followed by the outcome selector; no funder confirmation is claimed. |
 | FUNDING / Application · Under Review / Mobile | 337:2 | #/opportunity/:id | OpportunityDetailScreen outcome selector | STATE | yes | yes | Under Review is a user-recorded outcome labelled "tracked by you"; SEEN receives no funder decisions, so no separate screen. |
+| FUNDING / Application · Workspace / Mobile | 336:34 | #/opportunity/:id | OpportunityDetailScreen checklist, notes, status | IMPLEMENTED | yes | yes | Checklist, private notes (1000 chars) and tracked status; stored with the application. |
 | FUNDING / CMF Eligibility Checker · Step 2 / Mobile | 408:2 | - | - | EXCLUDED | - | - | Programme-specific eligibility wizard needs the funder's rules; the generic checklist covers it. No invented eligibility logic |
 | FUNDING / Funding Dashboard / Mobile | 337:139 | #/funding (My tracker) | FundingScreen tracker summary tiles | IMPLEMENTED | yes | yes | Tracked, Applied, Next deadline, Outcomes noted. Status filter chips not added. |
 | FUNDING / Funding Readiness Profile / Mobile | 335:119 | #/funding-readiness | FundingReadinessScreen | IMPLEMENTED | yes | yes | Self-ticked checklist, no score or verdict; stored on device. |
@@ -184,6 +181,7 @@ Rule: Vercel is the foundation. A frame is IMPLEMENTED only when it exists in th
 | STORY / Share Reflection · Keyboard Active / Mobile | 421:2 | modal | SubmitResponseModal | STATE | yes | yes | Keyboard state |
 | STORY / Side-by-Side Translation / Concept · Mobile | 350:81 | - | - | EXCLUDED | - | - | Concept frame: exploratory feature labelled Concept in Figma, no product decision |
 | STORY / Smart Queue / Concept · Mobile | 350:107 | - | - | EXCLUDED | - | - | Concept frame: exploratory feature labelled Concept in Figma, no product decision |
+| STORY / Soft Branching / Perspective Shift / Mobile | 397:20 | story-chapter | BranchingChoiceOverlay | IMPLEMENTED | yes | yes | Same overlay; non-outcome branches use 'Share your perspective' heading (EN/FR/ES), outcome branches 'Your choice matters'. |
 | STORY / Story Completion / Default / Mobile | 329:16 | story-chapter end | StoryCompletion | IMPLEMENTED | yes | yes | Finish button on last chapter; real counts and related stories. |
 | STORY / Story World / Default / Mobile | 323:2 | #/story/:id | FeaturedStoryPreview | IMPLEMENTED | yes | yes |  |
 | STORY / Transcript / Default / Mobile | 324:72 | story-chapter screen | TranscriptSheet | IMPLEMENTED | yes | yes | Chapter text paragraphs; no timestamps. |
@@ -302,6 +300,7 @@ Rule: Vercel is the foundation. A frame is IMPLEMENTED only when it exists in th
 | guest-explore | 10:444 | - | - | EXCLUDED | - | - | Guest browsing without an account is not in the current onboarding-gated flow; return-route support exists (safeReturn) for when it is |
 | guest-signup-prompt | 68:715 | - | - | EXCLUDED | - | - | No guest mode |
 | home-french | 29:719 | - | - | RESPONSIVE_VARIANT | - | - | French language variant (locale), strings in i18n and per-screen COPY (canonical: 316:2 DISCOVERY / For You / Default / Mobile) |
+| institutional-collection | 7:1053 | - | Institutional collection detail is CollectionDetailScreen (badge, curator, stories, save); management is excluded (D-12) | IMPLEMENTED | yes | yes | Legacy single-screen frame |
 | language-selection | 7:11 | - | - | DUPLICATE | - | - | Same screen (canonical: 310:14 ONBOARDING / Language Selection / Default / Mobile) |
 | language-switcher | 10:112 | - | LanguageSwitcher + #/settings language group | IMPLEMENTED | yes | yes | Legacy single-screen frame |
 | library-empty | 101:131 | - | - | DUPLICATE | - | - | Same state (canonical: 331:2 LIBRARY / Empty · New User / Mobile) |
@@ -350,6 +349,7 @@ Rule: Vercel is the foundation. A frame is IMPLEMENTED only when it exists in th
 | search-results | 99:7 | - | - | DUPLICATE | - | - | Same screen (canonical: 322:39 DISCOVERY / Search · Results / Mobile) |
 | search-screen | 20:76 | - | - | DUPLICATE | - | - | Same screen (canonical: 322:2 DISCOVERY / Search · Landing / Mobile) |
 | session-expired | 91:593 | - | - | DUPLICATE | - | - | Same state (canonical: 314:80 ONBOARDING / Session Expired / Default / Mobile) |
+| share-sheet | 68:250 | - | Share uses the system share sheet or copies the link; a custom sheet is intentionally not built | IMPLEMENTED | yes | yes | Legacy single-screen frame |
 | sign-in | 7:165 | - | - | DUPLICATE | - | - | Same screen (canonical: 312:74 ONBOARDING / Sign In / Default / Mobile) |
 | sign-up | 7:126 | - | - | DUPLICATE | - | - | Same screen (canonical: 312:47 ONBOARDING / Sign Up / Default / Mobile) |
 | signin-error | 68:517 | - | AccountStep error text | STATE | yes | yes | Legacy single-screen frame |

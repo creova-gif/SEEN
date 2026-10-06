@@ -872,12 +872,12 @@
  {
   "id": "397:20",
   "name": "STORY / Soft Branching / Perspective Shift / Mobile",
-  "status": "PARTIAL",
+  "status": "IMPLEMENTED",
   "route": "story-chapter",
-  "component": "BranchingChoiceOverlay (branch choices)",
+  "component": "BranchingChoiceOverlay",
   "functional": "yes",
   "vercel": "yes",
-  "note": "Perspective-shift styling handled by the same overlay; verify copy"
+  "note": "Same overlay; non-outcome branches use 'Share your perspective' heading (EN/FR/ES), outcome branches 'Your choice matters'."
  },
  {
   "id": "398:2",
@@ -1022,12 +1022,12 @@
  {
   "id": "332:2",
   "name": "CREATOR / Dashboard · Overview / Mobile",
-  "status": "PARTIAL",
-  "route": "#/profile creator tools, #/creator-publish",
-  "component": "ProfileScreen creator section",
+  "status": "IMPLEMENTED",
+  "route": "#/profile (creator section)",
+  "component": "ProfileScreen creator card",
   "functional": "yes",
   "vercel": "yes",
-  "note": "Add creator overview card (stories, notes, earnings links)"
+  "note": "Published and Drafts counts plus Your stories, Notes, New story and Analytics links."
  },
  {
   "id": "332:67",
@@ -1232,42 +1232,42 @@
  {
   "id": "336:2",
   "name": "FUNDING / Application · Eligibility Check / Mobile",
-  "status": "PARTIAL",
+  "status": "IMPLEMENTED",
   "route": "#/opportunity/:id",
-  "component": "OpportunityDetailScreen eligibility list",
+  "component": "OpportunityDetailScreen eligibility self-check",
   "functional": "yes",
   "vercel": "yes",
-  "note": "Add eligibility checklist the user confirms"
+  "note": "Yes / Not sure / No per listed criterion; result copy is guidance, 'the funder decides'."
  },
  {
   "id": "336:34",
   "name": "FUNDING / Application · Workspace / Mobile",
-  "status": "PARTIAL",
+  "status": "IMPLEMENTED",
   "route": "#/opportunity/:id",
-  "component": "OpportunityDetailScreen checklist + saved/in-progress/applied",
+  "component": "OpportunityDetailScreen checklist, notes, status",
   "functional": "yes",
   "vercel": "yes",
-  "note": "Add notes and the 'tracked by you' status control"
+  "note": "Checklist, private notes (1000 chars) and tracked status; stored with the application."
  },
  {
   "id": "336:97",
   "name": "FUNDING / Application · Review & Submit / Mobile",
-  "status": "PARTIAL",
+  "status": "IMPLEMENTED",
   "route": "#/opportunity/:id",
   "component": "OpportunityDetailScreen 'Mark as applied'",
   "functional": "yes",
   "vercel": "yes",
-  "note": "Submission happens on the funder's site; SEEN records 'marked submitted by me'"
+  "note": "Submission happens on the funder's site by design; SEEN records 'marked applied by you'."
  },
  {
   "id": "336:129",
   "name": "FUNDING / Application · Submitted / Mobile",
-  "status": "PARTIAL",
+  "status": "IMPLEMENTED",
   "route": "#/opportunity/:id",
-  "component": "ApplicationStatus 'applied'",
+  "component": "OpportunityDetailScreen applied state",
   "functional": "yes",
   "vercel": "yes",
-  "note": "Label as 'Submitted (marked by you)'"
+  "note": "Shown as 'Marked as applied', followed by the outcome selector; no funder confirmation is claimed."
  },
  {
   "id": "337:2",
@@ -1463,11 +1463,11 @@
   "id": "340:2",
   "name": "INSTITUTIONS / Public Profile / Mobile",
   "status": "PARTIAL",
-  "route": "#/collections (institutional)",
-  "component": "CollectionsScreen institutional kind",
+  "route": "#/collection/:id (institutional)",
+  "component": "CollectionDetailScreen",
   "functional": "yes",
   "vercel": "yes",
-  "note": "Institutional collections exist; a partner workspace needs signed partners (D-12)"
+  "note": "Institutional collections show curator, description and stories. There is no institution entity or profile page; that needs signed partners (D-12)."
  },
  {
   "id": "340:50",
@@ -2732,11 +2732,11 @@
  {
   "id": "7:1053",
   "name": "institutional-collection",
-  "status": "PARTIAL",
+  "status": "IMPLEMENTED",
   "route": "-",
-  "component": "Institutional collection detail exists (CollectionDetailScreen); management is excluded (D-12)",
-  "functional": "-",
-  "vercel": "-",
+  "component": "Institutional collection detail is CollectionDetailScreen (badge, curator, stories, save); management is excluded (D-12)",
+  "functional": "yes",
+  "vercel": "yes",
   "note": "Legacy single-screen frame"
  },
  {
@@ -2962,11 +2962,11 @@
  {
   "id": "68:250",
   "name": "share-sheet",
-  "status": "PARTIAL",
+  "status": "IMPLEMENTED",
   "route": "-",
-  "component": "Share uses the system share sheet or copies the link (FeaturedStoryPreview, StoryChapterScreen); a custom sheet is not needed",
-  "functional": "-",
-  "vercel": "-",
+  "component": "Share uses the system share sheet or copies the link; a custom sheet is intentionally not built",
+  "functional": "yes",
+  "vercel": "yes",
   "note": "Legacy single-screen frame"
  },
  {

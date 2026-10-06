@@ -3,6 +3,7 @@ import type { TrackedOutcome } from "../applicationStatus";
 
 // ----------------------------------------------------------------- Funding
 export type OpportunityType = "grant" | "residency" | "commission" | "fellowship" | "fund" | "lab" | "pitch";
+export type EligibilityAnswer = "yes" | "no" | "unsure";
 export type ApplicationStatus = "none" | "saved" | "in-progress" | "applied";
 /**
  * open / closing-soon / closed — fixed deadline, computed against now.
@@ -49,6 +50,10 @@ export interface ApplicationState {
   completedSteps: number[];
   /** What the funder told the user, recorded by the user. SEEN receives no funder decisions. */
   outcome?: TrackedOutcome | null;
+  /** The user's own answer per listed eligibility criterion (index in `eligibility`). Self-assessed, never a determination. */
+  eligibilityAnswers?: Record<number, EligibilityAnswer>;
+  /** Private notes the user keeps about this application. */
+  notes?: string;
   updatedAt: ISODate;
 }
 
@@ -57,5 +62,5 @@ export interface FundingApi {
   get(id: string): Promise<FundingOpportunity>;
   listApplications(): Promise<ApplicationState[]>;
   getApplication(id: string): Promise<ApplicationState>;
-  updateApplication(id: string, patch: Partial<Pick<ApplicationState, "status" | "completedSteps" | "outcome">>): Promise<ApplicationState>;
+  updateApplication(id: string, patch: Partial<Pick<ApplicationState, "status" | "completedSteps" | "outcome" | "eligibilityAnswers" | "notes">>): Promise<ApplicationState>;
 }

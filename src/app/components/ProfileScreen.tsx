@@ -29,6 +29,7 @@ import { getStoryWorldById, getLocalizedText } from "../data/storyDatabase";
 import { listDraftsForCreator, listStoriesForCreator } from "../data/userStoriesService";
 import { Bell, BookmarkCheck, HandCoins, Users } from "lucide-react";
 import { useAppNav } from "../navigation/AppNav";
+import { MetricCard } from "./seen/primitives";
 import { api } from "../services";
 import { useResource } from "../hooks/useResource";
 
@@ -285,6 +286,14 @@ export function ProfileScreen({
                 <h2 className="text-base font-semibold text-white">Creator Dashboard</h2>
               </div>
               <p className="text-sm text-white/70 mb-4">Manage your stories and view analytics</p>
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <MetricCard label="Published" value={myStories.length} />
+                <MetricCard label="Drafts" value={listDraftsForCreator(authState.user?.id ?? "").length} />
+              </div>
+              <div className="flex gap-3 mb-3">
+                <button type="button" onClick={() => nav.go("creator-stories")} className="flex-1 min-h-11 rounded-lg bg-white/10 border border-white/20 text-white text-sm hover:bg-white/20 transition-colors">Your stories</button>
+                <button type="button" onClick={() => nav.go("notes")} className="flex-1 min-h-11 rounded-lg bg-white/10 border border-white/20 text-white text-sm hover:bg-white/20 transition-colors">Notes</button>
+              </div>
               <div className="flex gap-3">
                 <button
                   onClick={onOpenCreatorDashboard}

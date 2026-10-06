@@ -118,6 +118,8 @@ export const demoAdapter: SeenApi = {
           opportunityId: id,
           status,
           outcome,
+          eligibilityAnswers: patch.eligibilityAnswers ?? prev.eligibilityAnswers,
+          notes: patch.notes !== undefined ? patch.notes.slice(0, 1000) : prev.notes,
           completedSteps: [...new Set(completedSteps)].sort((a, b) => a - b),
           updatedAt: new Date().toISOString(),
         };

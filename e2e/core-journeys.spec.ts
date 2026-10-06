@@ -545,3 +545,33 @@ test.describe("funding: outcomes and readiness", () => {
     await expect(page.getByText(/%/)).toHaveCount(0);
   });
 });
+
+test.describe("funding: eligibility self-check and notes", () => {
+  test("answers and notes persist per opportunity", async ({ page }) => {
+    await signInAs(page, "viewer");
+    await page.goto("/#/funding");
+    await page.getByTestId("opportunity-card").filter({ hasText: "Research and Creation" }).click();
+    const yes = page.getByRole("button", { name: /: yes$/i });
+    await expect(yes.first()).toBeVisible();
+    const n = await yes.count();
+    for (let i = 0; i < n; i++) await yes.nth(i).click();
+    await expect(page.getByText(/appear to meet these criteria\. the funder decides/i)).toBeVisible();
+    await page.getByRole("button", { name: /save & track/i }).click();
+    await page.locator("#app-notes").fill("Call the programme officer");
+    await page.locator("#app-notes").blur();
+    await expect(page.getByText(/notes saved/i)).toBeVisible();
+    await page.reload();
+    await expect(page.locator("#app-notes")).toHaveValue("Call the programme officer");
+    await expect(page.getByRole("button", { name: /: yes$/i }).first()).toHaveAttribute("aria-pressed", "true");
+  });
+});
+
+test.describe("creator: overview card", () => {
+  test("profile shows counts and links to Your stories", async ({ page }) => {
+    await signInAs(page, "creator");
+    await page.goto("/#/profile");
+    await expect(page.getByText(/^published$/i)).toBeVisible();
+    await page.getByRole("button", { name: /^your stories$/i }).click();
+    await expect(page).toHaveURL(/#\/creator-stories/);
+  });
+});

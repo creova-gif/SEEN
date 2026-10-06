@@ -29,7 +29,7 @@ export function OpportunityDetailScreen({ opportunityId }: { opportunityId: stri
 
   // Optimistic: the checkbox/status changes the instant it's tapped, the save
   // happens in the background, and a failure rolls back with a toast.
-  const update = async (patch: Partial<Pick<ApplicationState, "status" | "completedSteps" | "outcome">>, success?: string) => {
+  const update = async (patch: Partial<Pick<ApplicationState, "status" | "completedSteps" | "outcome" | "eligibilityAnswers" | "notes">>, success?: string) => {
     const previous = resource.data?.application;
     if (previous) resource.mutate(prev => ({ ...prev!, application: { ...previous, ...patch } }));
     setBusy(true);
@@ -102,13 +102,43 @@ export function OpportunityDetailScreen({ opportunityId }: { opportunityId: stri
               <section className="mt-8">
                 <SectionTitle title="Who can apply" />
                 <ul className="space-y-2">
-                  {o.eligibility.map(e => (
-                    <li key={e} className="flex gap-3 text-sm text-white/80">
-                      <Check className="w-4 h-4 text-seen-success flex-shrink-0 mt-0.5" aria-hidden />
-                      {e}
-                    </li>
-                  ))}
+                  {o.eligibility.map((e, i) => {
+                    const answer = app.eligibilityAnswers?.[i];
+                    return (
+                      <li key={e}>
+                        <fieldset className="rounded-seen-md border border-seen-border bg-seen-surface p-3">
+                          <legend className="sr-only">{e}</legend>
+                          <p className="text-sm text-white/80 mb-2" aria-hidden>{e}</p>
+                          <div className="flex gap-2">
+                            {(["yes", "unsure", "no"] as const).map(v => (
+                              <button
+                                key={v}
+                                type="button"
+                                aria-pressed={answer === v}
+                                aria-label={`${e}: ${v === "unsure" ? "not sure" : v}`}
+                                onClick={() => update({ eligibilityAnswers: { ...(app.eligibilityAnswers ?? {}), [i]: v } })}
+                                className={`min-h-11 flex-1 rounded-full border text-xs ${answer === v ? "bg-white text-black border-white" : "border-seen-border text-white/80 hover:border-white/30"}`}
+                              >
+                                {v === "yes" ? "Yes" : v === "no" ? "No" : "Not sure"}
+                              </button>
+                            ))}
+                          </div>
+                        </fieldset>
+                      </li>
+                    );
+                  })}
                 </ul>
+                {(() => {
+                  const answers = o.eligibility.map((_, i) => app.eligibilityAnswers?.[i]);
+                  if (answers.some(a => !a)) return <p className="text-xs text-seen-muted mt-3">Answer each criterion for a self-check. This is guidance from your own answers.</p>;
+                  const tone = answers.includes("no") ? "warning" : "info";
+                  const msg = answers.includes("no")
+                    ? "At least one criterion may not fit. Check the funder's guidelines. The funder decides."
+                    : answers.includes("unsure")
+                      ? "Some answers are not sure yet. Confirm them with the funder. The funder decides."
+                      : "Based on your answers you appear to meet these criteria. The funder decides.";
+                  return <Banner tone={tone} className="mt-3">{msg}</Banner>;
+                })()}
                 <p className="text-xs text-seen-muted mt-3">
                   Languages: {o.languages.map(l => LANG_LABEL[l] ?? l).join(", ")} · Disciplines: {o.disciplines.join(", ")}
                 </p>
@@ -138,6 +168,19 @@ export function OpportunityDetailScreen({ opportunityId }: { opportunityId: stri
                           );
                         })}
                       </ul>
+                      <div className="mt-6">
+                        <label htmlFor="app-notes" className="block text-[13px] font-medium text-white/80 mb-2">Your notes</label>
+                        <textarea
+                          id="app-notes"
+                          key={app.updatedAt}
+                          defaultValue={app.notes ?? ""}
+                          maxLength={1000}
+                          rows={3}
+                          placeholder="Contacts, ideas, what to send. Only you see this."
+                          onBlur={e => { if (e.target.value !== (app.notes ?? "")) update({ notes: e.target.value }, "Notes saved"); }}
+                          className="w-full rounded-seen-md border border-seen-border bg-seen-surface p-3 text-sm text-white placeholder:text-white/55 focus:outline-none focus:border-white/40"
+                        />
+                      </div>
                       {app.status === "applied" ? (
                         <div role="status" className="mt-6 flex items-center gap-3 rounded-seen-md border border-seen-success/30 bg-seen-success/10 p-4">
                           <PartyPopper className="w-5 h-5 text-seen-success" aria-hidden />
@@ -188,16 +231,19 @@ export function OpportunityDetailScreen({ opportunityId }: { opportunityId: stri
                 </section>
 
               <footer className="mt-10 pt-4 border-t border-white/5 text-xs text-seen-muted leading-relaxed">
-                Checked {new Date(o.verifiedAt).toLocaleDateString("en-CA", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" })} against:{" "}
-                {o.sourceUrls.map((u, i) => (
-                  <span key={u}>
-                    {i > 0 && ", "}
-                    <a href={u} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-white">
-                      {sourceLabel(u)}
-                    </a>
-                  </span>
-                ))}
-                . Details change — confirm with the funder before you apply.
+                <p>
+                  Checked {new Date(o.verifiedAt).toLocaleDateString("en-CA", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" })} against these sources. Details change — confirm with the funder before you apply.
+                </p>
+                <ul className="mt-1">
+                  {o.sourceUrls.map(u => (
+                    <li key={u}>
+                      <a href={u} target="_blank" rel="noopener noreferrer" className="inline-flex items-center min-h-11 underline underline-offset-2 hover:text-white">
+                        {sourceLabel(u)}
+                        <span className="sr-only"> (opens in a new tab)</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
               </footer>
             </>
           );

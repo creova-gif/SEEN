@@ -7,7 +7,7 @@ const ROLE_ROUTES: Record<string, string[]> = {
   moderator: ["moderation-governance"],
   admin: ["admin-dashboard"],
 };
-const ROUTES = ["for-you", "explore", "explore/creators", "library", "profile", "search", "notifications", "story/midnight-resonance", "creator/kira-chen", "collections", "funding", "settings", "account", "about", "edit-profile", "change-password", "legal", "funding-readiness"];
+const ROUTES = ["for-you", "explore", "explore/creators", "library", "profile", "search", "notifications", "story/midnight-resonance", "creator/kira-chen", "collections", "funding", "settings", "account", "about", "edit-profile", "change-password", "legal", "funding-readiness", "opportunity/cca-explore-create-research-creation"];
 const WIDTHS = [320, 360, 390, 768, 1280];
 const findings: Record<string, unknown>[] = [];
 

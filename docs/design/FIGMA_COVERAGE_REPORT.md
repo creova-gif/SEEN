@@ -6,7 +6,7 @@ Source of truth for behaviour: the deployed Vercel app. Figma is the visual and 
 
 | Status | Count |
 |---|---|
-| IMPLEMENTED | 75 |
+| IMPLEMENTED | 83 |
 | STATE of an existing screen | 35 |
 | COMPONENT (not a screen) | 17 |
 | RESPONSIVE_VARIANT | 7 |
@@ -14,7 +14,7 @@ Source of truth for behaviour: the deployed Vercel app. Figma is the visual and 
 | OUTDATED (superseded) | 18 |
 | NOTE (prototype notes) | 12 |
 | EXCLUDED (with reason) | 78 |
-| PARTIAL | 9 |
+| PARTIAL | 1 |
 | MISSING | 0 |
 
 ## 2 and 3. Screens added in this pass
@@ -30,14 +30,11 @@ Source of truth for behaviour: the deployed Vercel app. Figma is the visual and 
 | Under Review, Shortlisted, Info Requested, Approved, Declined | user-recorded outcome selector on `#/opportunity/:id`, labelled "tracked by you" |
 | Funding Dashboard | tracker summary tiles in `#/funding` My tracker |
 
-## 4. Partial screens (what is still open)
+## 4. Partial screens
 
-- Eligibility Check: criteria are listed but the user cannot yet confirm each one.
-- Application Workspace, Review and Submit, Submitted: tracked and labelled "marked by you"; no notes field, and submission happens on the funder's site by design.
-- Creator Dashboard Overview: no single overview card; stories, notes and earnings are reachable from Profile.
-- Soft Branching perspective shift: shares the existing overlay; copy not reviewed.
-- Institutions Public Profile and `institutional-collection`: institutional collections exist; partner workspaces need signed partners (D-12).
-- `share-sheet`: uses the system share sheet or copies the link.
+Completed in this pass: eligibility self-check (Yes / Not sure / No per listed criterion, guidance copy "the funder decides"), application notes (private, 1000 characters), creator overview card on Profile (Published and Drafts counts, Your stories, Notes), soft-branching copy review (both headings exist in EN/FR/ES; tag contrast raised), `institutional-collection` (the existing collection detail) and `share-sheet` (system share sheet or copied link, intentionally no custom sheet).
+
+Still PARTIAL (1): Institutions Public Profile. Institutional collections show curator, description and stories, but there is no institution entity or profile page; that needs signed partners (D-12).
 
 ## 5. Where Vercel behaviour won
 
@@ -57,7 +54,7 @@ New screens use the shared `ScreenFrame` and existing primitives, with no bespok
 
 ## 10. Remaining issues
 
-- The nine PARTIAL rows above.
+- Institutions Public Profile (the one PARTIAL row).
 - Supabase: funding application and outcome storage exist only in the demo adapter; the profile bio column needs migration 0005 applied on restore.
 - Native French and Spanish review of the new strings (machine-drafted).
 - Legal copy is a draft pending counsel review.

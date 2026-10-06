@@ -57,7 +57,7 @@ export function CollectionDetailScreen({ collectionId }: { collectionId: string 
                     {collection.kind === "institutional" ? "Institutional collection" : "Collection"}
                   </Badge>
                   <h2 className="text-3xl font-light tracking-tight mt-3">{collection.title}</h2>
-                  <p className="text-xs tracking-[0.14em] uppercase text-white/50 mt-2">Curated by {collection.curator}</p>
+                  <p className="text-xs tracking-[0.14em] uppercase text-white/55 mt-2">Curated by {collection.curator}</p>
                 </div>
               </section>
               <p className="text-sm text-seen-secondary leading-relaxed mb-6">{collection.description}</p>

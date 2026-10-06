@@ -99,7 +99,7 @@ export function BranchingChoiceOverlay({
                     {getText(option.text)}
                   </p>
                   {option.tag && (
-                    <span className="inline-block mt-2 px-2 py-1 text-xs rounded-full bg-white/10 text-white/50">
+                    <span className="inline-block mt-2 px-2 py-1 text-xs rounded-full bg-white/10 text-white/70">
                       {option.tag}
                     </span>
                   )}
