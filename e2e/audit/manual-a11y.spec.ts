@@ -33,6 +33,8 @@ test.describe("keyboard-only journeys", () => {
     await page.goto("/");
     await tabTo(page, /s\W*e\W*e\W*n/i);
     await page.keyboard.press("Enter");
+    // The entry screen fades out before the first step fades in; wait for it so Tab starts on the real page.
+    await expect(page.getByText(/step 1 of 3/i)).toBeVisible();
     await tabTo(page, /discover stories/i);
     await page.keyboard.press("Space");
     await expect(page.getByRole("button", { name: /discover stories/i })).toHaveAttribute("aria-pressed", "true");
