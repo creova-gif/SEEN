@@ -304,7 +304,7 @@ export function SegmentedTabs<T extends string>({ tabs, value, onChange, label }
             }}
             tabIndex={active ? 0 : -1}
             className={cx(
-              "flex-1 min-h-11 px-3 rounded-full text-[11px] font-medium tracking-[0.14em] uppercase transition-colors",
+              "flex-1 min-h-11 px-2 min-[360px]:px-3 rounded-full text-[10px] min-[360px]:text-[11px] font-medium tracking-[0.06em] min-[360px]:tracking-[0.14em] uppercase transition-colors",
               active ? "bg-white text-black" : "text-white/55 hover:text-white",
             )}
           >
@@ -351,11 +351,11 @@ export function SectionTitle({ title, subtitle, action }: { title: string; subti
 // ---------------------------------------------------------------------------
 // Metric Card — Figma 570:17
 // ---------------------------------------------------------------------------
-export function MetricCard({ label, value, hint }: { label: string; value: string | number; hint?: string }) {
+export function MetricCard({ label, value, hint, className }: { label: string; value: string | number; hint?: string; className?: string }) {
   return (
-    <div className="flex flex-col justify-between min-h-[96px] rounded-seen-md border border-seen-border bg-seen-surface p-4">
-      <span className="text-[10px] tracking-[0.14em] uppercase text-seen-muted">{label}</span>
-      <span className="text-2xl font-light text-white mt-2">{value}</span>
+    <div className={cx("flex flex-col justify-between min-h-[96px] min-w-0 rounded-seen-md border border-seen-border bg-seen-surface p-3 min-[360px]:p-4", className)}>
+      <span className="text-[10px] tracking-[0.08em] min-[360px]:tracking-[0.14em] uppercase text-seen-muted">{label}</span>
+      <span className="text-xl min-[360px]:text-2xl font-light text-white mt-2 break-words">{value}</span>
       {hint && <span className="text-xs text-seen-secondary mt-1">{hint}</span>}
     </div>
   );

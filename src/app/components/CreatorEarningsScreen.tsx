@@ -102,8 +102,8 @@ export function CreatorEarningsScreen({ onClose }: CreatorEarningsScreenProps) {
           </section>
 
           {/* Stats grid */}
-          <section className="grid grid-cols-3 gap-3 auto-rows-fr">
-            <MetricCard label={t("Lifetime", "À vie", "De por vida")} value={formatCents(summary.totalNetEarnings)} />
+          <section className="grid grid-cols-2 min-[360px]:grid-cols-3 gap-3 auto-rows-fr">
+            <MetricCard className="col-span-2 min-[360px]:col-span-1" label={t("Lifetime", "À vie", "De por vida")} value={formatCents(summary.totalNetEarnings)} />
             <MetricCard label={t("Subscribers", "Abonnés", "Suscriptores")} value={summary.activeSubscriberCount} />
             <MetricCard label={t("Sales", "Ventes", "Ventas")} value={summary.totalTransactionCount} />
           </section>

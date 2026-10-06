@@ -1,13 +1,20 @@
 import { signInAs, test } from "../fixtures";
 const OUT = process.env.SHOTS_DIR ?? "test-results/shots";
-const ROUTES = ["for-you", "explore", "library", "profile", "funding", "creator/kira-chen", "story/midnight-resonance", "settings", "account", "notifications", "collections"];
-test("screenshots", async ({ page }) => {
-  test.setTimeout(300000);
-  await signInAs(page, "viewer");
-  await page.setViewportSize({ width: 390, height: 844 });
-  for (const r of ROUTES) {
-    await page.goto(`/#/${r}`);
-    await page.waitForTimeout(1500);
-    await page.screenshot({ path: `${OUT}/${r.replace(/\//g, "_")}.png` });
-  }
-});
+const SETS: Record<string, string[]> = {
+  viewer: ["for-you", "explore", "library", "funding", "story/midnight-resonance", "account"],
+  creator: ["creator-monetization", "creator-earnings", "creator-publish", "notes"],
+  moderator: ["moderation-governance"],
+  admin: ["admin-dashboard"],
+};
+for (const [role, routes] of Object.entries(SETS)) {
+  test(`screenshots ${role} 320`, async ({ page }) => {
+    test.setTimeout(300000);
+    await signInAs(page, role as "viewer");
+    await page.setViewportSize({ width: 320, height: 640 });
+    for (const r of routes) {
+      await page.goto(`/#/${r}`);
+      await page.waitForTimeout(2200);
+      await page.screenshot({ path: `${OUT}/${role}_${r.replace(/\//g, "_")}.png` });
+    }
+  });
+}

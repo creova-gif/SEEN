@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
 import { useState, useMemo, useEffect } from "react";
-import { Shield, CheckCircle, XCircle, Clock, User, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Shield, CheckCircle, XCircle, Clock, User, AlertTriangle } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { toast } from "sonner";
 import { api, type Report } from "../services";
@@ -174,7 +174,7 @@ export function ModerationQueue({
   return (
     <div className="space-y-6 pb-20">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-2xl tracking-tight text-white mb-1">Moderation Queue</h2>
           <p className="text-sm text-white/60">
@@ -183,10 +183,10 @@ export function ModerationQueue({
         </div>
         <div className="flex gap-2">
           <div className="px-3 py-1 rounded-full bg-amber-500/20 border border-amber-400/30">
-            <span className="text-sm text-amber-300">{pendingResponses.length} pending</span>
+            <span className="text-sm text-amber-300 whitespace-nowrap">{pendingResponses.length} pending</span>
           </div>
           <div className="px-3 py-1 rounded-full bg-red-500/20 border border-red-400/30">
-            <span className="text-sm text-red-300">{flaggedResponses.length} flagged</span>
+            <span className="text-sm text-red-300 whitespace-nowrap">{flaggedResponses.length} flagged</span>
           </div>
         </div>
       </div>
@@ -379,6 +379,12 @@ export function AuditLogViewer({ actions, userRole }: AuditLogViewerProps) {
         <h2 className="text-2xl tracking-tight text-white mb-1">Audit Log</h2>
         <p className="text-sm text-white/60">Complete moderation history with timestamps</p>
       </div>
+
+      {actions.length === 0 && (
+        <p className="text-sm text-white/60 rounded-xl border border-white/10 bg-white/5 p-4" role="status">
+          No moderation actions yet. Approvals, rejections and flags you make appear here.
+        </p>
+      )}
 
       <div className="space-y-3">
         {actions.map((action, index) => (
@@ -592,14 +598,10 @@ export function ModerationGovernanceSystem({ onBack }: ModerationGovernanceSyste
           <div className="flex items-center gap-3">
             <button
               onClick={onBack}
-              className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors"
+              aria-label="Back"
+              className="w-11 h-11 flex-shrink-0 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/80 hover:bg-white/10 transition-colors"
             >
-              <motion.div
-                initial={{ x: 0 }}
-                whileHover={{ x: -2 }}
-              >
-                ←
-              </motion.div>
+              <ArrowLeft className="w-4 h-4" aria-hidden />
             </button>
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
@@ -615,10 +617,10 @@ export function ModerationGovernanceSystem({ onBack }: ModerationGovernanceSyste
       {/* Tab Navigation */}
       <div className="sticky top-[73px] z-10 bg-black/95 backdrop-blur-xl border-b border-white/5">
         <div className="max-w-[428px] mx-auto px-5">
-          <div className="flex gap-1">
+          <div className="flex gap-1 overflow-x-auto">
             <button
               onClick={() => setActiveTab("queue")}
-              className={`flex-1 py-3 text-sm transition-all ${
+              className={`flex-1 min-h-11 px-2 py-3 text-sm whitespace-nowrap transition-all ${
                 activeTab === "queue"
                   ? "text-white border-b-2 border-blue-400"
                   : "text-white/50 hover:text-white/70"
@@ -628,7 +630,7 @@ export function ModerationGovernanceSystem({ onBack }: ModerationGovernanceSyste
             </button>
             <button
               onClick={() => setActiveTab("reports")}
-              className={`flex-1 py-3 text-sm transition-all ${
+              className={`flex-1 min-h-11 px-2 py-3 text-sm whitespace-nowrap transition-all ${
                 activeTab === "reports"
                   ? "text-white border-b-2 border-blue-400"
                   : "text-white/50 hover:text-white/70"
@@ -638,7 +640,7 @@ export function ModerationGovernanceSystem({ onBack }: ModerationGovernanceSyste
             </button>
             <button
               onClick={() => setActiveTab("audit")}
-              className={`flex-1 py-3 text-sm transition-all ${
+              className={`flex-1 min-h-11 px-2 py-3 text-sm whitespace-nowrap transition-all ${
                 activeTab === "audit"
                   ? "text-white border-b-2 border-blue-400"
                   : "text-white/50 hover:text-white/70"
@@ -648,7 +650,7 @@ export function ModerationGovernanceSystem({ onBack }: ModerationGovernanceSyste
             </button>
             <button
               onClick={() => setActiveTab("guidelines")}
-              className={`flex-1 py-3 text-sm transition-all ${
+              className={`flex-1 min-h-11 px-2 py-3 text-sm whitespace-nowrap transition-all ${
                 activeTab === "guidelines"
                   ? "text-white border-b-2 border-blue-400"
                   : "text-white/50 hover:text-white/70"
@@ -663,6 +665,7 @@ export function ModerationGovernanceSystem({ onBack }: ModerationGovernanceSyste
       {/* Content */}
       <div className="max-w-[428px] mx-auto pb-20">
         {activeTab === "queue" && (
+          <div className="px-5 pt-5">
           <ModerationQueue
             responses={responses}
             onApprove={handleApprove}
@@ -670,13 +673,16 @@ export function ModerationGovernanceSystem({ onBack }: ModerationGovernanceSyste
             onFlag={handleFlag}
             userRole="moderator"
           />
+          </div>
         )}
         {activeTab === "reports" && <ReportsPanel reports={reports} onResolve={handleResolveReport} />}
         {activeTab === "audit" && (
-          <AuditLogViewer
-            actions={actions}
-            userRole="moderator"
-          />
+          <div className="px-5 pt-5">
+            <AuditLogViewer
+              actions={actions}
+              userRole="moderator"
+            />
+          </div>
         )}
         {activeTab === "guidelines" && <GovernanceGuidelines />}
       </div>

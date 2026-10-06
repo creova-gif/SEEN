@@ -132,7 +132,7 @@ export function OpportunityCard({
         <h3 className="text-base font-semibold text-white leading-snug line-clamp-2">{opportunity.title}</h3>
         <p className="text-xs text-seen-secondary mt-1">{opportunity.funder}</p>
       </div>
-      <div className="mt-auto flex items-end justify-between gap-3 pt-2 border-t border-white/5">
+      <div className="mt-auto flex flex-col items-start gap-1 min-[360px]:flex-row min-[360px]:items-end min-[360px]:justify-between min-[360px]:gap-3 pt-2 border-t border-white/5">
         <span className="text-sm text-seen-funding min-w-0">{formatAmount(opportunity)}</span>
         <span className={`text-xs text-right whitespace-nowrap flex-shrink-0 ${tone}`}>{formatStatus(opportunity, now)}</span>
       </div>
