@@ -48,7 +48,7 @@ test.describe("for you: figma alignment", () => {
     await expect(hero).toBeVisible();
     const hb = await hero.boundingBox();
     expect(Math.round(hb!.height)).toBe(520);
-    const btn = hero.getByRole("button", { name: /^experience/i });
+    const btn = hero.getByRole("button", { name: /^start reading/i });
     const bb = await btn.boundingBox();
     expect(Math.round(bb!.width)).toBe(160);
     expect(bb!.height).toBeGreaterThanOrEqual(44);

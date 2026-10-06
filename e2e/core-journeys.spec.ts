@@ -199,7 +199,7 @@ test.describe("reader: transcript, captions, completion", () => {
     await page.getByRole("button", { name: /^finish$/i }).click();
     const done = page.getByRole("dialog", { name: /you finished/i });
     await expect(done).toBeVisible();
-    await expect(done.getByRole("button", { name: /share a reflection/i })).toBeVisible();
+    await expect(done.getByRole("button", { name: /add a reflection/i })).toBeVisible();
     await done.getByRole("button", { name: /keep reading/i }).click();
     await expect(done).toBeHidden();
   });
@@ -216,7 +216,7 @@ test.describe("library: following and collections tabs", () => {
     const row = page.getByRole("button", { name: /open kira chen/i });
     await expect(row).toBeVisible();
     await page.getByRole("button", { name: /unfollow kira chen/i }).click();
-    await expect(page.getByText(/not following anyone yet/i)).toBeVisible();
+    await expect(page.getByText(/no creators yet/i)).toBeVisible();
   });
 
   test("saved collections appear in Library", async ({ page }) => {

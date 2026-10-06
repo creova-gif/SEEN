@@ -44,7 +44,7 @@ export function FeaturedHero({ item, onExperience }: { item: HeroItem; onExperie
           {item.title}
         </p>
         <p className="text-[13px] leading-[1.5] tracking-[0.1px] text-seen-secondary mt-3">{meta}</p>
-        <Button shape="rounded" className="mt-4 w-40 bg-white text-seen-canvas hover:bg-white/90" icon={<Play className="w-3.5 h-3.5 fill-current" aria-hidden />} onClick={() => onExperience(item.id)} aria-label={`Open ${item.title}`}>
+        <Button shape="rounded" className="mt-4 w-40 bg-white text-seen-canvas hover:bg-white/90" icon={<Play className="w-3.5 h-3.5 fill-current" aria-hidden />} onClick={() => onExperience(item.id)} aria-label={`Start reading ${item.title}`}>
           Start reading
         </Button>
       </div>
