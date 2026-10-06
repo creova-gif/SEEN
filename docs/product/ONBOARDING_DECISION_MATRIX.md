@@ -21,3 +21,7 @@ New flow: Language, "What brings you to SEEN?", "What are you interested in?" (o
 - **Experience preference (Read / Listen / Watch)** was not added: nothing in the app would consume it yet.
 - **Creator questions** are not asked at sign-up; Create Story asks for what it needs when the user starts a story.
 - Resuming a half-finished onboarding after a reload is only possible before the Account step, because choices live in memory.
+
+## Protected first screen
+
+The Invocation screen (glowing S.E.E.N entry button, "You are entering SEEN.") is the first thing a new visitor sees after choosing a language. It was merged away in the nine-to-four cut by mistake and restored on the owner's instruction. It is not counted in "Step n of 3" and must not be removed. Guarded by the e2e test "the first screen is the glowing S.E.E.N entry button".

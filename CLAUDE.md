@@ -40,6 +40,7 @@ npm run check        # typecheck + test + build
 - Secondary text is `text-white/55` or `text-seen-muted` (AA contrast); touch targets ≥ 44 px.
 - Demo data must be labelled (`isDemo`) and derived from real catalogue data where possible. Never name real organisations as partners without a signed agreement.
 - Funding listings (`services/data/fundingListings.ts`) are real: store a deadline only if the funder published it, cite `sourceUrls`, update `verifiedAt` (process: `docs/product/FUNDING_LISTINGS.md`).
+- The first onboarding screen (Invocation: the glowing S.E.E.N entry button, `InvocationLayer` in `OnboardingSystem.tsx`) is protected: never remove, merge or skip it. An e2e test guards it.
 - Role checks in the UI are UX only; real enforcement belongs in the backend (see `docs/security/`).
 - Analytics: only `track()` with allow-listed events and id/enum properties — no names, emails, free text.
 - New user-visible strings go in `src/app/i18n/strings.ts` with EN/FR/ES.

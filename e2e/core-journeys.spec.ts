@@ -1,8 +1,23 @@
 import { expect, signInAs, test } from "./fixtures";
 
+/** The first screen: the glowing S.E.E.N entry button. It must never be removed. */
+async function enterSeen(page: import("@playwright/test").Page) {
+  await page.getByRole("button", { name: /s\W*e\W*e\W*n/i }).click();
+}
+
 test.describe("first visit", () => {
+  test("the first screen is the glowing S.E.E.N entry button", async ({ page }) => {
+    await page.goto("/");
+    const enter = page.getByRole("button", { name: /s\W*e\W*e\W*n/i });
+    await expect(enter).toBeVisible();
+    await expect(page.getByText(/you are entering seen/i)).toBeVisible();
+    await enter.click();
+    await expect(page.getByText(/step 1 of 3/i)).toBeVisible();
+  });
+
   async function signUp(page: import("@playwright/test").Page, prefix: string, purpose: RegExp, interest?: RegExp) {
     await page.goto("/");
+    await enterSeen(page);
     await expect(page.getByText(/step 1 of 3/i)).toBeVisible();
     await page.getByRole("button", { name: purpose }).click();
     await page.getByRole("button", { name: /next: your interests/i }).click();
@@ -24,6 +39,7 @@ test.describe("first visit", () => {
 
   test("interests chosen at sign-up feed For You and can be stepped back to", async ({ page }) => {
     await page.goto("/");
+    await enterSeen(page);
     await page.getByRole("button", { name: /discover stories/i }).click();
     await page.getByRole("button", { name: /next: your interests/i }).click();
     const chip = page.getByRole("group", { name: "Interests" }).getByRole("button").first();
@@ -53,6 +69,7 @@ test.describe("first visit", () => {
 test.describe("guest-first return", () => {
   test("a deep link survives onboarding and sign-up", async ({ page }) => {
     await page.goto("/#/story/midnight-resonance");
+    await enterSeen(page);
     await page.getByRole("button", { name: /discover stories/i }).click();
     await page.getByRole("button", { name: /next: your interests/i }).click();
     await page.getByRole("button", { name: /skip: create your account/i }).click();

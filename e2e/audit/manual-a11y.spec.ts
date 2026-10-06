@@ -31,6 +31,8 @@ async function tabTo(page: Page, name: RegExp, max = 80) {
 test.describe("keyboard-only journeys", () => {
   test("landing → sign up → onboarding → For You", async ({ page }) => {
     await page.goto("/");
+    await tabTo(page, /s\W*e\W*e\W*n/i);
+    await page.keyboard.press("Enter");
     await tabTo(page, /discover stories/i);
     await page.keyboard.press("Space");
     await expect(page.getByRole("button", { name: /discover stories/i })).toHaveAttribute("aria-pressed", "true");
