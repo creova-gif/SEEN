@@ -30,6 +30,8 @@ const CULTURAL_THEMES = [
   "Environmental",
 ];
 
+const AUDIENCES = ["Youth", "Educators", "Families", "Community members", "Researchers", "General public"];
+
 const LANGUAGES = [
   { code: 'en', label: 'English', native: 'English' },
   { code: 'fr', label: 'French', native: 'Français' },
@@ -50,6 +52,13 @@ export function StoryIntentStep({
     initialData?.languages || ['en']
   );
   const [intendedAudience, setIntendedAudience] = useState(initialData?.intendedAudience || '');
+
+  const audienceTokens = intendedAudience.split(',').map(a => a.trim()).filter(Boolean);
+  const toggleAudience = (a: string) => {
+    const next = audienceTokens.includes(a) ? audienceTokens.filter(t => t !== a) : [...audienceTokens, a];
+    setIntendedAudience(next.join(', '));
+    setTimeout(handleAutoSave, 500);
+  };
 
   // Auto-save on changes
   const handleAutoSave = () => {
@@ -172,7 +181,7 @@ export function StoryIntentStep({
         >
           <div className="mb-3">
             <span className="text-sm tracking-wide text-white/80 mb-2 block">Cultural Themes</span>
-            <p className="text-xs text-white/50 leading-relaxed">
+            <p className="text-xs text-white/55 leading-relaxed">
               Select themes that best represent your story. Choose as many as relevant.
             </p>
           </div>
@@ -265,24 +274,45 @@ export function StoryIntentStep({
           animate="animate"
           transition={{ ...TRANSITIONS.organic, delay: 0.5 }}
         >
-          <label className="block mb-3">
+          <div className="mb-3">
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-sm tracking-wide text-white/80">Intended Audience</span>
+              <span id="audience-label" className="text-sm tracking-wide text-white/80">Who is this story for?</span>
               <span className="text-xs tracking-wider uppercase text-white/55 bg-white/5 px-2 py-0.5 rounded">
                 Optional
               </span>
             </div>
-            <input
-              type="text"
-              value={intendedAudience}
-              onChange={(e) => {
-                setIntendedAudience(e.target.value);
-                setTimeout(handleAutoSave, 500);
-              }}
-              placeholder="Who is this story for? (e.g., educators, community members, youth)"
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder:text-white/55 focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/10 transition-all"
-            />
-          </label>
+            <div role="group" aria-labelledby="audience-label" className="flex flex-wrap gap-2 mb-3">
+              {AUDIENCES.map(a => {
+                const on = audienceTokens.includes(a);
+                return (
+                  <button
+                    key={a}
+                    type="button"
+                    aria-pressed={on}
+                    onClick={() => toggleAudience(a)}
+                    className={`px-3 min-h-11 text-xs tracking-wide rounded-lg border transition-colors ${
+                      on ? 'bg-white/10 text-white border-white/30' : 'bg-white/5 text-white/70 border-white/10 hover:border-white/20'
+                    }`}
+                  >
+                    {a}
+                  </button>
+                );
+              })}
+            </div>
+            <label className="block">
+              <span className="sr-only">Other audiences, separated by commas</span>
+              <input
+                type="text"
+                value={intendedAudience}
+                onChange={(e) => {
+                  setIntendedAudience(e.target.value);
+                  setTimeout(handleAutoSave, 500);
+                }}
+                placeholder="Pick above, or add your own (comma separated)"
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder:text-white/55 focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/10 transition-all"
+              />
+            </label>
+          </div>
         </motion.div>
 
         {/* Helper Card */}

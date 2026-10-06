@@ -136,7 +136,7 @@ export function PreviewPublishStep({
       <div className="px-5 py-6 border-b border-white/10">
         <div className="mb-4">
           <h3 className="text-base font-light tracking-wide mb-2">Preview Modes</h3>
-          <p className="text-xs text-white/50 leading-relaxed">
+          <p className="text-xs text-white/55 leading-relaxed">
             See how your story will appear to different audiences.
           </p>
         </div>
@@ -182,7 +182,7 @@ export function PreviewPublishStep({
       <div className="px-5 py-6 border-b border-white/10">
         <div className="mb-4">
           <h3 className="text-base font-light tracking-wide mb-2">Visibility</h3>
-          <p className="text-xs text-white/50 leading-relaxed">
+          <p className="text-xs text-white/55 leading-relaxed">
             Choose who can access your story.
           </p>
         </div>
@@ -219,7 +219,7 @@ export function PreviewPublishStep({
                   <Icon className="w-5 h-5 text-white/60 flex-shrink-0 mt-0.5" strokeWidth={1.5} />
                   <div className="flex-1">
                     <div className="text-sm text-white mb-0.5">{option.label}</div>
-                    <div className="text-xs text-white/50">{option.description}</div>
+                    <div className="text-xs text-white/55">{option.description}</div>
                   </div>
                 </div>
               </motion.button>
@@ -266,7 +266,7 @@ export function PreviewPublishStep({
               <Shield className="w-5 h-5 text-white/60 flex-shrink-0 mt-0.5" strokeWidth={1.5} />
               <div className="flex-1">
                 <div className="text-sm text-white mb-1">Rights & IP Ownership</div>
-                <div className="text-xs text-white/50 leading-relaxed">
+                <div className="text-xs text-white/55 leading-relaxed">
                   I confirm I have the rights to publish this content. 
                   <strong className="text-white/70"> I retain full ownership</strong> of my work, 
                   and grant SEEN a non-exclusive license to present it.
@@ -301,7 +301,7 @@ export function PreviewPublishStep({
               <FileText className="w-5 h-5 text-white/60 flex-shrink-0 mt-0.5" strokeWidth={1.5} />
               <div className="flex-1">
                 <div className="text-sm text-white mb-1">Community Guidelines</div>
-                <div className="text-xs text-white/50 leading-relaxed">
+                <div className="text-xs text-white/55 leading-relaxed">
                   I agree to SEEN's community guidelines regarding respectful cultural representation 
                   and ethical storytelling practices.
                 </div>

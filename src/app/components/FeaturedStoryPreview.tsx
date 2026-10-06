@@ -234,7 +234,7 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
 
           {/* Credits */}
           <div className="pt-2 space-y-1">
-            <p className="text-sm text-white/50">
+            <p className="text-sm text-white/55">
               Created by <span className="text-white/80">{storyData.creator}</span>
             </p>
             <p className="text-xs text-white/55">
@@ -250,7 +250,7 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
               onClick={handleEnterStory}
               className="flex-1 py-4 rounded-full bg-white text-black text-sm tracking-wider uppercase hover:bg-white/90 transition-colors flex items-center justify-center gap-2"
             >
-              {isLocked ? "Unlock Story" : "Enter Story"}
+              {isLocked ? t("story.unlock") : t("story.start")}
               {isLocked ? <Lock className="w-4 h-4" /> : <Play className="w-4 h-4 fill-black" />}
             </motion.button>
             

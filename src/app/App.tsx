@@ -155,7 +155,8 @@ function AppContent() {
     const root = document.documentElement;
     root.dataset.contrast = state.accessibilityPreferences.highContrast ? "high" : "normal";
     root.dataset.motion = state.accessibilityPreferences.reducedMotion ? "reduced" : "full";
-  }, [state.accessibilityPreferences.highContrast, state.accessibilityPreferences.reducedMotion]);
+    root.dataset.text = state.accessibilityPreferences.largeText ? "large" : "normal";
+  }, [state.accessibilityPreferences.highContrast, state.accessibilityPreferences.reducedMotion, state.accessibilityPreferences.largeText]);
 
   // --------------------------------------------------------- unread badge
   const [unreadCount, setUnreadCount] = useState(0);

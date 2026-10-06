@@ -46,7 +46,7 @@ export function OnboardingPurpose({ onNext }: OnboardingPurposeProps) {
           <p className="text-base leading-relaxed text-white/70 max-w-[300px]">
             SEEN is a cultural operating system—an immersive space for stories, sound, and shared identity.
           </p>
-          <p className="text-sm leading-relaxed text-white/50 max-w-[300px]">
+          <p className="text-sm leading-relaxed text-white/55 max-w-[300px]">
             No follower counts. No engagement metrics. 
             Just human connection through art.
           </p>

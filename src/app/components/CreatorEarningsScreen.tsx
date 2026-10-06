@@ -177,7 +177,7 @@ export function CreatorEarningsScreen({ onClose }: CreatorEarningsScreenProps) {
 function Row({ label, value, muted, strong }: { label: string; value: string; muted?: boolean; strong?: boolean }) {
   return (
     <div className="flex items-center justify-between">
-      <span className="text-sm text-white/50">{label}</span>
+      <span className="text-sm text-white/55">{label}</span>
       <span className={`text-sm ${strong ? "text-white font-semibold" : muted ? "text-white/55" : "text-white"}`}>{value}</span>
     </div>
   );

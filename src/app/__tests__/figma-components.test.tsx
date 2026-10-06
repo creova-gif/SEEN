@@ -6,6 +6,7 @@ import { Checkbox, PasswordField, RadioGroup, SearchBar, TextField, Toggle } fro
 import { ConfirmDialog, Drawer, Sheet } from "../components/seen/overlays";
 import { ChapterRow, CircularProgress, LinearProgress, ListItem, SubscriptionCard } from "../components/seen/display";
 import { BottomNav } from "../components/seen/BottomNav";
+import { StoryStateProvider } from "../contexts/StoryStateContext";
 import { PlaybackProvider, usePlayback, formatTime } from "../playback/PlaybackProvider";
 import { ExpandedPlayer } from "../components/seen/MediaPlayerBar";
 
@@ -164,7 +165,7 @@ describe("display organisms", () => {
 
   it("BottomNav marks the active tab and ignores re-taps", async () => {
     const onNavigate = vi.fn();
-    render(<BottomNav activeTab="library" onNavigate={onNavigate} />);
+    render(<StoryStateProvider><BottomNav activeTab="library" onNavigate={onNavigate} /></StoryStateProvider>);
     expect(screen.getByRole("button", { name: "Library" })).toHaveAttribute("aria-current", "page");
     await userEvent.click(screen.getByRole("button", { name: "Library" }));
     expect(onNavigate).not.toHaveBeenCalled();
@@ -201,6 +202,21 @@ describe("playback engine", () => {
     expect(screen.getByRole("button", { name: "Play" })).toBeDisabled();
     expect(screen.getByText(/narration isn't available/i)).toBeInTheDocument();
     if (saved) (window as unknown as { speechSynthesis?: unknown }).speechSynthesis = saved;
+  });
+
+  it("lets the listener change playback speed and remembers it", async () => {
+    localStorage.removeItem("seen.v1.playbackRate");
+    render(
+      <PlaybackProvider>
+        <Loader />
+      </PlaybackProvider>,
+    );
+    await userEvent.click(screen.getByText("load"));
+    const speed = screen.getByRole("button", { name: /playback speed 1x/i });
+    await userEvent.click(speed);
+    expect(screen.getByRole("button", { name: /playback speed 1.25x/i })).toBeInTheDocument();
+    expect(localStorage.getItem("seen.v1.playbackRate")).toBe("1.25");
+    localStorage.removeItem("seen.v1.playbackRate");
   });
 
   it("falls back to the device voice and labels it", async () => {

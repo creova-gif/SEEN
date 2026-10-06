@@ -225,7 +225,7 @@ export function StoryStructureStep({
           <label className="text-sm tracking-wide text-white/80 mb-2 block">
             Estimated Chapters
           </label>
-          <p className="text-xs text-white/50 leading-relaxed mb-4">
+          <p className="text-xs text-white/55 leading-relaxed mb-4">
             A rough guide to help you plan. This can change as your story develops.
           </p>
         </div>

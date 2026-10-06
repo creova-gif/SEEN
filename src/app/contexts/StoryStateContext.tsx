@@ -17,6 +17,8 @@ export interface AccessibilityPreferences {
   captionsEnabled: boolean;
   highContrast: boolean;
   reducedMotion: boolean;
+  /** Larger text across the app (scales the root font size). */
+  largeText?: boolean;
 }
 
 // Personalization preferences (Experience SEEN your way)

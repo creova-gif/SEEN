@@ -37,6 +37,8 @@ interface PlaybackState {
   elapsed: number; // seconds (estimated for the device voice)
   duration: number; // seconds (estimated for the device voice)
   expanded: boolean;
+  /** Playback speed multiplier, remembered on this device. */
+  rate: number;
 }
 
 interface PlaybackApi extends PlaybackState {
@@ -48,11 +50,23 @@ interface PlaybackApi extends PlaybackState {
   skip: (seconds: number) => void;
   stop: () => void;
   setExpanded: (v: boolean) => void;
+  setRate: (rate: number) => void;
   voiceSupported: boolean;
 }
 
 const WORDS_PER_SECOND = 2.5; // ~150 wpm, used only to estimate device-voice progress
 const LANG_TAG = { en: "en-CA", fr: "fr-CA", es: "es-ES" } as const;
+
+export const PLAYBACK_RATES = [0.75, 1, 1.25, 1.5] as const;
+const RATE_KEY = "seen.v1.playbackRate";
+function loadRate(): number {
+  try {
+    const v = Number(localStorage.getItem(RATE_KEY));
+    return (PLAYBACK_RATES as readonly number[]).includes(v) ? v : 1;
+  } catch {
+    return 1;
+  }
+}
 
 const Ctx = createContext<PlaybackApi | null>(null);
 
@@ -75,6 +89,7 @@ export function PlaybackProvider({ children }: { children: ReactNode }) {
     elapsed: 0,
     duration: 0,
     expanded: false,
+    rate: loadRate(),
   });
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const voiceOffset = useRef(0); // char index where the current utterance started
@@ -103,6 +118,7 @@ export function PlaybackProvider({ children }: { children: ReactNode }) {
       voiceChar.current = start;
       const u = new SpeechSynthesisUtterance(t.text.slice(start));
       u.lang = LANG_TAG[t.lang];
+      u.rate = stateRef.current.rate;
       const voice = window.speechSynthesis.getVoices().find(v => v.lang?.toLowerCase().startsWith(t.lang));
       if (voice) u.voice = voice;
       const total = voiceDuration(t.text);
@@ -164,6 +180,7 @@ export function PlaybackProvider({ children }: { children: ReactNode }) {
       }
       const audio = new Audio();
       audio.preload = "metadata";
+      audio.playbackRate = stateRef.current.rate;
       audioRef.current = audio;
       audio.addEventListener("loadedmetadata", () => patch({ duration: audio.duration, source: "recording", status: "paused" }));
       audio.addEventListener("timeupdate", () =>
@@ -247,14 +264,31 @@ export function PlaybackProvider({ children }: { children: ReactNode }) {
   const stop = useCallback(() => {
     teardown();
     trackRef.current = null;
-    setState({ track: null, status: "idle", source: null, progress: 0, elapsed: 0, duration: 0, expanded: false });
+    setState(s => ({ track: null, status: "idle", source: null, progress: 0, elapsed: 0, duration: 0, expanded: false, rate: s.rate }));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const setRate = useCallback(
+    (rate: number) => {
+      try {
+        localStorage.setItem(RATE_KEY, String(rate));
+      } catch {
+        /* storage unavailable: the rate still applies for this session */
+      }
+      stateRef.current = { ...stateRef.current, rate };
+      patch({ rate });
+      if (audioRef.current) audioRef.current.playbackRate = rate;
+      const s = stateRef.current;
+      // The speech engine can't change speed mid-utterance: restart from the current position.
+      if (s.source === "voice" && s.status === "playing" && trackRef.current) speakFrom(Math.round(s.progress * trackRef.current.text.length));
+    },
+    [patch, speakFrom],
+  );
 
   const setExpanded = useCallback((expanded: boolean) => patch({ expanded }), [patch]);
 
   const api = useMemo<PlaybackApi>(
-    () => ({ ...state, load, toggle, play, pause, seek, skip, stop, setExpanded, voiceSupported }),
-    [state, load, toggle, play, pause, seek, skip, stop, setExpanded, voiceSupported],
+    () => ({ ...state, load, toggle, play, pause, seek, skip, stop, setExpanded, setRate, voiceSupported }),
+    [state, load, toggle, play, pause, seek, skip, stop, setExpanded, setRate, voiceSupported],
   );
 
   return <Ctx.Provider value={api}>{children}</Ctx.Provider>;

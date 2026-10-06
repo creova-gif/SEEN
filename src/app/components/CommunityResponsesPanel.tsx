@@ -117,7 +117,7 @@ export function CommunityResponsesPanel({
                 </button>
               </div>
 
-              <p className="text-sm text-white/50 leading-relaxed mb-4">
+              <p className="text-sm text-white/55 leading-relaxed mb-4">
                 {getText("description")}
               </p>
 
@@ -131,7 +131,7 @@ export function CommunityResponsesPanel({
                       px-3 py-1.5 rounded-full text-xs tracking-wider uppercase transition-all
                       ${filter === type 
                         ? 'bg-white/10 text-white border border-white/20' 
-                        : 'bg-white/5 text-white/50 border border-white/10 hover:bg-white/10'
+                        : 'bg-white/5 text-white/55 border border-white/10 hover:bg-white/10'
                       }
                     `}
                   >

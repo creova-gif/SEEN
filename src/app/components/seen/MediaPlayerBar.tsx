@@ -1,6 +1,6 @@
 import { ChevronDown, Pause, Play, RotateCcw, RotateCw, X, Mic, AudioLines } from "lucide-react";
 import { useEffect } from "react";
-import { formatTime, usePlayback } from "../../playback/PlaybackProvider";
+import { formatTime, PLAYBACK_RATES, usePlayback } from "../../playback/PlaybackProvider";
 import { IconButton } from "./primitives";
 import { Sheet } from "./overlays";
 import { SeenImage } from "./SeenImage";
@@ -138,6 +138,19 @@ export function ExpandedPlayer({ onOpenChapter, compact = false }: { onOpenChapt
           <RotateCw className="w-5 h-5 text-white/80" />
         </IconButton>
       </div>
+      {(
+        <div className="flex justify-center mt-1">
+          <button
+            type="button"
+            disabled={unavailable}
+            onClick={() => p.setRate(PLAYBACK_RATES[(PLAYBACK_RATES.indexOf(p.rate as (typeof PLAYBACK_RATES)[number]) + 1) % PLAYBACK_RATES.length])}
+            aria-label={`Playback speed ${p.rate}x. Change speed`}
+            className="min-h-11 min-w-11 px-4 rounded-full border border-white/20 text-sm text-white/85 tabular-nums hover:bg-white/5 disabled:opacity-40"
+          >
+            {p.rate}×
+          </button>
+        </div>
+      )}
 
       {onOpenChapter && (
         <button

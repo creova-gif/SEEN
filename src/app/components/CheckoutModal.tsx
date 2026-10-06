@@ -108,7 +108,7 @@ export function CheckoutModal({ isOpen, onClose, title, description, amount, onS
               {step === "form" && (
                 <>
                   <h3 className="text-lg text-white mb-1">{title}</h3>
-                  <p className="text-sm text-white/50 mb-6">{description}</p>
+                  <p className="text-sm text-white/55 mb-6">{description}</p>
 
                   <div className="p-4 rounded-xl bg-white/5 border border-white/10 mb-6 flex items-center justify-between">
                     <span className="text-sm text-white/60">{t("Total", "Total", "Total")}</span>
@@ -202,7 +202,7 @@ export function CheckoutModal({ isOpen, onClose, title, description, amount, onS
                     <CheckCircle2 className="w-14 h-14 text-green-400 mb-4" />
                   </motion.div>
                   <p className="text-base text-white mb-1">{t("Payment successful", "Paiement réussi", "Pago exitoso")}</p>
-                  <p className="text-sm text-white/50">{formatCents(amount)} {t("charged", "débité", "cobrado")}</p>
+                  <p className="text-sm text-white/55">{formatCents(amount)} {t("charged", "débité", "cobrado")}</p>
                 </div>
               )}
 
@@ -210,7 +210,7 @@ export function CheckoutModal({ isOpen, onClose, title, description, amount, onS
                 <div className="py-8 flex flex-col items-center text-center">
                   <AlertCircle className="w-12 h-12 text-red-400 mb-4" />
                   <p className="text-base text-white mb-1">{t("Payment failed", "Échec du paiement", "Pago fallido")}</p>
-                  <p className="text-sm text-white/50 mb-6">{errorMessage}</p>
+                  <p className="text-sm text-white/55 mb-6">{errorMessage}</p>
                   <button
                     onClick={reset}
                     className="px-6 py-3 rounded-xl bg-white/10 border border-white/20 text-white text-sm hover:bg-white/20"

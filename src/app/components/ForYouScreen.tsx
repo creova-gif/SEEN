@@ -150,7 +150,7 @@ export function ForYouScreen({
           {/* Editorial Hero Block */}
           <div className="mb-8">
             <PageTitle className="mb-3">For You</PageTitle>
-            <p className="text-base text-white/50 font-light tracking-wide leading-relaxed">
+            <p className="text-base text-white/55 font-light tracking-wide leading-relaxed">
               Your presence, unfolding in real time.
             </p>
           </div>

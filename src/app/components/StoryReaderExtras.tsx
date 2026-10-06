@@ -2,7 +2,7 @@
  * Reader additions from Figma (Transcript, Captions, player states, Story Completion). Everything shown is real:
  * the transcript is the chapter text, captions follow the device voice only, completion uses real counts.
  */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { Captions, FileText, Play } from "lucide-react";
 import { Banner, Button } from "./seen/primitives";
@@ -105,10 +105,33 @@ export function StoryCompletion({ story, language, minutes, chapterCount, onRefl
 }) {
   const t = useT();
   const nav = useAppNav();
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef(onKeepReading);
+  closeRef.current = onKeepReading;
+  // Hand-rolled modal: move focus in, close on Escape, keep Tab inside, and give focus back on close.
+  useEffect(() => {
+    const opener = document.activeElement as HTMLElement | null;
+    const node = dialogRef.current;
+    node?.querySelector<HTMLElement>("button")?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        closeRef.current();
+      } else if (e.key === "Tab" && node) {
+        const f = [...node.querySelectorAll<HTMLElement>("button, a[href], [tabindex]:not([tabindex='-1'])")].filter(x => !x.hasAttribute("disabled"));
+        if (f.length === 0) return;
+        const first = f[0], last = f[f.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => { document.removeEventListener("keydown", onKey); opener?.focus?.(); };
+  }, []);
   const title = getLocalizedText(story.title, language);
   const related = [...new Map(story.culturalThemes.flatMap(th => searchByTheme(th, language)).filter(i => i.id !== story.id).map(i => [i.id, i])).values()].slice(0, 4);
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25 }} className="fixed inset-0 z-[55] bg-seen-canvas overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="done-title">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25 }} ref={dialogRef} className="fixed inset-0 z-[55] bg-seen-canvas overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="done-title">
       <div className="max-w-[428px] mx-auto px-gutter pt-header pb-clearance">
         <p className="font-seen-mono text-[11px] tracking-[0.8px] uppercase text-seen-muted">{t("done.eyebrow")}</p>
         <h2 id="done-title" className="font-seen-display text-[34px] leading-[1.16] tracking-[-0.5px] text-white mt-3">{t("done.title", { title })}</h2>

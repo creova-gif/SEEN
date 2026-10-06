@@ -133,7 +133,7 @@ test.describe("signed-in viewer", () => {
 
   test("reader: save, pick a chapter, and keep listening in the mini player", async ({ page }) => {
     await page.goto("/#/story/midnight-resonance");
-    await page.getByRole("button", { name: /enter story/i }).click();
+    await page.getByRole("button", { name: /start reading/i }).click();
     await expect(page.getByTestId("expanded-player")).toBeVisible();
     await page.getByRole("button", { name: "Save story" }).click();
     await expect(page.getByRole("button", { name: "Remove from saved" })).toHaveAttribute("aria-pressed", "true");
@@ -426,7 +426,7 @@ test.describe("reader: transcript, captions, completion", () => {
 
   test("transcript shows the chapter text; captions toggle; finishing the last chapter shows completion", async ({ page }) => {
     await page.goto("/#/story/midnight-resonance");
-    await page.getByRole("button", { name: /enter story/i }).click();
+    await page.getByRole("button", { name: /start reading/i }).click();
     await page.getByRole("button", { name: /^transcript$/i }).click();
     const dialog = page.getByRole("dialog", { name: /transcript/i });
     await expect(dialog).toBeVisible();
@@ -601,5 +601,26 @@ test.describe("ported from older SEEN work", () => {
     await dialog.getByRole("button", { name: /cancel/i }).click();
     await expect(dialog).toBeHidden();
     await expect(page.getByRole("button", { name: /^sign out$/i })).toBeVisible();
+  });
+});
+
+test.describe("accessibility preferences and creator audience", () => {
+  test("larger text setting scales the root and persists across reload", async ({ page }) => {
+    await signInAs(page, "viewer");
+    await page.goto("/#/settings");
+    const toggle = page.getByRole("switch", { name: /larger text/i });
+    await toggle.click();
+    await expect(page.locator("html")).toHaveAttribute("data-text", "large");
+    await page.reload();
+    await expect(page.locator("html")).toHaveAttribute("data-text", "large");
+  });
+
+  test("create story offers audience chips instead of only typing", async ({ page }) => {
+    await signInAs(page, "creator");
+    await page.goto("/#/creator-publish");
+    const educators = page.getByRole("button", { name: /^educators$/i });
+    await educators.click();
+    await expect(educators).toHaveAttribute("aria-pressed", "true");
+    await expect(page.getByPlaceholder(/pick above, or add your own/i)).toHaveValue("Educators");
   });
 });

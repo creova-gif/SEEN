@@ -157,7 +157,7 @@ export function ContextAccessibilityStep({
       <div className="px-5 py-6">
         <div className="mb-4">
           <h2 className="text-base font-light tracking-wide mb-2">Context Cards</h2>
-          <p className="text-xs text-white/50 leading-relaxed">
+          <p className="text-xs text-white/55 leading-relaxed">
             Optional cards that provide deeper understanding. These appear alongside your story.
           </p>
         </div>
@@ -288,7 +288,7 @@ export function ContextAccessibilityStep({
       <div className="px-5 py-6 border-t border-white/10">
         <div className="mb-4">
           <h2 className="text-base font-light tracking-wide mb-2">Accessibility</h2>
-          <p className="text-xs text-white/50 leading-relaxed">
+          <p className="text-xs text-white/55 leading-relaxed">
             Ensure your story can be experienced by all audiences.
           </p>
         </div>
@@ -369,7 +369,7 @@ export function ContextAccessibilityStep({
         <div className="px-5 py-6 border-t border-white/10">
           <div className="mb-4">
             <h2 className="text-base font-light tracking-wide mb-2">Language Notes</h2>
-            <p className="text-xs text-white/50 leading-relaxed">
+            <p className="text-xs text-white/55 leading-relaxed">
               Add any language-specific context or translation notes.
             </p>
           </div>
@@ -424,7 +424,7 @@ export function ContextAccessibilityStep({
             </div>
             <div className="flex-1">
               <div className="text-sm text-white mb-1">I confirm this story includes accessibility features</div>
-              <div className="text-xs text-white/50 leading-relaxed">
+              <div className="text-xs text-white/55 leading-relaxed">
                 Your story should be accessible to audiences with different needs. 
                 We'll help you add missing features before publishing.
               </div>

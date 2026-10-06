@@ -216,7 +216,7 @@ export function SkeletonList({ count = 3, kind = "block", label = "Loading" }: {
 type StateKind = "empty" | "error" | "offline" | "denied";
 
 const STATE_ICONS: Record<StateKind, ReactNode> = {
-  empty: <Inbox className="w-6 h-6 text-white/50" />,
+  empty: <Inbox className="w-6 h-6 text-white/55" />,
   error: <AlertCircle className="w-6 h-6 text-seen-error" />,
   offline: <WifiOff className="w-6 h-6 text-seen-warning" />,
   denied: <TriangleAlert className="w-6 h-6 text-seen-warning" />,

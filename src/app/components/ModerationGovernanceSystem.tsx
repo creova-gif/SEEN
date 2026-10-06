@@ -428,7 +428,7 @@ export function AuditLogViewer({ actions, userRole }: AuditLogViewerProps) {
                 )}
 
                 {action.notes && (
-                  <p className="text-xs text-white/50 italic">
+                  <p className="text-xs text-white/55 italic">
                     Notes: {action.notes}
                   </p>
                 )}
@@ -608,7 +608,7 @@ export function ModerationGovernanceSystem({ onBack }: ModerationGovernanceSyste
                 <Shield className="w-5 h-5 text-blue-400" />
                 <h1 className="text-lg font-semibold text-white">Moderation Panel</h1>
               </div>
-              <p className="text-xs text-white/50">Review community contributions</p>
+              <p className="text-xs text-white/55">Review community contributions</p>
             </div>
           </div>
         </div>
@@ -623,7 +623,7 @@ export function ModerationGovernanceSystem({ onBack }: ModerationGovernanceSyste
               className={`flex-1 min-h-11 px-2 py-3 text-sm whitespace-nowrap transition-all ${
                 activeTab === "queue"
                   ? "text-white border-b-2 border-blue-400"
-                  : "text-white/50 hover:text-white/70"
+                  : "text-white/55 hover:text-white/70"
               }`}
             >
               Queue ({responses.length})
@@ -633,7 +633,7 @@ export function ModerationGovernanceSystem({ onBack }: ModerationGovernanceSyste
               className={`flex-1 min-h-11 px-2 py-3 text-sm whitespace-nowrap transition-all ${
                 activeTab === "reports"
                   ? "text-white border-b-2 border-blue-400"
-                  : "text-white/50 hover:text-white/70"
+                  : "text-white/55 hover:text-white/70"
               }`}
             >
               {translate("reports.tab", lang)} ({reports.filter(r => r.status === "open").length})
@@ -643,7 +643,7 @@ export function ModerationGovernanceSystem({ onBack }: ModerationGovernanceSyste
               className={`flex-1 min-h-11 px-2 py-3 text-sm whitespace-nowrap transition-all ${
                 activeTab === "audit"
                   ? "text-white border-b-2 border-blue-400"
-                  : "text-white/50 hover:text-white/70"
+                  : "text-white/55 hover:text-white/70"
               }`}
             >
               Audit Log
@@ -653,7 +653,7 @@ export function ModerationGovernanceSystem({ onBack }: ModerationGovernanceSyste
               className={`flex-1 min-h-11 px-2 py-3 text-sm whitespace-nowrap transition-all ${
                 activeTab === "guidelines"
                   ? "text-white border-b-2 border-blue-400"
-                  : "text-white/50 hover:text-white/70"
+                  : "text-white/55 hover:text-white/70"
               }`}
             >
               Guidelines

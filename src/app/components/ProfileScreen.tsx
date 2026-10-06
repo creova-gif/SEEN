@@ -523,7 +523,7 @@ function StatCard({ value, label }: { value: number; label: string }) {
   return (
     <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-center">
       <div className="text-xl font-bold text-white mb-1">{value}</div>
-      <div className="text-xs text-white/50">{label}</div>
+      <div className="text-xs text-white/55">{label}</div>
     </div>
   );
 }

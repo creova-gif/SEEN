@@ -71,7 +71,7 @@ export function OnboardingAccessibility({ onComplete }: OnboardingAccessibilityP
         <h2 className="text-xl leading-relaxed text-white/80 mb-3">
           Experience SEEN, your way
         </h2>
-        <p className="text-sm text-white/50 leading-relaxed">
+        <p className="text-sm text-white/55 leading-relaxed">
           Tune into your frequency—shape how stories, sound, and visuals speak to you
         </p>
       </motion.div>
@@ -98,7 +98,7 @@ export function OnboardingAccessibility({ onComplete }: OnboardingAccessibilityP
                 <h3 className="text-base text-white/90 mb-1 group-hover:text-white transition-colors duration-300">
                   {option.title}
                 </h3>
-                <p className="text-sm text-white/50 leading-relaxed group-hover:text-white/60 transition-colors duration-300">
+                <p className="text-sm text-white/55 leading-relaxed group-hover:text-white/60 transition-colors duration-300">
                   {option.description}
                 </p>
               </div>

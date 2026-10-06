@@ -1,4 +1,6 @@
 import { Compass, Home, Library, User } from "lucide-react";
+import { useT } from "../../i18n/useT";
+import type { StringKey } from "../../i18n/strings";
 
 /**
  * The single bottom navigation (Figma 298:82, Active=ForYou/Explore/Library/Profile).
@@ -6,14 +8,15 @@ import { Compass, Home, Library, User } from "lucide-react";
  */
 export type TabId = "for-you" | "explore" | "library" | "profile";
 
-const TABS: { id: TabId; label: string; Icon: typeof Home }[] = [
-  { id: "for-you", label: "For You", Icon: Home },
-  { id: "explore", label: "Explore", Icon: Compass },
-  { id: "library", label: "Library", Icon: Library },
-  { id: "profile", label: "Profile", Icon: User },
+const TABS: { id: TabId; label: StringKey; Icon: typeof Home }[] = [
+  { id: "for-you", label: "nav.forYou", Icon: Home },
+  { id: "explore", label: "nav.explore", Icon: Compass },
+  { id: "library", label: "nav.library", Icon: Library },
+  { id: "profile", label: "nav.profile", Icon: User },
 ];
 
 export function BottomNav({ activeTab, onNavigate }: { activeTab: TabId; onNavigate: (tab: TabId) => void }) {
+  const t = useT();
   return (
     <nav aria-label="Main" className="fixed bottom-0 left-0 right-0 z-50 backdrop-blur-xl bg-seen-surface/95 border-t border-seen-border pb-[env(safe-area-inset-bottom)]">
       <div className="max-w-[428px] mx-auto flex">
@@ -34,7 +37,7 @@ export function BottomNav({ activeTab, onNavigate }: { activeTab: TabId; onNavig
                 className="w-5 h-5"
                 strokeWidth={active ? 2 : 1.5}
               />
-              <span className="text-[11px] leading-[1.2] tracking-[0.02em] uppercase font-medium">{label}</span>
+              <span className="text-[11px] leading-[1.2] tracking-[0.02em] uppercase font-medium">{t(label)}</span>
             </button>
           );
         })}

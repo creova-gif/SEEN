@@ -184,7 +184,7 @@ export function AdminDashboardScreen({ onClose }: AdminDashboardScreenProps) {
             <div className="space-y-6">
               <div className="p-5 rounded-2xl bg-white/5 border border-white/10">
                 <h3 className="text-sm text-white mb-1 flex items-center gap-2">
-                  <Settings className="w-4 h-4 text-white/50" />
+                  <Settings className="w-4 h-4 text-white/55" />
                   {t("Platform Fee", "Frais de Plateforme", "Comisión de Plataforma")}
                 </h3>
                 <p className="text-xs text-white/55 mb-4">
@@ -243,7 +243,7 @@ function StatCard({ icon, value, label }: { icon: JSX.Element; value: string; la
 function Row({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
   return (
     <div className="flex items-center justify-between">
-      <span className="text-sm text-white/50">{label}</span>
+      <span className="text-sm text-white/55">{label}</span>
       <span className={`text-sm ${strong ? "text-white font-semibold" : "text-white/80"}`}>{value}</span>
     </div>
   );

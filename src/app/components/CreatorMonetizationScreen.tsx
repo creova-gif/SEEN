@@ -95,7 +95,7 @@ export function CreatorMonetizationScreen({ onClose }: CreatorMonetizationScreen
             <span className="text-xs tracking-[0.3em] uppercase text-white/55 mb-3 block">
               {t("Your Subscription Tier", "Votre Palier d'Abonnement", "Tu Nivel de Suscripción")}
             </span>
-            <p className="text-sm text-white/50 mb-5 leading-relaxed">
+            <p className="text-sm text-white/55 mb-5 leading-relaxed">
               {t(
                 "Fans subscribe monthly for exclusive access to your subscriber-only content.",
                 "Les fans s'abonnent mensuellement pour un accès exclusif à votre contenu réservé aux abonnés.",
@@ -165,7 +165,7 @@ export function CreatorMonetizationScreen({ onClose }: CreatorMonetizationScreen
             <span className="text-xs tracking-[0.3em] uppercase text-white/55 mb-3 block">
               {t("Content Pricing", "Tarification du Contenu", "Precios de Contenido")}
             </span>
-            <p className="text-sm text-white/50 mb-5 leading-relaxed">
+            <p className="text-sm text-white/55 mb-5 leading-relaxed">
               {t(
                 "Set the access tier for each story. Demo mode lets you configure pricing across the catalog.",
                 "Définissez le palier d'accès pour chaque histoire. Le mode démo vous permet de configurer les prix pour tout le catalogue.",

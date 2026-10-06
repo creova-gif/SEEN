@@ -894,7 +894,7 @@ function PresenceStep({ onNext }: { onNext: () => void }) {
           Your presence will form here.
         </p>
         
-        <p className="text-base leading-relaxed text-white/50">
+        <p className="text-base leading-relaxed text-white/55">
           As you create, explore, and contribute, this space becomes yours.
         </p>
       </motion.div>

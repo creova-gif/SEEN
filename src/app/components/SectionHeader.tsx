@@ -37,7 +37,7 @@ export function SectionHeader({ title, subtitle, icon, onViewAll }: SectionHeade
           type="button"
           onClick={onViewAll}
           aria-label={`See all ${title}`}
-          className="flex items-center gap-1 min-h-11 px-1 text-xs tracking-wider uppercase text-white/50 hover:text-white/80 transition-colors"
+          className="flex items-center gap-1 min-h-11 px-1 text-xs tracking-wider uppercase text-white/55 hover:text-white/80 transition-colors"
         >
           See All
           <ChevronRight className="w-3 h-3" aria-hidden />

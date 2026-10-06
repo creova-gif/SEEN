@@ -196,7 +196,7 @@ export function SubmitResponseModal({
                 {responseType === "audio" && (
                   <div className="p-8 rounded-xl bg-white/5 border border-white/10 text-center">
                     <Mic className="w-8 h-8 text-white/55 mx-auto mb-3" />
-                    <p className="text-sm text-white/50">
+                    <p className="text-sm text-white/55">
                       {state.language === 'en' ? 'Audio recording coming soon' : state.language === 'fr' ? 'Enregistrement audio à venir' : 'Grabación de audio próximamente'}
                     </p>
                   </div>
@@ -205,7 +205,7 @@ export function SubmitResponseModal({
                 {responseType === "image" && (
                   <div className="p-8 rounded-xl bg-white/5 border border-white/10 text-center">
                     <ImageIcon className="w-8 h-8 text-white/55 mx-auto mb-3" />
-                    <p className="text-sm text-white/50">
+                    <p className="text-sm text-white/55">
                       {state.language === 'en' ? 'Image upload coming soon' : state.language === 'fr' ? 'Téléchargement d\'image à venir' : 'Carga de imagen próximamente'}
                     </p>
                   </div>

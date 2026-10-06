@@ -171,3 +171,8 @@
 :root[data-player="on"] main {
   padding-bottom: 12rem !important;
 }
+
+/* Larger text preference (Settings > Accessibility): everything sized in rem scales with it. */
+:root[data-text="large"] {
+  font-size: 118.75%;
+}

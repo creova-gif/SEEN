@@ -107,7 +107,7 @@ export function SubscriptionManagementScreen({ onClose }: SubscriptionManagement
               <div className="space-y-2">
                 {pastSubscriptions.map(sub => (
                   <div key={sub.id} className="p-3 rounded-lg bg-white/5 border border-white/5 flex items-center justify-between">
-                    <span className="text-sm text-white/50">{sub.creatorName}</span>
+                    <span className="text-sm text-white/55">{sub.creatorName}</span>
                     <span className="text-xs text-white/55">{t("Canceled", "Annulé", "Cancelado")}</span>
                   </div>
                 ))}

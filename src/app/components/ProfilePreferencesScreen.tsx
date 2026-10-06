@@ -18,6 +18,8 @@ const COPY = {
     a11y: "Accessibility",
     contrast: "High contrast",
     contrastHint: "Brighter secondary text and stronger borders",
+    largeText: "Larger text",
+    largeTextHint: "Increases text size across the app",
     motion: "Reduce motion",
     motionHint: "Turns off animations and transitions",
     privacy: "Privacy",
@@ -32,6 +34,8 @@ const COPY = {
     a11y: "Accessibilité",
     contrast: "Contraste élevé",
     contrastHint: "Texte secondaire plus lumineux et bordures plus marquées",
+    largeText: "Texte plus grand",
+    largeTextHint: "Augmente la taille du texte dans toute l’application",
     motion: "Réduire les animations",
     motionHint: "Désactive les animations et transitions",
     privacy: "Confidentialité",
@@ -46,6 +50,8 @@ const COPY = {
     a11y: "Accesibilidad",
     contrast: "Alto contraste",
     contrastHint: "Texto secundario más brillante y bordes más marcados",
+    largeText: "Texto más grande",
+    largeTextHint: "Aumenta el tamaño del texto en toda la app",
     motion: "Reducir movimiento",
     motionHint: "Desactiva animaciones y transiciones",
     privacy: "Privacidad",
@@ -89,6 +95,9 @@ export function ProfilePreferencesScreen({ onBack }: ProfilePreferencesScreenPro
         <div className="rounded-seen-md border border-seen-border bg-seen-surface px-4 divide-y divide-white/5">
           <div className="py-2">
             <Toggle checked={a11y.highContrast} onChange={v => setAccessibilityPreferences({ highContrast: v })} label={t.contrast} description={t.contrastHint} />
+          </div>
+          <div className="py-2">
+            <Toggle checked={!!a11y.largeText} onChange={v => setAccessibilityPreferences({ largeText: v })} label={t.largeText} description={t.largeTextHint} />
           </div>
           <div className="py-2">
             <Toggle checked={a11y.reducedMotion} onChange={v => setAccessibilityPreferences({ reducedMotion: v })} label={t.motion} description={t.motionHint} />
