@@ -602,12 +602,12 @@
  {
   "id": "322:2",
   "name": "DISCOVERY / Search · Landing / Mobile",
-  "status": "PARTIAL",
+  "status": "IMPLEMENTED",
   "route": "search overlay (#/search)",
-  "component": "SearchScreen",
+  "component": "SearchScreen (recent searches, browse by theme)",
   "functional": "yes",
   "vercel": "yes",
-  "note": "Add landing state (recent and suggested searches)"
+  "note": "Landing shows device-stored recents and themes from the catalogue."
  },
  {
   "id": "322:39",
@@ -632,12 +632,12 @@
  {
   "id": "322:117",
   "name": "DISCOVERY / Search · Filters Sheet / Mobile",
-  "status": "MISSING",
+  "status": "IMPLEMENTED",
   "route": "#/search",
-  "component": "-",
-  "functional": "-",
-  "vercel": "-",
-  "note": "Add filters Sheet (language, type, theme)"
+  "component": "SearchFiltersSheet",
+  "functional": "yes",
+  "vercel": "yes",
+  "note": "Language, length and theme filters over the real catalogue."
  },
  {
   "id": "322:161",
@@ -742,42 +742,42 @@
  {
   "id": "324:2",
   "name": "STORY / Audio Player · Captions Active / Mobile",
-  "status": "MISSING",
+  "status": "IMPLEMENTED",
   "route": "story-chapter screen",
-  "component": "-",
-  "functional": "-",
-  "vercel": "-",
-  "note": "Add captions/transcript toggle using chapter text"
+  "component": "CaptionBar (StoryReaderExtras)",
+  "functional": "yes",
+  "vercel": "yes",
+  "note": "Captions only for device-voice playback; no invented timing."
  },
  {
   "id": "324:31",
   "name": "STORY / Audio Player · Buffering / Mobile",
-  "status": "MISSING",
+  "status": "IMPLEMENTED",
   "route": "story-chapter screen",
-  "component": "-",
-  "functional": "-",
-  "vercel": "-",
-  "note": "Add buffering state to the player"
+  "component": "PlayerAlert (StoryReaderExtras)",
+  "functional": "yes",
+  "vercel": "yes",
+  "note": "Buffering state shown by the player."
  },
  {
   "id": "324:58",
   "name": "STORY / Audio Player · Playback Failed / Mobile",
-  "status": "MISSING",
+  "status": "IMPLEMENTED",
   "route": "story-chapter screen",
-  "component": "-",
-  "functional": "-",
-  "vercel": "-",
-  "note": "Add playback-failed state with retry"
+  "component": "PlayerAlert (StoryReaderExtras)",
+  "functional": "yes",
+  "vercel": "yes",
+  "note": "Playback-failed state with retry."
  },
  {
   "id": "324:72",
   "name": "STORY / Transcript / Default / Mobile",
-  "status": "MISSING",
+  "status": "IMPLEMENTED",
   "route": "story-chapter screen",
-  "component": "-",
-  "functional": "-",
-  "vercel": "-",
-  "note": "Add Transcript sheet from chapter text"
+  "component": "TranscriptSheet",
+  "functional": "yes",
+  "vercel": "yes",
+  "note": "Chapter text paragraphs; no timestamps."
  },
  {
   "id": "329:2",
@@ -792,12 +792,12 @@
  {
   "id": "329:16",
   "name": "STORY / Story Completion / Default / Mobile",
-  "status": "MISSING",
+  "status": "IMPLEMENTED",
   "route": "story-chapter end",
-  "component": "-",
-  "functional": "-",
-  "vercel": "-",
-  "note": "Add completion screen after the last chapter"
+  "component": "StoryCompletion",
+  "functional": "yes",
+  "vercel": "yes",
+  "note": "Finish button on last chapter; real counts and related stories."
  },
  {
   "id": "329:31",
@@ -952,12 +952,12 @@
  {
   "id": "330:176",
   "name": "LIBRARY / Collections · Default / Mobile",
-  "status": "MISSING",
+  "status": "IMPLEMENTED",
   "route": "#/library",
-  "component": "-",
-  "functional": "-",
-  "vercel": "-",
-  "note": "Add Collections tab (saved collections)"
+  "component": "LibraryPanels SavedCollectionsPanel",
+  "functional": "yes",
+  "vercel": "yes",
+  "note": "Saved collections tab."
  },
  {
   "id": "331:2",
@@ -982,12 +982,12 @@
  {
   "id": "331:90",
   "name": "LIBRARY / Following · Default / Mobile",
-  "status": "MISSING",
+  "status": "IMPLEMENTED",
   "route": "#/library",
-  "component": "-",
-  "functional": "-",
-  "vercel": "-",
-  "note": "Add Following tab (followed creators, unfollow)"
+  "component": "LibraryPanels FollowingPanel",
+  "functional": "yes",
+  "vercel": "yes",
+  "note": "Followed creators with optimistic unfollow and rollback."
  },
  {
   "id": "331:150",
@@ -1032,12 +1032,12 @@
  {
   "id": "332:67",
   "name": "CREATOR / Stories · List / Mobile",
-  "status": "MISSING",
-  "route": "-",
-  "component": "-",
-  "functional": "-",
-  "vercel": "-",
-  "note": "Add My stories list from userStoriesService"
+  "status": "IMPLEMENTED",
+  "route": "#/creator-stories",
+  "component": "CreatorStoriesScreen",
+  "functional": "yes",
+  "vercel": "yes",
+  "note": "Published and Drafts tabs; creator/admin only."
  },
  {
   "id": "333:2",
@@ -1212,12 +1212,12 @@
  {
   "id": "335:119",
   "name": "FUNDING / Funding Readiness Profile / Mobile",
-  "status": "MISSING",
-  "route": "-",
-  "component": "-",
-  "functional": "-",
-  "vercel": "-",
-  "note": "Add readiness profile (user-entered, stored on device)"
+  "status": "IMPLEMENTED",
+  "route": "#/funding-readiness",
+  "component": "FundingReadinessScreen",
+  "functional": "yes",
+  "vercel": "yes",
+  "note": "Self-ticked checklist, no score or verdict; stored on device."
  },
  {
   "id": "335:160",
@@ -1272,62 +1272,62 @@
  {
   "id": "337:2",
   "name": "FUNDING / Application · Under Review / Mobile",
-  "status": "MISSING",
+  "status": "STATE",
   "route": "#/opportunity/:id",
-  "component": "-",
-  "functional": "-",
-  "vercel": "-",
-  "note": "Add as a user-recorded outcome 'tracked by you'"
+  "component": "OpportunityDetailScreen outcome selector",
+  "functional": "yes",
+  "vercel": "yes",
+  "note": "Under Review is a user-recorded outcome labelled \"tracked by you\"; SEEN receives no funder decisions, so no separate screen."
  },
  {
   "id": "337:27",
   "name": "FUNDING / Application · Shortlisted / Mobile",
-  "status": "MISSING",
+  "status": "STATE",
   "route": "#/opportunity/:id",
-  "component": "-",
-  "functional": "-",
-  "vercel": "-",
-  "note": "Add as a user-recorded outcome 'tracked by you'"
+  "component": "OpportunityDetailScreen outcome selector",
+  "functional": "yes",
+  "vercel": "yes",
+  "note": "Shortlisted is a user-recorded outcome labelled \"tracked by you\"; SEEN receives no funder decisions, so no separate screen."
  },
  {
   "id": "337:54",
   "name": "FUNDING / Application · Info Requested / Mobile",
-  "status": "MISSING",
+  "status": "STATE",
   "route": "#/opportunity/:id",
-  "component": "-",
-  "functional": "-",
-  "vercel": "-",
-  "note": "Add as a user-recorded outcome 'tracked by you'"
+  "component": "OpportunityDetailScreen outcome selector",
+  "functional": "yes",
+  "vercel": "yes",
+  "note": "Info Requested is a user-recorded outcome labelled \"tracked by you\"; SEEN receives no funder decisions, so no separate screen."
  },
  {
   "id": "337:81",
   "name": "FUNDING / Application · Approved / Mobile",
-  "status": "MISSING",
+  "status": "STATE",
   "route": "#/opportunity/:id",
-  "component": "-",
-  "functional": "-",
-  "vercel": "-",
-  "note": "Add as a user-recorded outcome 'tracked by you'"
+  "component": "OpportunityDetailScreen outcome selector",
+  "functional": "yes",
+  "vercel": "yes",
+  "note": "Approved is a user-recorded outcome labelled \"tracked by you\"; SEEN receives no funder decisions, so no separate screen."
  },
  {
   "id": "337:110",
   "name": "FUNDING / Application · Declined / Mobile",
-  "status": "MISSING",
+  "status": "STATE",
   "route": "#/opportunity/:id",
-  "component": "-",
-  "functional": "-",
-  "vercel": "-",
-  "note": "Add as a user-recorded outcome 'tracked by you'"
+  "component": "OpportunityDetailScreen outcome selector",
+  "functional": "yes",
+  "vercel": "yes",
+  "note": "Declined is a user-recorded outcome labelled \"tracked by you\"; SEEN receives no funder decisions, so no separate screen."
  },
  {
   "id": "337:139",
   "name": "FUNDING / Funding Dashboard / Mobile",
-  "status": "PARTIAL",
+  "status": "IMPLEMENTED",
   "route": "#/funding (My tracker)",
-  "component": "FundingScreen My tracker view",
+  "component": "FundingScreen tracker summary tiles",
   "functional": "yes",
   "vercel": "yes",
-  "note": "Add status filter chips and the new statuses"
+  "note": "Tracked, Applied, Next deadline, Outcomes noted. Status filter chips not added."
  },
  {
   "id": "337:176",
@@ -1487,7 +1487,7 @@
   "component": "-",
   "functional": "-",
   "vercel": "-",
-  "note": "D-12"
+  "note": "Excluded by decision D-12: institutional partner workspaces need signed partner agreements"
  },
  {
   "id": "340:145",
@@ -1497,7 +1497,7 @@
   "component": "-",
   "functional": "-",
   "vercel": "-",
-  "note": "D-12"
+  "note": "Excluded by decision D-12: institutional partner workspaces need signed partner agreements"
  },
  {
   "id": "341:2",
@@ -1507,7 +1507,7 @@
   "component": "-",
   "functional": "-",
   "vercel": "-",
-  "note": "D-12"
+  "note": "Excluded by decision D-12: institutional partner workspaces need signed partner agreements"
  },
  {
   "id": "341:23",
@@ -1527,7 +1527,7 @@
   "component": "-",
   "functional": "-",
   "vercel": "-",
-  "note": "D-12"
+  "note": "Excluded by decision D-12: institutional partner workspaces need signed partner agreements"
  },
  {
   "id": "341:116",
@@ -2062,22 +2062,22 @@
  {
   "id": "32:97",
   "name": "edit-profile",
-  "status": "MISSING",
+  "status": "IMPLEMENTED",
   "route": "-",
-  "component": "-",
-  "functional": "-",
-  "vercel": "-",
-  "note": "Add Edit profile screen (name, bio)"
+  "component": "EditProfileScreen at #/edit-profile (name, bio)",
+  "functional": "yes",
+  "vercel": "yes",
+  "note": "Legacy single-screen frame"
  },
  {
   "id": "32:155",
   "name": "change-password",
-  "status": "MISSING",
+  "status": "IMPLEMENTED",
   "route": "-",
-  "component": "-",
-  "functional": "-",
-  "vercel": "-",
-  "note": "Add Change password screen"
+  "component": "ChangePasswordScreen at #/change-password",
+  "functional": "yes",
+  "vercel": "yes",
+  "note": "Legacy single-screen frame"
  },
  {
   "id": "33:151",
@@ -2182,12 +2182,12 @@
  {
   "id": "68:303",
   "name": "creator-drafts",
-  "status": "MISSING",
+  "status": "IMPLEMENTED",
   "route": "-",
-  "component": "-",
-  "functional": "-",
-  "vercel": "-",
-  "note": "Add drafts section to My stories (publish flow saves a draft)"
+  "component": "Drafts tab in CreatorStoriesScreen",
+  "functional": "yes",
+  "vercel": "yes",
+  "note": "Legacy single-screen frame"
  },
  {
   "id": "68:474",
@@ -2212,12 +2212,12 @@
  {
   "id": "68:554",
   "name": "terms-privacy",
-  "status": "MISSING",
+  "status": "IMPLEMENTED",
   "route": "-",
-  "component": "-",
-  "functional": "-",
-  "vercel": "-",
-  "note": "Add Terms and Privacy screen (draft, clearly marked)"
+  "component": "LegalScreen at #/legal, clearly marked draft pending counsel review",
+  "functional": "yes",
+  "vercel": "yes",
+  "note": "Legacy single-screen frame"
  },
  {
   "id": "68:635",

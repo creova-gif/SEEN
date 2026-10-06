@@ -3,12 +3,12 @@ import { writeFileSync } from "node:fs";
 
 /** Sweeps every route at phone widths and records overlapping controls, small tap targets and clipped text. Writes test-results/ux-audit.json. */
 const ROLE_ROUTES: Record<string, string[]> = {
-  creator: ["creator-monetization", "creator-earnings", "creator-publish", "notes"],
+  creator: ["creator-monetization", "creator-earnings", "creator-publish", "creator-stories", "notes"],
   moderator: ["moderation-governance"],
   admin: ["admin-dashboard"],
 };
-const ROUTES = ["for-you", "explore", "explore/creators", "library", "profile", "search", "notifications", "story/midnight-resonance", "creator/kira-chen", "collections", "funding", "settings", "account", "about"];
-const WIDTHS = [320, 360, 390];
+const ROUTES = ["for-you", "explore", "explore/creators", "library", "profile", "search", "notifications", "story/midnight-resonance", "creator/kira-chen", "collections", "funding", "settings", "account", "about", "edit-profile", "change-password", "legal", "funding-readiness"];
+const WIDTHS = [320, 360, 390, 768, 1280];
 const findings: Record<string, unknown>[] = [];
 
 for (const role of ["viewer", "creator", "moderator", "admin"] as const) test(`ux audit ${role}`, async ({ page }) => {
