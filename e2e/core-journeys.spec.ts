@@ -582,3 +582,24 @@ test.describe("creator: overview card", () => {
     await expect(page).toHaveURL(/#\/creator-stories/);
   });
 });
+
+test.describe("ported from older SEEN work", () => {
+  test("a link to a missing story shows an unavailable state with a way out", async ({ page }) => {
+    await signInAs(page, "viewer");
+    await page.goto("/#/story/does-not-exist");
+    await expect(page.getByText(/this story isn't available/i)).toBeVisible();
+    await page.getByRole("button", { name: /explore stories/i }).click();
+    await expect(page).toHaveURL(/#\/explore/);
+  });
+
+  test("sign out asks for confirmation and can be cancelled", async ({ page }) => {
+    await signInAs(page, "viewer");
+    await page.goto("/#/profile");
+    await page.getByRole("button", { name: /^sign out$/i }).click();
+    const dialog = page.getByRole("dialog", { name: /sign out\?/i });
+    await expect(dialog).toBeVisible();
+    await dialog.getByRole("button", { name: /cancel/i }).click();
+    await expect(dialog).toBeHidden();
+    await expect(page.getByRole("button", { name: /^sign out$/i })).toBeVisible();
+  });
+});

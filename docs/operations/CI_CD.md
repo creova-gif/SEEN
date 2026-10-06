@@ -1,11 +1,11 @@
 # CI / CD
 
-Pipeline (`.github/workflows/ci.yml`, on every PR and push to `main`):
+Pipeline (`.github/workflows/ci.yml`, on every PR and on push to `main`, `develop` and `release/**`):
 
 ```
 checkout → npm install → typecheck → unit/component tests → build → npm audit (prod, high+) → E2E + axe (Playwright, Chromium)
 ```
-Vercel builds a preview for every PR and deploys `main` to production (Git integration).
+Vercel builds a preview for every branch push and PR (behind SSO protection) and deploys only `main` to production (Git integration), so work on `develop` and `feature/*` never changes the testers' build. See `BRANCHING.md`.
 
 ## Gates
 
@@ -20,4 +20,4 @@ Do not merge when typecheck, tests, build, audit or E2E fail. Playwright reports
 | E2E against the Vercel preview URL | Use `deployment_status` event with `BASE_URL` |
 | DB migrations | With Supabase: `supabase/migrations/*.sql`, `supabase db push` on merge to `main`, staging first |
 | Feature flags | Vercel Flags or env-driven flags for risky flows (payments, real funding listings) |
-| Branch protection | Require the two CI jobs on `main` |
+| Branch protection | Apply the rules in `BRANCHING.md` to `main` and `develop` (needs a repository owner) |

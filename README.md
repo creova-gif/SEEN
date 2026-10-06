@@ -17,6 +17,10 @@ npm run test:e2e   # Playwright journeys + accessibility scans
 Demo test accounts (per browser, password `SeenDemo2026!`): `viewer@seen.demo`, `creator@seen.demo`, `moderator@seen.demo`, `admin@seen.demo`.
 Add `?simulate=offline|error|slow` to the URL to exercise failure states.
 
+## Branches
+
+`main` is production and the testers' build; `develop` is where ongoing work is integrated; work happens on `feature/*` and `fix/*` branches off `develop`. Details: [`docs/operations/BRANCHING.md`](docs/operations/BRANCHING.md). This repository is the single source of truth ([`docs/operations/REPOSITORY_MAP.md`](docs/operations/REPOSITORY_MAP.md)).
+
 ## Docs
 
 Start with [`docs/release/RELEASE_READINESS.md`](docs/release/RELEASE_READINESS.md) and the

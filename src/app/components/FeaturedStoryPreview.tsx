@@ -1,4 +1,7 @@
 import { motion } from "motion/react";
+import { StateTemplate } from "./seen/primitives";
+import { ScreenFrame } from "../screens/ScreenFrame";
+import { useAppNav } from "../navigation/AppNav";
 import { ArrowLeft, Play, Share2, Bookmark, Lock, Flag, PenLine } from "lucide-react";
 import { ReportContentSheet } from "./ReportContentSheet";
 import { NoteSheet } from "./NoteSheet";
@@ -28,6 +31,7 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
   const [savedOverride, setSavedOverride] = useState<boolean | null>(null);
   const { state } = useStoryState();
   const t = useT();
+  const nav = useAppNav();
   const { state: authState } = useAuth();
 
   // Get story data from current story world ID
@@ -36,8 +40,18 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
     : null;
 
   if (!storyData) {
-    console.error('[FeaturedStoryPreview] No story data found for:', state.currentStoryWorldId);
-    return null;
+    // A stale link, notification or search result can point at a story that no longer exists.
+    return (
+      <ScreenFrame title="" onBack={onClose}>
+        <StateTemplate
+          kind="empty"
+          title={t("unavail.title")}
+          message={t("unavail.msg")}
+          actionLabel={t("unavail.action")}
+          onAction={() => nav.go("explore")}
+        />
+      </ScreenFrame>
+    );
   }
 
   const saved = savedOverride ?? (storyData ? isBookmarked(storyData.id) : false);

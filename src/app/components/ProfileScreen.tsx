@@ -1,6 +1,9 @@
 import { DemoModeNotice } from "./DemoModeNotice";
 import { PageTitle } from "./seen/primitives";
+import { useState } from "react";
 import { motion } from "motion/react";
+import { ConfirmDialog } from "./seen/overlays";
+import { useT } from "../i18n/useT";
 import { ListItem } from "./seen/display";
 import { 
   Settings, 
@@ -68,6 +71,8 @@ export function ProfileScreen({
 }: ProfileScreenProps) {
   const { state, setUserRole } = useStoryState();
   const { state: authState, signOut } = useAuth();
+  const [confirmSignOut, setConfirmSignOut] = useState(false);
+  const t = useT();
   
   // Handle sign out
   const handleSignOut = async () => {
@@ -487,13 +492,21 @@ export function ProfileScreen({
           className="mb-8"
         >
           <button
-            onClick={handleSignOut}
-            className="w-full py-3 rounded-xl border border-red-500/30 text-red-400 text-sm hover:bg-red-500/10 transition-colors flex items-center justify-center gap-2"
+            onClick={() => setConfirmSignOut(true)}
+            className="w-full min-h-11 py-3 rounded-xl border border-red-500/30 text-red-400 text-sm hover:bg-red-500/10 transition-colors flex items-center justify-center gap-2"
           >
             <LogOut className="w-4 h-4" />
             Sign Out
           </button>
         </motion.section>
+        <ConfirmDialog
+          open={confirmSignOut}
+          onOpenChange={setConfirmSignOut}
+          title={t("signout.title")}
+          description={t("signout.msg")}
+          confirmLabel={t("signout.confirm")}
+          onConfirm={handleSignOut}
+        />
 
         {/* App Version */}
         <div className="text-center text-xs text-white/55">
