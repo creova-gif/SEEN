@@ -49,7 +49,7 @@
 
 - [ ] Server-side account deletion tested (`npm run test:db`) and the retention matrix reviewed by legal (`docs/security/DATA_RETENTION_MATRIX.md`)
 - [ ] Consent copy, retention statement, terms and privacy pages published
-- [ ] FR and ES copy reviewed for consent, delete, export, report and note strings (`docs/design/COPY_DECK.md`; `copyDeck.test.ts` checks every row has all three languages and matching placeholders)
+- [ ] FR and ES copy reviewed by a native speaker (drafts ship in `src/app/i18n/strings.ts`: notes, inbox, demo notice, sign-in errors) for consent, delete, export, report and note strings (`docs/design/COPY_DECK.md`; `copyDeck.test.ts` checks every row has all three languages and matching placeholders)
 - [ ] Supabase paid tier (no auto-pause, backups); backup and restore drill done
 - [ ] Staging project passes RLS suite, security advisors and the contract suite on both adapters
 - [ ] Google OAuth consent screen, domain verification and privacy policy URL ready

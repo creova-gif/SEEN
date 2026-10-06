@@ -348,3 +348,17 @@ test.describe("keyboard-only", () => {
     await expect(page.getByText(/creator will see your note/i)).toBeVisible();
   });
 });
+
+test.describe("french", () => {
+  test("the note flow follows the chosen language", async ({ page }) => {
+    await signInAs(page, "viewer");
+    await page.goto("/#/settings");
+    await page.getByLabel("Français").check();
+    await page.goto("/#/story/midnight-resonance");
+    await page.getByRole("button", { name: /note privée/i }).click();
+    await expect(page.getByRole("heading", { name: /écrire une note privée/i })).toBeVisible();
+    await page.getByLabel(/votre note/i).fill("Merci pour cette histoire.");
+    await page.getByRole("button", { name: /envoyer la note/i }).click();
+    await expect(page.getByText(/verra votre note/i)).toBeVisible();
+  });
+});

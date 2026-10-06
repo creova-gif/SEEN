@@ -4,6 +4,7 @@ import { useAuth, SELF_ASSIGNABLE_ROLES } from "../contexts/AuthContext";
 import { toast } from "sonner";
 import { PasswordField, TextField } from "./seen/forms";
 import { Banner, Button } from "./seen/primitives";
+import { localizeError } from "../i18n/strings";
 import { useStoryState } from "../contexts/StoryStateContext";
 import type { UserRole, UserIntent, Language, PersonalizationPreferences } from "../contexts/StoryStateContext";
 import { LanguageSelectionScreen } from "./LanguageSelectionScreen";
@@ -574,6 +575,7 @@ function AccountStep({
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const { state: authState, signInWithGoogle } = useAuth();
+  const { state: story } = useStoryState();
   const [mode, setMode] = useState<'signup' | 'signin' | 'recovery'>(authState.sessionExpired ? 'signin' : 'signup');
   const [online, setOnline] = useState(typeof navigator === 'undefined' ? true : navigator.onLine);
   useEffect(() => {
@@ -792,7 +794,7 @@ function AccountStep({
             className="space-y-2"
           >
             <p role="alert" className="text-sm text-seen-error">
-              {error || localError}
+              {localizeError(error || localError || '', story.language)}
             </p>
             {showSignInSuggestion && (
               <button

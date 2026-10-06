@@ -1,6 +1,6 @@
 # Copy deck (DS2) — E1 note, guest-first sign-in states, offline and reminders
 
-English is final for beta. FR and ES are drafts that need reviewed copy before real customers (tracked in the release checklist). A missing string falls back to English with a visible marker.
+Source of truth in code: `src/app/i18n/strings.ts` (tested by `strings.test.ts`: every key in EN, FR and ES with matching placeholders). English is final for beta. FR and ES are drafts that need reviewed copy before real customers (tracked in the release checklist). A missing string falls back to English with a visible marker.
 
 ## E1 private note
 | Key | EN | FR (draft) | ES (draft) |

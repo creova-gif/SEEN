@@ -8,6 +8,7 @@ import { Button, StateTemplate } from "../components/seen/primitives";
 import { ConfirmDialog } from "../components/seen/overlays";
 import { useAppNav } from "../navigation/AppNav";
 import { track } from "../observability";
+import { useT } from "../i18n/useT";
 import { ScreenFrame } from "./ScreenFrame";
 
 /**
@@ -16,6 +17,7 @@ import { ScreenFrame } from "./ScreenFrame";
  */
 export function NotesScreen() {
   const nav = useAppNav();
+  const t = useT();
   const notes = useResource(() => api.notes.received(), []);
   const [pending, setPending] = useState<Note | null>(null);
   const [blocking, setBlocking] = useState<Note | null>(null);
@@ -26,9 +28,9 @@ export function NotesScreen() {
     setBlocking(null);
     try {
       await api.notes.blockSender(target.id);
-      toast.success("Blocked. They can't send you new notes. Undo in Account and privacy.");
+      toast.success(t("inbox.blocked"));
     } catch {
-      toast.error("Couldn't block this person. Try again.");
+      toast.error(t("inbox.err.block"));
     }
   };
 
@@ -43,13 +45,13 @@ export function NotesScreen() {
       track("note_deleted");
     } catch {
       notes.mutate(() => previous ?? []);
-      toast.error("Couldn't delete the note. Try again.");
+      toast.error(t("inbox.err.delete"));
     }
   };
 
   return (
-    <ScreenFrame title="Notes" onBack={nav.back}>
-      <p className="text-sm text-seen-secondary mb-5">Private notes from people who read your stories. Only you can see them.</p>
+    <ScreenFrame title={t("inbox.title")} onBack={nav.back}>
+      <p className="text-sm text-seen-secondary mb-5">{t("inbox.intro")}</p>
       <ResourceView
         resource={notes}
         what="notes"
@@ -58,8 +60,8 @@ export function NotesScreen() {
           <StateTemplate
             kind="empty"
             icon={<MessageSquareText className="w-5 h-5" aria-hidden />}
-            title="No notes yet"
-            message="When someone writes to you, it appears here."
+            title={t("inbox.emptyTitle")}
+            message={t("inbox.emptyBody")}
           />
         }
       >
@@ -67,16 +69,16 @@ export function NotesScreen() {
           <ul className="space-y-3">
             {list.map(n => (
               <li key={n.id} className="rounded-seen-md border border-seen-border bg-seen-surface p-4">
-                <p className="text-xs tracking-[0.14em] uppercase text-seen-muted">{n.senderName ?? "Someone who read your story"}</p>
+                <p className="text-xs tracking-[0.14em] uppercase text-seen-muted">{n.senderName ?? t("inbox.anonymous")}</p>
                 <p className="text-sm text-white mt-2 whitespace-pre-wrap break-words">{n.body}</p>
                 <div className="flex items-center justify-between mt-3">
                   <p className="text-xs text-seen-muted">{new Date(n.createdAt).toLocaleDateString()}</p>
                   <div className="flex gap-2">
-                    <Button size="sm" variant="ghost" onClick={() => setBlocking(n)} aria-label="Block sender">
-                      <UserX className="w-4 h-4" aria-hidden /> Block
+                    <Button size="sm" variant="ghost" onClick={() => setBlocking(n)} aria-label={t("inbox.blockConfirm")}>
+                      <UserX className="w-4 h-4" aria-hidden /> {t("inbox.block")}
                     </Button>
-                    <Button size="sm" variant="secondary" onClick={() => setPending(n)} aria-label="Delete note">
-                      <Trash2 className="w-4 h-4" aria-hidden /> Delete
+                    <Button size="sm" variant="secondary" onClick={() => setPending(n)} aria-label={t("inbox.deleteConfirm")}>
+                      <Trash2 className="w-4 h-4" aria-hidden /> {t("inbox.delete")}
                     </Button>
                   </div>
                 </div>
@@ -88,18 +90,18 @@ export function NotesScreen() {
       <ConfirmDialog
         open={blocking !== null}
         onOpenChange={o => !o && setBlocking(null)}
-        title="Block this sender?"
-        description="You won't see who they are. They can't send you new notes, and earlier notes stay. You can undo this in Account and privacy."
-        confirmLabel="Block sender"
+        title={t("inbox.blockTitle")}
+        description={t("inbox.blockBody")}
+        confirmLabel={t("inbox.blockConfirm")}
         destructive
         onConfirm={blockSender}
       />
       <ConfirmDialog
         open={pending !== null}
         onOpenChange={o => !o && setPending(null)}
-        title="Delete this note?"
-        description="This can't be undone."
-        confirmLabel="Delete note"
+        title={t("inbox.deleteTitle")}
+        description={t("inbox.deleteBody")}
+        confirmLabel={t("inbox.deleteConfirm")}
         destructive
         onConfirm={remove}
       />

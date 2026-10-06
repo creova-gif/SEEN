@@ -2,6 +2,7 @@ import { motion } from "motion/react";
 import { ArrowLeft, Play, Share2, Bookmark, Lock, Flag, PenLine } from "lucide-react";
 import { ReportContentSheet } from "./ReportContentSheet";
 import { NoteSheet } from "./NoteSheet";
+import { useT } from "../i18n/useT";
 import { SeenImage } from "./seen/SeenImage";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -26,6 +27,7 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
   const [noteOpen, setNoteOpen] = useState(false);
   const [savedOverride, setSavedOverride] = useState<boolean | null>(null);
   const { state } = useStoryState();
+  const t = useT();
   const { state: authState } = useAuth();
 
   // Get story data from current story world ID
@@ -134,7 +136,7 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
             <button
               onClick={() => setNoteOpen(true)}
               className="w-11 h-11 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center hover:bg-black/60 transition-colors"
-              aria-label="Write a private note to the creator"
+              aria-label={t("note.open")}
             >
               <PenLine className="w-4 h-4 text-white" />
             </button>
