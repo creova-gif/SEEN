@@ -1,8 +1,26 @@
 import { expect, signInAs, test } from "./fixtures";
 
+/** The first screen: the glowing S.E.E.N entry button. It must never be removed. */
+async function enterSeen(page: import("@playwright/test").Page) {
+  await page.getByRole("button", { name: /s\W*e\W*e\W*n/i }).click();
+  await page.getByRole("button", { name: /^continue$/i }).click();
+}
+
 test.describe("first visit", () => {
+  test("the first screen is the glowing S.E.E.N entry button", async ({ page }) => {
+    await page.goto("/");
+    const enter = page.getByRole("button", { name: /s\W*e\W*e\W*n/i });
+    await expect(enter).toBeVisible();
+    await expect(page.getByText(/you are entering seen/i)).toBeVisible();
+    await enter.click();
+    await expect(page.getByRole("heading", { name: /this is not\s+social media/i })).toBeVisible();
+    await page.getByRole("button", { name: /^continue$/i }).click();
+    await expect(page.getByText(/step 1 of 3/i)).toBeVisible();
+  });
+
   async function signUp(page: import("@playwright/test").Page, prefix: string, purpose: RegExp, interest?: RegExp) {
     await page.goto("/");
+    await enterSeen(page);
     await expect(page.getByText(/step 1 of 3/i)).toBeVisible();
     await page.getByRole("button", { name: purpose }).click();
     await page.getByRole("button", { name: /next: your interests/i }).click();
@@ -16,6 +34,23 @@ test.describe("first visit", () => {
     await page.getByRole("button", { name: /create account/i }).click();
   }
 
+  test("both entry screens scroll so their buttons stay reachable at large text on a short phone", async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 420 });
+    await page.goto("/");
+    await page.evaluate(() => { document.documentElement.dataset.text = "large"; });
+    const enter = page.getByRole("button", { name: /s\W*e\W*e\W*n/i });
+    await expect(enter).toBeVisible();
+    await page.mouse.move(160, 200);
+    await page.mouse.wheel(0, 1500);
+    await expect.poll(async () => (await enter.boundingBox())?.y ?? 9999).toBeLessThan(420);
+    await enter.click();
+    const next = page.getByRole("button", { name: /^continue$/i });
+    await expect(next).toBeVisible();
+    await page.mouse.move(160, 200);
+    await page.mouse.wheel(0, 3000);
+    await expect.poll(async () => { const b = await next.boundingBox(); return b ? b.y + b.height : 9999; }).toBeLessThanOrEqual(420);
+  });
+
   test("onboarding is three steps, then For You", async ({ page }) => {
     await signUp(page, "first", /discover stories/i);
     await expect(page.getByRole("heading", { name: "For You" })).toBeVisible();
@@ -24,6 +59,7 @@ test.describe("first visit", () => {
 
   test("interests chosen at sign-up feed For You and can be stepped back to", async ({ page }) => {
     await page.goto("/");
+    await enterSeen(page);
     await page.getByRole("button", { name: /discover stories/i }).click();
     await page.getByRole("button", { name: /next: your interests/i }).click();
     const chip = page.getByRole("group", { name: "Interests" }).getByRole("button").first();
@@ -53,6 +89,7 @@ test.describe("first visit", () => {
 test.describe("guest-first return", () => {
   test("a deep link survives onboarding and sign-up", async ({ page }) => {
     await page.goto("/#/story/midnight-resonance");
+    await enterSeen(page);
     await page.getByRole("button", { name: /discover stories/i }).click();
     await page.getByRole("button", { name: /next: your interests/i }).click();
     await page.getByRole("button", { name: /skip: create your account/i }).click();

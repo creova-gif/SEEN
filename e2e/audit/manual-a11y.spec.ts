@@ -31,6 +31,14 @@ async function tabTo(page: Page, name: RegExp, max = 80) {
 test.describe("keyboard-only journeys", () => {
   test("landing → sign up → onboarding → For You", async ({ page }) => {
     await page.goto("/");
+    await tabTo(page, /s\W*e\W*e\W*n/i);
+    await page.keyboard.press("Enter");
+    // Each onboarding screen fades out before the next fades in; wait for it so Tab starts on the real page.
+    await expect(page.getByRole("heading", { name: /this is not\s+social media/i })).toBeVisible();
+    await tabTo(page, /^continue$/i);
+    await page.keyboard.press("Enter");
+    // The entry screen fades out before the first step fades in; wait for it so Tab starts on the real page.
+    await expect(page.getByText(/step 1 of 3/i)).toBeVisible();
     await tabTo(page, /discover stories/i);
     await page.keyboard.press("Space");
     await expect(page.getByRole("button", { name: /discover stories/i })).toHaveAttribute("aria-pressed", "true");
@@ -142,23 +150,29 @@ test("200% zoom and Larger text: no sideways scroll, no clipped controls, nav st
   // 640 CSS px = a 1280 px desktop at 200% zoom; 320 CSS px = 400% (WCAG 1.4.10 reflow). Larger text on top.
   for (const [w, large] of [[640, false], [640, true], [320, true], [390, true]] as const) {
     await page.setViewportSize({ width: w, height: 800 });
-    for (const r of ["for-you", "explore", "library", "profile", "settings", "search", "funding", "story/midnight-resonance"]) {
+    for (const r of ["for-you", "explore", "library", "profile", "settings", "search", "funding", "collections", "story/midnight-resonance"]) {
       await page.goto(`/#/${r}`);
       await page.evaluate(v => { document.documentElement.dataset.text = v ? "large" : "normal"; }, large);
       await page.waitForTimeout(500);
       const res = await page.evaluate(() => {
         const doc = document.documentElement;
         const sideways = doc.scrollWidth > doc.clientWidth + 1;
+        const wide = sideways
+          ? [...document.querySelectorAll("body *")]
+              .filter(e => e.getBoundingClientRect().right > doc.clientWidth + 1 && e.getBoundingClientRect().width > 0)
+              .slice(0, 5)
+              .map(e => `${e.tagName.toLowerCase()}.${String(e.className).slice(0, 50)}@${Math.round(e.getBoundingClientRect().right)}/${doc.clientWidth}`)
+          : [];
         const clipped = [...document.querySelectorAll("button, a[href], h1, h2, h3, label")]
           .filter(e => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0; })
           .filter(e => { const el = e as HTMLElement; const cs = getComputedStyle(el); return el.clientWidth > 2 && el.scrollWidth > el.clientWidth + 2 && cs.overflowX !== "visible" && cs.textOverflow !== "ellipsis"; })
           .map(e => ((e as HTMLElement).innerText || e.getAttribute("aria-label") || "").slice(0, 30));
         const nav = document.querySelector("nav[aria-label=Main]");
         const navOk = !nav || nav.getBoundingClientRect().bottom <= window.innerHeight + 1;
-        return { sideways, clipped, navOk };
+        return { sideways, wide, clipped, navOk };
       });
       const tag = `${w}px${large ? "+large" : ""} ${r}`;
-      if (res.sideways) problems.push(`${tag}: horizontal scroll`);
+      if (res.sideways) problems.push(`${tag}: horizontal scroll (${res.wide.join("; ") || "no element wider than the viewport"}; scrollWidth ${await page.evaluate(() => document.documentElement.scrollWidth)})`);
       if (res.clipped.length) problems.push(`${tag}: clipped ${res.clipped.join(" | ")}`);
       if (!res.navOk) problems.push(`${tag}: bottom nav off-screen`);
       findings.push({ check: "zoom", tag, ...res });

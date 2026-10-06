@@ -49,7 +49,7 @@ export function CollectionDetailScreen({ collectionId }: { collectionId: string 
           const cover = getStoryWorldById(collection.coverStoryId);
           return (
             <>
-              <section className="relative -mx-5 -mt-5 mb-6 aspect-[16/10] overflow-hidden">
+              <section className="relative -mx-gutter -mt-5 mb-6 aspect-[16/10] overflow-hidden">
                 <SeenImage src={cover?.coverImage} alt="" decorative seed={collection.id} className="absolute inset-0 w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/75 to-black/30" />
                 <div className="absolute bottom-0 left-0 right-0 p-5">
