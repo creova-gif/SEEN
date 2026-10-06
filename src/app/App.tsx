@@ -22,10 +22,11 @@ import { FundingScreen } from "./screens/FundingScreen";
 import { OpportunityDetailScreen } from "./screens/OpportunityDetailScreen";
 import { NotificationsScreen } from "./screens/NotificationsScreen";
 import { AccountPrivacyScreen } from "./screens/AccountPrivacyScreen";
+import { ResetPasswordScreen } from "./screens/ResetPasswordScreen";
 import { ScreenFrame } from "./screens/ScreenFrame";
 import { SkeletonList, StateTemplate } from "./components/seen/primitives";
 import { AppNavProvider, type AppNav, type RouteParams } from "./navigation/AppNav";
-import { type AppScreen, NOT_DEEP_LINKABLE, canAccess, fromHash, isScreen, toHash } from "./navigation/routes";
+import { type AppScreen, NOT_DEEP_LINKABLE, PUBLIC_SCREENS, canAccess, fromHash, isScreen, toHash } from "./navigation/routes";
 import { api } from "./services";
 import { initializeDemoData } from "./data/demoData";
 import { ErrorBoundary } from "./components/ErrorBoundary";
@@ -117,6 +118,12 @@ function AppContent() {
     },
     [go],
   );
+
+  // A reset link opens its screen even when signed out.
+  useEffect(() => {
+    const linked = fromHash(window.location.hash);
+    if (linked && PUBLIC_SCREENS.includes(linked.screen)) go(linked.screen, linked.params, { replace: true });
+  }, [go]);
 
   // Leave onboarding once auth has resolved for a returning user; honour a deep link if present.
   useEffect(() => {
@@ -309,6 +316,7 @@ function AppContent() {
           {currentScreen === "about" && <AboutScreen key="about" onClose={back} />}
           {currentScreen === "settings" && <ProfilePreferencesScreen key="settings" onBack={back} />}
           {currentScreen === "account" && <AccountPrivacyScreen key="account" />}
+          {currentScreen === "reset-password" && route.params.id && <ResetPasswordScreen key="reset-password" token={route.params.id} />}
 
           {currentScreen === "creator-publish" && (
             <CreatorPublishFlow

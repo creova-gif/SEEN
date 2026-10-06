@@ -27,6 +27,7 @@ export const SCREENS = [
   "about",
   "settings",
   "account",
+  "reset-password",
   "creator-publish",
   "creator-monetization",
   "creator-earnings",
@@ -67,6 +68,7 @@ const ID_ROUTES: Partial<Record<AppScreen, string>> = {
   "collection-detail": "collection",
   opportunity: "opportunity",
   "story-preview": "story",
+  "reset-password": "reset-password",
 };
 const ID_ROUTES_REVERSE = Object.fromEntries(Object.entries(ID_ROUTES).map(([k, v]) => [v, k])) as Record<string, AppScreen>;
 
@@ -89,3 +91,6 @@ export function fromHash(hash: string): { screen: AppScreen; params: RouteParams
 
 /** Screens that need state which a URL alone can't restore; deep links fall back to For You. */
 export const NOT_DEEP_LINKABLE: AppScreen[] = ["onboarding", "story-chapter", "chapter-index"];
+
+/** Screens a signed-out visitor may open directly (the reset link from an email). */
+export const PUBLIC_SCREENS: AppScreen[] = ["reset-password"];

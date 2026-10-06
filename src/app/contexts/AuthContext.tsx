@@ -30,6 +30,8 @@ interface AuthState {
   accessToken: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  /** True when a stored session was found but had passed its expiry. */
+  sessionExpired?: boolean;
 }
 
 interface AuthContextType {
@@ -41,11 +43,16 @@ interface AuthContextType {
   updateProfile: (updates: Partial<User>) => Promise<void>;
   requestRoleElevation: (requestedRole: UserRole, reason: string) => Promise<void>;
   requestPasswordRecovery: (email: string) => Promise<{ resetToken?: string }>;
+  /** Sets a new password from a reset token. Rejects with a readable message when the token is invalid or expired. */
+  resetPassword: (token: string, newPassword: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const AUTH_STORAGE_KEY = 'seenos_auth_session';
+const RESET_STORAGE_KEY = 'seenos_password_resets';
+/** A stored session stops being honoured after this long. Sessions saved before expiry existed have no expiresAt and stay valid. */
+const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const ELEVATION_KEY = 'seenos_role_elevation_requests';
 
 /**
@@ -164,7 +171,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const stored = localStorage.getItem(AUTH_STORAGE_KEY);
       if (stored) {
-        const { accessToken, userId } = JSON.parse(stored);
+        const { accessToken, userId, expiresAt } = JSON.parse(stored);
+        if (typeof expiresAt === 'number' && expiresAt < Date.now()) {
+          localStorage.removeItem(AUTH_STORAGE_KEY);
+          setState({ user: null, accessToken: null, isLoading: false, isAuthenticated: false, sessionExpired: true });
+          return;
+        }
         const usersDb = loadUsersDb();
         const user = userId ? usersDb[userId] : null;
 
@@ -197,7 +209,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const persistSession = (accessToken: string | null, userId: string | null) => {
     if (accessToken && userId) {
-      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({ accessToken, userId }));
+      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({ accessToken, userId, expiresAt: Date.now() + SESSION_TTL_MS }));
     } else {
       localStorage.removeItem(AUTH_STORAGE_KEY);
     }
@@ -358,7 +370,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Demo mode: return a reset token directly instead of emailing it,
     // since no email provider is connected in this environment.
     const resetToken = generateToken();
-    const key = 'seenos_password_resets';
+    const key = RESET_STORAGE_KEY;
     let resets: Record<string, { userId: string; expiresAt: number }> = {};
     try {
       resets = JSON.parse(localStorage.getItem(key) || '{}');
@@ -368,6 +380,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     resets[resetToken] = { userId: user.id, expiresAt: Date.now() + 30 * 60 * 1000 };
     localStorage.setItem(key, JSON.stringify(resets));
     return { resetToken };
+  };
+
+  const resetPassword = async (token: string, newPassword: string) => {
+    await sleep(300);
+    if (newPassword.length < 8) {
+      throw new Error('Password must be at least 8 characters.');
+    }
+    let resets: Record<string, { userId: string; expiresAt: number }> = {};
+    try {
+      resets = JSON.parse(localStorage.getItem(RESET_STORAGE_KEY) || '{}');
+    } catch {
+      resets = {};
+    }
+    const entry = resets[token];
+    if (!entry) {
+      throw new Error('This reset link is not valid. Request a new one.');
+    }
+    if (entry.expiresAt < Date.now()) {
+      delete resets[token];
+      localStorage.setItem(RESET_STORAGE_KEY, JSON.stringify(resets));
+      throw new Error('This reset link has expired. Request a new one.');
+    }
+    const usersDb = loadUsersDb();
+    const user = usersDb[entry.userId];
+    if (!user) {
+      throw new Error('This reset link is not valid. Request a new one.');
+    }
+    usersDb[user.id] = { ...user, passwordHash: await hashPassword(newPassword), updatedAt: new Date().toISOString() };
+    saveUsersDb(usersDb);
+    // One use only.
+    delete resets[token];
+    localStorage.setItem(RESET_STORAGE_KEY, JSON.stringify(resets));
   };
 
   return (
@@ -381,6 +425,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         updateProfile,
         requestRoleElevation,
         requestPasswordRecovery,
+        resetPassword,
       }}
     >
       {children}

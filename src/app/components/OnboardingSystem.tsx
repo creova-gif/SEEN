@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { useAuth, SELF_ASSIGNABLE_ROLES } from "../contexts/AuthContext";
 import { toast } from "sonner";
 import { PasswordField, TextField } from "./seen/forms";
+import { Banner } from "./seen/primitives";
 import { useStoryState } from "../contexts/StoryStateContext";
 import type { UserRole, UserIntent, Language, PersonalizationPreferences } from "../contexts/StoryStateContext";
 import { LanguageSelectionScreen } from "./LanguageSelectionScreen";
@@ -572,7 +573,19 @@ function AccountStep({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const [mode, setMode] = useState<'signup' | 'signin' | 'recovery'>('signup');
+  const { state: authState } = useAuth();
+  const [mode, setMode] = useState<'signup' | 'signin' | 'recovery'>(authState.sessionExpired ? 'signin' : 'signup');
+  const [online, setOnline] = useState(typeof navigator === 'undefined' ? true : navigator.onLine);
+  useEffect(() => {
+    const up = () => setOnline(true);
+    const down = () => setOnline(false);
+    window.addEventListener('online', up);
+    window.addEventListener('offline', down);
+    return () => {
+      window.removeEventListener('online', up);
+      window.removeEventListener('offline', down);
+    };
+  }, []);
   const [recoveryEmail, setRecoveryEmail] = useState("");
   const [recoveryMessage, setRecoveryMessage] = useState("");
   const [localError, setLocalError] = useState<string | null>(null);
@@ -647,6 +660,17 @@ function AccountStep({
         </motion.h2>
       </AnimatePresence>
       
+      {authState.sessionExpired && mode === 'signin' && (
+        <Banner tone="warning" className="mb-4 text-left">
+          Your session expired. Sign in again to pick up where you left off.
+        </Banner>
+      )}
+      {!online && (
+        <Banner tone="warning" className="mb-4 text-left">
+          You're offline. Reconnect to sign in or create an account.
+        </Banner>
+      )}
+
       <motion.div 
         className="space-y-4"
         initial={{ opacity: 0 }}
@@ -771,7 +795,7 @@ function AccountStep({
         <motion.button
           onClick={handleSubmit}
           className="w-full py-5 text-sm tracking-wider uppercase text-white/90 hover:text-white border-t border-white/10 hover:border-white/20 transition-all duration-500 group disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-white/10"
-          disabled={!isFormValid() || isLoading}
+          disabled={!isFormValid() || isLoading || !online}
           whileHover={{ y: !isFormValid() || isLoading ? 0 : -2 }}
           whileTap={{ scale: !isFormValid() || isLoading ? 1 : 0.98 }}
         >
