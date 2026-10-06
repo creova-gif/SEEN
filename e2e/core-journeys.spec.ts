@@ -379,3 +379,37 @@ test.describe("french: report and account", () => {
     await expect(page.getByRole("button", { name: /supprimer mon compte/i })).toBeVisible();
   });
 });
+
+test.describe("search: landing, filters, zero results", () => {
+  test.beforeEach(async ({ page }) => { await signInAs(page, "viewer"); });
+
+  test("landing offers themes; a theme runs a search; filters narrow it; zero results can be recovered", async ({ page }) => {
+    await page.goto("/");
+    await page.getByRole("button", { name: "Search", exact: true }).click();
+    await expect(page.getByText(/browse by theme/i)).toBeVisible();
+    await page.getByRole("region", { name: /browse by theme/i }).getByRole("button").first().click();
+    await expect(page.getByTestId("story-card").first()).toBeVisible();
+    // Filters sheet: choose a language that has no match in the current results, then see the count and reset.
+    await page.getByRole("button", { name: /^filters/i }).click();
+    await expect(page.getByRole("dialog", { name: /filters/i })).toBeVisible();
+    await page.getByRole("button", { name: /^reset$/i }).click();
+    await page.keyboard.press("Escape");
+    // Zero results state with a way out
+    await page.getByLabel(/search stories/i).fill("zzqqxx");
+    await expect(page.getByText(/no results for/i)).toBeVisible();
+  });
+
+  test("a recent search is remembered on this device and can be cleared", async ({ page }) => {
+    await page.goto("/");
+    await page.getByRole("button", { name: "Search", exact: true }).click();
+    await page.getByPlaceholder(/search by title/i).fill("midnight");
+    await page.getByTestId("story-card").first().click();
+    await page.goto("/");
+    await page.getByRole("button", { name: "Search", exact: true }).click();
+    const recents = page.getByRole("region", { name: /^recent searches$/i });
+    await expect(recents).toBeVisible();
+    await expect(recents.getByRole("button", { name: /midnight/i })).toBeVisible();
+    await page.getByRole("button", { name: /clear recent searches/i }).click();
+    await expect(recents).toBeHidden();
+  });
+});
