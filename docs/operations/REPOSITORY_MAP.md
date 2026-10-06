@@ -1,6 +1,6 @@
 # Repository map: what is canonical
 
-**Source of truth: `github.com/creova-gif/SEEN`, branch `main`**, deployed by the Vercel project `seen` (team CREOVA's projects) at https://seen-sigma-eight.vercel.app. Ongoing work happens on `develop`. See `BRANCHING.md`.
+**Source of truth: `github.com/creova-gif/SEEN`, branch `main`**, deployed by the Vercel project `seen` (team CREOVA's projects) at https://seen-sigma-eight.vercel.app. Ongoing work happens on `dev`, pre-release checks on `staging`. See `BRANCHING.md`.
 
 ## Other SEEN branches in this repository (audited 2026-10-06)
 
@@ -9,8 +9,8 @@ All were compared against `main`. Nothing was deleted. Branches with unique comm
 | Branch | State vs `main` | Verdict |
 |---|---|---|
 | `main` | canonical | keep |
-| `develop` | integration (created from `main`) | keep |
-| `dev`, `staging` | 0 unique commits, 30 behind | retired: superseded by `develop`; safe to delete |
+| `dev` | integration branch (was 30 commits behind, no unique commits; brought up to `main`) | keep |
+| `staging` | release-candidate branch (same history as `dev`; brought up to `main`) | keep |
 | `claude/merge-platform-audit-into-main` | 0 unique commits | merged; safe to delete |
 | `claude/upbeat-darwin-n7rwpb` | this work, merged into `main` | merged; safe to delete after release |
 | `claude/clever-gates-cs9out` | audit docs (33 files) on an older code base | docs preserved under `docs/archive/clever-gates-audit/`; code obsolete; archived |

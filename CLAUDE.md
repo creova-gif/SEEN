@@ -6,9 +6,9 @@ SEEN by CREOVA: a mobile-first web app for multilingual (EN/FR/ES) community sto
 
 ## Git workflow (read before touching anything)
 
-- `main` = production and the testers' build. Never commit to it directly; it only changes by a reviewed merge from `develop` (or `release/*`, or an urgent `fix/*`).
-- `develop` = integration branch. All day-to-day work lands here first.
-- `feature/<name>`, `fix/<name>` branch from `develop`, merge back by PR. `release/<version>` branches from `develop` for stabilisation, then merges to `main` and back to `develop`.
+- `main` = production and the testers' build. Never commit to it directly; it only changes by a reviewed merge from `staging` (or an urgent `fix/*`).
+- `dev` = integration branch for ongoing work. `staging` = release candidate; only bug fixes land there.
+- `feature/<name>` and `fix/<name>` branch from `dev` and merge back by PR. Flow: `feature/*` → `dev` → `staging` → `main`.
 - Full rules, Vercel behaviour and the release/hotfix steps: `docs/operations/BRANCHING.md`.
 
 ## Commands

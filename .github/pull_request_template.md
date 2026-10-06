@@ -4,7 +4,7 @@
 
 ## Branch check
 
-- [ ] Branched from `develop` and targeting `develop` (or this is a release/hotfix into `main`)
+- [ ] Branched from `dev` and targeting `dev` (or this is a staging/hotfix merge)
 
 ## Verification
 

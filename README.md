@@ -19,7 +19,7 @@ Add `?simulate=offline|error|slow` to the URL to exercise failure states.
 
 ## Branches
 
-`main` is production and the testers' build; `develop` is where ongoing work is integrated; work happens on `feature/*` and `fix/*` branches off `develop`. Details: [`docs/operations/BRANCHING.md`](docs/operations/BRANCHING.md). This repository is the single source of truth ([`docs/operations/REPOSITORY_MAP.md`](docs/operations/REPOSITORY_MAP.md)).
+`main` is production and the testers' build; `dev` is where ongoing work is integrated and `staging` is the release candidate; work happens on `feature/*` and `fix/*` branches off `dev`. Details: [`docs/operations/BRANCHING.md`](docs/operations/BRANCHING.md). This repository is the single source of truth ([`docs/operations/REPOSITORY_MAP.md`](docs/operations/REPOSITORY_MAP.md)).
 
 ## Docs
 
