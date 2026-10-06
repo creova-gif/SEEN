@@ -9,7 +9,8 @@ import { OpportunityDetailScreen } from "../screens/OpportunityDetailScreen";
 import { CreatorsPanel } from "../screens/CreatorsPanel";
 import { CreatorProfileScreen } from "../screens/CreatorProfileScreen";
 import { SectionHeader } from "../components/SectionHeader";
-import { setSimulation } from "../services/runtime";
+import { setSimulation, writeStore } from "../services/runtime";
+import { seedNotifications } from "../services/demo/catalog";
 
 function nav(overrides: Partial<AppNav> = {}): AppNav {
   return { go: vi.fn(), back: vi.fn(), openStory: vi.fn(), openSearch: vi.fn(), openNotifications: vi.fn(), openProfile: vi.fn(), unreadCount: 0, ...overrides };
@@ -112,13 +113,14 @@ describe("OpportunityDetailScreen", () => {
 
 describe("NotificationsScreen", () => {
   it("marks all as read and routes a funding notification to the opportunity", async () => {
+    // Seed from a fixed date so the funding alert exists regardless of today's date.
+    writeStore("notifications", seedNotifications(new Date("2026-10-05T12:00:00Z")));
     const n = nav();
     wrap(<NotificationsScreen />, n);
     const items = await screen.findAllByTestId("notification-item");
     expect(items.some(i => i.getAttribute("data-read") === "false")).toBe(true);
-    // The funding notice is derived from the next open listing, never a fixed date.
-    await userEvent.click(screen.getByText(/funding (closing soon|open now)/i));
-    expect(n.go).toHaveBeenCalledWith("opportunity", { id: expect.any(String) });
+    await userEvent.click(screen.getByText(/upcoming funding deadline/i));
+    expect(n.go).toHaveBeenCalledWith("opportunity", { id: "cca-creating-knowing-sharing" });
     await userEvent.click(screen.getByRole("button", { name: /mark all read/i }));
     await waitFor(() => screen.getAllByTestId("notification-item").forEach(i => expect(i).toHaveAttribute("data-read", "true")));
   });

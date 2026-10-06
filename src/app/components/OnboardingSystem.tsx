@@ -46,7 +46,7 @@ export function OnboardingSystem({
   initialStep = 0,
   hasEnteredSEEN = false 
 }: OnboardingSystemProps) {
-  const { signUp, signIn, requestPasswordRecovery, state: authState } = useAuth();
+  const { signUp, signIn, state: authState } = useAuth();
   const { state, setLanguage, setPersonalizationPreferences } = useStoryState();
   
   // Determine initial layer based on whether language is set and user has entered
@@ -149,22 +149,10 @@ export function OnboardingSystem({
     }
   };
 
-  // Handle password recovery
-  const handlePasswordRecovery = async (email: string) => {
-    setIsCreatingAccount(true);
-    setAccountError(null);
-
-    try {
-      await requestPasswordRecovery(email);
-      // No email provider is connected yet, so don't claim a link was sent.
-      return "Email delivery isn't switched on in this preview yet, so no reset link was sent. Use a demo account or create a new one.";
-    } catch (error) {
-      console.error("Error requesting password recovery:", error);
-      setAccountError(error instanceof Error ? error.message : "Failed to request password recovery");
-      return null;
-    } finally {
-      setIsCreatingAccount(false);
-    }
+  // Password reset email is not available: nothing is sent, and /reset-password
+  // is not a route. Tell the user that instead of claiming a recovery link was sent.
+  const handlePasswordRecovery = async (_email: string) => {
+    return "Password reset isn't available yet. Contact support.";
   };
 
   // Handle accessibility preferences
@@ -827,7 +815,7 @@ function AccountStep({
               <>
                 {mode === 'signup' && 'Create Account'}
                 {mode === 'signin' && 'Sign In'}
-                {mode === 'recovery' && 'Send Recovery Link'}
+                {mode === 'recovery' && 'Contact support'}
               </>
             )}
           </span>

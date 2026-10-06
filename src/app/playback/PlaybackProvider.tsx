@@ -79,6 +79,8 @@ export function PlaybackProvider({ children }: { children: ReactNode }) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const voiceOffset = useRef(0); // char index where the current utterance started
   const voiceChar = useRef(0);
+  // True while an utterance is queued in the engine. Pausing keeps it; cancel() drops it.
+  const voiceQueued = useRef(false);
   const voiceSupported = speechAvailable();
   const trackRef = useRef<Track | null>(null);
 
@@ -94,6 +96,8 @@ export function PlaybackProvider({ children }: { children: ReactNode }) {
       const t = trackRef.current;
       if (!t || !voiceSupported) return;
       window.speechSynthesis.cancel();
+      // cancel() empties the queue but leaves a paused engine paused, so new speech would never start.
+      if (window.speechSynthesis.paused) window.speechSynthesis.resume();
       const start = Math.max(0, Math.min(charIndex, t.text.length - 1));
       voiceOffset.current = start;
       voiceChar.current = start;
@@ -108,12 +112,14 @@ export function PlaybackProvider({ children }: { children: ReactNode }) {
         patch({ progress, elapsed: progress * total });
       };
       u.onend = () => {
+        if (trackRef.current === t) voiceQueued.current = false;
         if (trackRef.current === t && voiceChar.current >= t.text.length - 40) patch({ status: "ended", progress: 1, elapsed: total });
       };
       u.onerror = e => {
         if (e.error !== "interrupted" && e.error !== "canceled") patch({ status: "unavailable" });
       };
       window.speechSynthesis.speak(u);
+      voiceQueued.current = true;
       patch({ status: "playing", source: "voice", duration: total });
     },
     [patch, voiceSupported],
@@ -139,6 +145,7 @@ export function PlaybackProvider({ children }: { children: ReactNode }) {
     if (audioRef.current) audioRef.current.src = "";
     audioRef.current = null;
     if (voiceSupported) window.speechSynthesis.cancel();
+    voiceQueued.current = false;
   };
 
   useEffect(() => () => teardown(), []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -186,7 +193,7 @@ export function PlaybackProvider({ children }: { children: ReactNode }) {
       return;
     }
     if (s.source === "voice") {
-      if (s.status === "paused" && window.speechSynthesis.paused) {
+      if (s.status === "paused" && voiceQueued.current && window.speechSynthesis.paused) {
         window.speechSynthesis.resume();
         patch({ status: "playing" });
         return;
@@ -219,9 +226,14 @@ export function PlaybackProvider({ children }: { children: ReactNode }) {
       } else if (state.source === "voice") {
         patch({ progress: f, elapsed: f * state.duration });
         if (state.status === "playing") speakFrom(Math.round(f * t.text.length));
+        else if (voiceSupported) {
+          // Drop the paused utterance so the next Play speaks from the new position.
+          window.speechSynthesis.cancel();
+          voiceQueued.current = false;
+        }
       }
     },
-    [patch, speakFrom, state.duration, state.source, state.status],
+    [patch, speakFrom, state.duration, state.source, state.status, voiceSupported],
   );
 
   const skip = useCallback(
