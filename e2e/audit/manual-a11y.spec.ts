@@ -155,16 +155,22 @@ test("200% zoom and Larger text: no sideways scroll, no clipped controls, nav st
       const res = await page.evaluate(() => {
         const doc = document.documentElement;
         const sideways = doc.scrollWidth > doc.clientWidth + 1;
+        const wide = sideways
+          ? [...document.querySelectorAll("body *")]
+              .filter(e => e.getBoundingClientRect().right > doc.clientWidth + 1 && e.getBoundingClientRect().width > 0)
+              .slice(0, 5)
+              .map(e => `${e.tagName.toLowerCase()}.${String(e.className).slice(0, 50)}@${Math.round(e.getBoundingClientRect().right)}/${doc.clientWidth}`)
+          : [];
         const clipped = [...document.querySelectorAll("button, a[href], h1, h2, h3, label")]
           .filter(e => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0; })
           .filter(e => { const el = e as HTMLElement; const cs = getComputedStyle(el); return el.clientWidth > 2 && el.scrollWidth > el.clientWidth + 2 && cs.overflowX !== "visible" && cs.textOverflow !== "ellipsis"; })
           .map(e => ((e as HTMLElement).innerText || e.getAttribute("aria-label") || "").slice(0, 30));
         const nav = document.querySelector("nav[aria-label=Main]");
         const navOk = !nav || nav.getBoundingClientRect().bottom <= window.innerHeight + 1;
-        return { sideways, clipped, navOk };
+        return { sideways, wide, clipped, navOk };
       });
       const tag = `${w}px${large ? "+large" : ""} ${r}`;
-      if (res.sideways) problems.push(`${tag}: horizontal scroll`);
+      if (res.sideways) problems.push(`${tag}: horizontal scroll (${res.wide.join("; ") || "no element wider than the viewport"}; scrollWidth ${await page.evaluate(() => document.documentElement.scrollWidth)})`);
       if (res.clipped.length) problems.push(`${tag}: clipped ${res.clipped.join(" | ")}`);
       if (!res.navOk) problems.push(`${tag}: bottom nav off-screen`);
       findings.push({ check: "zoom", tag, ...res });
