@@ -8,14 +8,18 @@ import { localizeError } from "../i18n/strings";
 import { useStoryState } from "../contexts/StoryStateContext";
 import type { UserRole, UserIntent, Language } from "../contexts/StoryStateContext";
 import { LanguageSelectionScreen } from "./LanguageSelectionScreen";
+import { OnboardingPurpose } from "./OnboardingPurpose";
 import { PurposeStep, InterestsStep, roleAndIntentFor, type Purpose } from "./OnboardingOrientation";
 
 /**
  * ONBOARDING SYSTEM
  * SEEN by CREOVA
  *
- * Four screens (was nine). Each earns its place:
+ * Six screens (was nine). Each earns its place:
  * 0. Language: drives every string; required before anything else.
+ * 0b. Invocation: the first screen with the glowing S.E.E.N button. PROTECTED:
+ *    never remove or merge it (owner decision; an e2e test guards it).
+ * 0c. Manifesto ("This is not social media", OnboardingPurpose.tsx). PROTECTED likewise.
  * 1. Purpose: "What brings you to SEEN?" (tap, multi-select). Sets role and intent.
  * 2. Interests: topics from the real catalogue (tap, optional). Feeds For You.
  * 3. Account: needed to save progress.
@@ -30,19 +34,19 @@ interface OnboardingSystemProps {
     intent: UserIntent;
   }) => void;
   initialStep?: number;
-  /** Kept for the caller's signature; the splash that used it was merged into the Purpose screen. */
+  /** True once the first screen (the glowing S.E.E.N entry button) has been passed. */
   hasEnteredSEEN?: boolean;
 }
 
-type OnboardingLayer = "language" | "orientation";
+type OnboardingLayer = "language" | "invocation" | "manifesto" | "orientation";
 type OrientationStep = "purpose" | "interests" | "account" | "entering";
 const ORIENTATION_STEPS: OrientationStep[] = ["purpose", "interests", "account"];
 
-export function OnboardingSystem({ onComplete, initialStep = 0 }: OnboardingSystemProps) {
+export function OnboardingSystem({ onComplete, initialStep = 0, hasEnteredSEEN = false }: OnboardingSystemProps) {
   const { signUp, signIn, state: authState } = useAuth();
   const { state, setLanguage, setInterests } = useStoryState();
 
-  const [currentLayer, setCurrentLayer] = useState<OnboardingLayer>(state.language ? "orientation" : "language");
+  const [currentLayer, setCurrentLayer] = useState<OnboardingLayer>(!state.language ? "language" : !hasEnteredSEEN ? "invocation" : "orientation");
   // Choices live in memory, so a reload can only safely resume before the account step.
   const [currentStep, setCurrentStep] = useState<OrientationStep>(ORIENTATION_STEPS[Math.min(Math.max(initialStep, 0), 1)] ?? "purpose");
   const [purposes, setPurposes] = useState<Purpose[]>([]);
@@ -58,6 +62,12 @@ export function OnboardingSystem({ onComplete, initialStep = 0 }: OnboardingSyst
 
   const handleLanguageSelect = (lang: Language) => {
     setLanguage(lang);
+    setCurrentLayer("invocation");
+  };
+
+  const handleInvocationComplete = () => setCurrentLayer("manifesto");
+
+  const handleManifestoComplete = () => {
     localStorage.setItem("hasEnteredSEEN", "true");
     setCurrentLayer("orientation");
     setCurrentStep("purpose");
@@ -115,6 +125,10 @@ export function OnboardingSystem({ onComplete, initialStep = 0 }: OnboardingSyst
     <div className="min-h-dvh bg-black">
       <AnimatePresence mode="wait">
         {currentLayer === "language" && <LanguageSelectionScreen key="language" onSelectLanguage={handleLanguageSelect} />}
+
+        {currentLayer === "invocation" && <InvocationLayer key="invocation" onComplete={handleInvocationComplete} />}
+
+        {currentLayer === "manifesto" && <OnboardingPurpose key="manifesto" onNext={handleManifestoComplete} />}
 
         {currentLayer === "orientation" && currentStep !== "entering" && (
           <motion.div key="orientation" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="min-h-dvh flex flex-col">
@@ -500,3 +514,134 @@ function AccountStep({
   );
 }
 
+/**
+ * LAYER 0: INVOCATION
+ * The emotional entry point - first thing user sees
+ * Simple, grounding, no choices
+ */
+function InvocationLayer({ onComplete }: { onComplete: () => void }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 1.2 }}
+      className="fixed inset-0 bg-black flex flex-col items-center justify-center overflow-hidden px-6"
+    >
+      {/* Subtle animated background */}
+      <motion.div
+        initial={{ opacity: 0, scale: 1.2 }}
+        animate={{ 
+          opacity: [0.2, 0.3, 0.2],
+          scale: [1.2, 1.3, 1.2],
+        }}
+        transition={{ 
+          duration: 8,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
+        className="absolute inset-0 bg-gradient-to-br from-purple-900/10 via-black to-blue-900/10"
+      />
+
+      {/* Content */}
+      <div className="relative z-10 flex flex-col items-center max-w-md">
+        {/* Branding */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 1 }}
+          className="text-center mb-12"
+        >
+          <h1 className="text-4xl tracking-tight text-white mb-2">
+            SEEN
+          </h1>
+          <p className="text-xs tracking-[0.4em] uppercase text-white/55">
+            by CREOVA
+          </p>
+        </motion.div>
+
+        {/* Poetic tagline */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8, duration: 1.5 }}
+          className="text-base text-white/60 text-center leading-relaxed mb-16"
+        >
+          Where stories live,
+          <br />
+          where culture breathes
+        </motion.p>
+
+        {/* Primary invocation */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.4, duration: 1.2 }}
+          className="text-lg text-white/80 text-center leading-relaxed mb-16"
+        >
+          You are entering SEEN.
+        </motion.p>
+
+        {/* Call to action */}
+        <motion.button
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 2.0, duration: 0.8 }}
+          whileHover={{ y: -2 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={onComplete}
+          className="group relative px-10 py-3 text-sm font-bold tracking-[0.3em] uppercase text-white/95 transition-all duration-500"
+          style={{
+            background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.15) 0%, rgba(76, 175, 80, 0.05) 100%)',
+            border: '1px solid rgba(76, 175, 80, 0.3)',
+            boxShadow: '0 4px 20px rgba(76, 175, 80, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+            borderRadius: '2px',
+          }}
+        >
+          {/* Hover glow effect */}
+          <motion.div
+            className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+            style={{
+              background: 'radial-gradient(circle at center, rgba(76, 175, 80, 0.3) 0%, transparent 70%)',
+              filter: 'blur(8px)',
+            }}
+          />
+          
+          {/* Subtle pulse animation */}
+          <motion.div
+            className="absolute inset-0 pointer-events-none"
+            animate={{
+              boxShadow: [
+                '0 0 0 0 rgba(76, 175, 80, 0.4)',
+                '0 0 0 8px rgba(76, 175, 80, 0)',
+              ],
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              repeatDelay: 1,
+            }}
+            style={{ borderRadius: '2px' }}
+          />
+          
+          {/* Button text with letter emphasis */}
+          <span className="relative z-10 inline-flex items-center gap-[0.15em]">
+            <span className="group-hover:text-white transition-colors duration-300">S</span>
+            <span className="opacity-90 group-hover:opacity-100 group-hover:text-white transition-all duration-300">.</span>
+            <span className="group-hover:text-white transition-colors duration-300">E</span>
+            <span className="opacity-90 group-hover:opacity-100 group-hover:text-white transition-all duration-300">.</span>
+            <span className="group-hover:text-white transition-colors duration-300">E</span>
+            <span className="opacity-90 group-hover:opacity-100 group-hover:text-white transition-all duration-300">.</span>
+            <span className="group-hover:text-white transition-colors duration-300">N</span>
+          </span>
+          
+          {/* Focus indicator for accessibility */}
+          <motion.div
+            className="absolute inset-0 border-2 border-white/50 opacity-0 focus-visible:opacity-100 pointer-events-none"
+            style={{ borderRadius: '2px' }}
+          />
+        </motion.button>
+      </div>
+    </motion.div>
+  );
+}

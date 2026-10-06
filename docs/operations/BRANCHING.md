@@ -66,6 +66,10 @@ Settings → Branches → rules for `main`, `staging` and `dev`:
 
 Repository settings cannot be changed from the development tooling used here; an owner needs to apply them once.
 
+## Branch protection status (checked 2026-10-06)
+
+GitHub reports `main`, `staging` and `dev` as protected. The exact rules cannot be read from the tooling used here (only the protected flag). Observed: direct pushes by the repository owner's account were still accepted, so administrators can bypass the rules or "require a pull request" is not on. Recommended settings, to confirm in Settings, Branches: require a pull request with one approval on `main` and `staging`; require the three CI checks; require branches to be up to date; block force pushes and deletions; on `main`, do not allow administrators to bypass. Lesson recorded: promotions must wait for the GitHub CI run on the branch to pass, not only for local tests and the Vercel build (two promotions on 2026-10-06 went ahead while the end-to-end job was failing; the cause was a layout bug at 320 px with Larger text, fixed in `fix/larger-text-clipping`).
+
 ## Required checks before anything is merged into `main`
 
 Required: typecheck, unit tests, production build, end-to-end suite (journeys, route sweep), automated accessibility scans (`e2e/a11y.spec.ts`), and the responsive audit (`e2e/audit/ux-audit.spec.ts`). The CI jobs `Typecheck · unit tests · build` and `End-to-end journeys` cover all of them. Lint becomes required only after the plan in `LINT_PLAN.md` is applied.
