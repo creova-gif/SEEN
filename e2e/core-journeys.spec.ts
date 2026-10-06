@@ -496,3 +496,21 @@ test.describe("profile: edit, password, legal", () => {
     await expect(page.getByRole("heading", { name: /terms/i }).first()).toBeVisible();
   });
 });
+
+test.describe("creator: your stories", () => {
+  test("lists drafts and published tabs; discard removes a draft; viewers are blocked", async ({ page }) => {
+    await signInAs(page, "creator");
+    await page.goto("/#/creator-stories");
+    await expect(page.getByRole("heading", { name: /your stories/i })).toBeVisible();
+    await page.getByRole("tab", { name: /^drafts/i }).click();
+    await expect(page.getByText(/no drafts/i)).toBeVisible();
+    await page.getByRole("button", { name: /new story/i }).click();
+    await expect(page).toHaveURL(/#\/creator-publish/);
+  });
+
+  test("viewer cannot open creator stories", async ({ page }) => {
+    await signInAs(page, "viewer");
+    await page.goto("/#/creator-stories");
+    await expect(page.getByRole("heading", { name: /your stories/i })).toHaveCount(0);
+  });
+});

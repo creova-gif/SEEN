@@ -47,7 +47,7 @@ describe("screen permissions", () => {
   });
 
   it("keeps every public screen open to viewers", () => {
-    const restricted = new Set(["admin-dashboard", "moderation-governance", "creator-earnings", "creator-monetization", "notes"]);
+    const restricted = new Set(["creator-stories", "admin-dashboard", "moderation-governance", "creator-earnings", "creator-monetization", "notes"]);
     for (const s of SCREENS) {
       if (!restricted.has(s)) expect(canAccess(s, "viewer")).toBe(true);
     }

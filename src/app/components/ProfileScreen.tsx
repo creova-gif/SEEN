@@ -26,7 +26,7 @@ import { useStoryState } from "../contexts/StoryStateContext";
 import { useAuth } from "../contexts/AuthContext";
 import type { Language } from "../contexts/StoryStateContext";
 import { getStoryWorldById, getLocalizedText } from "../data/storyDatabase";
-import { listStoriesForCreator } from "../data/userStoriesService";
+import { listDraftsForCreator, listStoriesForCreator } from "../data/userStoriesService";
 import { Bell, BookmarkCheck, HandCoins, Users } from "lucide-react";
 import { useAppNav } from "../navigation/AppNav";
 import { api } from "../services";
@@ -306,15 +306,19 @@ export function ProfileScreen({
         )}
 
         {/* My Stories (if creator has published any) */}
-        {user.role === "creator" && myStories.length > 0 && (
+        {user.role === "creator" && (myStories.length > 0 || listDraftsForCreator(authState.user?.id ?? "").length > 0) && (
           <motion.section
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.32 }}
             className="mb-8"
           >
-            <h2 className="text-sm tracking-wider uppercase text-white/55 mb-4">My Stories</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm tracking-wider uppercase text-white/55">My Stories</h2>
+              <button type="button" onClick={() => nav.go("creator-stories")} className="min-h-11 px-2 text-xs text-white/70 underline underline-offset-2 hover:text-white">See all</button>
+            </div>
             <div className="space-y-2">
+              {myStories.length === 0 && <p className="text-xs text-white/55">You have a draft in progress.</p>}
               {myStories.map(story => (
                 <div
                   key={story.id}

@@ -35,6 +35,7 @@ export const SCREENS = [
   "creator-publish",
   "creator-monetization",
   "creator-earnings",
+  "creator-stories",
   "subscription-management",
   "moderation-governance",
   "admin-dashboard",
@@ -53,6 +54,7 @@ export const TAB_SCREENS: AppScreen[] = ["for-you", "explore", "library", "profi
 export const SCREEN_ROLES: Partial<Record<AppScreen, UserRole[]>> = {
   "creator-monetization": ["creator", "admin"],
   "creator-earnings": ["creator", "admin"],
+  "creator-stories": ["creator", "admin"],
   notes: ["creator", "admin"],
   "moderation-governance": ["moderator", "admin"],
   "admin-dashboard": ["admin"],
