@@ -514,3 +514,34 @@ test.describe("creator: your stories", () => {
     await expect(page.getByRole("heading", { name: /your stories/i })).toHaveCount(0);
   });
 });
+
+test.describe("funding: outcomes and readiness", () => {
+  test.beforeEach(async ({ page }) => { await signInAs(page, "viewer"); });
+
+  test("after applying, the user can record an outcome and see tracker tiles", async ({ page }) => {
+    await page.goto("/#/funding");
+    await page.getByTestId("opportunity-card").filter({ hasText: "Research and Creation" }).click();
+    await page.getByRole("button", { name: /save & track/i }).click();
+    const boxes = page.getByRole("checkbox");
+    const count = await boxes.count();
+    for (let i = 0; i < count; i++) await boxes.nth(i).check();
+    await page.getByRole("button", { name: /mark as applied/i }).click();
+    await page.getByLabel(/^shortlisted$/i).check();
+    await expect(page.getByText(/shortlisted · tracked by you/i)).toBeVisible();
+    await page.goBack();
+    await page.getByRole("tab", { name: /my tracker/i }).click();
+    const tiles = page.getByRole("region", { name: /tracker summary/i });
+    await expect(tiles).toContainText("Outcomes noted");
+    await expect(tiles).toContainText("1");
+  });
+
+  test("readiness checklist persists and shows no score", async ({ page }) => {
+    await page.goto("/#/funding");
+    await page.getByRole("button", { name: /prepare your application/i }).click();
+    await page.getByRole("checkbox", { name: /budget drafted/i }).check();
+    await expect(page.getByText(/1 of 6 ready/i)).toBeVisible();
+    await page.reload();
+    await expect(page.getByRole("checkbox", { name: /budget drafted/i })).toBeChecked();
+    await expect(page.getByText(/%/)).toHaveCount(0);
+  });
+});

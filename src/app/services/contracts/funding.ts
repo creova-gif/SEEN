@@ -1,4 +1,5 @@
 import type { ISODate } from "./common";
+import type { TrackedOutcome } from "../applicationStatus";
 
 // ----------------------------------------------------------------- Funding
 export type OpportunityType = "grant" | "residency" | "commission" | "fellowship" | "fund" | "lab" | "pitch";
@@ -46,6 +47,8 @@ export interface ApplicationState {
   opportunityId: string;
   status: ApplicationStatus;
   completedSteps: number[];
+  /** What the funder told the user, recorded by the user. SEEN receives no funder decisions. */
+  outcome?: TrackedOutcome | null;
   updatedAt: ISODate;
 }
 
@@ -54,5 +57,5 @@ export interface FundingApi {
   get(id: string): Promise<FundingOpportunity>;
   listApplications(): Promise<ApplicationState[]>;
   getApplication(id: string): Promise<ApplicationState>;
-  updateApplication(id: string, patch: Partial<Pick<ApplicationState, "status" | "completedSteps">>): Promise<ApplicationState>;
+  updateApplication(id: string, patch: Partial<Pick<ApplicationState, "status" | "completedSteps" | "outcome">>): Promise<ApplicationState>;
 }

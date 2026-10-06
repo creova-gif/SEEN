@@ -3,7 +3,7 @@ import { api, isApplyable, opportunityStatus, type ApplicationStatus, type Oppor
 import { useResource } from "../hooks/useResource";
 import { OpportunityCard } from "../components/seen/cards";
 import { ResourceView } from "../components/seen/ResourceView";
-import { Banner, Button, Chip, SegmentedTabs, Skeleton, StateTemplate } from "../components/seen/primitives";
+import { Banner, Button, Chip, MetricCard, SegmentedTabs, Skeleton, StateTemplate } from "../components/seen/primitives";
 import { Drawer } from "../components/seen/overlays";
 import { RadioGroup } from "../components/seen/forms";
 import { SlidersHorizontal } from "lucide-react";
@@ -94,6 +94,9 @@ export function FundingScreen({ initialView = "open" }: { initialView?: View }) 
           />
         </div>
       </Drawer>
+      <div className="mb-4">
+        <Button variant="secondary" fullWidth onClick={() => nav.go("funding-readiness")}>Prepare your application</Button>
+      </div>
       <ResourceView
         resource={resource}
         what="funding opportunities"
@@ -105,7 +108,7 @@ export function FundingScreen({ initialView = "open" }: { initialView?: View }) 
           </div>
         }
       >
-        {([opps]) => {
+        {([opps, apps]) => {
           const list = opps
             .filter(o => !type || o.type === type)
             .filter(o => !region || o.region === region)
@@ -136,7 +139,22 @@ export function FundingScreen({ initialView = "open" }: { initialView?: View }) 
               />
             );
           }
+          // Tracker summary: derived only from what the user tracked and from funder-published deadlines.
+          const trackedApps = apps.filter(a => a.status !== "none");
+          const nextDeadline = view === "mine"
+            ? list.filter(o => o.deadline && isApplyable(opportunityStatus(o)) && statusOf(o.id) !== "applied").map(o => o.deadline as string).sort()[0]
+            : undefined;
+          const recorded = trackedApps.filter(a => a.outcome).length;
           return (
+            <>
+            {view === "mine" && (
+              <section aria-label="Tracker summary" className="grid grid-cols-2 gap-3 mb-5">
+                <MetricCard label="Tracked" value={trackedApps.length} />
+                <MetricCard label="Applied" value={trackedApps.filter(a => a.status === "applied").length} />
+                <MetricCard label="Next deadline" value={nextDeadline ? new Date(nextDeadline).toLocaleDateString("en-CA", { month: "short", day: "numeric", timeZone: "UTC" }) : "—"} hint={nextDeadline ? undefined : "None dated"} />
+                <MetricCard label="Outcomes noted" value={recorded} hint="Recorded by you" />
+              </section>
+            )}
             <ul className="space-y-3" aria-label="Funding opportunities">
               {list.map(o => (
                 <li key={o.id}>
@@ -144,6 +162,7 @@ export function FundingScreen({ initialView = "open" }: { initialView?: View }) 
                 </li>
               ))}
             </ul>
+            </>
           );
         }}
       </ResourceView>

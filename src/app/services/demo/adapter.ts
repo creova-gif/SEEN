@@ -109,9 +109,15 @@ export const demoAdapter: SeenApi = {
         if (patch.status === "applied" && completedSteps.length < opp.steps.length) {
           throw new ServiceError("Complete every checklist step before marking as applied.", "invalid");
         }
+        const status = patch.status ?? prev.status;
+        let outcome = status === "applied" ? (patch.outcome !== undefined ? patch.outcome : prev.outcome ?? null) : null;
+        if (patch.outcome && prev.status !== "applied") {
+          throw new ServiceError("Mark the application as applied before recording an outcome.", "invalid");
+        }
         const next: ApplicationState = {
           opportunityId: id,
-          status: patch.status ?? prev.status,
+          status,
+          outcome,
           completedSteps: [...new Set(completedSteps)].sort((a, b) => a - b),
           updatedAt: new Date().toISOString(),
         };

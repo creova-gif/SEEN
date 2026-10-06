@@ -21,6 +21,7 @@ export type AnalyticsEvent =
   | "collection_saved"
   | "funding_tracked"
   | "funding_marked_applied"
+  | "funding_outcome_recorded"
   | "notification_opened"
   | "access_denied"
   | "report_submitted"

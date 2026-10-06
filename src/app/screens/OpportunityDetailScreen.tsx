@@ -8,8 +8,9 @@ import { ResourceView } from "../components/seen/ResourceView";
 import { Badge, Banner, Button, SectionTitle, SkeletonList } from "../components/seen/primitives";
 import { SaveToggle } from "../components/seen/cards";
 import { useAppNav } from "../navigation/AppNav";
-import { Checkbox } from "../components/seen/forms";
+import { Checkbox, RadioGroup } from "../components/seen/forms";
 import { LinearProgress } from "../components/seen/display";
+import { OUTCOMES, statusLabel, type TrackedOutcome } from "../services/applicationStatus";
 import { ScreenFrame } from "./ScreenFrame";
 
 const LANG_LABEL: Record<string, string> = { en: "English", fr: "French", es: "Spanish" };
@@ -28,7 +29,7 @@ export function OpportunityDetailScreen({ opportunityId }: { opportunityId: stri
 
   // Optimistic: the checkbox/status changes the instant it's tapped, the save
   // happens in the background, and a failure rolls back with a toast.
-  const update = async (patch: Partial<Pick<ApplicationState, "status" | "completedSteps">>, success?: string) => {
+  const update = async (patch: Partial<Pick<ApplicationState, "status" | "completedSteps" | "outcome">>, success?: string) => {
     const previous = resource.data?.application;
     if (previous) resource.mutate(prev => ({ ...prev!, application: { ...previous, ...patch } }));
     setBusy(true);
@@ -141,6 +142,27 @@ export function OpportunityDetailScreen({ opportunityId }: { opportunityId: stri
                         <div role="status" className="mt-6 flex items-center gap-3 rounded-seen-md border border-seen-success/30 bg-seen-success/10 p-4">
                           <PartyPopper className="w-5 h-5 text-seen-success" aria-hidden />
                           <p className="text-sm text-white/85">Marked as applied. We'll keep it in your tracker.</p>
+                        </div>
+                      ) : null}
+                      {app.status === "applied" ? (
+                        <div className="mt-6">
+                          <h3 className="text-base font-semibold text-white mb-1">Heard back?</h3>
+                          <p className="text-xs text-seen-muted mb-3">SEEN doesn't receive funder decisions. Record what the funder told you so your tracker stays accurate.</p>
+                          {app.outcome && <Badge tone="gold" className="mb-3">{statusLabel(app.outcome)}</Badge>}
+                          <RadioGroup<TrackedOutcome | "none">
+                            label="What happened?"
+                            hideLabel
+                            value={app.outcome ?? "none"}
+                            onChange={v => {
+                              const outcome = v === "none" ? null : v;
+                              update({ outcome }, outcome ? "Outcome saved" : "Outcome cleared");
+                              if (outcome) track("funding_outcome_recorded", { opportunityId, outcome });
+                            }}
+                            options={[
+                              { value: "none", label: "Nothing yet" },
+                              ...OUTCOMES.map(o => ({ value: o, label: statusLabel(o).replace(" · tracked by you", "") })),
+                            ]}
+                          />
                         </div>
                       ) : (
                         <div className="flex flex-wrap gap-3 mt-6">

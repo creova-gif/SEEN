@@ -36,6 +36,7 @@ export const SCREENS = [
   "creator-monetization",
   "creator-earnings",
   "creator-stories",
+  "funding-readiness",
   "subscription-management",
   "moderation-governance",
   "admin-dashboard",

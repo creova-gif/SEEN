@@ -23,6 +23,7 @@ import { OpportunityDetailScreen } from "./screens/OpportunityDetailScreen";
 import { NotificationsScreen } from "./screens/NotificationsScreen";
 import { AccountPrivacyScreen } from "./screens/AccountPrivacyScreen";
 import { NotesScreen } from "./screens/NotesScreen";
+import { FundingReadinessScreen } from "./screens/FundingReadinessScreen";
 import { CreatorStoriesScreen } from "./screens/CreatorStoriesScreen";
 import { EditProfileScreen } from "./screens/EditProfileScreen";
 import { ChangePasswordScreen } from "./screens/ChangePasswordScreen";
@@ -332,6 +333,7 @@ function AppContent() {
           {currentScreen === "opportunity" && route.params.id && <OpportunityDetailScreen key={`opp-${route.params.id}`} opportunityId={route.params.id} />}
 
           {allowed && currentScreen === "creator-monetization" && <CreatorMonetizationScreen key="creator-monetization" onClose={back} />}
+          {currentScreen === "funding-readiness" && <FundingReadinessScreen key="funding-readiness" />}
           {allowed && currentScreen === "creator-stories" && <CreatorStoriesScreen key="creator-stories" />}
           {allowed && currentScreen === "creator-earnings" && <CreatorEarningsScreen key="creator-earnings" onClose={back} />}
           {currentScreen === "subscription-management" && <SubscriptionManagementScreen key="subscription-management" onClose={back} />}
