@@ -236,3 +236,62 @@ test.describe("reporting", () => {
     await expect(page.getByRole("button", { name: /^reports \(0\)/i })).toBeVisible();
   });
 });
+
+test.describe("private notes", () => {
+  test("a reader sends a private note and the creator reads and deletes it", async ({ page }) => {
+    await signInAs(page, "viewer");
+    await page.goto("/#/story/midnight-resonance");
+    await page.getByRole("button", { name: /write a private note/i }).click();
+    await expect(page.getByRole("button", { name: /send note/i })).toBeDisabled();
+    await page.getByLabel(/your note/i).fill("This stayed with me for days.");
+    await page.getByRole("button", { name: /send note/i }).click();
+    await expect(page.getByText(/creator will see your note/i)).toBeVisible();
+    await page.getByRole("button", { name: /^done$/i }).click();
+
+    // Same reader, same story, within the hour: told to wait.
+    await page.getByRole("button", { name: /write a private note/i }).click();
+    await page.getByLabel(/your note/i).fill("Another one");
+    await page.getByRole("button", { name: /send note/i }).click();
+    await expect(page.getByText(/already sent a note on this story/i)).toBeVisible();
+    await page.keyboard.press("Escape");
+
+    // The creator opens Notes from Settings; the reader is anonymous by default.
+    await page.evaluate(() => {
+      const db = JSON.parse(localStorage.getItem("seenos_users_db") || "{}");
+      db.user_e2e_creator = { id: "user_e2e_creator", email: "creator@e2e.test", name: "E2E creator", role: "creator", language: "en", intent: "explore" };
+      localStorage.setItem("seenos_users_db", JSON.stringify(db));
+      localStorage.setItem("seenos_auth_session", JSON.stringify({ accessToken: "tok", userId: "user_e2e_creator" }));
+    });
+    await page.goto("/#/notes");
+    await page.reload();
+    await expect(page.getByText("This stayed with me for days.")).toBeVisible();
+    await expect(page.getByText(/someone who read your story/i)).toBeVisible();
+    await page.getByRole("button", { name: /delete note/i }).click();
+    await page.getByRole("button", { name: /^delete note$/i }).last().click();
+    await expect(page.getByText(/no notes yet/i)).toBeVisible();
+  });
+
+  test("a viewer cannot open the creator inbox", async ({ page }) => {
+    await signInAs(page, "viewer");
+    await page.goto("/#/notes");
+    await expect(page.getByText(/don't have access to this area/i)).toBeVisible();
+  });
+});
+
+test.describe("guest-first return", () => {
+  test("a deep link survives onboarding and sign-up", async ({ page }) => {
+    await page.goto("/#/story/midnight-resonance");
+    await page.getByRole("button", { name: /S \. E \. E \. N/ }).click();
+    await page.getByRole("button", { name: /^continue$/i }).click();
+    await page.getByRole("button", { name: /viewer/i }).click();
+    await page.getByRole("button", { name: /explore culture/i }).click();
+    await page.getByPlaceholder("Name").fill("Deep Linker");
+    await page.getByPlaceholder("Email").fill(`deep-${Date.now()}@example.com`);
+    await page.getByPlaceholder("Password").fill("Password123");
+    await page.getByRole("button", { name: /create account/i }).click();
+    await page.getByRole("button", { name: /^continue$/i }).click();
+    await page.getByRole("button", { name: /^continue$/i }).click();
+    await page.getByRole("button", { name: /^enter$/i }).click();
+    await expect(page).toHaveURL(/#\/story\/midnight-resonance$/);
+  });
+});

@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { Bell, Download, LogOut, ShieldCheck, Trash2, UserX } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { api } from "../services";
+import { track } from "../observability";
 import { Button, SectionTitle, StateTemplate } from "../components/seen/primitives";
 import { Toggle } from "../components/seen/forms";
 import { ConfirmDialog } from "../components/seen/overlays";
@@ -54,6 +55,7 @@ export function AccountPrivacyScreen() {
       a.download = "seen-my-data.json";
       a.click();
       URL.revokeObjectURL(url);
+      track("account_data_exported");
       toast.success("Your data was downloaded");
     } catch {
       toast.error("Couldn't prepare your data. Try again.");
@@ -72,6 +74,7 @@ export function AccountPrivacyScreen() {
   const doDelete = async () => {
     if (!user) return;
     try {
+      track("account_deleted");
       deleteLocalAccount(user.id);
       await signOut();
       window.location.reload();

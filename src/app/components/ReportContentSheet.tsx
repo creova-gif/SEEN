@@ -2,6 +2,7 @@ import { useState } from "react";
 import { CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { api, ServiceError } from "../services";
+import { track } from "../observability";
 import {
   MAX_DETAILS,
   REPORT_REASONS,
@@ -43,6 +44,7 @@ function ReportSheetBody({ open, onOpenChange, targetType, targetId, targetTitle
     setError(null);
     try {
       await api.reports.submit({ targetType, targetId, targetTitle, reason, details });
+      track("report_submitted", { target: targetType, reason });
       setSent(true);
     } catch (e) {
       if (e instanceof ServiceError && e.code === "conflict") setError(e.message);

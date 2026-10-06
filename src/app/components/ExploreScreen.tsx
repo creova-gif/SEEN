@@ -6,6 +6,7 @@
  * NO personalized content - different from For You
  */
 
+import { languageChipText } from "./seen/languageChip";
 import { motion } from "motion/react";
 import { useState } from "react";
 import { NavigationBar } from "./NavigationBar";
@@ -53,6 +54,7 @@ export function ExploreScreen({
   const [tab, setTab] = useState<ExploreTab>(initialTab);
 
   // Get curated categories
+  const chipFor = (l: readonly string[] | undefined) => languageChipText(l, language);
   const categories = getExploreCategories(language as Language);
   
 
@@ -162,7 +164,7 @@ export function ExploreScreen({
                     subtitle={item.description}
                     duration={item.duration}
                     imageUrl={item.mediaSource}
-                    typeLabel={<><BookOpen className="w-3 h-3" aria-hidden />{item.type}</>}
+                    typeLabel={<><BookOpen className="w-3 h-3" aria-hidden />{item.type}{chipFor(item.language) && <span className="text-white/70"> · {chipFor(item.language)}</span>}</>}
                     onSelect={onStoryClick}
                   />
                 ))}
@@ -217,7 +219,7 @@ export function ExploreScreen({
                     subtitle={item.description}
                     duration={item.duration}
                     imageUrl={item.mediaSource}
-                    typeLabel={<><BookOpen className="w-3 h-3" aria-hidden />{item.type}</>}
+                    typeLabel={<><BookOpen className="w-3 h-3" aria-hidden />{item.type}{chipFor(item.language) && <span className="text-white/70"> · {chipFor(item.language)}</span>}</>}
                     onSelect={onStoryClick}
                   />
                 ))}

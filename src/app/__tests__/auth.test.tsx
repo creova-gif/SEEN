@@ -36,6 +36,6 @@ describe("sign-up role policy", () => {
     await waitFor(() => expect(localStorage.getItem("seenos_users_db")).toContain("admin@seen.demo"));
     await act(() => result.current.signIn("admin@seen.demo", DEMO_PASSWORD));
     expect(result.current.state.user?.role).toBe("admin");
-    await expect(result.current.signIn("admin@seen.demo", "wrong")).rejects.toThrow(/incorrect password/i);
+    await expect(result.current.signIn("admin@seen.demo", "wrong")).rejects.toThrow(/doesn't match/i);
   });
 });

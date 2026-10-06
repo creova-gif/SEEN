@@ -1,3 +1,4 @@
+import { track } from "../observability";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useAuth } from "../contexts/AuthContext";
@@ -35,6 +36,7 @@ export function ResetPasswordScreen({ token }: { token: string }) {
     setError(null);
     try {
       await resetPassword(token, password);
+      track("password_reset_completed");
       toast.success("Password updated. Sign in with your new password.");
       nav.go("onboarding");
     } catch (e) {

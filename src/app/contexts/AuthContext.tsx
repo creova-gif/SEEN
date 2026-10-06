@@ -137,6 +137,26 @@ function sleep(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+export const WRONG_CREDENTIALS_MESSAGE = "That email or password doesn't match. Check and try again.";
+export const RATE_LIMITED_MESSAGE = "Too many attempts. Wait a minute and try again.";
+const MAX_FAILURES = 5;
+const FAILURE_WINDOW_MS = 60_000;
+const failures = new Map<string, number[]>();
+
+function recentFailures(email: string): number[] {
+  const now = Date.now();
+  return (failures.get(email) ?? []).filter(t => now - t < FAILURE_WINDOW_MS);
+}
+function isRateLimited(email: string): boolean {
+  return recentFailures(email).length >= MAX_FAILURES;
+}
+function recordFailure(email: string) {
+  failures.set(email, [...recentFailures(email), Date.now()]);
+}
+function clearFailures(email: string) {
+  failures.delete(email);
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>({
     user: null,
@@ -236,7 +256,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const usersDb = loadUsersDb();
     const existing = Object.values(usersDb).find(u => u.email.toLowerCase() === normalizedEmail);
     if (existing) {
-      throw new Error('An account with this email already exists. Please sign in instead.');
+      throw new Error('An account with this email exists. Sign in instead.');
     }
 
     const passwordHash = await hashPassword(password);
@@ -277,14 +297,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const usersDb = loadUsersDb();
     const user = Object.values(usersDb).find(u => u.email.toLowerCase() === normalizedEmail);
 
-    if (!user) {
-      throw new Error('No account found with this email. Please sign up first.');
+    if (isRateLimited(normalizedEmail)) {
+      throw new Error(RATE_LIMITED_MESSAGE);
     }
 
+    // One message for an unknown email and a wrong password, so the form cannot be used to find out who has an account.
     const passwordHash = await hashPassword(password);
-    if (user.passwordHash !== passwordHash) {
-      throw new Error('Incorrect password. Please try again.');
+    if (!user || user.passwordHash !== passwordHash) {
+      recordFailure(normalizedEmail);
+      throw new Error(WRONG_CREDENTIALS_MESSAGE);
     }
+    clearFailures(normalizedEmail);
 
     const accessToken = generateToken();
     setState({

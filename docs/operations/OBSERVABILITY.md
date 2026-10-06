@@ -18,6 +18,7 @@
 
 Keys matching `email|name|password|card|cvc|token|phone|address|query|text` are dropped before recording (unit-tested). A random 8-char session id is the only identifier.
 
+- New events (enums and ids only): `report_submitted` (target, reason), `note_sent` (attributed), `note_deleted`, `account_data_exported`, `account_deleted`, `password_reset_completed`.
 - **Sink:** in-memory ring buffer (`window.__seen.events`, `window.__seen.errors`) for moderated sessions; set `VITE_TELEMETRY_ENDPOINT` to also `sendBeacon` each envelope.
 - **Deploy health:** Vercel deployment status + runtime logs (static site: no server logs).
 

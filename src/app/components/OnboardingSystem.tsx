@@ -591,7 +591,7 @@ function AccountStep({
   const [localError, setLocalError] = useState<string | null>(null);
 
   const showSignInSuggestion = (error || localError) && (
-    (error || localError || '').includes('already exists') || 
+    (error || localError || '').includes('exists. Sign in') || 
     (error || localError || '').includes('already been registered')
   );
   

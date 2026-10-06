@@ -22,10 +22,12 @@ import { FundingScreen } from "./screens/FundingScreen";
 import { OpportunityDetailScreen } from "./screens/OpportunityDetailScreen";
 import { NotificationsScreen } from "./screens/NotificationsScreen";
 import { AccountPrivacyScreen } from "./screens/AccountPrivacyScreen";
+import { NotesScreen } from "./screens/NotesScreen";
 import { ResetPasswordScreen } from "./screens/ResetPasswordScreen";
 import { ScreenFrame } from "./screens/ScreenFrame";
 import { SkeletonList, StateTemplate } from "./components/seen/primitives";
 import { AppNavProvider, type AppNav, type RouteParams } from "./navigation/AppNav";
+import { rememberReturn, takeReturn } from "./navigation/safeReturn";
 import { type AppScreen, NOT_DEEP_LINKABLE, PUBLIC_SCREENS, canAccess, fromHash, isScreen, toHash } from "./navigation/routes";
 import { api } from "./services";
 import { initializeDemoData } from "./data/demoData";
@@ -119,6 +121,12 @@ function AppContent() {
     [go],
   );
 
+  // Guest-first: remember the deep link a signed-out visitor arrived on, so sign-in returns them there.
+  useEffect(() => {
+    const linked = fromHash(window.location.hash);
+    if (linked && !NOT_DEEP_LINKABLE.includes(linked.screen) && !PUBLIC_SCREENS.includes(linked.screen)) rememberReturn(window.location.hash);
+  }, []);
+
   // A reset link opens its screen even when signed out.
   useEffect(() => {
     const linked = fromHash(window.location.hash);
@@ -128,6 +136,7 @@ function AppContent() {
   // Leave onboarding once auth has resolved for a returning user; honour a deep link if present.
   useEffect(() => {
     if (!authState.isLoading && authState.isAuthenticated && hasCompletedOnboarding && currentScreen === "onboarding") {
+      takeReturn();
       const linked = fromHash(window.location.hash);
       if (linked && !NOT_DEEP_LINKABLE.includes(linked.screen)) go(linked.screen, linked.params, { replace: true });
       else go("for-you", {}, { replace: true });
@@ -178,7 +187,10 @@ function AppContent() {
     setIntent(data.intent);
     setIsFirstVisit(false);
     track("onboarding_completed", { role: data.role, intent: data.intent });
-    go("for-you", {}, { replace: true });
+    const back = takeReturn();
+    const linked = back ? fromHash(back) : null;
+    if (linked && !NOT_DEEP_LINKABLE.includes(linked.screen)) go(linked.screen, linked.params, { replace: true });
+    else go("for-you", {}, { replace: true });
   };
 
   const handleNavigate = (screen: string) => {
@@ -316,6 +328,7 @@ function AppContent() {
           {currentScreen === "about" && <AboutScreen key="about" onClose={back} />}
           {currentScreen === "settings" && <ProfilePreferencesScreen key="settings" onBack={back} />}
           {currentScreen === "account" && <AccountPrivacyScreen key="account" />}
+          {allowed && currentScreen === "notes" && <NotesScreen key="notes" />}
           {currentScreen === "reset-password" && route.params.id && <ResetPasswordScreen key="reset-password" token={route.params.id} />}
 
           {currentScreen === "creator-publish" && (

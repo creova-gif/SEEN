@@ -22,7 +22,13 @@ export type AnalyticsEvent =
   | "funding_tracked"
   | "funding_marked_applied"
   | "notification_opened"
-  | "access_denied";
+  | "access_denied"
+  | "report_submitted"
+  | "note_sent"
+  | "note_deleted"
+  | "account_data_exported"
+  | "account_deleted"
+  | "password_reset_completed";
 
 type Props = Record<string, string | number | boolean | undefined>;
 

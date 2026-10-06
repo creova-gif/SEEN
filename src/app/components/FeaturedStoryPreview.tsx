@@ -1,6 +1,7 @@
 import { motion } from "motion/react";
-import { ArrowLeft, Play, Volume2, Share2, Bookmark, Lock, Flag } from "lucide-react";
+import { ArrowLeft, Play, Volume2, Share2, Bookmark, Lock, Flag, PenLine } from "lucide-react";
 import { ReportContentSheet } from "./ReportContentSheet";
+import { NoteSheet } from "./NoteSheet";
 import { useState } from "react";
 import { useStoryState } from "../contexts/StoryStateContext";
 import { useAuth } from "../contexts/AuthContext";
@@ -18,6 +19,7 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
   const [isPlaying, setIsPlaying] = useState(false);
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
+  const [noteOpen, setNoteOpen] = useState(false);
   const { state } = useStoryState();
   const { state: authState } = useAuth();
 
@@ -96,6 +98,13 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
               aria-label="Bookmark"
             >
               <Bookmark className="w-4 h-4 text-white" />
+            </button>
+            <button
+              onClick={() => setNoteOpen(true)}
+              className="w-11 h-11 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center hover:bg-black/60 transition-colors"
+              aria-label="Write a private note to the creator"
+            >
+              <PenLine className="w-4 h-4 text-white" />
             </button>
             <button
               onClick={() => setReportOpen(true)}
@@ -232,6 +241,7 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
         creatorName={storyData.creator}
       />
 
+      <NoteSheet open={noteOpen} onOpenChange={setNoteOpen} storyId={storyData.id} storyTitle={storyData.title} />
       <ReportContentSheet open={reportOpen} onOpenChange={setReportOpen} targetType="story" targetId={storyData.id} targetTitle={storyData.title} />
     </motion.div>
   );
