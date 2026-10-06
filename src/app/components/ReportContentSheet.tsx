@@ -2,7 +2,10 @@ import { useState } from "react";
 import { CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { api, ServiceError } from "../services";
+import { useStoryState } from "../contexts/StoryStateContext";
 import { track } from "../observability";
+import { useT } from "../i18n/useT";
+import { localizeError, type StringKey } from "../i18n/strings";
 import {
   MAX_DETAILS,
   REPORT_REASONS,
@@ -30,6 +33,8 @@ export function ReportContentSheet(props: ReportContentSheetProps) {
 }
 
 function ReportSheetBody({ open, onOpenChange, targetType, targetId, targetTitle }: ReportContentSheetProps) {
+  const t = useT();
+  const lang = useStoryState().state.language;
   const [reason, setReason] = useState<ReportReason | null>(null);
   const [details, setDetails] = useState("");
   const [busy, setBusy] = useState(false);
@@ -47,33 +52,33 @@ function ReportSheetBody({ open, onOpenChange, targetType, targetId, targetTitle
       track("report_submitted", { target: targetType, reason });
       setSent(true);
     } catch (e) {
-      if (e instanceof ServiceError && e.code === "conflict") setError(e.message);
-      else if (e instanceof ServiceError && e.code === "forbidden") setError("Sign in to send a report.");
+      if (e instanceof ServiceError && e.code === "conflict") setError(localizeError(e.message, lang));
+      else if (e instanceof ServiceError && e.code === "forbidden") setError(t("report.err.signin"));
       else {
-        setError("Couldn't send your report. Try again.");
-        toast.error("Couldn't send your report. Try again.");
+        setError(t("report.err.generic"));
+        toast.error(t("report.err.generic"));
       }
     } finally {
       setBusy(false);
     }
   };
 
-  const noun = targetType === "story" ? "story" : "profile";
+  const noun: "story" | "profile" = targetType === "story" ? "story" : "profile";
 
   return (
     <Sheet
       open={open}
       onOpenChange={close}
-      title={sent ? "Report sent" : `Report this ${noun}`}
-      description={sent ? undefined : "Moderators review every report. The creator is not told who reported."}
+      title={sent ? t("report.title.sent") : t(`report.title.${noun}`)}
+      description={sent ? undefined : t("report.desc")}
       footer={
         sent ? (
           <Button fullWidth onClick={() => close(false)}>
-            Done
+            {t("report.done")}
           </Button>
         ) : (
           <Button fullWidth loading={busy} disabled={!reason || busy} onClick={submit}>
-            Send report
+            {t("report.send")}
           </Button>
         )
       }
@@ -81,19 +86,19 @@ function ReportSheetBody({ open, onOpenChange, targetType, targetId, targetTitle
       {sent ? (
         <div className="flex flex-col items-center text-center gap-3 py-4" role="status">
           <CheckCircle2 className="w-8 h-8 text-seen-success" aria-hidden />
-          <p className="text-sm text-white/80 max-w-[30ch]">Thank you. A moderator will review this {noun}. You can keep reading in the meantime.</p>
+          <p className="text-sm text-white/80 max-w-[30ch]">{t(`report.thanks.${noun}`)}</p>
         </div>
       ) : (
         <div className="flex flex-col gap-4">
           <RadioGroup<ReportReason>
-            label="Why are you reporting this?"
+            label={t("report.why")}
             value={reason as ReportReason}
             onChange={setReason}
-            options={REPORT_REASONS.map(r => ({ value: r.value, label: r.label, description: r.description }))}
+            options={REPORT_REASONS.map(r => ({ value: r.value, label: t(`report.reason.${r.value}.label` as StringKey), description: t(`report.reason.${r.value}.desc` as StringKey) }))}
           />
           <div>
             <label htmlFor="report-details" className="block text-xs tracking-[0.14em] uppercase text-seen-muted mb-2">
-              More detail (optional)
+              {t("report.detail")}
             </label>
             <textarea
               id="report-details"
@@ -102,7 +107,7 @@ function ReportSheetBody({ open, onOpenChange, targetType, targetId, targetTitle
               onChange={e => setDetails(e.target.value)}
               rows={3}
               className="w-full rounded-seen-md border border-seen-border bg-seen-surface px-4 py-3 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-white/40"
-              placeholder="What should the moderator know?"
+              placeholder={t("report.placeholder")}
             />
             <p className="text-xs text-seen-muted mt-1 text-right" aria-live="polite">
               {details.length}/{MAX_DETAILS}

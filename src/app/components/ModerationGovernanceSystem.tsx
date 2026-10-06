@@ -5,6 +5,8 @@ import { useAuth } from "../contexts/AuthContext";
 import { toast } from "sonner";
 import { api, type Report } from "../services";
 import { ReportsPanel } from "./ReportsPanel";
+import { translate } from "../i18n/strings";
+import { useStoryState } from "../contexts/StoryStateContext";
 import {
   getModerationQueue,
   getModerationActions,
@@ -528,6 +530,7 @@ export function ModerationGovernanceSystem({ onBack }: ModerationGovernanceSyste
   const [activeTab, setActiveTab] = useState<"queue" | "reports" | "audit" | "guidelines">("queue");
   const [refreshKey, setRefreshKey] = useState(0);
   const { state: authState } = useAuth();
+  const lang = useStoryState().state.language;
 
   const moderatorId = authState.user?.id ?? "mod-demo";
   const moderatorName = authState.user?.name ?? "Moderator";
@@ -631,7 +634,7 @@ export function ModerationGovernanceSystem({ onBack }: ModerationGovernanceSyste
                   : "text-white/50 hover:text-white/70"
               }`}
             >
-              Reports ({reports.filter(r => r.status === "open").length})
+              {translate("reports.tab", lang)} ({reports.filter(r => r.status === "open").length})
             </button>
             <button
               onClick={() => setActiveTab("audit")}

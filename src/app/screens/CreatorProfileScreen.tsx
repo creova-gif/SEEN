@@ -1,3 +1,4 @@
+import { useT } from "../i18n/useT";
 import { useState } from "react";
 import { track } from "../observability";
 import { toast } from "sonner";
@@ -15,6 +16,7 @@ import { ScreenFrame } from "./ScreenFrame";
 const LANG_LABEL: Record<string, string> = { en: "English", fr: "Français", es: "Español" };
 
 export function CreatorProfileScreen({ creatorId }: { creatorId: string }) {
+  const t = useT();
   const nav = useAppNav();
   const { state } = useStoryState();
   const resource = useResource(
@@ -89,7 +91,7 @@ export function CreatorProfileScreen({ creatorId }: { creatorId: string }) {
               </ul>
               <div className="mt-10 flex justify-center">
                 <Button variant="ghost" size="sm" icon={<Flag className="w-4 h-4" aria-hidden />} onClick={() => setReportOpen(true)}>
-                  Report this profile
+                  {t("report.open.profile")}
                 </Button>
               </div>
             </section>

@@ -143,7 +143,7 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
             <button
               onClick={() => setReportOpen(true)}
               className="w-11 h-11 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center hover:bg-black/60 transition-colors"
-              aria-label="Report this story"
+              aria-label={t("report.open.story")}
             >
               <Flag className="w-4 h-4 text-white" />
             </button>

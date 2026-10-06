@@ -362,3 +362,20 @@ test.describe("french", () => {
     await expect(page.getByText(/verra votre note/i)).toBeVisible();
   });
 });
+
+test.describe("french: report and account", () => {
+  test("report sheet and account screen follow the language", async ({ page }) => {
+    await signInAs(page, "viewer");
+    await page.goto("/#/settings");
+    await page.getByLabel("Français").check();
+    await page.goto("/#/creator/kira-chen");
+    await page.getByRole("button", { name: /signaler ce profil/i }).click();
+    await expect(page.getByRole("heading", { name: /signaler ce profil/i })).toBeVisible();
+    await page.getByLabel(/trompeur ou faux/i).check();
+    await page.getByRole("button", { name: /envoyer le signalement/i }).click();
+    await expect(page.getByText(/un modérateur examinera ce profil/i)).toBeVisible();
+    await page.goto("/#/account");
+    await expect(page.getByRole("heading", { name: /compte et confidentialité/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /supprimer mon compte/i })).toBeVisible();
+  });
+});
