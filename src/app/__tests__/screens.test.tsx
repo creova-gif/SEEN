@@ -116,8 +116,9 @@ describe("NotificationsScreen", () => {
     wrap(<NotificationsScreen />, n);
     const items = await screen.findAllByTestId("notification-item");
     expect(items.some(i => i.getAttribute("data-read") === "false")).toBe(true);
-    await userEvent.click(screen.getByText(/funding closing soon/i));
-    expect(n.go).toHaveBeenCalledWith("opportunity", { id: "cmf-digital-creators-pilot-2026" });
+    // The funding notice is derived from the next open listing, never a fixed date.
+    await userEvent.click(screen.getByText(/funding (closing soon|open now)/i));
+    expect(n.go).toHaveBeenCalledWith("opportunity", { id: expect.any(String) });
     await userEvent.click(screen.getByRole("button", { name: /mark all read/i }));
     await waitFor(() => screen.getAllByTestId("notification-item").forEach(i => expect(i).toHaveAttribute("data-read", "true")));
   });

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { MessageSquareText, Trash2 } from "lucide-react";
+import { MessageSquareText, Trash2, UserX } from "lucide-react";
 import { api, type Note } from "../services";
 import { useResource } from "../hooks/useResource";
 import { ResourceView } from "../components/seen/ResourceView";
@@ -18,6 +18,19 @@ export function NotesScreen() {
   const nav = useAppNav();
   const notes = useResource(() => api.notes.received(), []);
   const [pending, setPending] = useState<Note | null>(null);
+  const [blocking, setBlocking] = useState<Note | null>(null);
+
+  const blockSender = async () => {
+    const target = blocking;
+    if (!target) return;
+    setBlocking(null);
+    try {
+      await api.notes.blockSender(target.id);
+      toast.success("Blocked. They can't send you new notes. Undo in Account and privacy.");
+    } catch {
+      toast.error("Couldn't block this person. Try again.");
+    }
+  };
 
   const remove = async () => {
     const target = pending;
@@ -58,15 +71,29 @@ export function NotesScreen() {
                 <p className="text-sm text-white mt-2 whitespace-pre-wrap break-words">{n.body}</p>
                 <div className="flex items-center justify-between mt-3">
                   <p className="text-xs text-seen-muted">{new Date(n.createdAt).toLocaleDateString()}</p>
-                  <Button size="sm" variant="secondary" onClick={() => setPending(n)} aria-label="Delete note">
-                    <Trash2 className="w-4 h-4" aria-hidden /> Delete
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="ghost" onClick={() => setBlocking(n)} aria-label="Block sender">
+                      <UserX className="w-4 h-4" aria-hidden /> Block
+                    </Button>
+                    <Button size="sm" variant="secondary" onClick={() => setPending(n)} aria-label="Delete note">
+                      <Trash2 className="w-4 h-4" aria-hidden /> Delete
+                    </Button>
+                  </div>
                 </div>
               </li>
             ))}
           </ul>
         )}
       </ResourceView>
+      <ConfirmDialog
+        open={blocking !== null}
+        onOpenChange={o => !o && setBlocking(null)}
+        title="Block this sender?"
+        description="You won't see who they are. They can't send you new notes, and earlier notes stay. You can undo this in Account and privacy."
+        confirmLabel="Block sender"
+        destructive
+        onConfirm={blockSender}
+      />
       <ConfirmDialog
         open={pending !== null}
         onOpenChange={o => !o && setPending(null)}

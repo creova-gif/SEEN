@@ -83,6 +83,7 @@ export const demoSafety: Pick<SeenApi, "reports" | "blocks" | "notes" | "prefere
       call(() => {
         const key = `blocks.${requireActor().id}`;
         writeStore(key, readStore<string[]>(key, []).filter(x => x !== userId));
+        writeStore("blocked-senders", readStore<string[]>("blocked-senders", []).filter(x => x !== userId));
       }),
   },
 
@@ -92,6 +93,7 @@ export const demoSafety: Pick<SeenApi, "reports" | "blocks" | "notes" | "prefere
         const a = requireActor();
         const text = body.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, "").trim();
         if (!text || text.length > MAX_NOTE_LENGTH) throw new ServiceError("Notes are 1 to 500 characters.", "invalid");
+        if (readStore<string[]>("blocked-senders", []).includes(a.id)) throw new ServiceError("You can't send a note to this creator.", "forbidden");
         const all = readStore<StoredNote[]>("notes", []);
         const now = Date.now();
         const mine = all.filter(n => n.senderId === a.id);
@@ -122,6 +124,16 @@ export const demoSafety: Pick<SeenApi, "reports" | "blocks" | "notes" | "prefere
       call(() => {
         requireActor();
         writeStore("notes", readStore<StoredNote[]>("notes", []).filter(n => n.id !== id));
+      }),
+    // Demo approximation: one device-wide list of blocked senders (the backend scopes this per creator).
+    blockSender: noteId =>
+      call(() => {
+        const a = requireActor();
+        const note = readStore<StoredNote[]>("notes", []).find(n => n.id === noteId);
+        if (!note) throw new ServiceError("Note not found.", "not_found");
+        writeStore("blocked-senders", [...new Set([...readStore<string[]>("blocked-senders", []), note.senderId])]);
+        const key = `blocks.${a.id}`;
+        writeStore(key, [...new Set([...readStore<string[]>(key, []), note.senderId])]);
       }),
   },
 

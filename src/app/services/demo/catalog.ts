@@ -8,6 +8,8 @@
 import { STORY_WORLDS, type StoryWorld } from "../../data/storyDatabase";
 import type { Collection, Creator, SeenNotification } from "../contracts";
 import { slugify } from "../runtime";
+import { FUNDING_LISTINGS } from "../data/fundingListings";
+import { formatStatus, opportunityStatus } from "../funding";
 
 function publicStories(): StoryWorld[] {
   return STORY_WORLDS.filter(s => s.visibility === "public");
@@ -83,6 +85,22 @@ export function buildCollections(): Collection[] {
   return [...institutional, ...themed];
 }
 
+/** The next real listing that is still open with a published deadline, or nothing. Never a hard-coded date. */
+function fundingReminder(now: Date, createdAt: string): SeenNotification[] {
+  const next = FUNDING_LISTINGS.filter(o => !o.isDemo && o.deadline && ["open", "closing-soon"].includes(opportunityStatus(o, now)))
+    .sort((a, b) => Date.parse(a.deadline!) - Date.parse(b.deadline!))[0];
+  if (!next) return [];
+  return [{
+    id: `n-funding-${next.id}`,
+    type: "funding",
+    title: opportunityStatus(next, now) === "closing-soon" ? "Funding closing soon" : "Funding open now",
+    body: `${next.funder}: ${next.title}. ${formatStatus(next, now)}.`,
+    createdAt,
+    read: false,
+    target: { screen: "opportunity", id: next.id },
+  }];
+}
+
 export function seedNotifications(now: Date): SeenNotification[] {
   const ago = (h: number) => new Date(now.getTime() - h * 3600_000).toISOString();
   const newest = publicStories().find(s => s.new) ?? publicStories()[0];
@@ -104,14 +122,6 @@ export function seedNotifications(now: Date): SeenNotification[] {
       read: false,
       target: { screen: "story", id: newest.id },
     },
-    {
-      id: "n-funding-cmf-dcpp",
-      type: "funding",
-      title: "Funding closing soon",
-      body: "Canada Media Fund's Digital Creators Pilot Program closes October 1, 2026 at 11:59 p.m. ET.",
-      createdAt: ago(26),
-      read: false,
-      target: { screen: "opportunity", id: "cmf-digital-creators-pilot-2026" },
-    },
+    ...fundingReminder(now, ago(26)),
   ];
 }

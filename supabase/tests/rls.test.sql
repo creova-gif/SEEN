@@ -54,6 +54,14 @@ select t.expect_fail($$insert into notes(story_id, sender_id, body) select sid, 
 select t.expect_fail($$insert into notes(story_id, sender_id, body, creator_id) select sid, '00000000-0000-0000-0000-00000000000b', 'x', '00000000-0000-0000-0000-00000000000b' from ctx$$, 'client creator_id');
 select t.as_user('00000000-0000-0000-0000-00000000000c'); select t.eq((select count(*) from notes)::int, 0, 'third party sees no notes');
 select t.as_user('00000000-0000-0000-0000-00000000000a'); select t.eq((select count(*) from notes)::int, 1, 'creator sees note');
+-- block the sender of a note without learning who they are
+select t.as_user('00000000-0000-0000-0000-00000000000a');
+select block_note_sender((select id from notes limit 1));
+select t.eq((select count(*) from blocks where blocked_id='00000000-0000-0000-0000-00000000000b')::int, 1, 'sender blocked via note');
+select t.as_user('00000000-0000-0000-0000-00000000000c');
+select t.expect_fail($$select block_note_sender(gen_random_uuid())$$, 'unknown note');
+select t.as_user('00000000-0000-0000-0000-00000000000a');
+delete from blocks where blocked_id='00000000-0000-0000-0000-00000000000b';
 -- block then note
 insert into blocks values ('00000000-0000-0000-0000-00000000000a','00000000-0000-0000-0000-00000000000d');
 select t.as_user('00000000-0000-0000-0000-00000000000d');

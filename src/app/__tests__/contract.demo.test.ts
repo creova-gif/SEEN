@@ -19,3 +19,20 @@ describe("demo adapter: signed out", () => {
     expect(Object.keys(n)).not.toContain("senderId");
   });
 });
+
+describe("demo adapter: blocking a note sender", () => {
+  it("refuses new notes from a blocked sender, keeps old ones, and unblock restores", async () => {
+    await demoAdapter.notes.send("s1", "first");
+    const [note] = await demoAdapter.notes.received();
+    await demoAdapter.notes.blockSender(note.id);
+    expect(await demoAdapter.blocks.list()).toHaveLength(1);
+    await expect(demoAdapter.notes.send("s2", "second")).rejects.toMatchObject({ code: "forbidden" });
+    expect(await demoAdapter.notes.received()).toHaveLength(1);
+    const [id] = await demoAdapter.blocks.list();
+    await demoAdapter.blocks.unblock(id);
+    await demoAdapter.notes.send("s2", "second");
+  });
+  it("blockSender on an unknown note is not_found", async () => {
+    await expect(demoAdapter.notes.blockSender("nope")).rejects.toMatchObject({ code: "not_found" });
+  });
+});

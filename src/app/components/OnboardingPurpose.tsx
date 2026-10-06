@@ -1,3 +1,4 @@
+import { SeenImage } from "./seen/SeenImage";
 import { motion } from "motion/react";
 
 interface OnboardingPurposeProps {
@@ -15,11 +16,7 @@ export function OnboardingPurpose({ onNext }: OnboardingPurposeProps) {
     >
       {/* Full-bleed immersive image */}
       <div className="absolute inset-0">
-        <img
-          src="https://images.unsplash.com/photo-1665590309886-1d9d0411fa03?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjaW5lbWF0aWMlMjBzaWxob3VldHRlJTIwc3Rvcnl8ZW58MXx8fHwxNzcwMTY4MzcwfDA&ixlib=rb-4.1.0&q=80&w=1080"
-          alt="SEEN Purpose"
-          className="w-full h-full object-cover"
-        />
+        <SeenImage src="https://images.unsplash.com/photo-1665590309886-1d9d0411fa03?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjaW5lbWF0aWMlMjBzaWxob3VldHRlJTIwc3Rvcnl8ZW58MXx8fHwxNzcwMTY4MzcwfDA&ixlib=rb-4.1.0&q=80&w=1080" alt="SEEN Purpose" seed="seen-purpose" decorative className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black" />
       </div>
 

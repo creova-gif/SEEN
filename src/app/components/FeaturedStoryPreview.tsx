@@ -2,6 +2,7 @@ import { motion } from "motion/react";
 import { ArrowLeft, Play, Share2, Bookmark, Lock, Flag, PenLine } from "lucide-react";
 import { ReportContentSheet } from "./ReportContentSheet";
 import { NoteSheet } from "./NoteSheet";
+import { SeenImage } from "./seen/SeenImage";
 import { useState } from "react";
 import { toast } from "sonner";
 import { shareUrl } from "../navigation/shareUrl";
@@ -89,11 +90,7 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
     >
       {/* Full-bleed hero image */}
       <div className="absolute inset-0">
-        <img
-          src={storyData.coverImage}
-          alt={storyData.title}
-          className="w-full h-full object-cover"
-        />
+        <SeenImage src={storyData.coverImage} alt={storyData.title} seed={storyData.id} decorative className="w-full h-full object-cover" />
         {/* Gradient overlays for readability */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-black" />
       </div>

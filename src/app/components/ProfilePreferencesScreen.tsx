@@ -69,8 +69,10 @@ export function ProfilePreferencesScreen({ onBack }: ProfilePreferencesScreenPro
   return (
     <ScreenFrame title={t.title} onBack={onBack}>
       <section className="mb-10">
+        <SectionTitle title={t.language} />
         <RadioGroup<Language>
           label={t.language}
+          hideLabel
           value={state.language}
           onChange={setLanguage}
           options={[

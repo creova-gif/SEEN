@@ -31,7 +31,13 @@ function notificationsStore(): SeenNotification[] {
     list = seedNotifications(new Date());
     writeStore("notifications", list);
   }
-  return list;
+  // Drop seeded funding notices whose listing has since closed (earlier sessions stored a fixed date).
+  const now = new Date();
+  return list.filter(n => {
+    if (!n.id.startsWith("n-funding-")) return true;
+    const o = FUNDING_SEED.find(f => n.id === `n-funding-${f.id}` || n.id === "n-funding-cmf-dcpp" && f.id === n.target?.id);
+    return !o || ["open", "closing-soon", "rolling", "upcoming"].includes(opportunityStatus(o, now));
+  });
 }
 
 /** Push a notification from elsewhere in the app (e.g. after publishing). */

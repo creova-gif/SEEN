@@ -4,6 +4,8 @@ import { Bell, Download, LogOut, ShieldCheck, Trash2, UserX } from "lucide-react
 import { useAuth } from "../contexts/AuthContext";
 import { api } from "../services";
 import { track } from "../observability";
+import { useResource } from "../hooks/useResource";
+import { ResourceView } from "../components/seen/ResourceView";
 import { Button, SectionTitle, StateTemplate } from "../components/seen/primitives";
 import { Toggle } from "../components/seen/forms";
 import { ConfirmDialog } from "../components/seen/overlays";
@@ -27,6 +29,19 @@ export function AccountPrivacyScreen() {
   const [prefs, setPrefs] = useState<NotificationPrefs>(loadNotificationPrefs);
   const [confirm, setConfirm] = useState<"signout" | "delete" | null>(null);
   const user = auth.user;
+  const blocked = useResource(() => api.blocks.list(), []);
+
+  const unblock = async (id: string) => {
+    const previous = blocked.data ?? [];
+    blocked.mutate(list => (list ?? []).filter(x => x !== id));
+    try {
+      await api.blocks.unblock(id);
+      toast.success("Unblocked");
+    } catch {
+      blocked.mutate(() => previous);
+      toast.error("Couldn't unblock. Try again.");
+    }
+  };
 
   useEffect(() => {
     let live = true;
@@ -116,12 +131,30 @@ export function AccountPrivacyScreen() {
 
       <section className="mb-10">
         <SectionTitle title="Blocked accounts" />
-        <StateTemplate
-          kind="empty"
-          icon={<UserX className="w-5 h-5" aria-hidden />}
-          title="No blocked accounts"
-          message="People you block will appear here, and you can unblock them at any time."
-        />
+        <ResourceView
+          resource={blocked}
+          what="blocked accounts"
+          isEmpty={d => d.length === 0}
+          empty={
+            <StateTemplate
+              kind="empty"
+              icon={<UserX className="w-5 h-5" aria-hidden />}
+              title="No blocked accounts"
+              message="People you block will appear here, and you can unblock them at any time."
+            />
+          }
+        >
+          {ids => (
+            <ul className="space-y-2">
+              {ids.map((id, i) => (
+                <li key={id} className="flex items-center justify-between gap-3 rounded-seen-md border border-seen-border bg-seen-surface p-3 pl-4">
+                  <span className="text-sm text-white">Blocked reader {i + 1}</span>
+                  <Button size="sm" variant="secondary" onClick={() => unblock(id)}>Unblock</Button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </ResourceView>
       </section>
 
       <section className="mb-10">

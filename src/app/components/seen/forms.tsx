@@ -218,16 +218,18 @@ export function Checkbox({ checked, onChange, label, disabled, strikeWhenChecked
 // ------------------------------------------------------------------------- Radio (302:50)
 interface RadioGroupProps<T extends string> {
   label: string;
+  /** Visually hide the legend when a section heading above already names the group. */
+  hideLabel?: boolean;
   value: T;
   onChange: (value: T) => void;
   options: { value: T; label: string; description?: string; disabled?: boolean }[];
 }
 
-export function RadioGroup<T extends string>({ label, value, onChange, options }: RadioGroupProps<T>) {
+export function RadioGroup<T extends string>({ label, hideLabel, value, onChange, options }: RadioGroupProps<T>) {
   const name = useId();
   return (
     <fieldset>
-      <legend className="text-[13px] font-medium text-white/80 mb-2">{label}</legend>
+      <legend className={hideLabel ? "sr-only" : "text-[13px] font-medium text-white/80 mb-2"}>{label}</legend>
       <div className="space-y-2">
         {options.map(o => {
           const selected = o.value === value;

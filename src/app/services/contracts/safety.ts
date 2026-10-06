@@ -41,6 +41,7 @@ export interface ReportsApi {
 
 // ------------------------------------------------------------------ Blocks
 export interface BlocksApi {
+  /** Opaque ids of accounts you blocked (never names or emails). */
   list(): Promise<string[]>;
   block(userId: string): Promise<void>;
   unblock(userId: string): Promise<void>;
@@ -69,6 +70,11 @@ export interface NotesApi {
   send(storyId: string, body: string, opts?: { named?: boolean }): Promise<void>;
   received(): Promise<Note[]>;
   remove(id: string): Promise<void>;
+  /**
+   * Blocks whoever sent this note without revealing who they are. Earlier notes stay;
+   * new notes from them are refused (`forbidden`). Reversible with `blocks.unblock`.
+   */
+  blockSender(noteId: string): Promise<void>;
 }
 
 // ------------------------------------------------------------- Preferences

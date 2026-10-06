@@ -266,6 +266,15 @@ test.describe("private notes", () => {
     await page.reload();
     await expect(page.getByText("This stayed with me for days.")).toBeVisible();
     await expect(page.getByText(/someone who read your story/i)).toBeVisible();
+    // Block the sender: allowed, listed (anonymously) in Account and privacy, and reversible.
+    await page.getByRole("button", { name: /block sender/i }).first().click();
+    await page.getByRole("button", { name: /^block sender$/i }).last().click();
+    await expect(page.getByText(/they can't send you new notes/i)).toBeVisible();
+    await page.goto("/#/account");
+    await expect(page.getByText("Blocked reader 1")).toBeVisible();
+    await page.getByRole("button", { name: /^unblock$/i }).click();
+    await expect(page.getByText(/no blocked accounts/i)).toBeVisible();
+    await page.goto("/#/notes");
     await page.getByRole("button", { name: /delete note/i }).click();
     await page.getByRole("button", { name: /^delete note$/i }).last().click();
     await expect(page.getByText(/no notes yet/i)).toBeVisible();
