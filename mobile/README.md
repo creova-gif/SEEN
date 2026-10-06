@@ -1,6 +1,8 @@
 # SEEN — Mobile (Expo)
 
-Native iOS and Android client for SEEN by CREOVA, built on Expo SDK 57 (React Native 0.86, React 19).
+Native iOS and Android app for SEEN by CREOVA, built on Expo SDK 57 (React Native 0.86, React 19).
+
+The app is a native shell around the live SEEN web app (`react-native-webview`, included in Expo Go). It shows the same product as the website: all screens, the protected S.E.E.N and "This is not social media" entry screens, onboarding, reader, funding and creators. Updating the website updates the app immediately; no new app build is needed for content or screen changes.
 
 ## Run it with Expo Go
 
@@ -17,37 +19,21 @@ This prints a QR code in the terminal.
 
 Both devices must be on the same network as the machine running `expo start` (or use the tunnel option if they aren't: `npx expo start --tunnel`).
 
-## What's implemented
+## What the native shell does
 
-- Branded invocation screen with the signature pulsing S.E.E.N glow button
-- Onboarding (role + intent selection)
-- For You feed with story cards (sample catalog)
-- Story detail screen
-- Profile with sign-out
-- Dark theme, safe-area-aware layout, custom app icon/splash for both platforms
+- Loads `https://seen-sigma-eight.vercel.app` full screen (override with `EXPO_PUBLIC_SEEN_URL`; Vercel preview links need Vercel sign-in and will not load here).
+- Android back button / gesture goes back inside SEEN first, then leaves the app. iPhone swipe-back works.
+- Safe areas: on iPhone the page pads itself for the notch and home bar; on Android the shell pads for the status and navigation bars.
+- Links to other sites, mail, phone and SMS open in the phone's own apps. SEEN's screen never turns into a window onto another site (`src/navigation.ts`, covered by a test in the web test suite).
+- Offline or server error: a native "Can't reach SEEN" screen with Try again.
+- The page can tell it is in the app: the user agent ends with `SEEN-Expo` and `window.__SEEN_NATIVE__` is set.
 
-## What's not yet wired up
+## Old prototype
 
-This is the first mobile milestone, not a full port of the web app. Not yet built on mobile:
+The earlier native-only prototype (sample data, old onboarding, no reader) is kept in `src/PrototypeApp.tsx`. Run it with `EXPO_PUBLIC_SEEN_MODE=prototype npx expo start`. It is not the current product.
 
-- Full chapter reader (audio playback, captions, branching choices)
-- Authentication against the shared Supabase backend (currently local onboarding state only)
-- Creator monetization, checkout, and subscription management
-- Admin/moderation tools
-- Search
+## Not done yet
 
-The web app (`../src`) and this mobile app are intended to eventually share the same Supabase backend (`../supabase/functions/server`) rather than duplicate business logic — that wiring is the natural next step.
-
-## Building for the App Store / Play Store
-
-This project hasn't been configured with EAS Build yet. When ready to publish:
-
-```bash
-npm install -g eas-cli
-eas login
-eas build:configure
-eas build --platform ios
-eas build --platform android
-```
-
-That requires an Expo account and, for iOS, an active Apple Developer Program membership.
+- Real-device testing (done in the bundler only: iOS and Android bundles build; no phone run yet).
+- App Store / Play Store builds: `eas.json` has the profiles; building needs an Expo account and, for iPhone, an Apple Developer account. Apple may reject an app that is only a website in a frame (guideline 4.2), so a store release should add native features first (for example push notifications, native audio, share sheet).
+- Deep links (`seen://story/...`) are not mapped to screens yet.
