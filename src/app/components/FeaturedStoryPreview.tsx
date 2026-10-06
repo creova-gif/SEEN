@@ -173,7 +173,9 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleEnterStory}
-            aria-label={isLocked ? t("story.unlock") : t("story.start")}
+            // Pointer shortcut only: the labelled "Start reading" button below is the accessible control, so this one is hidden from assistive tech and the tab order.
+            aria-hidden="true"
+            tabIndex={-1}
             className="w-20 h-20 rounded-full bg-white/95 backdrop-blur-sm flex items-center justify-center shadow-2xl"
           >
             {isLocked ? <Lock className="w-8 h-8 text-black" aria-hidden /> : <Play className="w-8 h-8 text-black fill-black ml-1" aria-hidden />}
