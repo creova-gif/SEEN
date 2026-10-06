@@ -11,20 +11,18 @@ begin if a is distinct from b then raise exception 'FAIL: % (got %, want %)', la
 grant usage on schema t to anon, authenticated;
 grant execute on all functions in schema t to anon, authenticated;
 
-insert into auth.users (id) values
- ('00000000-0000-0000-0000-00000000000a'),('00000000-0000-0000-0000-00000000000b'),
- ('00000000-0000-0000-0000-00000000000c'),('00000000-0000-0000-0000-00000000000d');
+-- The signup trigger creates each profile from the user's metadata.
+insert into auth.users (id, raw_user_meta_data) values
+ ('00000000-0000-0000-0000-00000000000a','{"name":"Author"}'),('00000000-0000-0000-0000-00000000000b','{"name":"Reader"}'),
+ ('00000000-0000-0000-0000-00000000000c','{"name":"Mod"}'),('00000000-0000-0000-0000-00000000000d','{"name":"Blocked"}');
 -- profiles are created as each user (a=creator author, b=reader, c=moderator (set by service), d=blocked reader)
 create function t.as_user(u text) returns void language plpgsql as $$
 begin perform set_config('request.jwt.claim.sub', u, false); end $$;
 
 set role authenticated;
-select t.as_user('00000000-0000-0000-0000-00000000000a'); insert into profiles(id, display_name) values ('00000000-0000-0000-0000-00000000000a','Author');
-select t.as_user('00000000-0000-0000-0000-00000000000b'); insert into profiles(id, display_name) values ('00000000-0000-0000-0000-00000000000b','Reader');
-select t.as_user('00000000-0000-0000-0000-00000000000c'); insert into profiles(id, display_name) values ('00000000-0000-0000-0000-00000000000c','Mod');
-select t.as_user('00000000-0000-0000-0000-00000000000d'); insert into profiles(id, display_name) values ('00000000-0000-0000-0000-00000000000d','Blocked');
 -- forged identity and role writes
-select t.expect_fail($$insert into profiles(id) values ('00000000-0000-0000-0000-00000000000a')$$, 'forged profile id');
+select t.as_user('00000000-0000-0000-0000-00000000000d');
+select t.expect_fail($$insert into profiles(id) values ('00000000-0000-0000-0000-0000000000f9')$$, 'forged profile id');
 select t.expect_fail($$update profiles set role='admin' where id='00000000-0000-0000-0000-00000000000d'$$, 'client role write');
 select t.expect_fail($$insert into profiles(id, role) values (gen_random_uuid(),'admin')$$, 'insert with role');
 reset role;
@@ -54,6 +52,11 @@ select t.expect_fail($$insert into notes(story_id, sender_id, body) select sid, 
 select t.expect_fail($$insert into notes(story_id, sender_id, body, creator_id) select sid, '00000000-0000-0000-0000-00000000000b', 'x', '00000000-0000-0000-0000-00000000000b' from ctx$$, 'client creator_id');
 select t.as_user('00000000-0000-0000-0000-00000000000c'); select t.eq((select count(*) from notes)::int, 0, 'third party sees no notes');
 select t.as_user('00000000-0000-0000-0000-00000000000a'); select t.eq((select count(*) from notes)::int, 1, 'creator sees note');
+-- the creator cannot read who sent a note, even though they can read the note
+select t.as_user('00000000-0000-0000-0000-00000000000a');
+select t.expect_fail($$select sender_id from notes$$, 'sender_id hidden from creator');
+select t.eq((select count(*) from notes where body = 'Thank you')::int, 1, 'creator reads body');
+select t.eq((select sender_name is null from notes limit 1), true, 'anonymous by default');
 -- block the sender of a note without learning who they are
 select t.as_user('00000000-0000-0000-0000-00000000000a');
 select block_note_sender((select id from notes limit 1));
@@ -68,6 +71,15 @@ select t.as_user('00000000-0000-0000-0000-00000000000d');
 select t.expect_fail($$insert into notes(story_id, sender_id, body) select sid, '00000000-0000-0000-0000-00000000000d', 'hi' from ctx$$, 'blocked sender');
 select t.expect_fail($$insert into notes(story_id, sender_id, body) select sid, '00000000-0000-0000-0000-00000000000d', repeat('x',501) from ctx$$, 'over 500 chars');
 select t.as_user('00000000-0000-0000-0000-00000000000a'); delete from notes; select t.eq((select count(*) from notes)::int, 0, 'creator deletes note');
+reset role;
+
+-- a sender can choose to include their name; it is a snapshot taken at send time
+set role authenticated; select t.as_user('00000000-0000-0000-0000-00000000000a');
+insert into stories(author_id,title,status,published_at) values ('00000000-0000-0000-0000-00000000000a','Second','published',now());
+select t.as_user('00000000-0000-0000-0000-00000000000c');
+insert into notes(story_id, sender_id, body, sender_named) select id, '00000000-0000-0000-0000-00000000000c', 'Named note', true from stories where title='Second';
+select t.as_user('00000000-0000-0000-0000-00000000000a');
+select t.eq((select sender_name from notes where body='Named note'), 'Mod', 'named sender snapshot');
 reset role;
 
 -- reports: one open per target, hidden from reported creator, moderator resolves with audit
@@ -94,3 +106,11 @@ set role authenticated; select t.as_user('00000000-0000-0000-0000-00000000000a')
 reset role;
 select t.eq((select count(*) from stories)::int, 0, 'stories cascade');
 select 'ALL RLS TESTS PASSED';
+
+-- signing up creates a profile; a client cannot pick a privileged role
+insert into auth.users (id, email, raw_user_meta_data) values ('00000000-0000-0000-0000-0000000000e1','e1@x.test','{"name":"Eve","role":"admin"}');
+select t.eq((select role from profiles where id='00000000-0000-0000-0000-0000000000e1'), 'viewer', 'admin pick ignored');
+select t.eq((select display_name from profiles where id='00000000-0000-0000-0000-0000000000e1'), 'Eve', 'name from metadata');
+insert into auth.users (id, email, raw_user_meta_data) values ('00000000-0000-0000-0000-0000000000e2','e2@x.test','{"role":"creator"}');
+select t.eq((select role from profiles where id='00000000-0000-0000-0000-0000000000e2'), 'creator', 'creator allowed');
+select 'SIGNUP TRIGGER OK';

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useContext, useState, useEffect, ReactNode } from 'react';
 import type { UserRole, Language, UserIntent } from './StoryStateContext';
 
 /**
@@ -13,41 +13,13 @@ import type { UserRole, Language, UserIntent } from './StoryStateContext';
  * surface is designed to stay identical either way.
  */
 
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  role: UserRole;
-  language: Language;
-  intent: UserIntent;
-  passwordHash?: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
+import { AuthContext, RATE_LIMITED_MESSAGE, WRONG_CREDENTIALS_MESSAGE, type AuthContextType, type AuthState, type User } from './authContextBase';
+export { RATE_LIMITED_MESSAGE, WRONG_CREDENTIALS_MESSAGE };
+import { backend } from '../services/backend';
+import { SupabaseAuthProvider } from './SupabaseAuthProvider';
+export type { AuthContextType, AuthState, User };
 
-interface AuthState {
-  user: User | null;
-  accessToken: string | null;
-  isLoading: boolean;
-  isAuthenticated: boolean;
-  /** True when a stored session was found but had passed its expiry. */
-  sessionExpired?: boolean;
-}
 
-interface AuthContextType {
-  state: AuthState;
-  signUp: (email: string, password: string, name: string, role: UserRole, language: Language, intent: UserIntent) => Promise<void>;
-  signIn: (email: string, password: string) => Promise<void>;
-  signOut: () => Promise<void>;
-  checkSession: () => Promise<void>;
-  updateProfile: (updates: Partial<User>) => Promise<void>;
-  requestRoleElevation: (requestedRole: UserRole, reason: string) => Promise<void>;
-  requestPasswordRecovery: (email: string) => Promise<{ resetToken?: string }>;
-  /** Sets a new password from a reset token. Rejects with a readable message when the token is invalid or expired. */
-  resetPassword: (token: string, newPassword: string) => Promise<void>;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const AUTH_STORAGE_KEY = 'seenos_auth_session';
 const RESET_STORAGE_KEY = 'seenos_password_resets';
@@ -137,8 +109,6 @@ function sleep(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export const WRONG_CREDENTIALS_MESSAGE = "That email or password doesn't match. Check and try again.";
-export const RATE_LIMITED_MESSAGE = "Too many attempts. Wait a minute and try again.";
 const MAX_FAILURES = 5;
 const FAILURE_WINDOW_MS = 60_000;
 const failures = new Map<string, number[]>();
@@ -157,7 +127,12 @@ function clearFailures(email: string) {
   failures.delete(email);
 }
 
+/** Demo (device-local) accounts by default; Supabase Auth when the backend is configured. */
 export function AuthProvider({ children }: { children: ReactNode }) {
+  return backend.mode === 'supabase' ? <SupabaseAuthProvider>{children}</SupabaseAuthProvider> : <DemoAuthProvider>{children}</DemoAuthProvider>;
+}
+
+function DemoAuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>({
     user: null,
     accessToken: null,

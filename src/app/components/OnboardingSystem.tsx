@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { useAuth, SELF_ASSIGNABLE_ROLES } from "../contexts/AuthContext";
 import { toast } from "sonner";
 import { PasswordField, TextField } from "./seen/forms";
-import { Banner } from "./seen/primitives";
+import { Banner, Button } from "./seen/primitives";
 import { useStoryState } from "../contexts/StoryStateContext";
 import type { UserRole, UserIntent, Language, PersonalizationPreferences } from "../contexts/StoryStateContext";
 import { LanguageSelectionScreen } from "./LanguageSelectionScreen";
@@ -573,7 +573,7 @@ function AccountStep({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const { state: authState } = useAuth();
+  const { state: authState, signInWithGoogle } = useAuth();
   const [mode, setMode] = useState<'signup' | 'signin' | 'recovery'>(authState.sessionExpired ? 'signin' : 'signup');
   const [online, setOnline] = useState(typeof navigator === 'undefined' ? true : navigator.onLine);
   useEffect(() => {
@@ -669,6 +669,20 @@ function AccountStep({
         <Banner tone="warning" className="mb-4 text-left">
           You're offline. Reconnect to sign in or create an account.
         </Banner>
+      )}
+
+      {signInWithGoogle && mode !== 'recovery' && (
+        <div className="mb-4">
+          <Button
+            variant="secondary"
+            fullWidth
+            disabled={!online}
+            onClick={() => signInWithGoogle().catch(() => setLocalError("Couldn't start Google sign-in. Try again."))}
+          >
+            Continue with Google
+          </Button>
+          <p className="text-center text-xs text-white/55 mt-3">or use your email</p>
+        </div>
       )}
 
       <motion.div 

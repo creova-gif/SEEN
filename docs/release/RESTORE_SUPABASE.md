@@ -7,9 +7,11 @@
 **When ready to restore (about 30 minutes, no code changes):**
 1. Dashboard > project `seen` > Restore project. Wait for status Healthy.
 2. Settings > API: copy the project URL and the anon (public) key. Never copy the service key into the repo or Vercel.
-3. Apply `supabase/migrations/0001_core_schema.sql` (SQL editor or `supabase db push`). Run `npm run test:db` locally first.
+3. Apply every file in `supabase/migrations/` in order, 0001 to 0004 (SQL editor or `supabase db push`). Run `npm run test:db` locally first; it runs the same files against a throwaway Postgres.
 4. Authentication > Providers > Google: add the OAuth client ID and secret. Add redirect URLs for production and Vercel previews. Google's consent screen review can take days, so start it early.
-5. Vercel > Environment variables: `VITE_BACKEND=supabase`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, and for share previews `SUPABASE_URL`, `SUPABASE_ANON_KEY`. Redeploy.
+5. Vercel > Environment variables: `VITE_BACKEND=supabase`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_GOOGLE_AUTH=true` (shows the Google button), and for share previews `SUPABASE_URL`, `SUPABASE_ANON_KEY`. In Authentication > URL configuration set the Site URL and add redirect URLs for production and Vercel previews. Redeploy.
 6. Run the checklist in `docs/release/BACKEND_CUTOVER.md` (staging first, flag flip is reversible, demo data is discarded with a notice).
 
-**Not built yet:** the Supabase adapter itself (the code that implements `services/contracts` against Supabase). It can be written now against the local test database and switched on at step 5.
+**What the switch covers (built and tested against a fake database and a local Postgres):** sign-in with email and password and Google (Supabase Auth, PKCE), profiles created by a database trigger, reports, blocks, private notes (sender hidden from the creator), notification preferences. The demo screens' creators, collections, funding and notifications still come from the static catalogue; they have no tables yet.
+
+**Not exercised yet:** nothing has run against a live Supabase project (it is paused), so the first run after restoring is the real test. Expect to fix small things (redirect URLs, email confirmation setting: with confirmation on, sign-up shows "check your email" and the person signs in after confirming). Role requests (moderator, admin) are not available in this mode; staff roles are set by an admin in the dashboard.

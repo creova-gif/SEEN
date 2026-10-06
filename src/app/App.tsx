@@ -30,6 +30,7 @@ import { AppNavProvider, type AppNav, type RouteParams } from "./navigation/AppN
 import { rememberReturn, takeReturn } from "./navigation/safeReturn";
 import { type AppScreen, NOT_DEEP_LINKABLE, PUBLIC_SCREENS, canAccess, fromHash, isScreen, toHash } from "./navigation/routes";
 import { api } from "./services";
+import { DemoModeNotice } from "./components/DemoModeNotice";
 import { initializeDemoData } from "./data/demoData";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { PlaybackProvider } from "./playback/PlaybackProvider";
@@ -136,8 +137,8 @@ function AppContent() {
   // Leave onboarding once auth has resolved for a returning user; honour a deep link if present.
   useEffect(() => {
     if (!authState.isLoading && authState.isAuthenticated && hasCompletedOnboarding && currentScreen === "onboarding") {
-      takeReturn();
-      const linked = fromHash(window.location.hash);
+      const stored = takeReturn();
+      const linked = fromHash(stored ?? window.location.hash);
       if (linked && !NOT_DEEP_LINKABLE.includes(linked.screen)) go(linked.screen, linked.params, { replace: true });
       else go("for-you", {}, { replace: true });
     }
@@ -209,6 +210,7 @@ function AppContent() {
       <div className="size-full bg-black">
         {/* Bottom, above the nav + mini player, so toasts never cover header actions (Close, Back). */}
         <Toaster theme="dark" position="bottom-center" offset={{ bottom: 150 }} mobileOffset={{ bottom: 150 }} richColors closeButton />
+        {["for-you", "explore", "library", "profile"].includes(currentScreen) && <DemoModeNotice />}
         <Suspense
           fallback={
             <div className="max-w-[428px] mx-auto px-5 pt-20">
