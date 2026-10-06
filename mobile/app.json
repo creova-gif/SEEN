@@ -20,6 +20,9 @@
       "backgroundColor": "#000000",
       "infoPlist": {
         "UIUserInterfaceStyle": "Dark"
+      },
+      "config": {
+        "usesNonExemptEncryption": false
       }
     },
     "android": {
@@ -30,11 +33,13 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "softwareKeyboardLayoutMode": "resize"
     },
     "web": {
       "favicon": "./assets/favicon.png",
       "backgroundColor": "#000000"
-    }
+    },
+    "description": "SEEN by CREOVA: multilingual community story worlds."
   }
 }
