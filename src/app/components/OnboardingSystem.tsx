@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { ArrowLeft } from "lucide-react";
 import { useAuth, SELF_ASSIGNABLE_ROLES } from "../contexts/AuthContext";
 import { PasswordField, TextField } from "./seen/forms";
 import { Banner, Button } from "./seen/primitives";
 import { localizeError } from "../i18n/strings";
+import { useT } from "../i18n/useT";
 import { useStoryState } from "../contexts/StoryStateContext";
 import type { UserRole, UserIntent, Language } from "../contexts/StoryStateContext";
 import { LanguageSelectionScreen } from "./LanguageSelectionScreen";
@@ -520,27 +521,31 @@ function AccountStep({
  * Simple, grounding, no choices
  */
 function InvocationLayer({ onComplete }: { onComplete: () => void }) {
+  const t = useT();
+  const reduce = useReducedMotion();
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 1.2 }}
-      className="fixed inset-0 bg-black flex flex-col items-center justify-center overflow-hidden px-6"
+      // Scrolls vertically so the button stays reachable at large text on short screens.
+      className="fixed inset-0 bg-black overflow-y-auto overflow-x-hidden px-6"
     >
+      <div className="min-h-full flex flex-col items-center justify-center py-10">
       {/* Subtle animated background */}
       <motion.div
         initial={{ opacity: 0, scale: 1.2 }}
-        animate={{ 
+        animate={reduce ? { opacity: 0.25, scale: 1.2 } : {
           opacity: [0.2, 0.3, 0.2],
           scale: [1.2, 1.3, 1.2],
         }}
-        transition={{ 
+        transition={reduce ? { duration: 0 } : { 
           duration: 8,
           repeat: Infinity,
           ease: "easeInOut"
         }}
-        className="absolute inset-0 bg-gradient-to-br from-purple-900/10 via-black to-blue-900/10"
+        className="fixed inset-0 bg-gradient-to-br from-purple-900/10 via-black to-blue-900/10"
       />
 
       {/* Content */}
@@ -567,9 +572,9 @@ function InvocationLayer({ onComplete }: { onComplete: () => void }) {
           transition={{ delay: 0.8, duration: 1.5 }}
           className="text-base text-white/60 text-center leading-relaxed mb-16"
         >
-          Where stories live,
+          {t("onboard.tagline1")}
           <br />
-          where culture breathes
+          {t("onboard.tagline2")}
         </motion.p>
 
         {/* Primary invocation */}
@@ -579,7 +584,7 @@ function InvocationLayer({ onComplete }: { onComplete: () => void }) {
           transition={{ delay: 1.4, duration: 1.2 }}
           className="text-lg text-white/80 text-center leading-relaxed mb-16"
         >
-          You are entering SEEN.
+          {t("onboard.entering")}
         </motion.p>
 
         {/* Call to action */}
@@ -610,13 +615,13 @@ function InvocationLayer({ onComplete }: { onComplete: () => void }) {
           {/* Subtle pulse animation */}
           <motion.div
             className="absolute inset-0 pointer-events-none"
-            animate={{
+            animate={reduce ? { boxShadow: '0 0 0 0 rgba(76, 175, 80, 0)' } : {
               boxShadow: [
                 '0 0 0 0 rgba(76, 175, 80, 0.4)',
                 '0 0 0 8px rgba(76, 175, 80, 0)',
               ],
             }}
-            transition={{
+            transition={reduce ? { duration: 0 } : {
               duration: 2,
               repeat: Infinity,
               repeatDelay: 1,
@@ -641,6 +646,7 @@ function InvocationLayer({ onComplete }: { onComplete: () => void }) {
             style={{ borderRadius: '2px' }}
           />
         </motion.button>
+      </div>
       </div>
     </motion.div>
   );

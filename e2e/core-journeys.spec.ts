@@ -34,6 +34,23 @@ test.describe("first visit", () => {
     await page.getByRole("button", { name: /create account/i }).click();
   }
 
+  test("both entry screens scroll so their buttons stay reachable at large text on a short phone", async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 420 });
+    await page.goto("/");
+    await page.evaluate(() => { document.documentElement.dataset.text = "large"; });
+    const enter = page.getByRole("button", { name: /s\W*e\W*e\W*n/i });
+    await expect(enter).toBeVisible();
+    await page.mouse.move(160, 200);
+    await page.mouse.wheel(0, 1500);
+    await expect.poll(async () => (await enter.boundingBox())?.y ?? 9999).toBeLessThan(420);
+    await enter.click();
+    const next = page.getByRole("button", { name: /^continue$/i });
+    await expect(next).toBeVisible();
+    await page.mouse.move(160, 200);
+    await page.mouse.wheel(0, 3000);
+    await expect.poll(async () => { const b = await next.boundingBox(); return b ? b.y + b.height : 9999; }).toBeLessThanOrEqual(420);
+  });
+
   test("onboarding is three steps, then For You", async ({ page }) => {
     await signUp(page, "first", /discover stories/i);
     await expect(page.getByRole("heading", { name: "For You" })).toBeVisible();
