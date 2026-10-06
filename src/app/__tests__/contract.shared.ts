@@ -43,5 +43,38 @@ export function runContractSuite(name: string, make: () => SeenApi) {
       await api.notifications.markAllRead();
       expect(await api.notifications.unreadCount()).toBe(0);
     });
+    describe("safety (signed-in user supplied by the harness)", () => {
+      it("reports: submit, duplicate conflict, details limit", async () => {
+        const api = make();
+        const input = { targetType: "creator" as const, targetId: "kira-chen", targetTitle: "Kira Chen", reason: "spam" as const };
+        const r = await api.reports.submit(input);
+        expect(r.status).toBe("open");
+        expect(r.reporterId).toBeUndefined();
+        await expect(api.reports.submit(input)).rejects.toMatchObject({ code: "conflict" });
+        await expect(api.reports.submit({ ...input, targetId: "other", details: "x".repeat(501) })).rejects.toMatchObject({ code: "invalid" });
+      });
+      it("blocks: round trip and cannot block yourself", async () => {
+        const api = make();
+        await api.blocks.block("someone");
+        expect(await api.blocks.list()).toContain("someone");
+        await api.blocks.unblock("someone");
+        expect(await api.blocks.list()).not.toContain("someone");
+      });
+      it("notes: validation and one per story per hour", async () => {
+        const api = make();
+        await expect(api.notes.send("story-1", "   ")).rejects.toMatchObject({ code: "invalid" });
+        await expect(api.notes.send("story-1", "x".repeat(501))).rejects.toMatchObject({ code: "invalid" });
+        await api.notes.send("story-1", "Thank you");
+        await expect(api.notes.send("story-1", "again")).rejects.toMatchObject({ code: "rate_limited" });
+        await api.notes.send("story-2", "Another story is fine");
+      });
+      it("preferences: defaults, set and read back", async () => {
+        const api = make();
+        const p = await api.preferences.get();
+        expect(p.reminders).toBe(true);
+        await api.preferences.set({ ...p, newStories: false });
+        expect((await api.preferences.get()).newStories).toBe(false);
+      });
+    });
   });
 }

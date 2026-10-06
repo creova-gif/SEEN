@@ -1,12 +1,14 @@
 import { Flag } from "lucide-react";
-import { reasonLabel, type ContentReport } from "../data/reportService";
+import { reasonLabel } from "../data/reportService";
+import type { Report } from "../services";
 import { Badge, Button, StateTemplate } from "./seen/primitives";
 
 interface ReportsPanelProps {
-  reports: ContentReport[];
+  reports: Report[];
   onResolve: (id: string, status: "action_taken" | "dismissed") => void;
 }
 
+const TARGET_LABEL = { story: "Story", creator: "Creator profile", collection: "Collection" } as const;
 const STATUS_LABEL = { open: "Open", action_taken: "Action taken", dismissed: "Dismissed" } as const;
 
 /** Moderator view of reports on stories and creator profiles. Reporter identity is not shown. */
@@ -29,7 +31,7 @@ export function ReportsPanel({ reports, onResolve }: ReportsPanelProps) {
         <li key={r.id} className="rounded-seen-md border border-seen-border bg-seen-surface p-4">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <p className="text-xs tracking-[0.14em] uppercase text-seen-muted">{r.targetType === "story" ? "Story" : "Creator profile"}</p>
+              <p className="text-xs tracking-[0.14em] uppercase text-seen-muted">{TARGET_LABEL[r.targetType]}</p>
               <p className="text-sm text-white mt-1 truncate">{r.targetTitle}</p>
             </div>
             <Badge tone={r.status === "open" ? "gold" : "surface"}>{STATUS_LABEL[r.status]}</Badge>

@@ -21,7 +21,7 @@ const EXPORTABLE_KEYS = [
 ] as const;
 
 /** Keys removed on delete. The shared users table is edited, not removed. */
-const CLEARED_PREFIXES = ["seenos_", "seen_"];
+const CLEARED_PREFIXES = ["seenos_", "seen_", "seen.v1.notes", "seen.v1.blocks"];
 const KEPT_ON_DELETE = [USERS_KEY, "seenos_demo_populated"];
 
 type Json = unknown;
@@ -71,9 +71,11 @@ export interface NotificationPrefs {
   newStories: boolean;
   fundingDeadlines: boolean;
   replies: boolean;
+  /** Opt-in reminders before a published funding deadline. */
+  reminders: boolean;
 }
 
-export const DEFAULT_NOTIFICATION_PREFS: NotificationPrefs = { newStories: true, fundingDeadlines: true, replies: true };
+export const DEFAULT_NOTIFICATION_PREFS: NotificationPrefs = { newStories: true, fundingDeadlines: true, replies: true, reminders: true };
 
 export function loadNotificationPrefs(): NotificationPrefs {
   const saved = readJson(NOTIFICATION_PREFS_KEY) as Partial<NotificationPrefs> | undefined;

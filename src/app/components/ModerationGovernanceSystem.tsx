@@ -1,9 +1,9 @@
 import { motion } from "motion/react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Shield, CheckCircle, XCircle, Clock, User, AlertTriangle } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { toast } from "sonner";
-import { listReports, resolveReport } from "../data/reportService";
+import { api, type Report } from "../services";
 import { ReportsPanel } from "./ReportsPanel";
 import {
   getModerationQueue,
@@ -535,10 +535,15 @@ export function ModerationGovernanceSystem({ onBack }: ModerationGovernanceSyste
   // Persisted queue (localStorage-backed, seeded with sample submissions on first load)
   const queuedResponses = useMemo<QueuedResponse[]>(() => getModerationQueue(), [refreshKey]);
   const queuedActions = useMemo<ModerationActionRecord[]>(() => getModerationActions(), [refreshKey]);
-  const reports = useMemo(() => listReports(), [refreshKey]);
-  const handleResolveReport = (id: string, status: "action_taken" | "dismissed") => {
+  const [reports, setReports] = useState<Report[]>([]);
+  useEffect(() => {
+    let live = true;
+    api.reports.list().then(r => live && setReports(r)).catch(() => live && toast.error("Couldn't load reports."));
+    return () => { live = false; };
+  }, [refreshKey]);
+  const handleResolveReport = async (id: string, status: "action_taken" | "dismissed") => {
     try {
-      resolveReport(id, status, moderatorId);
+      await api.reports.resolve(id, status);
       setRefreshKey(k => k + 1);
     } catch {
       toast.error("Couldn't update the report. Try again.");

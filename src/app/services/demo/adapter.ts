@@ -8,6 +8,7 @@ import type {
 } from "../contracts";
 import { ServiceError, call, readStore, writeStore } from "../runtime";
 import { isApplyable, opportunityStatus } from "../funding";
+import { demoSafety } from "./safety";
 import { buildCollections, buildCreators, seedNotifications } from "./catalog";
 import { FUNDING_LISTINGS as FUNDING_SEED } from "../data/fundingListings";
 
@@ -132,4 +133,5 @@ export const demoAdapter: SeenApi = {
       }),
     unreadCount: () => call(() => notificationsStore().filter(n => !n.read).length),
   },
+  ...demoSafety,
 };

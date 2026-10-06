@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Bell, Download, LogOut, ShieldCheck, Trash2, UserX } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
+import { api } from "../services";
 import { Button, SectionTitle, StateTemplate } from "../components/seen/primitives";
 import { Toggle } from "../components/seen/forms";
 import { ConfirmDialog } from "../components/seen/overlays";
@@ -10,7 +11,6 @@ import {
   buildAccountExport,
   deleteLocalAccount,
   loadNotificationPrefs,
-  saveNotificationPrefs,
   type NotificationPrefs,
 } from "../data/accountData";
 import { useAppNav } from "../navigation/AppNav";
@@ -27,12 +27,18 @@ export function AccountPrivacyScreen() {
   const [confirm, setConfirm] = useState<"signout" | "delete" | null>(null);
   const user = auth.user;
 
-  const setPref = (key: keyof NotificationPrefs, value: boolean) => {
+  useEffect(() => {
+    let live = true;
+    api.preferences.get().then(p => live && setPrefs(p)).catch(() => {});
+    return () => { live = false; };
+  }, []);
+
+  const setPref = async (key: keyof NotificationPrefs, value: boolean) => {
     const previous = prefs;
     const next = { ...prefs, [key]: value };
     setPrefs(next);
     try {
-      saveNotificationPrefs(next);
+      await api.preferences.set(next);
     } catch {
       setPrefs(previous);
       toast.error("Couldn't save that choice. Free some space on this device and try again.");

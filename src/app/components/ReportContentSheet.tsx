@@ -1,15 +1,13 @@
 import { useState } from "react";
 import { CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
-import { useAuth } from "../contexts/AuthContext";
+import { api, ServiceError } from "../services";
 import {
-  DuplicateReportError,
   MAX_DETAILS,
   REPORT_REASONS,
-  submitReport,
   type ReportReason,
-  type ReportTarget,
 } from "../data/reportService";
+import type { ReportTarget } from "../services";
 import { Button } from "./seen/primitives";
 import { RadioGroup } from "./seen/forms";
 import { Sheet } from "./seen/overlays";
@@ -31,7 +29,6 @@ export function ReportContentSheet(props: ReportContentSheetProps) {
 }
 
 function ReportSheetBody({ open, onOpenChange, targetType, targetId, targetTitle }: ReportContentSheetProps) {
-  const { state: auth } = useAuth();
   const [reason, setReason] = useState<ReportReason | null>(null);
   const [details, setDetails] = useState("");
   const [busy, setBusy] = useState(false);
@@ -40,15 +37,16 @@ function ReportSheetBody({ open, onOpenChange, targetType, targetId, targetTitle
 
   const close = (next: boolean) => onOpenChange(next);
 
-  const submit = () => {
+  const submit = async () => {
     if (!reason) return;
     setBusy(true);
     setError(null);
     try {
-      submitReport({ targetType, targetId, targetTitle, reason, details, reporterId: auth.user?.id ?? "guest" });
+      await api.reports.submit({ targetType, targetId, targetTitle, reason, details });
       setSent(true);
     } catch (e) {
-      if (e instanceof DuplicateReportError) setError(e.message);
+      if (e instanceof ServiceError && e.code === "conflict") setError(e.message);
+      else if (e instanceof ServiceError && e.code === "forbidden") setError("Sign in to send a report.");
       else {
         setError("Couldn't send your report. Try again.");
         toast.error("Couldn't send your report. Try again.");

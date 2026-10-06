@@ -7,10 +7,12 @@
  * URL (persisted for the session), or call `setSimulation()` directly.
  */
 
+import type { ServiceErrorCode } from "./contracts/common";
+
 export class ServiceError extends Error {
   constructor(
     message: string,
-    public readonly code: "not_found" | "offline" | "unavailable" | "forbidden" | "invalid",
+    public readonly code: ServiceErrorCode,
   ) {
     super(message);
     this.name = "ServiceError";

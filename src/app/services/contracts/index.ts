@@ -13,16 +13,22 @@ import type { CreatorsApi } from "./creators";
 import type { CollectionsApi } from "./collections";
 import type { FundingApi } from "./funding";
 import type { NotificationsApi } from "./notifications";
+import type { ReportsApi, BlocksApi, NotesApi, PreferencesApi } from "./safety";
 
 export * from "./common";
 export * from "./creators";
 export * from "./collections";
 export * from "./funding";
 export * from "./notifications";
+export * from "./safety";
 
 export interface SeenApi {
   creators: CreatorsApi;
   collections: CollectionsApi;
   funding: FundingApi;
   notifications: NotificationsApi;
+  reports: ReportsApi;
+  blocks: BlocksApi;
+  notes: NotesApi;
+  preferences: PreferencesApi;
 }

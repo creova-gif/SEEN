@@ -30,7 +30,7 @@ describe("delete account", () => {
 describe("notification choices", () => {
   it("defaults on and persists changes", () => {
     expect(loadNotificationPrefs().newStories).toBe(true);
-    saveNotificationPrefs({ newStories: false, fundingDeadlines: true, replies: true });
+    saveNotificationPrefs({ newStories: false, fundingDeadlines: true, replies: true, reminders: true });
     expect(loadNotificationPrefs().newStories).toBe(false);
   });
 });
