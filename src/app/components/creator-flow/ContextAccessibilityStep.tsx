@@ -33,9 +33,19 @@ export interface ContextAccessibilityData {
   contextCards: ContextCard[];
   hasCaptions: boolean;
   hasTranscripts: boolean;
+  /** Optional content notes shown to listeners before the story starts. */
+  contentWarnings?: string[];
   languageNotes: Record<string, string>; // language code -> notes
   accessibilityConfirmed: boolean;
 }
+
+export const CONTENT_WARNING_OPTIONS = [
+  'Violence',
+  'Racism or discrimination',
+  'Grief or loss',
+  'Strong language',
+  'Difficult historical events',
+];
 
 const CONTEXT_TYPES = [
   { 
@@ -70,6 +80,8 @@ export function ContextAccessibilityStep({
   const [contextCards, setContextCards] = useState<ContextCard[]>(initialData?.contextCards || []);
   const [hasCaptions, setHasCaptions] = useState(initialData?.hasCaptions || false);
   const [hasTranscripts, setHasTranscripts] = useState(initialData?.hasTranscripts || false);
+  const [contentWarnings, setContentWarnings] = useState<string[]>(initialData?.contentWarnings || []);
+  const [customWarning, setCustomWarning] = useState('');
   const [languageNotes, setLanguageNotes] = useState<Record<string, string>>(
     initialData?.languageNotes || {}
   );
@@ -84,9 +96,21 @@ export function ContextAccessibilityStep({
       contextCards,
       hasCaptions,
       hasTranscripts,
+      contentWarnings,
       languageNotes,
       accessibilityConfirmed,
     });
+  };
+
+  const toggleWarning = (w: string) => {
+    setContentWarnings(prev => (prev.includes(w) ? prev.filter(x => x !== w) : [...prev, w]));
+    setTimeout(handleAutoSave, 300);
+  };
+  const addCustomWarning = () => {
+    const w = customWarning.trim();
+    if (w && !contentWarnings.includes(w)) setContentWarnings(prev => [...prev, w]);
+    setCustomWarning('');
+    setTimeout(handleAutoSave, 300);
   };
 
   const addContextCard = () => {
@@ -126,6 +150,7 @@ export function ContextAccessibilityStep({
         contextCards,
         hasCaptions,
         hasTranscripts,
+        contentWarnings,
         languageNotes,
         accessibilityConfirmed,
       });
@@ -282,6 +307,45 @@ export function ContextAccessibilityStep({
             </div>
           </motion.div>
         )}
+      </div>
+
+      {/* Content notes (optional) */}
+      <div className="px-5 py-6 border-t border-white/10">
+        <h2 className="text-base font-light tracking-wide mb-2">Content notes <span className="text-xs uppercase tracking-wider text-white/60 ml-1">Optional</span></h2>
+        <p id="cw-help" className="text-xs text-white/60 leading-relaxed mb-3">
+          If your story deals with difficult material, tell listeners before it starts. They see this note on the story page before they press Start reading. Skip it if it does not apply.
+        </p>
+        <div role="group" aria-labelledby="cw-help" className="flex flex-wrap gap-2">
+          {[...CONTENT_WARNING_OPTIONS, ...contentWarnings.filter(w => !CONTENT_WARNING_OPTIONS.includes(w))].map(w => {
+            const on = contentWarnings.includes(w);
+            return (
+              <button
+                key={w}
+                type="button"
+                aria-pressed={on}
+                onClick={() => toggleWarning(w)}
+                className={`px-3 min-h-11 text-xs rounded-lg border transition-colors ${on ? 'bg-white text-black border-white' : 'bg-white/5 text-white/80 border-white/15 hover:border-white/30'}`}
+              >
+                {w}
+              </button>
+            );
+          })}
+        </div>
+        <div className="mt-3 flex gap-2">
+          <label className="flex-1">
+            <span className="sr-only">Add your own content note</span>
+            <input
+              type="text"
+              value={customWarning}
+              maxLength={60}
+              onChange={e => setCustomWarning(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addCustomWarning(); } }}
+              placeholder="Add your own"
+              className="w-full min-h-11 bg-white/5 border border-white/15 rounded-lg px-3 text-sm text-white placeholder:text-white/55 focus:border-white/40 focus:outline-none"
+            />
+          </label>
+          <button type="button" onClick={addCustomWarning} disabled={!customWarning.trim()} className="min-h-11 px-4 rounded-lg border border-white/20 text-sm text-white disabled:opacity-40">Add</button>
+        </div>
       </div>
 
       {/* Accessibility Checklist */}

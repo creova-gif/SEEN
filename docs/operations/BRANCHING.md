@@ -66,6 +66,21 @@ Settings → Branches → rules for `main`, `staging` and `dev`:
 
 Repository settings cannot be changed from the development tooling used here; an owner needs to apply them once.
 
+## Required checks before anything is merged into `main`
+
+Required: typecheck, unit tests, production build, end-to-end suite (journeys, route sweep), automated accessibility scans (`e2e/a11y.spec.ts`), and the responsive audit (`e2e/audit/ux-audit.spec.ts`). The CI jobs `Typecheck · unit tests · build` and `End-to-end journeys` cover all of them. Lint becomes required only after the plan in `LINT_PLAN.md` is applied.
+
+## Vercel mapping (verified 2026-10-06)
+
+| Branch | Vercel | URL |
+|---|---|---|
+| `main` | Production, aliased | https://seen-sigma-eight.vercel.app |
+| `staging` | Preview | `seen-git-staging-creovas-projects.vercel.app` (Vercel login) |
+| `dev` | Preview | `seen-git-dev-creovas-projects.vercel.app` (Vercel login) |
+| `feature/*`, `fix/*` | Preview per push | shown on the commit status |
+
+Only `main` ever updates the production alias. The project has SSO protection on previews and the production domain is excluded from it.
+
 ## Naming
 
 `feature/<kebab-name>`, `fix/<kebab-name>`. Tool-generated branches (for example `claude/*`) are fine for short-lived work but must be merged or deleted when done.

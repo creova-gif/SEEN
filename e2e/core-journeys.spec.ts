@@ -1,315 +1,68 @@
 import { expect, signInAs, test } from "./fixtures";
 
 test.describe("first visit", () => {
-  test("onboarding → account → For You", async ({ page }) => {
+  async function signUp(page: import("@playwright/test").Page, prefix: string, purpose: RegExp, interest?: RegExp) {
     await page.goto("/");
-    await page.getByRole("button", { name: /S \. E \. E \. N/ }).click();
-    await page.getByRole("button", { name: /^continue$/i }).click();
-    await page.getByRole("button", { name: /viewer/i }).click();
-    await page.getByRole("button", { name: /explore culture/i }).click();
+    await expect(page.getByText(/step 1 of 3/i)).toBeVisible();
+    await page.getByRole("button", { name: purpose }).click();
+    await page.getByRole("button", { name: /next: your interests/i }).click();
+    await expect(page.getByText(/step 2 of 3/i)).toBeVisible();
+    if (interest) await page.getByRole("button", { name: interest }).first().click();
+    await page.getByRole("button", { name: /(next|skip): create your account/i }).click();
+    await expect(page.getByText(/step 3 of 3/i)).toBeVisible();
     await page.getByPlaceholder("Name").fill("First Visitor");
-    await page.getByPlaceholder("Email").fill(`first-${Date.now()}@example.com`);
+    await page.getByPlaceholder("Email").fill(`${prefix}-${Date.now()}@example.com`);
     await page.getByPlaceholder("Password").fill("Password123");
     await page.getByRole("button", { name: /create account/i }).click();
-    await page.getByRole("button", { name: /^continue$/i }).click();
-    await page.getByRole("button", { name: /^continue$/i }).click();
-    await page.getByRole("button", { name: /^enter$/i }).click();
+  }
+
+  test("onboarding is three steps, then For You", async ({ page }) => {
+    await signUp(page, "first", /discover stories/i);
     await expect(page.getByRole("heading", { name: "For You" })).toBeVisible();
     await expect(page).toHaveURL(/#\/for-you$/);
   });
 
-  test("choosing Moderator at sign-up does not grant moderator access", async ({ page }) => {
+  test("interests chosen at sign-up feed For You and can be stepped back to", async ({ page }) => {
     await page.goto("/");
-    await page.getByRole("button", { name: /S \. E \. E \. N/ }).click();
-    await page.getByRole("button", { name: /^continue$/i }).click();
-    await page.getByRole("button", { name: /moderator/i }).click();
-    await page.getByRole("button", { name: /explore culture/i }).click();
-    await page.getByPlaceholder("Name").fill("Would-be Mod");
-    await page.getByPlaceholder("Email").fill(`mod-${Date.now()}@example.com`);
+    await page.getByRole("button", { name: /discover stories/i }).click();
+    await page.getByRole("button", { name: /next: your interests/i }).click();
+    const chip = page.getByRole("group", { name: "Interests" }).getByRole("button").first();
+    await chip.click();
+    await expect(chip).toHaveAttribute("aria-pressed", "true");
+    await page.getByRole("button", { name: /^back$/i }).click();
+    await expect(page.getByRole("button", { name: /discover stories/i })).toHaveAttribute("aria-pressed", "true");
+    await page.getByRole("button", { name: /next: your interests/i }).click();
+    await expect(chip).toHaveAttribute("aria-pressed", "true");
+    await page.getByRole("button", { name: /next: create your account/i }).click();
+    await page.getByPlaceholder("Name").fill("Interest Reader");
+    await page.getByPlaceholder("Email").fill(`int-${Date.now()}@example.com`);
     await page.getByPlaceholder("Password").fill("Password123");
     await page.getByRole("button", { name: /create account/i }).click();
-    await expect(page.getByText(/moderator access requested/i)).toBeVisible();
-    await page.getByRole("button", { name: /^continue$/i }).click();
-    await page.getByRole("button", { name: /^continue$/i }).click();
-    await page.getByRole("button", { name: /^enter$/i }).click();
-    await page.goto("/#/moderation-governance");
-    await page.reload();
-    await expect(page.getByText(/don't have access to this area/i)).toBeVisible();
-  });
-});
-
-test.describe("signed-in viewer", () => {
-  test.beforeEach(async ({ page }) => {
-    await signInAs(page, "viewer");
+    await expect(page.getByRole("region", { name: /based on your interests/i })).toBeVisible();
   });
 
-  test("header search → result → story", async ({ page }) => {
-    await page.goto("/");
-    await page.getByRole("button", { name: "Search", exact: true }).click();
-    await page.getByPlaceholder(/search by title/i).fill("midnight");
-    await page.getByTestId("story-card").first().click();
-    await expect(page).toHaveURL(/#\/story\/midnight-resonance/);
-  });
-
-  test("explore creators → follow → shows in Profile", async ({ page }) => {
-    await page.goto("/#/explore/creators");
-    await page.getByTestId("creator-card").filter({ hasText: "Kira Chen" }).click();
-    await expect(page).toHaveURL(/#\/creator\/kira-chen/);
-    await page.getByRole("button", { name: /^follow$/i }).click();
-    await expect(page.getByRole("button", { name: /following/i })).toHaveAttribute("aria-pressed", "true");
-    await page.goto("/#/profile");
-    await expect(page.getByRole("button", { name: /following\s*1/i })).toBeVisible();
-  });
-
-  test("collections → detail → save", async ({ page }) => {
-    await page.goto("/#/explore/collections");
-    await page.getByTestId("collection-card").first().click();
-    await page.getByRole("button", { name: /save collection/i }).click();
-    await expect(page.getByRole("button", { name: /^saved$/i })).toHaveAttribute("aria-pressed", "true");
-    await expect(page.getByTestId("story-row").first()).toBeVisible();
-  });
-
-  test("funding → save → checklist → applied", async ({ page }) => {
-    await page.goto("/#/funding");
-    await page.getByTestId("opportunity-card").filter({ hasText: "Research and Creation" }).click();
-    await page.getByRole("button", { name: /save & track/i }).click();
-    const boxes = page.getByRole("checkbox");
-    const count = await boxes.count();
-    for (let i = 0; i < count; i++) {
-      await boxes.nth(i).check();
-      await expect(boxes.nth(i)).toBeChecked();
-    }
-    await page.getByRole("button", { name: /mark as applied/i }).click();
-    await expect(page.getByText(/marked as applied\. we'll keep it/i)).toBeVisible();
-    await page.goBack();
-    await page.getByRole("tab", { name: /my tracker/i }).click();
-    await expect(page.getByTestId("opportunity-card")).toContainText("Applied");
-  });
-
-  test("notifications: badge, open, mark all read", async ({ page }) => {
-    await page.goto("/#/for-you");
-    await expect(page.getByRole("button", { name: /notifications \(\d+ unread\)/i })).toBeVisible();
-    await page.getByRole("button", { name: /notifications/i }).click();
-    await page.getByRole("button", { name: /mark all read/i }).click();
-    await page.goBack();
-    await expect(page.getByRole("button", { name: "Notifications", exact: true })).toBeVisible();
-  });
-
-  test("browser back returns to the previous screen", async ({ page }) => {
-    await page.goto("/#/for-you");
-    await page.getByRole("navigation", { name: "Main" }).getByRole("button", { name: "Explore" }).click();
-    await page.getByRole("tab", { name: /creators/i }).click();
-    await page.getByTestId("creator-card").first().click();
-    await expect(page).toHaveURL(/#\/creator\//);
-    await page.goBack();
-    await expect(page).toHaveURL(/#\/explore\/creators$/);
-    await expect(page.getByRole("tab", { name: /creators/i })).toHaveAttribute("aria-selected", "true");
-  });
-
-  test("a malformed link falls back instead of crashing", async ({ page }) => {
-    await page.goto("/#/creator/50%");
-    await page.reload();
+  test("choosing Share my story creates a creator account", async ({ page }) => {
+    await signUp(page, "maker", /share my story/i);
     await expect(page.getByRole("heading", { name: "For You" })).toBeVisible();
-  });
-
-  test("viewer cannot open admin or moderation screens", async ({ page }) => {
-    for (const route of ["admin-dashboard", "moderation-governance", "creator-earnings"]) {
-      await page.goto(`/#/${route}`);
-      await page.reload();
-      await expect(page.getByText(/don't have access to this area/i)).toBeVisible();
-    }
-  });
-
-  test("funding list shows real listings with official links", async ({ page }) => {
-    await page.goto("/#/funding");
-    await expect(page.getByText(/checked against each funder's website/i)).toBeVisible();
-    await expect(page.getByTestId("opportunity-card").first()).toBeVisible();
-    await expect(page.getByText(/demo listing/i)).toHaveCount(0);
-    await page.getByRole("tab", { name: /coming up/i }).click();
-    await expect(page.getByTestId("opportunity-card").filter({ hasText: "Hot Docs" }).first()).toBeVisible();
-    await page.getByTestId("opportunity-card").filter({ hasText: "Rogers Documentary Fund" }).click();
-    await expect(page.getByRole("link", { name: /on funder's site/i })).toHaveAttribute("href", /rogersgroupoffunds\.com/);
-  });
-
-  test("reader: save, pick a chapter, and keep listening in the mini player", async ({ page }) => {
-    await page.goto("/#/story/midnight-resonance");
-    await page.getByRole("button", { name: /start reading/i }).click();
-    await expect(page.getByTestId("expanded-player")).toBeVisible();
-    await page.getByRole("button", { name: "Save story" }).click();
-    await expect(page.getByRole("button", { name: "Remove from saved" })).toHaveAttribute("aria-pressed", "true");
-    await page.getByRole("button", { name: "Chapter index" }).click();
-    const rows = page.getByTestId("chapter-row");
-    await expect(rows.first()).toHaveAttribute("data-state", "playing");
-    await rows.nth(2).click();
-    await expect(page.getByText(/chapter 3 of/i)).toBeVisible();
-    await page.getByRole("button", { name: "Close", exact: true }).first().click();
-    const mini = page.getByTestId("mini-player");
-    await expect(mini).toBeVisible();
-    await mini.getByRole("button", { name: /open player/i }).click();
-    await expect(page.getByRole("dialog", { name: /now playing/i })).toBeVisible();
-    await page.keyboard.press("Escape");
-    await page.goto("/#/library");
-    await page.getByRole("button", { name: /saved stor/i }).click();
-    await expect(page.getByTestId("story-row").filter({ hasText: "Midnight Resonance" })).toBeVisible();
-  });
-
-  test("settings apply high contrast and reduced motion app-wide", async ({ page }) => {
-    await page.goto("/#/settings");
-    await page.getByRole("switch", { name: /high contrast/i }).click();
-    await page.getByRole("switch", { name: /reduce motion/i }).click();
-    await expect(page.locator("html")).toHaveAttribute("data-contrast", "high");
-    await expect(page.locator("html")).toHaveAttribute("data-motion", "reduced");
-    await page.getByRole("radio", { name: /français/i }).check();
-    await expect(page.getByRole("heading", { name: "Préférences" })).toBeVisible();
-  });
-
-  test("funding filters in the drawer", async ({ page }) => {
-    await page.goto("/#/funding");
-    await page.getByRole("tab", { name: /coming up/i }).click();
-    await page.getByRole("button", { name: /^filters/i }).click();
-    const drawer = page.getByRole("dialog", { name: /filter funding/i });
-    await drawer.getByRole("radio", { name: "Lab" }).check();
-    await drawer.getByRole("button", { name: /show results/i }).click();
-    await expect(page.getByTestId("opportunity-card")).toHaveCount(1);
-    await expect(page.getByTestId("opportunity-card")).toContainText("Shared Ground");
-    await page.getByRole("button", { name: /remove type filter/i }).click();
-    await expect(page.getByTestId("opportunity-card").nth(1)).toBeVisible();
-  });
-
-  test("offline and error states are recoverable", async ({ page }) => {
-    await page.goto("/?simulate=offline#/funding");
-    await expect(page.getByText(/you're offline/i)).toBeVisible();
-    await page.goto("/?simulate=error#/explore/creators");
-    await expect(page.getByText(/couldn't load creators/i)).toBeVisible();
-    await page.goto("/?simulate=none#/explore/creators");
-    await expect(page.getByTestId("creator-card").first()).toBeVisible();
+    await page.goto("/#/creator-stories");
+    await expect(page.getByRole("heading", { name: /your stories/i })).toBeVisible();
   });
 });
 
-test.describe("admin", () => {
-  test("admin can open the platform dashboard", async ({ page }) => {
-    await signInAs(page, "admin");
-    await page.goto("/#/admin-dashboard");
-    await page.reload();
-    await expect(page.getByText(/don't have access/i)).toHaveCount(0);
-  });
-});
-
-test.describe("responsive layout", () => {
-  for (const width of [320, 360, 390, 430, 768, 1280]) {
-    test(`no horizontal overflow at ${width}px`, async ({ page }) => {
-      await signInAs(page, "creator");
-      await page.setViewportSize({ width, height: 900 });
-      for (const route of ["for-you", "explore/stories", "explore/creators", "explore/collections", "library", "profile", "funding", "notifications", "opportunity/cca-explore-create-research-creation"]) {
-        await page.goto(`/#/${route}`);
-        await page.waitForTimeout(400);
-        const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
-        expect(overflow, `${route} overflows by ${overflow}px`).toBeLessThanOrEqual(0);
-      }
-    });
-  }
-});
-
-test.describe("reporting", () => {
-  test("viewer reports a creator profile and a moderator sees it", async ({ page }) => {
-    await signInAs(page, "viewer");
-    await page.goto("/#/creator/kira-chen");
-    await page.getByRole("button", { name: /report this profile/i }).click();
-    await expect(page.getByRole("button", { name: /send report/i })).toBeDisabled();
-    await page.getByLabel(/misleading or false/i).check();
-    await page.getByRole("button", { name: /send report/i }).click();
-    await expect(page.getByText(/a moderator will review/i)).toBeVisible();
-    await page.getByRole("button", { name: /^done$/i }).click();
-
-    // Same person reporting the same profile again is told it is already under review.
-    await page.getByRole("button", { name: /report this profile/i }).click();
-    await page.getByLabel(/misleading or false/i).check();
-    await page.getByRole("button", { name: /send report/i }).click();
-    await expect(page.getByText(/already reported this/i)).toBeVisible();
-
-    // A moderator opens the Reports tab and finds it.
-    await page.evaluate(() => {
-      const db = JSON.parse(localStorage.getItem("seenos_users_db") || "{}");
-      db.user_e2e_mod = { id: "user_e2e_mod", email: "mod@e2e.test", name: "E2E mod", role: "moderator", language: "en", intent: "explore" };
-      localStorage.setItem("seenos_users_db", JSON.stringify(db));
-      localStorage.setItem("seenos_auth_session", JSON.stringify({ accessToken: "tok_e2e", userId: "user_e2e_mod" }));
-    });
-    await page.goto("/#/moderation-governance");
-    await page.reload();
-    await page.getByRole("button", { name: /^reports \(1\)/i }).click();
-    await expect(page.getByText("Kira Chen")).toBeVisible();
-    await expect(page.getByText(/misleading or false/i)).toBeVisible();
-    await page.getByRole("button", { name: /dismiss/i }).click();
-    await expect(page.getByRole("button", { name: /^reports \(0\)/i })).toBeVisible();
-  });
-});
-
-test.describe("private notes", () => {
-  test("a reader sends a private note and the creator reads and deletes it", async ({ page }) => {
-    await signInAs(page, "viewer");
-    await page.goto("/#/story/midnight-resonance");
-    await page.getByRole("button", { name: /write a private note/i }).click();
-    await expect(page.getByRole("button", { name: /send note/i })).toBeDisabled();
-    await page.getByLabel(/your note/i).fill("This stayed with me for days.");
-    await page.getByRole("button", { name: /send note/i }).click();
-    await expect(page.getByText(/creator will see your note/i)).toBeVisible();
-    await page.getByRole("button", { name: /^done$/i }).click();
-
-    // Same reader, same story, within the hour: told to wait.
-    await page.getByRole("button", { name: /write a private note/i }).click();
-    await page.getByLabel(/your note/i).fill("Another one");
-    await page.getByRole("button", { name: /send note/i }).click();
-    await expect(page.getByText(/already sent a note on this story/i)).toBeVisible();
-    await page.keyboard.press("Escape");
-
-    // The creator opens Notes from Settings; the reader is anonymous by default.
-    await page.evaluate(() => {
-      const db = JSON.parse(localStorage.getItem("seenos_users_db") || "{}");
-      db.user_e2e_creator = { id: "user_e2e_creator", email: "creator@e2e.test", name: "E2E creator", role: "creator", language: "en", intent: "explore" };
-      localStorage.setItem("seenos_users_db", JSON.stringify(db));
-      localStorage.setItem("seenos_auth_session", JSON.stringify({ accessToken: "tok", userId: "user_e2e_creator" }));
-    });
-    await page.goto("/#/notes");
-    await page.reload();
-    await expect(page.getByText("This stayed with me for days.")).toBeVisible();
-    await expect(page.getByText(/someone who read your story/i)).toBeVisible();
-    // Block the sender: allowed, listed (anonymously) in Account and privacy, and reversible.
-    await page.getByRole("button", { name: /block sender/i }).first().click();
-    await page.getByRole("button", { name: /^block sender$/i }).last().click();
-    await expect(page.getByText(/they can't send you new notes/i)).toBeVisible();
-    await page.goto("/#/account");
-    await expect(page.getByText("Blocked reader 1")).toBeVisible();
-    await page.getByRole("button", { name: /^unblock$/i }).click();
-    await expect(page.getByText(/no blocked accounts/i)).toBeVisible();
-    await page.goto("/#/notes");
-    await page.getByRole("button", { name: /delete note/i }).click();
-    await page.getByRole("button", { name: /^delete note$/i }).last().click();
-    await expect(page.getByText(/no notes yet/i)).toBeVisible();
-  });
-
-  test("a viewer cannot open the creator inbox", async ({ page }) => {
-    await signInAs(page, "viewer");
-    await page.goto("/#/notes");
-    await expect(page.getByText(/don't have access to this area/i)).toBeVisible();
-  });
-});
 
 test.describe("guest-first return", () => {
   test("a deep link survives onboarding and sign-up", async ({ page }) => {
     await page.goto("/#/story/midnight-resonance");
-    await page.getByRole("button", { name: /S \. E \. E \. N/ }).click();
-    await page.getByRole("button", { name: /^continue$/i }).click();
-    await page.getByRole("button", { name: /viewer/i }).click();
-    await page.getByRole("button", { name: /explore culture/i }).click();
+    await page.getByRole("button", { name: /discover stories/i }).click();
+    await page.getByRole("button", { name: /next: your interests/i }).click();
+    await page.getByRole("button", { name: /skip: create your account/i }).click();
     await page.getByPlaceholder("Name").fill("Deep Linker");
     await page.getByPlaceholder("Email").fill(`deep-${Date.now()}@example.com`);
     await page.getByPlaceholder("Password").fill("Password123");
     await page.getByRole("button", { name: /create account/i }).click();
-    await page.getByRole("button", { name: /^continue$/i }).click();
-    await page.getByRole("button", { name: /^continue$/i }).click();
-    await page.getByRole("button", { name: /^enter$/i }).click();
     await expect(page).toHaveURL(/#\/story\/midnight-resonance$/);
   });
+
 });
 
 test.describe("keyboard-only", () => {

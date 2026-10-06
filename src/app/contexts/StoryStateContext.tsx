@@ -67,6 +67,8 @@ export interface StoryState {
   userRole: UserRole;
   accessibilityPreferences: AccessibilityPreferences;
   personalizationPreferences: PersonalizationPreferences;
+  /** Topics picked during onboarding (cultural themes). Optional. */
+  interests?: string[];
   
   // Current navigation state
   currentStoryWorldId?: string;
@@ -89,6 +91,7 @@ interface StoryStateContextType {
   setUserRole: (role: UserRole) => void;
   setAccessibilityPreferences: (prefs: Partial<AccessibilityPreferences>) => void;
   setPersonalizationPreferences: (prefs: Partial<PersonalizationPreferences>) => void;
+  setInterests: (interests: string[]) => void;
   enterStoryWorld: (storyWorldId: string) => void;
   navigateToChapter: (chapterId: string) => void;
   updateAudioState: (audioState: Partial<AudioState>) => void;
@@ -182,6 +185,10 @@ export function StoryStateProvider({ children }: { children: ReactNode }) {
         ...prefs,
       },
     }));
+  }, []);
+
+  const setInterests = useCallback((interests: string[]) => {
+    setState(prev => ({ ...prev, interests }));
   }, []);
 
   const enterStoryWorld = useCallback((storyWorldId: string) => {
@@ -288,6 +295,7 @@ export function StoryStateProvider({ children }: { children: ReactNode }) {
     setUserRole,
     setAccessibilityPreferences,
     setPersonalizationPreferences,
+    setInterests,
     enterStoryWorld,
     navigateToChapter,
     updateAudioState,

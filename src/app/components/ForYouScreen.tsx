@@ -6,6 +6,7 @@
  * NO hardcoded content - all data from queries
  */
 
+import { storiesForInterests } from "../data/interests";
 import { DemoModeNotice } from "./DemoModeNotice";
 import { PageTitle } from "./seen/primitives";
 import { motion } from "motion/react";
@@ -50,6 +51,8 @@ export function ForYouScreen({
   isFirstVisit
 }: ForYouScreenProps) {
   const { state: storyState } = useStoryState();
+  const interests = storyState.interests ?? [];
+  const interestItems = interests.length > 0 ? storiesForInterests(interests, language as Language).slice(0, 8) : [];
   const continueItems = getLibraryStories(storyState.progressSnapshots, language as Language).inProgress.slice(0, 6);
 
   // Get personalized feed from story service
@@ -172,6 +175,18 @@ export function ForYouScreen({
                   onSelect={onStoryClick}
                   item={{ id: content.id, title: content.title, eyebrow: `${progress.progressPercentage}% read`, subtitle: content.creator, imageUrl: content.mediaSource }}
                 />
+              ))}
+            </Rail>
+          </motion.section>
+        )}
+
+        {/* Picked from the interests chosen at sign-up; hidden when none were chosen or nothing matches. */}
+        {interestItems.length > 0 && (
+          <motion.section initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }} className="mb-12" aria-label="Based on your interests">
+            <SectionHeader title="Based on your interests" subtitle={interests.slice(0, 3).join(" · ")} />
+            <Rail>
+              {interestItems.map(item => (
+                <RailCard key={item.id} w={150} h={200} onSelect={onStoryClick} item={{ id: item.id, title: item.title, eyebrow: item.type, imageUrl: item.mediaSource }} />
               ))}
             </Rail>
           </motion.section>

@@ -14,7 +14,7 @@ import { deleteBookmark, isBookmarked, saveBookmark } from "../data/userDataServ
 import { useStoryState } from "../contexts/StoryStateContext";
 import { useAuth } from "../contexts/AuthContext";
 import { getStoryWorldData } from "../data/storyService";
-import type { Language } from "../data/storyDatabase";
+import { getStoryWorldById, type Language } from "../data/storyDatabase";
 import { PaywallModal } from "./PaywallModal";
 import { hasAccessToContent, getContentPricing, creatorIdFromName } from "../data/monetizationService";
 
@@ -24,7 +24,6 @@ interface FeaturedStoryPreviewProps {
 }
 
 export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPreviewProps) {
-  const [isPlaying, setIsPlaying] = useState(false);
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const [noteOpen, setNoteOpen] = useState(false);
@@ -54,6 +53,7 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
     );
   }
 
+  const contentWarnings = getStoryWorldById(storyData.id)?.contentWarnings ?? [];
   const saved = savedOverride ?? (storyData ? isBookmarked(storyData.id) : false);
   const setSaved = (v: boolean) => setSavedOverride(v);
 
@@ -172,33 +172,12 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
             transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => setIsPlaying(!isPlaying)}
+            onClick={handleEnterStory}
+            aria-label={isLocked ? t("story.unlock") : t("story.start")}
             className="w-20 h-20 rounded-full bg-white/95 backdrop-blur-sm flex items-center justify-center shadow-2xl"
           >
-            <Play className="w-8 h-8 text-black fill-black ml-1" />
+            {isLocked ? <Lock className="w-8 h-8 text-black" aria-hidden /> : <Play className="w-8 h-8 text-black fill-black ml-1" aria-hidden />}
           </motion.button>
-
-          {/* Ambient sound indicator */}
-          {isPlaying && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="absolute"
-            >
-              <motion.div
-                animate={{
-                  scale: [1, 1.5, 1],
-                  opacity: [0.3, 0, 0.3]
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-                className="w-32 h-32 rounded-full border-2 border-white/30"
-              />
-            </motion.div>
-          )}
         </div>
 
         {/* Bottom: Content info */}
@@ -241,6 +220,14 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
               Released {storyData.releaseDate}
             </p>
           </div>
+
+          {/* Content notes, shown before the story can be started */}
+          {contentWarnings.length > 0 && (
+            <div role="note" aria-label="Content note" className="rounded-xl border border-amber-300/40 bg-amber-300/10 p-4 text-sm text-white/90">
+              <p className="font-medium text-white">Content note</p>
+              <p className="mt-1">This story includes: {contentWarnings.join(", ")}.</p>
+            </div>
+          )}
 
           {/* Actions */}
           <div className="flex items-center gap-3 pt-4">

@@ -13,11 +13,11 @@ Status is verified against the code on the consolidated baseline. DONE = shipped
 | Speaker / audio controls, sound management | DONE | Play/pause, seek, elapsed/duration, skip 15 s, transcript, captions (device voice), and now playback speed (0.75x to 1.5x, remembered) | Volume and mute rely on device volume; not added |
 | Creator add/create control obvious, Create Story help | DONE | Helper text per step, "Next: X" labels, Your stories screen, creator overview card | none |
 | Audience as tags, not typing | DONE | Audience chips (Youth, Educators, Families, Community members, Researchers, General public) plus optional own entry | none |
-| "What happens next" clearer | PARTIAL | Step counters and next-step labels in Create Story | Onboarding has no step counter |
-| Reduce onboarding screens | OPEN | About 9 screens today | Needs a product decision; see `docs/product/ONBOARDING_DECISION_MATRIX.md` |
+| "What happens next" clearer | DONE | Step counters and "Next: X" labels in Create Story and onboarding | none |
+| Reduce onboarding screens | DONE | 9 screens cut to 4 (Language, Purpose, Interests (optional), Account) with Back and "Step n of 3"; `OnboardingSystem.tsx`, `OnboardingOrientation.tsx`; e2e `first visit` | Product to review copy and the removed Moderator choice |
 | Continue reading, Saved stories | DONE | Continue rail on For You, In progress and Saved tabs in Library, real persistence | Server sync needs the backend |
 | Horizontal discovery cards | DONE | Rails exist | Keyboard and button alternatives to dragging not audited in this pass |
 | Industry/category suggestions on home | PARTIAL | Themes on Search landing and Explore | none planned |
 | Clarify News vs Media | OPEN | The app has no News or Media tabs; four tabs: For You, Explore, Library, Profile | Only needed if those are product concepts |
 | Improve Profile | DONE | Edit profile, bio, change password, preferences, larger text, sign-out confirmation | none |
-| Accessibility generally | PARTIAL | See `SEEN_ACCESSIBILITY_STATUS.md` | Alt text and content warnings in Create Story; manual screen-reader pass |
+| Accessibility generally | PARTIAL | Alt text (required or decorative) and content notes added to Create Story; keyboard, semantics, zoom and image-contrast checks pass; see `SEEN_ACCESSIBILITY_STATUS.md` | Screen-reader and real-device passes; file upload for media (REQUIRES BACKEND) |

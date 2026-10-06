@@ -33,7 +33,9 @@ export function FeaturedHero({ item, onExperience }: { item: HeroItem; onExperie
       className="relative -mx-gutter h-[520px] overflow-hidden bg-seen-canvas"
     >
       <SeenImage src={item.mediaSource} alt="" decorative seed={item.id} className="absolute inset-0 w-full h-full object-cover" />
-      <div aria-hidden className="absolute inset-x-0 bottom-0 h-[300px] bg-gradient-to-b from-transparent to-seen-canvas" />
+      {/* Scrims keep text readable on any photo, light ones included: dark under the header, dark under the title block. */}
+      <div aria-hidden className="absolute inset-x-0 top-0 h-[150px] bg-gradient-to-b from-black/80 to-transparent" />
+      <div aria-hidden className="absolute inset-x-0 bottom-0 h-[340px] bg-[linear-gradient(to_bottom,transparent_0%,color-mix(in_srgb,var(--color-seen-canvas)_92%,transparent)_35%,var(--color-seen-canvas)_65%)]" />
       <div className="absolute inset-x-0 bottom-0 px-gutter pb-5">
         <p className="font-seen-mono text-[11px] leading-[1.3] tracking-[0.8px] uppercase text-white">
           Editor&rsquo;s feature · {item.type}

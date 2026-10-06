@@ -120,6 +120,8 @@ export function publishStory(
         ambient: ch.ambient ? { url: ch.ambient.file } : undefined,
         music: ch.music ? { url: ch.music.file } : undefined,
         images: ch.images,
+        imageAlt: ch.imageDecorative ? undefined : ch.imageAlt?.trim() || undefined,
+        imageDecorative: ch.imageDecorative || undefined,
         video: ch.video ? { url: ch.video.file, duration: ch.video.duration } : undefined,
       },
       estimatedDuration: ch.estimatedDuration,
@@ -146,6 +148,7 @@ export function publishStory(
     chapterCount: chapters.length,
     chapters,
     visibility: publish.visibility,
+    contentWarnings: context.contentWarnings && context.contentWarnings.length > 0 ? context.contentWarnings : undefined,
     institutionalPartner: publish.institutionalCollection || undefined,
     new: true,
   };

@@ -274,8 +274,8 @@ export function StoryChapterScreen({
       <div className="absolute inset-0">
         <SeenImage
           src={currentChapter.media?.images?.[0] || storyWorld?.coverImage}
-          alt=""
-          decorative
+          alt={currentChapter.media?.images?.[0] && !currentChapter.media.imageDecorative ? currentChapter.media.imageAlt ?? "" : ""}
+          decorative={!(currentChapter.media?.images?.[0] && !currentChapter.media.imageDecorative && currentChapter.media.imageAlt)}
           seed={storyWorldId}
           className="w-full h-full object-cover"
         />

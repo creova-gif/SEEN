@@ -393,51 +393,51 @@
   "id": "310:45",
   "name": "ONBOARDING / Introduction / Default / Mobile",
   "status": "IMPLEMENTED",
-  "route": "#/ (onboarding purpose)",
-  "component": "OnboardingPurpose",
+  "route": "#/ (onboarding step 1)",
+  "component": "OnboardingOrientation PurposeStep",
   "functional": "yes",
   "vercel": "yes",
-  "note": ""
+  "note": "Splash and introduction merged into the first choice screen (4 screens instead of 9)"
  },
  {
   "id": "311:2",
   "name": "ONBOARDING / Intent / Default / Mobile",
   "status": "IMPLEMENTED",
-  "route": "#/ (onboarding intent)",
-  "component": "OnboardingSystem IntentStep",
+  "route": "#/ (onboarding step 1)",
+  "component": "OnboardingOrientation PurposeStep",
   "functional": "yes",
   "vercel": "yes",
-  "note": ""
+  "note": "Merged: intent is derived from the purposes chosen on step 1"
  },
  {
   "id": "311:37",
   "name": "ONBOARDING / Role / Default / Mobile",
   "status": "IMPLEMENTED",
-  "route": "#/ (onboarding role)",
-  "component": "OnboardingSystem RoleStep",
+  "route": "#/ (onboarding step 1)",
+  "component": "OnboardingOrientation PurposeStep",
   "functional": "yes",
   "vercel": "yes",
-  "note": ""
+  "note": "Merged: Share my story or Build an audience means creator; the Moderator choice was removed (admins appoint moderators)"
  },
  {
   "id": "311:67",
   "name": "ONBOARDING / Personalization / Default / Mobile",
   "status": "IMPLEMENTED",
-  "route": "#/ (onboarding presence)",
-  "component": "OnboardingSystem PresenceStep",
+  "route": "#/ (onboarding step 2)",
+  "component": "OnboardingOrientation InterestsStep",
   "functional": "yes",
   "vercel": "yes",
-  "note": "Presence step carries the personalization choices"
+  "note": "Optional interests chosen from real catalogue topics; feeds the For You interests rail"
  },
  {
   "id": "312:2",
   "name": "ONBOARDING / Accessibility / Default / Mobile",
-  "status": "IMPLEMENTED",
-  "route": "#/ (onboarding accessibility)",
-  "component": "OnboardingAccessibility",
-  "functional": "yes",
-  "vercel": "yes",
-  "note": ""
+  "status": "EXCLUDED",
+  "route": "-",
+  "component": "-",
+  "functional": "-",
+  "vercel": "-",
+  "note": "Removed from first run: its three toggles were not read by anything. Accessibility settings (High contrast, Reduce motion, Larger text) are in Settings"
  },
  {
   "id": "312:47",
@@ -522,12 +522,12 @@
  {
   "id": "315:2",
   "name": "ONBOARDING / Completion / Mobile",
-  "status": "IMPLEMENTED",
-  "route": "#/ (onboarding threshold)",
-  "component": "OnboardingSystem ThresholdStep",
-  "functional": "yes",
-  "vercel": "yes",
-  "note": ""
+  "status": "EXCLUDED",
+  "route": "-",
+  "component": "-",
+  "functional": "-",
+  "vercel": "-",
+  "note": "Removed: creating the account goes straight to For You"
  },
  {
   "id": "315:10",
@@ -1947,7 +1947,7 @@
   "component": "-",
   "functional": "-",
   "vercel": "-",
-  "note": "Same screen (canonical: 311:67 ONBOARDING / Personalization / Default / Mobile)"
+  "note": "Same screen (the presence step itself was removed) (canonical: 311:67 ONBOARDING / Personalization / Default / Mobile)"
  },
  {
   "id": "16:94",

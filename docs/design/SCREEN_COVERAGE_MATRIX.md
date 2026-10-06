@@ -8,7 +8,7 @@ Rule: Vercel is the foundation. A frame is IMPLEMENTED only when it exists in th
 
 | Status | Frames |
 |---|---|
-| IMPLEMENTED | 83 |
+| IMPLEMENTED | 81 |
 | PARTIAL | 1 |
 | MISSING | 0 |
 | STATE | 35 |
@@ -17,7 +17,7 @@ Rule: Vercel is the foundation. A frame is IMPLEMENTED only when it exists in th
 | OUTDATED | 18 |
 | COMPONENT | 17 |
 | NOTE | 12 |
-| EXCLUDED | 78 |
+| EXCLUDED | 80 |
 
 ## Matrix
 
@@ -138,18 +138,18 @@ Rule: Vercel is the foundation. A frame is IMPLEMENTED only when it exists in th
 | MONETIZATION / — PAGE NOTES | 339:169 | - | - | NOTE | - | - | Design notes / prototype wiring, not a screen |
 | Metric Card | 248:210 | - | seen/primitives MetricCard | COMPONENT | yes | yes | Design-system component, not a screen |
 | Notification Item | 248:228 | - | NotificationsScreen item | COMPONENT | yes | yes | Design-system component, not a screen |
-| ONBOARDING / Accessibility / Default / Mobile | 312:2 | #/ (onboarding accessibility) | OnboardingAccessibility | IMPLEMENTED | yes | yes |  |
+| ONBOARDING / Accessibility / Default / Mobile | 312:2 | - | - | EXCLUDED | - | - | Removed from first run: its three toggles were not read by anything. Accessibility settings (High contrast, Reduce motion, Larger text) are in Settings |
 | ONBOARDING / Authentication Failed / Error / Mobile | 314:66 | #/ (account) | AccountStep error text (WRONG_CREDENTIALS_MESSAGE) | STATE | yes | yes | State of Sign In |
-| ONBOARDING / Completion / Mobile | 315:2 | #/ (onboarding threshold) | OnboardingSystem ThresholdStep | IMPLEMENTED | yes | yes |  |
+| ONBOARDING / Completion / Mobile | 315:2 | - | - | EXCLUDED | - | - | Removed: creating the account goes straight to For You |
 | ONBOARDING / Email Verification / OTP / Mobile | 314:2 | - | - | EXCLUDED | - | - | Needs a configured Supabase project (verifyOtp); it is rendered only when the backend flag is on, per the no-dead-buttons rule. Tracked in docs/release/RESTORE_SUPABASE.md |
 | ONBOARDING / Forgot Password / Default / Mobile | 314:28 | #/ (account, recovery mode) | OnboardingSystem AccountStep | IMPLEMENTED | yes | yes |  |
-| ONBOARDING / Intent / Default / Mobile | 311:2 | #/ (onboarding intent) | OnboardingSystem IntentStep | IMPLEMENTED | yes | yes |  |
-| ONBOARDING / Introduction / Default / Mobile | 310:45 | #/ (onboarding purpose) | OnboardingPurpose | IMPLEMENTED | yes | yes |  |
+| ONBOARDING / Intent / Default / Mobile | 311:2 | #/ (onboarding step 1) | OnboardingOrientation PurposeStep | IMPLEMENTED | yes | yes | Merged: intent is derived from the purposes chosen on step 1 |
+| ONBOARDING / Introduction / Default / Mobile | 310:45 | #/ (onboarding step 1) | OnboardingOrientation PurposeStep | IMPLEMENTED | yes | yes | Splash and introduction merged into the first choice screen (4 screens instead of 9) |
 | ONBOARDING / Language Selection / Default / Mobile | 310:14 | #/ (onboarding) | LanguageSelectionScreen | IMPLEMENTED | yes | yes |  |
 | ONBOARDING / Offline Auth / Default / Mobile | 314:93 | #/ (account) | AccountStep offline Banner | STATE | yes | yes | State of Sign In |
-| ONBOARDING / Personalization / Default / Mobile | 311:67 | #/ (onboarding presence) | OnboardingSystem PresenceStep | IMPLEMENTED | yes | yes | Presence step carries the personalization choices |
+| ONBOARDING / Personalization / Default / Mobile | 311:67 | #/ (onboarding step 2) | OnboardingOrientation InterestsStep | IMPLEMENTED | yes | yes | Optional interests chosen from real catalogue topics; feeds the For You interests rail |
 | ONBOARDING / Reset Password / Default / Mobile | 314:44 | #/reset-password/:token | ResetPasswordScreen | IMPLEMENTED | yes | yes |  |
-| ONBOARDING / Role / Default / Mobile | 311:37 | #/ (onboarding role) | OnboardingSystem RoleStep | IMPLEMENTED | yes | yes |  |
+| ONBOARDING / Role / Default / Mobile | 311:37 | #/ (onboarding step 1) | OnboardingOrientation PurposeStep | IMPLEMENTED | yes | yes | Merged: Share my story or Build an audience means creator; the Moderator choice was removed (admins appoint moderators) |
 | ONBOARDING / Session Expired / Default / Mobile | 314:80 | #/ (account) | AccountStep session-expired Banner | STATE | yes | yes | State of Sign In |
 | ONBOARDING / Sign In / Default / Mobile | 312:74 | #/ (onboarding account, sign-in mode) | OnboardingSystem AccountStep | IMPLEMENTED | yes | yes |  |
 | ONBOARDING / Sign Up / Default / Mobile | 312:47 | #/ (onboarding account) | OnboardingSystem AccountStep | IMPLEMENTED | yes | yes |  |
@@ -321,7 +321,7 @@ Rule: Vercel is the foundation. A frame is IMPLEMENTED only when it exists in th
 | onboarding-accessibility | 7:84 | - | - | DUPLICATE | - | - | Same screen (canonical: 312:2 ONBOARDING / Accessibility / Default / Mobile) |
 | onboarding-intent | 7:47 | - | - | DUPLICATE | - | - | Same screen (canonical: 311:2 ONBOARDING / Intent / Default / Mobile) |
 | onboarding-invocation | 9:748 | - | - | OUTDATED | - | - | Superseded (canonical: 310:45 ONBOARDING / Introduction / Default / Mobile) |
-| onboarding-presence | 16:74 | - | - | DUPLICATE | - | - | Same screen (canonical: 311:67 ONBOARDING / Personalization / Default / Mobile) |
+| onboarding-presence | 16:74 | - | - | DUPLICATE | - | - | Same screen (the presence step itself was removed) (canonical: 311:67 ONBOARDING / Personalization / Default / Mobile) |
 | onboarding-purpose | 16:9 | - | - | DUPLICATE | - | - | Same screen (canonical: 310:45 ONBOARDING / Introduction / Default / Mobile) |
 | onboarding-role | 16:33 | - | - | DUPLICATE | - | - | Same screen (canonical: 311:37 ONBOARDING / Role / Default / Mobile) |
 | onboarding-threshold | 16:94 | - | - | DUPLICATE | - | - | Same screen (canonical: 315:2 ONBOARDING / Completion / Mobile) |

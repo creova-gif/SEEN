@@ -33,6 +33,8 @@ export interface Chapter {
   ambient?: { file: string };
   music?: { file: string };
   images?: string[];
+  imageAlt?: string;
+  imageDecorative?: boolean;
   video?: { file: string; duration: number };
   estimatedDuration: number; // in minutes
   completeness: number; // 0-100
@@ -107,7 +109,10 @@ export function MediaChaptersStep({
     return score;
   };
 
-  const canProceed = chapters.some(ch => ch.title.trim() && ch.text.trim());
+  // An attached image needs a description, or an explicit "decorative" choice.
+  const missingAlt = (ch: Chapter) => !!ch.images?.length && !ch.imageDecorative && !(ch.imageAlt ?? '').trim();
+  const imagesDescribed = !chapters.some(missingAlt);
+  const canProceed = chapters.some(ch => ch.title.trim() && ch.text.trim()) && imagesDescribed;
 
   const handleNext = () => {
     if (canProceed) {
@@ -348,6 +353,42 @@ export function MediaChaptersStep({
                             </button>
                           </div>
                         </div>
+
+                        {/* Image description (alt text) */}
+                        {chapter.images?.length ? (
+                          <div className="rounded-lg border border-white/10 bg-white/5 p-3">
+                            <label htmlFor={`alt-${chapter.id}`} className="block text-xs tracking-wider uppercase text-white/70 mb-1.5">
+                              Describe this image for people who cannot see it
+                            </label>
+                            <textarea
+                              id={`alt-${chapter.id}`}
+                              value={chapter.imageAlt ?? ''}
+                              disabled={!!chapter.imageDecorative}
+                              onChange={(e) => updateChapter(chapter.id, { imageAlt: e.target.value })}
+                              rows={2}
+                              maxLength={250}
+                              aria-describedby={`alt-help-${chapter.id}`}
+                              aria-invalid={missingAlt(chapter)}
+                              placeholder="e.g. A woman in a red coat stands on a harbour dock at dawn"
+                              className="w-full bg-black/40 border border-white/15 rounded px-3 py-2 text-sm text-white placeholder:text-white/55 focus:border-white/40 focus:outline-none disabled:opacity-50"
+                            />
+                            <p id={`alt-help-${chapter.id}`} className="text-xs text-white/60 mt-1.5">
+                              Say what matters about the image in a sentence or two. Screen readers read this aloud.
+                            </p>
+                            <label className="mt-3 flex items-center gap-3 min-h-11 text-sm text-white/85 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={!!chapter.imageDecorative}
+                                onChange={(e) => updateChapter(chapter.id, { imageDecorative: e.target.checked })}
+                                className="w-5 h-5 accent-white"
+                              />
+                              This image is decorative (no description needed)
+                            </label>
+                            {missingAlt(chapter) && (
+                              <p role="alert" className="text-xs text-red-300 mt-1">Add a description, or mark the image as decorative, to continue.</p>
+                            )}
+                          </div>
+                        ) : null}
 
                         {/* Delete Chapter */}
                         {chapters.length > 1 && (
