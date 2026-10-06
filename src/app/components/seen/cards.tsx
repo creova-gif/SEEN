@@ -134,7 +134,7 @@ export function OpportunityCard({
       </div>
       <div className="mt-auto flex flex-col items-start gap-1 min-[360px]:flex-row min-[360px]:items-end min-[360px]:justify-between min-[360px]:gap-3 pt-2 border-t border-white/5">
         <span className="text-sm text-seen-funding min-w-0">{formatAmount(opportunity)}</span>
-        <span className={`text-xs text-right whitespace-nowrap flex-shrink-0 ${tone}`}>{formatStatus(opportunity, now)}</span>
+        <span className={`text-xs text-left min-[360px]:text-right min-w-0 max-w-full break-words ${tone}`}>{formatStatus(opportunity, now)}</span>
       </div>
     </button>
   );
