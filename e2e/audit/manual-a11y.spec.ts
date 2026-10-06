@@ -31,6 +31,14 @@ async function tabTo(page: Page, name: RegExp, max = 80) {
 test.describe("keyboard-only journeys", () => {
   test("landing → sign up → onboarding → For You", async ({ page }) => {
     await page.goto("/");
+    await tabTo(page, /s\W*e\W*e\W*n/i);
+    await page.keyboard.press("Enter");
+    // Each onboarding screen fades out before the next fades in; wait for it so Tab starts on the real page.
+    await expect(page.getByRole("heading", { name: /this is not\s+social media/i })).toBeVisible();
+    await tabTo(page, /^continue$/i);
+    await page.keyboard.press("Enter");
+    // The entry screen fades out before the first step fades in; wait for it so Tab starts on the real page.
+    await expect(page.getByText(/step 1 of 3/i)).toBeVisible();
     await tabTo(page, /discover stories/i);
     await page.keyboard.press("Space");
     await expect(page.getByRole("button", { name: /discover stories/i })).toHaveAttribute("aria-pressed", "true");
