@@ -202,3 +202,37 @@ test.describe("responsive layout", () => {
     });
   }
 });
+
+test.describe("reporting", () => {
+  test("viewer reports a creator profile and a moderator sees it", async ({ page }) => {
+    await signInAs(page, "viewer");
+    await page.goto("/#/creator/kira-chen");
+    await page.getByRole("button", { name: /report this profile/i }).click();
+    await expect(page.getByRole("button", { name: /send report/i })).toBeDisabled();
+    await page.getByLabel(/misleading or false/i).check();
+    await page.getByRole("button", { name: /send report/i }).click();
+    await expect(page.getByText(/a moderator will review/i)).toBeVisible();
+    await page.getByRole("button", { name: /^done$/i }).click();
+
+    // Same person reporting the same profile again is told it is already under review.
+    await page.getByRole("button", { name: /report this profile/i }).click();
+    await page.getByLabel(/misleading or false/i).check();
+    await page.getByRole("button", { name: /send report/i }).click();
+    await expect(page.getByText(/already reported this/i)).toBeVisible();
+
+    // A moderator opens the Reports tab and finds it.
+    await page.evaluate(() => {
+      const db = JSON.parse(localStorage.getItem("seenos_users_db") || "{}");
+      db.user_e2e_mod = { id: "user_e2e_mod", email: "mod@e2e.test", name: "E2E mod", role: "moderator", language: "en", intent: "explore" };
+      localStorage.setItem("seenos_users_db", JSON.stringify(db));
+      localStorage.setItem("seenos_auth_session", JSON.stringify({ accessToken: "tok_e2e", userId: "user_e2e_mod" }));
+    });
+    await page.goto("/#/moderation-governance");
+    await page.reload();
+    await page.getByRole("button", { name: /^reports \(1\)/i }).click();
+    await expect(page.getByText("Kira Chen")).toBeVisible();
+    await expect(page.getByText(/misleading or false/i)).toBeVisible();
+    await page.getByRole("button", { name: /dismiss/i }).click();
+    await expect(page.getByRole("button", { name: /^reports \(0\)/i })).toBeVisible();
+  });
+});

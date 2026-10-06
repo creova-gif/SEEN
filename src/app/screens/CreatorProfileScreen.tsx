@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { track } from "../observability";
 import { toast } from "sonner";
-import { UserCheck, UserPlus } from "lucide-react";
+import { Flag, UserCheck, UserPlus } from "lucide-react";
+import { ReportContentSheet } from "../components/ReportContentSheet";
 import { api } from "../services";
 import { useResource } from "../hooks/useResource";
 import { ResourceView } from "../components/seen/ResourceView";
@@ -24,6 +25,7 @@ export function CreatorProfileScreen({ creatorId }: { creatorId: string }) {
     [creatorId],
   );
   const [busy, setBusy] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
 
   const toggleFollow = async () => {
     if (!resource.data) return;
@@ -85,7 +87,13 @@ export function CreatorProfileScreen({ creatorId }: { creatorId: string }) {
                   </li>
                 ))}
               </ul>
+              <div className="mt-10 flex justify-center">
+                <Button variant="ghost" size="sm" icon={<Flag className="w-4 h-4" aria-hidden />} onClick={() => setReportOpen(true)}>
+                  Report this profile
+                </Button>
+              </div>
             </section>
+            <ReportContentSheet open={reportOpen} onOpenChange={setReportOpen} targetType="creator" targetId={creator.id} targetTitle={creator.name} />
           </>
         )}
       </ResourceView>

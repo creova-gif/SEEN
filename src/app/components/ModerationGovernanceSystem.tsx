@@ -2,6 +2,9 @@ import { motion } from "motion/react";
 import { useState, useMemo } from "react";
 import { Shield, CheckCircle, XCircle, Clock, User, AlertTriangle } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
+import { toast } from "sonner";
+import { listReports, resolveReport } from "../data/reportService";
+import { ReportsPanel } from "./ReportsPanel";
 import {
   getModerationQueue,
   getModerationActions,
@@ -522,7 +525,7 @@ interface ModerationGovernanceSystemProps {
 }
 
 export function ModerationGovernanceSystem({ onBack }: ModerationGovernanceSystemProps) {
-  const [activeTab, setActiveTab] = useState<"queue" | "audit" | "guidelines">("queue");
+  const [activeTab, setActiveTab] = useState<"queue" | "reports" | "audit" | "guidelines">("queue");
   const [refreshKey, setRefreshKey] = useState(0);
   const { state: authState } = useAuth();
 
@@ -532,6 +535,15 @@ export function ModerationGovernanceSystem({ onBack }: ModerationGovernanceSyste
   // Persisted queue (localStorage-backed, seeded with sample submissions on first load)
   const queuedResponses = useMemo<QueuedResponse[]>(() => getModerationQueue(), [refreshKey]);
   const queuedActions = useMemo<ModerationActionRecord[]>(() => getModerationActions(), [refreshKey]);
+  const reports = useMemo(() => listReports(), [refreshKey]);
+  const handleResolveReport = (id: string, status: "action_taken" | "dismissed") => {
+    try {
+      resolveReport(id, status, moderatorId);
+      setRefreshKey(k => k + 1);
+    } catch {
+      toast.error("Couldn't update the report. Try again.");
+    }
+  };
 
   // Adapt string timestamps -> Date for the presentational components below
   const responses: CommunityResponse[] = queuedResponses.map(r => ({
@@ -607,6 +619,16 @@ export function ModerationGovernanceSystem({ onBack }: ModerationGovernanceSyste
               Queue ({responses.length})
             </button>
             <button
+              onClick={() => setActiveTab("reports")}
+              className={`flex-1 py-3 text-sm transition-all ${
+                activeTab === "reports"
+                  ? "text-white border-b-2 border-blue-400"
+                  : "text-white/50 hover:text-white/70"
+              }`}
+            >
+              Reports ({reports.filter(r => r.status === "open").length})
+            </button>
+            <button
               onClick={() => setActiveTab("audit")}
               className={`flex-1 py-3 text-sm transition-all ${
                 activeTab === "audit"
@@ -641,6 +663,7 @@ export function ModerationGovernanceSystem({ onBack }: ModerationGovernanceSyste
             userRole="moderator"
           />
         )}
+        {activeTab === "reports" && <ReportsPanel reports={reports} onResolve={handleResolveReport} />}
         {activeTab === "audit" && (
           <AuditLogViewer
             actions={actions}
