@@ -26,6 +26,15 @@ jobs:
       - name: Dependency audit (high+ in production deps)
         run: npm audit --omit=dev --audit-level=high
 
+  database:
+    name: Database RLS tests · secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get install -y --no-install-recommends postgresql-16 >/dev/null
+      - run: npm run test:db
+      - run: bash scripts/secret-scan.sh
+
   e2e:
     name: End-to-end journeys
     runs-on: ubuntu-latest

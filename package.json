@@ -10,7 +10,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "check": "npm run typecheck && npm test && npm run build"
+    "check": "npm run typecheck && npm test && npm run build",
+    "gen:share": "vite-node scripts/gen-share-previews.ts",
+    "test:db": "bash supabase/tests/run.sh"
   },
   "dependencies": {
     "@emotion/react": "11.14.0",
