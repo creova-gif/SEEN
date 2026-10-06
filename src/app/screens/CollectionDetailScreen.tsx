@@ -51,9 +51,9 @@ export function CollectionDetailScreen({ collectionId }: { collectionId: string 
             <>
               <section className="relative -mx-5 -mt-5 mb-6 aspect-[16/10] overflow-hidden">
                 <SeenImage src={cover?.coverImage} alt="" decorative seed={collection.id} className="absolute inset-0 w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/75 to-black/30" />
                 <div className="absolute bottom-0 left-0 right-0 p-5">
-                  <Badge tone={collection.kind === "institutional" ? "info" : "surface"}>
+                  <Badge tone="overImage">
                     {collection.kind === "institutional" ? "Institutional collection" : "Collection"}
                   </Badge>
                   <h2 className="text-3xl font-light tracking-tight mt-3">{collection.title}</h2>

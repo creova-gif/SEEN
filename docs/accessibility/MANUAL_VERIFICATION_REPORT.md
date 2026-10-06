@@ -21,7 +21,7 @@ Method: `e2e/audit/manual-a11y.spec.ts` drives a real Chromium (Pixel-sized view
 | Keyboard-only: Create Story chips | PASS (chips); the full Create Story wizard was not driven end to end by keyboard | |
 | Accessible name on every button, link, input, switch, tab on 11 routes; document title and `alt` attribute on images | PASS | spec "accessible name" |
 | 200% zoom (640 CSS px), 320 px and 390 px with Larger text: no sideways scroll, no clipped controls, bottom nav on screen, on 8 routes | PASS | spec "200% zoom" |
-| Text over photos, worst case (every photo forced to pure white): 4.5:1 normal, 3:1 large | PASS for the 7 text elements that overlap imagery on For You after the fix | spec "text over images". Other routes had no measurable text-over-image in the viewport in this environment, so coverage is limited |
+| Text over photos, worst case (every photo forced to pure white): 4.5:1 normal, 3:1 large | PASS for 37 text elements over photos on For You, Explore, the story page, the chapter reader and collections | spec "text over images" (see correction below) |
 | Reduced motion | PASS (app-wide `MotionConfig`) | earlier work |
 
 ## Not done (still open)
@@ -31,3 +31,12 @@ Method: `e2e/audit/manual-a11y.spec.ts` drives a real Chromium (Pixel-sized view
 - Contrast of text over real photographs (the sandbox cannot load the real covers; white was used as the worst case).
 - Video captions: the reader has no video player. Narration transcripts: the transcript sheet shows the chapter text, which is the narrated text; recorded-audio transcripts as a separate file are not supported by the data model.
 - The Create Story wizard attaches media by pasting a URL through a browser prompt, which is poor for keyboard and screen-reader users. A real file picker needs upload storage (backend).
+
+## Correction (messaging and Figma phase)
+The first version of the text-over-image check was vacuous on every route after the first: it hid text with an injected style tag that persisted across hash navigations, so later routes read transparent text and measured nothing. The report above therefore overstated coverage. After fixing the spec the check measured the story page, chapter reader, Explore cards and collection banners and failed, correctly:
+- Story page title, byline and category, 1.0 to 3.7:1 on a white photo: scrim raised (`FeaturedStoryPreview`).
+- Collection badges on banners, 2.2 to 3.1:1: new `overImage` badge tone with a dark backing (`Badge`, `CollectionCard`, collection detail).
+- Explore card creator line and meta, 3.3 to 4.5:1: steeper card gradient, secondary text raised to 75% white (`ContentCard`).
+- Chapter reader text sat on a 40% scrim: raised to 75% (`StoryChapterScreen`).
+- Type pills on story cards: darker backing (`StoryCard`, `ContentCard`).
+All now measure at or above 4.5:1 (3:1 for large text) against a pure white photo. Elements that contain an icon next to the label are excluded from this check because their solid fill, not the photo, is what the label sits on. Library and creator profile had no text over photos in view.

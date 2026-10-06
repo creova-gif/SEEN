@@ -117,7 +117,7 @@ export function ExploreScreen({
           className="mb-6"
         >
           <PageTitle className="mb-2">Explore</PageTitle>
-          <p className="text-sm text-white/60">Discover cultural stories and creators</p>
+          <p className="text-sm text-white/60">Stories, creators and collections, by theme and language</p>
         </motion.div>
 
         <div className="mb-6">
@@ -142,7 +142,7 @@ export function ExploreScreen({
           <SearchBar
             id="explore-search"
             label="Search stories"
-            placeholder="Search stories, creators, topics..."
+            placeholder="Search stories"
             value={searchQuery}
             onChange={setSearchQuery}
           />

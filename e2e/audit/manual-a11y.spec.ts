@@ -178,8 +178,14 @@ test("text over images keeps 4.5:1 (or 3:1 for large text) against the lightest 
     route.fulfill({ contentType: "image/svg+xml", body: '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1200"><rect width="100%" height="100%" fill="#ffffff"/></svg>' }),
   );
   const problems: string[] = [];
-  for (const r of ["for-you", "explore", "library", "story/midnight-resonance", "creator/kira-chen", "collections"]) {
-    await page.goto(`/#/${r}`);
+  for (const r of ["for-you", "explore", "library", "story/midnight-resonance", "reader", "creator/kira-chen", "collections"]) {
+    if (r === "reader") {
+      await page.goto("/#/story/midnight-resonance");
+      await page.getByRole("button", { name: /start reading/i }).first().click();
+      await page.getByRole("button", { name: /^transcript$/i }).waitFor();
+    } else {
+      await page.goto(`/#/${r}`);
+    }
     await page.waitForTimeout(900);
     const targets = await page.evaluate(() => {
       const cv = document.createElement("canvas");
@@ -202,6 +208,8 @@ test("text over images keeps 4.5:1 (or 3:1 for large text) against the lightest 
         if (r.width < 8 || r.height < 8 || r.bottom < 0 || r.top > window.innerHeight) return;
         if (!imgs.some(i => r.left < i.right && r.right > i.left && r.top < i.bottom && r.bottom > i.top)) return;
         const cs = getComputedStyle(el);
+        // Buttons that carry an icon next to the label sit on their own solid fill; sampling the icon would read as background.
+        if (el.querySelector("svg")) return;
         const col = rgba(cs.color);
         if (col[3] === 0) return;
         el.setAttribute("data-ct", String(idx));
@@ -213,9 +221,11 @@ test("text over images keeps 4.5:1 (or 3:1 for large text) against the lightest 
       });
       return out.slice(0, 40);
     });
+    findings.push({ check: "image-contrast-coverage", route: r, targets: targets.length, imgs: await page.locator("img").count(), fallbacks: await page.getByTestId("image-fallback").count() });
     // Hide all text, capture the backdrop once per route.
-    await page.addStyleTag({ content: "*{color:transparent !important;text-shadow:none !important}" });
+    const hide = await page.addStyleTag({ content: "*{color:transparent !important;text-shadow:none !important}" });
     const shot = (await page.screenshot()).toString("base64");
+    await hide.evaluate(e => e.remove()); // hash navigation keeps the document, so the style must not leak into the next route
     const worst = await page.evaluate(async ({ shot, targets }) => {
       const img = new Image();
       img.src = "data:image/png;base64," + shot;

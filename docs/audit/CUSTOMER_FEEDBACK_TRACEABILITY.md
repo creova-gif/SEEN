@@ -18,6 +18,6 @@ Status is verified against the code on the consolidated baseline. DONE = shipped
 | Continue reading, Saved stories | DONE | Continue rail on For You, In progress and Saved tabs in Library, real persistence | Server sync needs the backend |
 | Horizontal discovery cards | DONE | Rails exist | Keyboard and button alternatives to dragging not audited in this pass |
 | Industry/category suggestions on home | PARTIAL | Themes on Search landing and Explore | none planned |
-| Clarify News vs Media | OPEN | The app has no News or Media tabs; four tabs: For You, Explore, Library, Profile | Only needed if those are product concepts |
+| Clarify News vs Media | DONE (answered) | Neither exists as a section, tab, filter, content type or Figma frame; "media" only means chapter assets. Recommendation: do not add either. See `docs/audit/NEWS_VS_MEDIA_AND_PROFILE_SEPARATION.md` | Product to confirm the tester meant a concept that does not exist |
 | Improve Profile | DONE | Edit profile, bio, change password, preferences, larger text, sign-out confirmation | none |
 | Accessibility generally | PARTIAL | Alt text (required or decorative) and content notes added to Create Story; keyboard, semantics, zoom and image-contrast checks pass; see `SEEN_ACCESSIBILITY_STATUS.md` | Screen-reader and real-device passes; file upload for media (REQUIRES BACKEND) |

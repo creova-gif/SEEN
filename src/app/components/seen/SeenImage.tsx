@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 /**
  * Image with a brand-consistent fallback.
@@ -34,6 +34,8 @@ export function hashSeed(seed: string): number {
 
 export function SeenImage({ src, alt, seed, className = "", decorative = false }: SeenImageProps) {
   const [failed, setFailed] = useState(!src);
+  // A new src (for example after navigating between stories) gets a fresh try instead of staying on the fallback tile.
+  useEffect(() => setFailed(!src), [src]);
 
   if (failed) {
     const [from, to] = PALETTES[hashSeed(seed ?? alt) % PALETTES.length];

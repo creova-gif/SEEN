@@ -71,12 +71,12 @@ export function ContentCard({
           decorative
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/10" />
       </div>
 
       <div className="absolute top-3 left-3 right-3 z-10 flex items-start justify-between gap-2">
         {typeLabel ? (
-          <span className="inline-flex items-center gap-1.5 text-[10px] tracking-[0.14em] uppercase text-white/90 backdrop-blur-md bg-black/40 px-2.5 py-1 rounded-full border border-white/15">
+          <span className="inline-flex items-center gap-1.5 text-[10px] tracking-[0.14em] uppercase text-white backdrop-blur-md bg-black/60 px-2.5 py-1 rounded-full border border-white/15">
             {typeLabel}
           </span>
         ) : (
@@ -84,7 +84,7 @@ export function ContentCard({
         )}
         {badge &&
           (typeof badge === "string" ? (
-            <span className="text-[10px] tracking-[0.14em] uppercase text-white backdrop-blur-md bg-white/10 px-2.5 py-1 rounded-full border border-white/20">
+            <span className="text-[10px] tracking-[0.14em] uppercase text-white backdrop-blur-md bg-black/60 px-2.5 py-1 rounded-full border border-white/20">
               {badge}
             </span>
           ) : (
@@ -93,11 +93,11 @@ export function ContentCard({
       </div>
 
       <div className="absolute inset-x-0 bottom-0 p-5 z-10 flex flex-col gap-1.5">
-        {creator && <p className="text-[10px] tracking-[0.18em] uppercase text-white/55 truncate">{creator}</p>}
+        {creator && <p className="text-[10px] tracking-[0.18em] uppercase text-white/75 truncate">{creator}</p>}
         <h3 className="text-xl font-light tracking-tight text-white leading-tight line-clamp-2">{title}</h3>
-        {subtitle && <p className="text-xs text-white/60 leading-relaxed line-clamp-2">{subtitle}</p>}
+        {subtitle && <p className="text-xs text-white/75 leading-relaxed line-clamp-2">{subtitle}</p>}
         <div className="flex items-center justify-between mt-1 min-h-8">
-          {duration ? <span className="text-xs text-white/55">{duration}</span> : <span />}
+          {duration ? <span className="text-xs text-white/75">{duration}</span> : <span />}
           <span
             aria-hidden
             className="w-8 h-8 rounded-full bg-white/90 flex items-center justify-center opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity"

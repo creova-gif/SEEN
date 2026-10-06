@@ -39,9 +39,9 @@ export function CommunityResponsesPanel({
   const getText = (key: string) => {
     const translations: Record<string, Record<string, string>> = {
       title: {
-        en: "Community Voices",
-        fr: "Voix de la Communauté",
-        es: "Voces de la Comunidad"
+        en: "Reflections",
+        fr: "Réflexions",
+        es: "Reflexiones"
       },
       description: {
         en: "Reflections shared by other listeners",
@@ -49,14 +49,14 @@ export function CommunityResponsesPanel({
         es: "Reflexiones compartidas por otros oyentes"
       },
       addYours: {
-        en: "Share Your Reflection",
-        fr: "Partagez Votre Réflexion",
-        es: "Comparte Tu Reflexión"
+        en: "Add a reflection",
+        fr: "Ajouter une réflexion",
+        es: "Añadir una reflexión"
       },
       noResponses: {
-        en: "No reflections yet. Be the first to share.",
-        fr: "Aucune réflexion pour le moment. Soyez le premier à partager.",
-        es: "Aún no hay reflexiones. Sé el primero en compartir."
+        en: "No reflections yet. Add the first one.",
+        fr: "Aucune réflexion pour l'instant. Ajoutez la première.",
+        es: "Aún no hay reflexiones. Añade la primera."
       },
       note: {
         en: "All responses are moderated to preserve the integrity of the narrative space.",

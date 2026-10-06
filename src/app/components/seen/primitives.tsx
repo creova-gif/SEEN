@@ -134,7 +134,7 @@ export function Chip({ selected, className, children, ...rest }: ChipProps) {
 // ---------------------------------------------------------------------------
 // Badge — Figma 296:10 (Gold / Mint / Purple / Surface)
 // ---------------------------------------------------------------------------
-type BadgeTone = "gold" | "mint" | "purple" | "surface" | "info" | "error";
+type BadgeTone = "gold" | "mint" | "purple" | "surface" | "info" | "error" | "overImage";
 const BADGE_TONES: Record<BadgeTone, string> = {
   gold: "text-seen-funding bg-seen-funding/10 border-seen-funding/30",
   mint: "text-seen-success bg-seen-success/10 border-seen-success/30",
@@ -142,6 +142,8 @@ const BADGE_TONES: Record<BadgeTone, string> = {
   surface: "text-white/70 bg-white/5 border-white/15",
   info: "text-seen-info bg-seen-info/10 border-seen-info/30",
   error: "text-seen-error bg-seen-error/10 border-seen-error/30",
+  /** For badges that sit directly on a photograph: dark backing so the label stays readable on any image. */
+  overImage: "text-white bg-black/65 border-white/25 backdrop-blur-md",
 };
 
 export function Badge({ tone = "surface", children, className }: { tone?: BadgeTone; children: ReactNode; className?: string }) {

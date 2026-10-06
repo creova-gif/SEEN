@@ -16,8 +16,8 @@ const PURPOSES: { id: Purpose; label: string; hint: string }[] = [
   { id: "discover", label: "Discover stories", hint: "Read, listen and watch" },
   { id: "learn", label: "Learn", hint: "History, culture and craft" },
   { id: "share", label: "Share my story", hint: "Publish your own work" },
-  { id: "audience", label: "Build an audience", hint: "Reach people who care" },
-  { id: "connect", label: "Connect with creators", hint: "Follow and support voices" },
+  { id: "audience", label: "Find readers and listeners", hint: "Get your work in front of people who will enjoy it" },
+  { id: "connect", label: "Back the creators you love", hint: "Get their new stories and support their work" },
 ];
 
 /** Maps the chosen purposes to the account fields the app already stores. */
@@ -66,7 +66,7 @@ export function PurposeStep({ selected, onChange, onNext }: { selected: Purpose[
       <div className="flex-1 px-gutter pt-4 max-w-md w-full mx-auto">
         <p className="text-xs tracking-[0.3em] uppercase text-white/70">SEEN by CREOVA</p>
         <h1 className="font-seen-display text-[30px] leading-[1.16] text-white mt-3">What brings you to SEEN?</h1>
-        <p className="text-sm text-seen-secondary mt-2">Stories from communities, in your language. Choose all that apply.</p>
+        <p className="text-sm text-seen-secondary mt-2">Stories from many voices, in your language. Choose all that apply.</p>
         <div role="group" aria-label="What brings you to SEEN? Choose all that apply" className="mt-6 flex flex-col gap-3">
           {PURPOSES.map(p => (
             <Choice key={p.id} label={p.label} hint={p.hint} selected={selected.includes(p.id)} onToggle={() => toggle(p.id)} />
@@ -96,8 +96,8 @@ export function InterestsStep({ selected, onChange, onNext }: { selected: string
   return (
     <motion.main initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }} className="flex-1 flex flex-col">
       <div className="flex-1 px-gutter pt-4 max-w-md w-full mx-auto">
-        <h1 className="font-seen-display text-[30px] leading-[1.16] text-white">What are you interested in?</h1>
-        <p className="text-sm text-seen-secondary mt-2">Optional. We use this to start your For You feed. Change it any time.</p>
+        <h1 className="font-seen-display text-[30px] leading-[1.16] text-white">What do you like to read, hear and watch?</h1>
+        <p className="text-sm text-seen-secondary mt-2">Optional. We use this to pick what you see first. Change it any time.</p>
         <div role="group" aria-label="Interests" className="mt-6 flex flex-wrap gap-2">
           {options.map(t => {
             const on = selected.includes(t);

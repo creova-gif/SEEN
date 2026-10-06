@@ -39,7 +39,7 @@ export function StoryCard({ id, title, author, imageUrl, readTime, typeLabel, on
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
         {typeLabel && (
-          <span className="absolute top-3 left-3 inline-flex items-center gap-1.5 text-[10px] tracking-[0.14em] uppercase text-white/90 backdrop-blur-md bg-black/40 px-2.5 py-1 rounded-full border border-white/15">
+          <span className="absolute top-3 left-3 inline-flex items-center gap-1.5 text-[10px] tracking-[0.14em] uppercase text-white backdrop-blur-md bg-black/60 px-2.5 py-1 rounded-full border border-white/15">
             {typeLabel}
           </span>
         )}

@@ -159,9 +159,6 @@ export function ProfileScreen({
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
                 <PageTitle>{user.name}</PageTitle>
-                {user.role === "creator" && (
-                  <Moon className="w-4 h-4 text-purple-400" />
-                )}
               </div>
               {user.email && <p className="text-sm text-white/60 mb-2">{user.email}</p>}
               {user.joinDate && <p className="text-xs text-white/55">Member since {user.joinDate}</p>}
@@ -193,12 +190,12 @@ export function ProfileScreen({
           className="mb-8"
         >
           <div className="grid grid-cols-2 gap-3">
-            <StatCard value={stats.storiesCompleted} label="Stories Completed" />
-            <StatCard value={stats.minutesListened} label="Minutes Listened" />
+            <StatCard value={stats.storiesCompleted} label="Stories finished" />
+            <StatCard value={stats.minutesListened} label="Minutes listened" />
           </div>
         </motion.section>
 
-        {/* Your SEEN — real follow / save / tracker data from the services layer */}
+        {/* Your activity — real follow / save / tracker data from the services layer */}
         <YourSeenSection />
 
         {/* Development Testing - Switch Role */}
@@ -360,9 +357,9 @@ export function ProfileScreen({
           >
             <div className="bg-gradient-to-br from-purple-600/10 to-blue-600/10 border border-purple-500/20 rounded-2xl p-6">
               <div className="mb-3">
-                <h2 className="text-base font-semibold text-white">Share Your Story</h2>
+                <h2 className="text-base font-semibold text-white">Tell a story</h2>
               </div>
-              <p className="text-sm text-white/70 mb-4">Have a story, sound, or vision to share? Create your first piece and join our community of storytellers.</p>
+              <p className="text-sm text-white/70 mb-4">Got a story, a recipe, a song or a family memory worth keeping? Write or record your first piece.</p>
               <button 
                 onClick={() => {
                   // This will trigger role upgrade when they publish
@@ -427,12 +424,6 @@ export function ProfileScreen({
               onClick={onOpenSettings}
             />
             <SettingItem
-              icon={<Moon className="w-5 h-5" />}
-              label="Intent"
-              value={userIntent === "create" ? "Create" : userIntent === "contribute" ? "Contribute" : "Explore"}
-              onClick={onOpenSettings}
-            />
-            <SettingItem
               icon={<Eye className="w-5 h-5" />}
               label="Accessibility"
               value={
@@ -464,11 +455,11 @@ export function ProfileScreen({
           transition={{ delay: 0.45 }}
           className="mb-8"
         >
-          <h2 className="text-sm tracking-wider uppercase text-white/55 mb-4">Community</h2>
+          <h2 className="text-sm tracking-wider uppercase text-white/55 mb-4">Help and guidelines</h2>
           <div className="space-y-2">
             <SettingItem
               icon={<Heart className="w-5 h-5" />}
-              label="Your Contributions"
+              label="Your library"
               onClick={() => onNavigate("library")}
             />
             <SettingItem
@@ -541,7 +532,7 @@ function YourSeenSection() {
   const n = (v?: number) => (counts.status === "ready" && v !== undefined ? String(v) : "—");
   return (
     <section className="mb-8" aria-labelledby="your-seen">
-      <h2 id="your-seen" className="text-sm tracking-wider uppercase text-white/55 mb-4">Your SEEN</h2>
+      <h2 id="your-seen" className="text-sm tracking-wider uppercase text-white/55 mb-4">Your activity</h2>
       <div className="space-y-2">
         <SettingItem icon={<Users className="w-5 h-5" />} label="Following" value={n(counts.data?.following)} onClick={() => nav.go("explore", { tab: "creators" })} />
         <SettingItem icon={<BookmarkCheck className="w-5 h-5" />} label="Saved collections" value={n(counts.data?.saved)} onClick={() => nav.go("collections")} />

@@ -85,7 +85,7 @@ export function LibraryScreen({
           className="mb-8"
         >
           <PageTitle className="mb-2">Library</PageTitle>
-          <p className="text-sm text-white/60">Your saved and in-progress content</p>
+          <p className="text-sm text-white/60">Stories you've saved or started</p>
         </motion.div>
 
         {/* Presence Indicators / Tabs */}
@@ -152,7 +152,7 @@ export function LibraryScreen({
                 {libraryData.completed.length}
               </span>
               <span className="text-sm text-white/55 font-light tracking-wide">
-                {libraryData.completed.length === 1 ? 'Journey' : 'Journeys'} complete
+                {libraryData.completed.length === 1 ? 'Story' : 'Stories'} finished
               </span>
             </div>
           </motion.div>
@@ -230,7 +230,7 @@ export function LibraryScreen({
                 icon="Bookmark"
                 title="Nothing saved yet"
                 message="Tap the bookmark while reading to keep a story here."
-                actionLabel="Explore Stories"
+                actionLabel="Explore stories"
                 onAction={() => onNavigate('explore')}
               />
             )}
@@ -276,9 +276,9 @@ export function LibraryScreen({
             ) : (
               <EmptyState
                 icon="Play"
-                title="No stories in progress"
-                message="Start exploring to see your in-progress content here."
-                actionLabel="Explore Stories"
+                title="Nothing in progress"
+                message="Open a story and it will wait for you here."
+                actionLabel="Explore stories"
                 onAction={() => onNavigate('explore')}
               />
             )}
@@ -315,9 +315,9 @@ export function LibraryScreen({
             ) : (
               <EmptyState
                 icon="Check"
-                title="No completed content"
-                message="Content you finish will appear here."
-                actionLabel="Start Exploring"
+                title="Nothing finished yet"
+                message="Stories you finish are kept here."
+                actionLabel="Find a story"
                 onAction={() => onNavigate('explore')}
               />
             )}

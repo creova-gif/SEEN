@@ -44,8 +44,8 @@ export function FeaturedHero({ item, onExperience }: { item: HeroItem; onExperie
           {item.title}
         </p>
         <p className="text-[13px] leading-[1.5] tracking-[0.1px] text-seen-secondary mt-3">{meta}</p>
-        <Button shape="rounded" className="mt-4 w-40 bg-white text-seen-canvas hover:bg-white/90" icon={<Play className="w-3.5 h-3.5 fill-current" aria-hidden />} onClick={() => onExperience(item.id)} aria-label={`Experience ${item.title}`}>
-          Experience
+        <Button shape="rounded" className="mt-4 w-40 bg-white text-seen-canvas hover:bg-white/90" icon={<Play className="w-3.5 h-3.5 fill-current" aria-hidden />} onClick={() => onExperience(item.id)} aria-label={`Open ${item.title}`}>
+          Start reading
         </Button>
       </div>
     </motion.section>
@@ -86,7 +86,7 @@ export function VoicesToDiscover() {
   if (creators.status !== "ready" || list.length === 0) return null;
   return (
     <section className="mb-12">
-      <SectionHeader title="Voices to discover" subtitle="Creators to follow" onViewAll={() => nav.go("explore", { tab: "creators" })} />
+      <SectionHeader title="Voices to discover" subtitle="Creators on SEEN" onViewAll={() => nav.go("explore", { tab: "creators" })} />
       <Rail>
         {list.map((c: Creator) => (
           <button key={c.id} type="button" data-testid="voice-card" onClick={() => nav.go("creator-profile", { id: c.id })} className="w-[120px] flex-shrink-0 snap-start flex flex-col items-center gap-2 text-center min-h-11">

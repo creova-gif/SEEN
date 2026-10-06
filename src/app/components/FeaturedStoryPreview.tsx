@@ -108,7 +108,7 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
       <div className="absolute inset-0">
         <SeenImage src={storyData.coverImage} alt={storyData.title} seed={storyData.id} decorative className="w-full h-full object-cover" />
         {/* Gradient overlays for readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-black" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/80 to-black" />
       </div>
 
       {/* Content overlay */}
@@ -245,18 +245,6 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
             
           </div>
 
-          {/* Ambient sound notice */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1 }}
-            className="flex items-center gap-2 pt-2"
-          >
-            <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-            <p className="text-xs text-white/55">
-              Ambient soundscape playing
-            </p>
-          </motion.div>
         </motion.div>
       </div>
 

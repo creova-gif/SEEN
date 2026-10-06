@@ -140,7 +140,8 @@ export function publishStory(
     title: toMultilingual(intent.title, languages),
     description: toMultilingual(intent.description, languages),
     creator: toMultilingual(creatorName, languages),
-    coverImage: media.chapters[0]?.images?.[0] || 'https://images.unsplash.com/photo-1487956382158-bb926046304a?w=800&h=1200&fit=crop',
+    // No stock fallback: a story without a cover shows SEEN's own tile rather than someone else's photograph.
+    coverImage: media.chapters[0]?.images?.[0] || '',
     releaseDate: new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
     languagesAvailable: languages,
     culturalThemes: intent.culturalThemes,

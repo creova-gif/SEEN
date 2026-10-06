@@ -27,9 +27,9 @@ export function SubmitResponseModal({
   const getText = (key: string) => {
     const translations: Record<string, Record<string, string>> = {
       title: {
-        en: "Share Your Reflection",
-        fr: "Partagez Votre Réflexion",
-        es: "Comparte Tu Reflexión"
+        en: "Add a reflection",
+        fr: "Ajouter une réflexion",
+        es: "Añadir una reflexión"
       },
       placeholder: {
         en: "What did this chapter evoke for you? Share your thoughts, feelings, or interpretations...",

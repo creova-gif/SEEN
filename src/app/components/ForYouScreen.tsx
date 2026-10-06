@@ -138,8 +138,9 @@ export function ForYouScreen({
             className="mb-8 py-6 border-b border-white/10"
           >
             <p className="text-base text-white/70 leading-relaxed">
-              Welcome. Your space is forming.
+              You are now SEEN.
             </p>
+            <p className="text-sm text-white/70 mt-2">Start with the featured story, or find your theme in Explore.</p>
           </motion.div>
         )}
 
@@ -153,9 +154,6 @@ export function ForYouScreen({
           {/* Editorial Hero Block */}
           <div className="mb-8">
             <PageTitle className="mb-3">For You</PageTitle>
-            <p className="text-base text-white/55 font-light tracking-wide leading-relaxed">
-              Your presence, unfolding in real time.
-            </p>
           </div>
 
           {/* Presence indicators — real counts, each one a shortcut into Explore */}
@@ -164,8 +162,8 @@ export function ForYouScreen({
 
         {/* Continue experiencing — only when there is real progress */}
         {continueItems.length > 0 && (
-          <motion.section initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }} className="mb-12" aria-label="Continue experiencing">
-            <SectionHeader title="Continue experiencing" subtitle="Pick up where you paused" />
+          <motion.section initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }} className="mb-12" aria-label="Keep reading">
+            <SectionHeader title="Keep reading" subtitle="Pick up where you left off" />
             <Rail>
               {continueItems.map(({ content, progress }) => (
                 <RailCard
@@ -202,7 +200,7 @@ export function ForYouScreen({
           >
             <SectionHeader
               title="Featured"
-              subtitle="Hand-picked for you"
+              subtitle="Picked by the SEEN team"
               onViewAll={() => onNavigate('explore')}
             />
             <div className="space-y-4">
@@ -233,8 +231,8 @@ export function ForYouScreen({
             className="mb-12"
           >
             <SectionHeader 
-              title="Trending Now"
-              subtitle="Popular on SEEN"
+              title="Worth your time"
+              subtitle="Our current favourites"
               onViewAll={() => onNavigate('explore')}
               icon={<TrendingUp className="w-5 h-5" />}
             />
@@ -264,8 +262,8 @@ export function ForYouScreen({
             className="mb-12"
           >
             <SectionHeader 
-              title="New Releases"
-              subtitle="Fresh content"
+              title="New"
+              subtitle="Just added"
               onViewAll={() => onNavigate('explore')}
               icon={<Music className="w-5 h-5" />}
             />
@@ -288,15 +286,6 @@ export function ForYouScreen({
 
         <VoicesToDiscover />
 
-        {/* Recommendation reason hint */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.25, delay: 0.2 }}
-          className="text-center text-xs text-white/55 mt-8"
-        >
-          Content personalized for {userIntent === 'explore' ? 'exploration' : userIntent === 'create' ? 'creators' : 'contributors'}
-        </motion.div>
       </main>
 
       {/* Bottom Navigation */}
@@ -311,8 +300,8 @@ function PresenceIndicators({ storyCount }: { storyCount: number }) {
     return { creators: creators.length, collections: collections.length };
   });
   const rows = [
-    { icon: <BookOpen className="w-5 h-5 text-amber-200/70" aria-hidden />, n: storyCount, label: storyCount === 1 ? "Story in motion" : "Stories in motion", tab: "stories" },
-    { icon: <Users className="w-5 h-5 text-violet-200/70" aria-hidden />, n: counts.data?.creators, label: "Creators to follow", tab: "creators" },
+    { icon: <BookOpen className="w-5 h-5 text-amber-200/70" aria-hidden />, n: storyCount, label: storyCount === 1 ? "Story" : "Stories", tab: "stories" },
+    { icon: <Users className="w-5 h-5 text-violet-200/70" aria-hidden />, n: counts.data?.creators, label: "Creators", tab: "creators" },
     { icon: <Folder className="w-5 h-5 text-orange-200/70" aria-hidden />, n: counts.data?.collections, label: "Collections to explore", tab: "collections" },
   ];
   return (

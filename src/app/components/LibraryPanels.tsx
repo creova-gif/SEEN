@@ -46,8 +46,8 @@ export function FollowingPanel({ onChanged }: { onChanged: () => void }) {
         <StateTemplate
           kind="empty"
           icon={<Users className="w-5 h-5" aria-hidden />}
-          title="You're not following anyone yet"
-          message="Follow creators to hear when they publish."
+          title="No creators yet"
+          message="Follow a creator to get their new stories."
           actionLabel="Find creators"
           onAction={() => nav.go("explore", { tab: "creators" })}
         />

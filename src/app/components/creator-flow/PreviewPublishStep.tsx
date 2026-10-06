@@ -28,7 +28,6 @@ export interface PublishData {
   guidelinesAccepted: boolean;
 }
 
-type PreviewMode = 'viewer' | 'language' | 'accessibility';
 
 const VISIBILITY_OPTIONS = [
   {
@@ -57,7 +56,6 @@ export function PreviewPublishStep({
 }: PreviewPublishStepProps) {
   const reducedMotion = prefersReducedMotion();
   
-  const [previewMode, setPreviewMode] = useState<PreviewMode>('viewer');
   const [visibility, setVisibility] = useState<'public' | 'institutional' | 'private'>('public');
   const [institutionalCollection, setInstitutionalCollection] = useState('');
   const [rightsConfirmed, setRightsConfirmed] = useState(false);
@@ -134,48 +132,12 @@ export function PreviewPublishStep({
 
       {/* Preview Modes */}
       <div className="px-5 py-6 border-b border-white/10">
-        <div className="mb-4">
-          <h3 className="text-base font-light tracking-wide mb-2">Preview Modes</h3>
-          <p className="text-xs text-white/55 leading-relaxed">
-            See how your story will appear to different audiences.
-          </p>
-        </div>
-
-        {/* Preview Mode Tabs */}
-        <div className="flex gap-2 mb-4">
-          {[
-            { id: 'viewer', label: 'Viewer', icon: Eye },
-            { id: 'language', label: 'Language', icon: Globe },
-            { id: 'accessibility', label: 'Accessibility', icon: Eye },
-          ].map(({ id, label, icon: Icon }) => {
-            const isActive = previewMode === id;
-            
-            return (
-              <button
-                key={id}
-                type="button"
-                onClick={() => setPreviewMode(id as PreviewMode)}
-                className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg border transition-all ${
-                  isActive
-                    ? 'bg-white/10 border-white/30 text-white'
-                    : 'bg-white/5 border-white/10 text-white/60 hover:border-white/20'
-                }`}
-              >
-                <Icon className="w-4 h-4" strokeWidth={1.5} />
-                <span className="text-xs tracking-wide">{label}</span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Preview Area */}
-        <div className="aspect-[9/16] bg-white/5 border border-white/10 rounded-lg flex items-center justify-center">
-          <div className="text-center px-8">
-            <Play className="w-12 h-12 text-white/55 mx-auto mb-4" strokeWidth={1.5} />
-            <p className="text-sm text-white/60 mb-2">Preview Mode: {previewMode}</p>
-            <p className="text-xs text-white/55">Interactive preview coming soon</p>
-          </div>
-        </div>
+        <h3 className="text-base font-light tracking-wide mb-3">What you are publishing</h3>
+        <dl className="rounded-lg border border-white/10 bg-white/5 divide-y divide-white/10 text-sm">
+          <div className="flex justify-between gap-4 px-4 py-3"><dt className="text-white/70">Title</dt><dd className="text-white text-right">{storyTitle || 'Untitled'}</dd></div>
+          <div className="flex justify-between gap-4 px-4 py-3"><dt className="text-white/70">Chapters</dt><dd className="text-white">{totalChapters}</dd></div>
+          <div className="flex justify-between gap-4 px-4 py-3"><dt className="text-white/70">Languages</dt><dd className="text-white">{storyLanguages.map(l => l.toUpperCase()).join(', ')}</dd></div>
+        </dl>
       </div>
 
       {/* Visibility Settings */}

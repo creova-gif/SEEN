@@ -21,6 +21,12 @@ export function FundingScreen({ initialView = "open" }: { initialView?: View }) 
   const [filtersOpen, setFiltersOpen] = useState(false);
   const resource = useResource(() => Promise.all([api.funding.list(), api.funding.listApplications()]));
 
+  // The date comes from the listings themselves, so it can never drift from the data.
+  const latestCheck = (resource.data?.[0] ?? []).map(o => o.verifiedAt).sort().pop();
+  const checkedLine = latestCheck
+    ? `Listings were last checked against each funder's website on ${new Date(latestCheck).toLocaleDateString("en-CA", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" })}.`
+    : "Listings are checked against each funder's website.";
+
   const regions = useMemo(() => [...new Set(resource.data?.[0].map(o => o.region) ?? [])].sort(), [resource.data]);
   const typesPresent = useMemo(() => new Set(resource.data?.[0].map(o => o.type) ?? []), [resource.data]);
   const TYPES = ALL_TYPES.filter(t => typesPresent.has(t));
@@ -37,7 +43,7 @@ export function FundingScreen({ initialView = "open" }: { initialView?: View }) 
         Real grants, funds and labs for Canadian storytellers. Save one to keep its deadline and your application checklist in one place.
       </p>
       <Banner tone="info" className="mb-5">
-        Listings were checked against each funder's website on Sep 24, 2026. Programs change — always confirm details on the funder's site before applying.
+        {checkedLine} Programs change — always confirm details on the funder's site before applying.
       </Banner>
       <SegmentedTabs<View>
         label="Funding views"
