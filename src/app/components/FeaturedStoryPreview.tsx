@@ -1,8 +1,11 @@
 import { motion } from "motion/react";
-import { ArrowLeft, Play, Volume2, Share2, Bookmark, Lock, Flag, PenLine } from "lucide-react";
+import { ArrowLeft, Play, Share2, Bookmark, Lock, Flag, PenLine } from "lucide-react";
 import { ReportContentSheet } from "./ReportContentSheet";
 import { NoteSheet } from "./NoteSheet";
 import { useState } from "react";
+import { toast } from "sonner";
+import { shareUrl } from "../navigation/shareUrl";
+import { deleteBookmark, isBookmarked, saveBookmark } from "../data/userDataService";
 import { useStoryState } from "../contexts/StoryStateContext";
 import { useAuth } from "../contexts/AuthContext";
 import { getStoryWorldData } from "../data/storyService";
@@ -20,6 +23,7 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const [noteOpen, setNoteOpen] = useState(false);
+  const [savedOverride, setSavedOverride] = useState<boolean | null>(null);
   const { state } = useStoryState();
   const { state: authState } = useAuth();
 
@@ -32,6 +36,34 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
     console.error('[FeaturedStoryPreview] No story data found for:', state.currentStoryWorldId);
     return null;
   }
+
+  const saved = savedOverride ?? (storyData ? isBookmarked(storyData.id) : false);
+  const setSaved = (v: boolean) => setSavedOverride(v);
+
+  const handleShare = async () => {
+    const url = shareUrl(storyData.id);
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: storyData.title, url });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      toast.success("Link copied");
+    } catch (e) {
+      if ((e as Error)?.name !== "AbortError") toast.error("Couldn't share this story. Copy the address from your browser instead.");
+    }
+  };
+
+  const handleToggleSaved = () => {
+    if (saved) {
+      deleteBookmark(storyData.id);
+      toast.success("Removed from Saved");
+    } else {
+      saveBookmark({ contentId: storyData.id, contentType: "story", savedAt: new Date().toISOString() });
+      toast.success("Saved to your Library");
+    }
+    setSaved(!saved);
+  };
 
   const creatorId = creatorIdFromName(storyData.creator);
   const pricing = getContentPricing(storyData.id);
@@ -75,7 +107,7 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
             onClick={onClose}
-            className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center hover:bg-black/60 transition-colors"
+            className="w-11 h-11 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center hover:bg-black/60 transition-colors"
             aria-label="Go back"
           >
             <ArrowLeft className="w-5 h-5 text-white" />
@@ -88,14 +120,17 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
             className="flex gap-2"
           >
             <button 
-              className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center hover:bg-black/60 transition-colors"
+              className="w-11 h-11 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center hover:bg-black/60 transition-colors"
               aria-label="Share"
+              onClick={handleShare}
             >
               <Share2 className="w-4 h-4 text-white" />
             </button>
             <button 
-              className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center hover:bg-black/60 transition-colors"
-              aria-label="Bookmark"
+              className="w-11 h-11 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center hover:bg-black/60 transition-colors"
+              aria-label={saved ? "Remove from Saved" : "Save to Library"}
+              aria-pressed={saved}
+              onClick={handleToggleSaved}
             >
               <Bookmark className="w-4 h-4 text-white" />
             </button>
@@ -206,12 +241,6 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
               {isLocked ? <Lock className="w-4 h-4" /> : <Play className="w-4 h-4 fill-black" />}
             </motion.button>
             
-            <button 
-              className="w-14 h-14 rounded-full bg-white/10 backdrop-blur-sm border border-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
-              aria-label="Adjust volume"
-            >
-              <Volume2 className="w-5 h-5 text-white" />
-            </button>
           </div>
 
           {/* Ambient sound notice */}

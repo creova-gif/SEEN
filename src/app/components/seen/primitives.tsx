@@ -45,7 +45,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       className={cx(
         "inline-flex items-center justify-center gap-2 rounded-full uppercase font-semibold tracking-[0.12em] transition-colors",
         "disabled:opacity-40 disabled:cursor-not-allowed",
-        size === "md" ? "min-h-11 px-6 text-[13px]" : "min-h-9 px-4 text-[11px]",
+        size === "md" ? "min-h-11 px-6 text-[13px]" : "min-h-11 px-4 text-[11px]",
         BUTTON_STYLES[variant],
         fullWidth && "w-full",
         className,
@@ -116,7 +116,7 @@ export function Chip({ selected, className, children, ...rest }: ChipProps) {
       type="button"
       aria-pressed={selected}
       className={cx(
-        "min-h-9 px-4 rounded-full text-xs tracking-wider uppercase whitespace-nowrap transition-colors border flex-shrink-0",
+        "min-h-11 px-4 rounded-full text-xs tracking-wider uppercase whitespace-nowrap transition-colors border flex-shrink-0",
         selected ? "bg-white text-black border-white" : "bg-transparent text-white/60 border-white/15 hover:text-white hover:border-white/30",
         "disabled:opacity-40",
         className,
@@ -304,7 +304,7 @@ export function SegmentedTabs<T extends string>({ tabs, value, onChange, label }
             }}
             tabIndex={active ? 0 : -1}
             className={cx(
-              "flex-1 min-h-9 px-3 rounded-full text-[11px] font-medium tracking-[0.14em] uppercase transition-colors",
+              "flex-1 min-h-11 px-3 rounded-full text-[11px] font-medium tracking-[0.14em] uppercase transition-colors",
               active ? "bg-white text-black" : "text-white/55 hover:text-white",
             )}
           >

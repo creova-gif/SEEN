@@ -865,42 +865,6 @@ function AccountStep({
         </div>
 
         {/* OAuth/Social Login Placeholder - Future Implementation */}
-        {mode !== 'recovery' && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="pt-6 space-y-3"
-          >
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-white/5"></div>
-              </div>
-              <div className="relative flex justify-center text-xs">
-                <span className="px-4 text-white/55 bg-black">Or continue with</span>
-              </div>
-            </div>
-            
-            {/* Social login buttons - disabled for now, ready for future implementation */}
-            <div className="grid grid-cols-2 gap-3 opacity-30 pointer-events-none">
-              <button
-                className="py-3 text-xs text-white/60 bg-white/5 border border-white/10 rounded transition-all duration-300"
-                disabled
-              >
-                Google
-              </button>
-              <button
-                className="py-3 text-xs text-white/60 bg-white/5 border border-white/10 rounded transition-all duration-300"
-                disabled
-              >
-                GitHub
-              </button>
-            </div>
-            <p className="text-[10px] text-white/55 text-center">
-              Social login coming soon
-            </p>
-          </motion.div>
-        )}
       </motion.div>
     </motion.div>
   );

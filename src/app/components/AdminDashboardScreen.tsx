@@ -59,7 +59,7 @@ export function AdminDashboardScreen({ onClose }: AdminDashboardScreenProps) {
           <div className="flex items-center justify-between p-5 pt-8">
             <button
               onClick={onClose}
-              className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors"
+              className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors"
               aria-label={t("Back", "Retour", "Atrás")}
             >
               <ArrowLeft className="w-5 h-5 text-white" />
@@ -82,7 +82,7 @@ export function AdminDashboardScreen({ onClose }: AdminDashboardScreenProps) {
               <button
                 key={key}
                 onClick={() => setTab(key)}
-                className={`flex-1 py-2.5 text-xs transition-all ${
+                className={`flex-1 min-h-11 py-2.5 text-xs transition-all ${
                   tab === key ? "text-white border-b-2 border-blue-400" : "text-white/55 hover:text-white/60"
                 }`}
               >
@@ -145,7 +145,7 @@ export function AdminDashboardScreen({ onClose }: AdminDashboardScreenProps) {
                       </select>
                       <button
                         onClick={() => handleToggleSuspend(u.id, u.status === "suspended")}
-                        className={`px-3 py-2 rounded-lg text-xs flex items-center gap-1.5 transition-colors ${
+                        className={`px-3 min-h-11 rounded-lg text-xs flex items-center gap-1.5 transition-colors ${
                           u.status === "suspended"
                             ? "bg-green-500/10 border border-green-400/20 text-green-300 hover:bg-green-500/20"
                             : "bg-red-500/10 border border-red-400/20 text-red-300 hover:bg-red-500/20"

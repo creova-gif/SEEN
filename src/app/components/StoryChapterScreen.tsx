@@ -18,6 +18,7 @@ import {
 } from "../data/storyDatabase";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ContextCardModal } from "./ContextCardModal";
+import { shareUrl } from "../navigation/shareUrl";
 import { CommunityResponsesPanel } from "./CommunityResponsesPanel";
 import { BranchingChoiceOverlay } from "./BranchingChoiceOverlay";
 import { SubmitResponseModal } from "./SubmitResponseModal";
@@ -168,7 +169,7 @@ export function StoryChapterScreen({
   };
 
   const handleShare = async () => {
-    const url = `${window.location.origin}${window.location.pathname}#/story/${storyWorldId}`;
+    const url = shareUrl(storyWorldId);
     const title = storyWorld ? getLocalizedText(storyWorld.title, state.language) : "SEEN";
     try {
       if (navigator.share) {
@@ -269,7 +270,7 @@ export function StoryChapterScreen({
             <div className="max-w-[428px] mx-auto flex items-center justify-between p-5 pt-8">
               <button
                 onClick={onClose}
-                className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center hover:bg-black/60 transition-colors"
+                className="w-11 h-11 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center hover:bg-black/60 transition-colors"
                 aria-label="Close"
               >
                 <ArrowLeft className="w-5 h-5 text-white" />
@@ -283,14 +284,14 @@ export function StoryChapterScreen({
                 />
                 <button
                   onClick={onShowIndex}
-                  className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center hover:bg-black/60 transition-colors"
+                  className="w-11 h-11 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center hover:bg-black/60 transition-colors"
                   aria-label="Chapter index"
                 >
                   <List className="w-5 h-5 text-white" />
                 </button>
                 <button
                   onClick={handleShare}
-                  className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center hover:bg-black/60 transition-colors"
+                  className="w-11 h-11 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center hover:bg-black/60 transition-colors"
                   aria-label="Share"
                 >
                   <Share2 className="w-4 h-4 text-white" />
@@ -298,7 +299,7 @@ export function StoryChapterScreen({
                 <button
                   onClick={handleToggleSaved}
                   aria-pressed={saved}
-                  className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center hover:bg-black/60 transition-colors"
+                  className="w-11 h-11 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center hover:bg-black/60 transition-colors"
                   aria-label={saved ? "Remove from saved" : "Save story"}
                 >
                   <Bookmark className={`w-4 h-4 text-white ${saved ? "fill-white" : ""}`} />
@@ -306,7 +307,7 @@ export function StoryChapterScreen({
                 <button
                   onClick={() => setSelectedContextCardIndex(contextCards.length > 0 ? 0 : null)}
                   disabled={contextCards.length === 0}
-                  className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center hover:bg-black/60 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-11 h-11 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center hover:bg-black/60 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   aria-label="Info"
                 >
                   <Info className="w-4 h-4 text-white" />
@@ -316,7 +317,7 @@ export function StoryChapterScreen({
                 </button>
                 <button
                   onClick={() => setShowCommunityResponses(true)}
-                  className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center hover:bg-black/60 transition-colors"
+                  className="w-11 h-11 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center hover:bg-black/60 transition-colors"
                   aria-label="Community Responses"
                 >
                   <MessageCircle className="w-4 h-4 text-white" />

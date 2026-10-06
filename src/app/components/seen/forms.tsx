@@ -158,7 +158,7 @@ export function Toggle({ checked, onChange, label, description, disabled }: Togg
         disabled={disabled}
         onClick={() => onChange(!checked)}
         className={cx(
-          "relative w-[52px] h-8 rounded-full flex-shrink-0 transition-colors disabled:opacity-40",
+          "relative w-[52px] h-8 rounded-full flex-shrink-0 transition-colors disabled:opacity-40 before:absolute before:-inset-y-1.5 before:inset-x-0 before:content-['']",
           checked ? "bg-white" : "bg-white/15",
         )}
       >

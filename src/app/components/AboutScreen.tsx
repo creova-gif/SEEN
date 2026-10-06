@@ -107,7 +107,7 @@ export function AboutScreen({ onClose }: AboutScreenProps) {
           <div className="flex items-center justify-between p-5 pt-8">
             <button
               onClick={onClose}
-              className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors"
+              className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors"
               aria-label="Close"
             >
               <ArrowLeft className="w-5 h-5 text-white" />
@@ -245,30 +245,6 @@ export function AboutScreen({ onClose }: AboutScreenProps) {
             </div>
           </motion.div>
 
-          {/* Contact/Social */}
-          <motion.section
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.2 }}
-            className="text-center space-y-4"
-          >
-            <p className="text-sm text-white/55">
-              {state.language === 'en' 
-                ? 'Connect with us'
-                : state.language === 'fr'
-                ? 'Connectez-vous avec nous'
-                : 'Conéctate con nosotros'
-              }
-            </p>
-            <div className="flex justify-center gap-3">
-              <button className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm text-white/70 hover:bg-white/10 transition-colors">
-                Email
-              </button>
-              <button className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm text-white/70 hover:bg-white/10 transition-colors">
-                {state.language === 'en' ? 'Website' : state.language === 'fr' ? 'Site Web' : 'Sitio Web'}
-              </button>
-            </div>
-          </motion.section>
 
           {/* Version footer */}
           <motion.div
@@ -278,14 +254,7 @@ export function AboutScreen({ onClose }: AboutScreenProps) {
             className="pt-12 pb-8 text-center"
           >
             <p className="text-xs text-white/55 mb-2">SEEN v1.0.0</p>
-            <div className="flex justify-center gap-4 text-xs text-white/55">
-              <button className="hover:text-white/60 transition-colors underline">
-                {state.language === 'en' ? 'Privacy Policy' : state.language === 'fr' ? 'Politique de Confidentialité' : 'Política de Privacidad'}
-              </button>
-              <button className="hover:text-white/60 transition-colors underline">
-                {state.language === 'en' ? 'Terms of Use' : state.language === 'fr' ? 'Conditions d\'Utilisation' : 'Términos de Uso'}
-              </button>
-            </div>
+            <p className="text-xs text-white/55">Privacy policy and terms of use are published before public launch.</p>
             <p className="text-xs text-white/55 leading-relaxed max-w-[300px] mx-auto">
               {state.language === 'en' 
                 ? 'Made with care for cultural workers, storytellers, and communities who believe in narrative as resistance.'

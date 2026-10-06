@@ -349,7 +349,7 @@ export function ProfileScreen({
                   // This will trigger role upgrade when they publish
                   onOpenCreatorDashboard?.();
                 }}
-                className="w-full py-2.5 rounded-lg bg-purple-600 text-white text-sm hover:bg-purple-700 transition-colors flex items-center justify-center gap-2"
+                className="w-full min-h-11 py-2.5 rounded-lg bg-purple-600 text-white text-sm hover:bg-purple-700 transition-colors flex items-center justify-center gap-2"
               >
                 <Plus className="w-4 h-4" />
                 Start Creating

@@ -3,7 +3,7 @@
  * Drawer (570:21), Tooltip (570:11). Built on Radix so focus trapping,
  * Escape to close, scroll lock and ARIA roles come for free.
  */
-import type { ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import { X } from "lucide-react";
@@ -22,6 +22,28 @@ function CloseButton() {
   );
 }
 
+/**
+ * Returns focus to whatever opened a dialog, sheet or drawer when it closes
+ * (or unmounts, for sheets that only mount while open). Without this, keyboard
+ * and screen-reader users are dropped back at the top of the page.
+ */
+function useReturnFocus(open: boolean) {
+  const opener = useRef<HTMLElement | null>(null);
+  if (open && !opener.current && typeof document !== "undefined") {
+    const el = document.activeElement;
+    if (el instanceof HTMLElement && el !== document.body) opener.current = el;
+  }
+  const restore = () => {
+    const el = opener.current;
+    opener.current = null;
+    if (el && el.isConnected) setTimeout(() => el.focus(), 0);
+  };
+  useEffect(() => {
+    if (!open) restore();
+  }, [open]);
+  useEffect(() => restore, []);
+}
+
 // ------------------------------------------------------------------------ Dialog
 interface DialogProps {
   open: boolean;
@@ -33,6 +55,7 @@ interface DialogProps {
 }
 
 export function Dialog({ open, onOpenChange, title, description, children, footer }: DialogProps) {
+  useReturnFocus(open);
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal>
@@ -109,6 +132,7 @@ interface PanelProps {
 }
 
 export function Sheet({ open, onOpenChange, title, description, children, footer }: PanelProps) {
+  useReturnFocus(open);
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal>
@@ -132,6 +156,7 @@ export function Sheet({ open, onOpenChange, title, description, children, footer
 
 // ------------------------------------------------------------------ Drawer (side)
 export function Drawer({ open, onOpenChange, title, description, children, footer }: PanelProps) {
+  useReturnFocus(open);
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal>

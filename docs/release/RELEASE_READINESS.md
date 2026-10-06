@@ -43,3 +43,16 @@
 - Fixed: header search and profile buttons, search result selection, About and Institutional screens no longer crash, "See all" works, back button and links work, broken images replaced with a clean placeholder, clearer text contrast, remove-from-library works on phones and asks to confirm.
 - Removed: partner claims that weren't true (story "partners" and publish-wizard institution names).
 - Changed: choosing *Moderator* when signing up now sends a request instead of granting access immediately. Test accounts listed in `docs/testing/USER_TESTING_RC_CHECKLIST.md`.
+
+
+## Before real customers sign up (engineering review gates)
+
+- [ ] Server-side account deletion tested (`npm run test:db`) and the retention matrix reviewed by legal (`docs/security/DATA_RETENTION_MATRIX.md`)
+- [ ] Consent copy, retention statement, terms and privacy pages published
+- [ ] FR and ES copy reviewed for consent, delete, export, report and note strings (`docs/design/COPY_DECK.md`; `copyDeck.test.ts` checks every row has all three languages and matching placeholders)
+- [ ] Supabase paid tier (no auto-pause, backups); backup and restore drill done
+- [ ] Staging project passes RLS suite, security advisors and the contract suite on both adapters
+- [ ] Google OAuth consent screen, domain verification and privacy policy URL ready
+- [ ] A named person reviews reports (needed before notes ship to real users)
+- [ ] Error tracking with PII scrubbing; health check; secret scan green
+- [ ] Keyboard-only journeys (report, delete, note) and axe journeys pass

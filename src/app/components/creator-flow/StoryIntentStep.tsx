@@ -191,7 +191,7 @@ export function StoryIntentStep({
                   transition={{ ...TRANSITIONS.organic, delay: 0.4 + (index * 0.03) }}
                   whileHover={!reducedMotion ? { scale: 1.05 } : undefined}
                   whileTap={!reducedMotion ? { scale: 0.98 } : undefined}
-                  className={`px-3 py-2 text-xs tracking-wide rounded-lg border transition-all duration-300 ${
+                  className={`px-3 min-h-11 text-xs tracking-wide rounded-lg border transition-all duration-300 ${
                     isSelected
                       ? 'bg-white/10 text-white border-white/30'
                       : 'bg-white/5 text-white/60 border-white/10 hover:border-white/20'

@@ -320,7 +320,7 @@ function ModerationCard({
       <div className="flex gap-2">
         <button
           onClick={() => onApprove(response.id)}
-          className="flex-1 py-2 rounded-lg bg-green-500/20 border border-green-400/30 text-sm text-green-300 hover:bg-green-500/30 transition-colors flex items-center justify-center gap-2"
+          className="flex-1 min-h-11 py-2 rounded-lg bg-green-500/20 border border-green-400/30 text-sm text-green-300 hover:bg-green-500/30 transition-colors flex items-center justify-center gap-2"
         >
           <CheckCircle className="w-4 h-4" />
           Approve
@@ -331,7 +331,7 @@ function ModerationCard({
             const reason = prompt("Rejection reason:");
             if (reason) onReject(response.id, reason);
           }}
-          className="flex-1 py-2 rounded-lg bg-red-500/20 border border-red-400/30 text-sm text-red-300 hover:bg-red-500/30 transition-colors flex items-center justify-center gap-2"
+          className="flex-1 min-h-11 py-2 rounded-lg bg-red-500/20 border border-red-400/30 text-sm text-red-300 hover:bg-red-500/30 transition-colors flex items-center justify-center gap-2"
         >
           <XCircle className="w-4 h-4" />
           Reject
@@ -342,7 +342,7 @@ function ModerationCard({
             const reason = prompt("Flag reason:");
             if (reason) onFlag(response.id, reason);
           }}
-          className="px-4 py-2 rounded-lg bg-amber-500/20 border border-amber-400/30 text-sm text-amber-300 hover:bg-amber-500/30 transition-colors"
+          className="px-4 min-h-11 py-2 rounded-lg bg-amber-500/20 border border-amber-400/30 text-sm text-amber-300 hover:bg-amber-500/30 transition-colors"
         >
           Flag
         </button>
@@ -589,7 +589,7 @@ export function ModerationGovernanceSystem({ onBack }: ModerationGovernanceSyste
           <div className="flex items-center gap-3">
             <button
               onClick={onBack}
-              className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors"
+              className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors"
             >
               <motion.div
                 initial={{ x: 0 }}

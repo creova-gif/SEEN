@@ -110,7 +110,7 @@ export function CommunityResponsesPanel({
                 </div>
                 <button
                   onClick={onClose}
-                  className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors flex-shrink-0"
+                  className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors flex-shrink-0"
                   aria-label="Close"
                 >
                   <X className="w-5 h-5 text-white/70" />
@@ -191,13 +191,7 @@ export function CommunityResponsesPanel({
                       {response.type === "audio" && (
                         <div className="mb-3 p-3 rounded-lg bg-white/5 border border-white/10">
                           <div className="flex items-center gap-3">
-                            <button className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
-                              <div className="w-0 h-0 border-l-[8px] border-l-white border-t-[5px] border-t-transparent border-b-[5px] border-b-transparent ml-0.5" />
-                            </button>
-                            <div className="flex-1 h-1 rounded-full bg-white/10">
-                              <div className="w-1/3 h-full rounded-full bg-white/30" />
-                            </div>
-                            <span className="text-xs text-white/55">0:45</span>
+                            <span className="text-xs text-white/70">Audio response</span>
                           </div>
                         </div>
                       )}

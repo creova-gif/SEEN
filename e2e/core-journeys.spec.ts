@@ -295,3 +295,47 @@ test.describe("guest-first return", () => {
     await expect(page).toHaveURL(/#\/story\/midnight-resonance$/);
   });
 });
+
+test.describe("keyboard-only", () => {
+  test("report sheet traps focus, closes on Escape and returns focus to its button", async ({ page }) => {
+    await signInAs(page, "viewer");
+    await page.goto("/#/creator/kira-chen");
+    const trigger = page.getByRole("button", { name: /report this profile/i });
+    await trigger.focus();
+    await page.keyboard.press("Enter");
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toBeVisible();
+    for (let i = 0; i < 12; i++) {
+      await page.keyboard.press("Tab");
+      await expect(dialog.locator(":focus")).toHaveCount(1);
+    }
+    await page.keyboard.press("Escape");
+    await expect(dialog).toBeHidden();
+    await expect(trigger).toBeFocused();
+  });
+
+  test("delete account asks first and Escape cancels without deleting", async ({ page }) => {
+    await signInAs(page, "viewer");
+    await page.goto("/#/account");
+    const del = page.getByRole("button", { name: /delete my account/i });
+    await del.focus();
+    await page.keyboard.press("Enter");
+    await expect(page.getByRole("alertdialog").or(page.getByRole("dialog"))).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(page.getByRole("alertdialog").or(page.getByRole("dialog"))).toBeHidden();
+    await expect(del).toBeFocused();
+    await expect(page).toHaveURL(/#\/account$/);
+  });
+
+  test("note sheet can be completed with the keyboard alone", async ({ page }) => {
+    await signInAs(page, "viewer");
+    await page.goto("/#/story/midnight-resonance");
+    await page.getByRole("button", { name: /write a private note/i }).focus();
+    await page.keyboard.press("Enter");
+    await page.getByLabel(/your note/i).focus();
+    await page.keyboard.type("Typed without a mouse");
+    await page.getByRole("button", { name: /send note/i }).focus();
+    await page.keyboard.press("Enter");
+    await expect(page.getByText(/creator will see your note/i)).toBeVisible();
+  });
+});

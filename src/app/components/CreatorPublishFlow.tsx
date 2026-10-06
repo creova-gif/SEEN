@@ -157,7 +157,7 @@ function IntentWrapper({ children, onClose }: { children: React.ReactNode; onClo
     <div className="relative">
       <button
         onClick={onClose}
-        className="fixed top-6 right-5 z-10 w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors text-white/70"
+        className="fixed top-6 right-5 z-10 w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors text-white/70"
         aria-label="Close"
       >
         ✕

@@ -74,7 +74,7 @@ export function SearchScreen({ onClose, onSelectStory }: SearchScreenProps) {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={onClose}
-                className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center"
+                className="w-11 h-11 rounded-full bg-white/5 flex items-center justify-center"
                 aria-label="Close search"
               >
                 <X className="w-4 h-4 text-white/70" />
