@@ -142,7 +142,7 @@ test("200% zoom and Larger text: no sideways scroll, no clipped controls, nav st
   // 640 CSS px = a 1280 px desktop at 200% zoom; 320 CSS px = 400% (WCAG 1.4.10 reflow). Larger text on top.
   for (const [w, large] of [[640, false], [640, true], [320, true], [390, true]] as const) {
     await page.setViewportSize({ width: w, height: 800 });
-    for (const r of ["for-you", "explore", "library", "profile", "settings", "search", "funding", "story/midnight-resonance"]) {
+    for (const r of ["for-you", "explore", "library", "profile", "settings", "search", "funding", "collections", "story/midnight-resonance"]) {
       await page.goto(`/#/${r}`);
       await page.evaluate(v => { document.documentElement.dataset.text = v ? "large" : "normal"; }, large);
       await page.waitForTimeout(500);

@@ -18,7 +18,7 @@ export function CollectionsPanel({ initialKind }: { initialKind?: CollectionKind
 
   return (
     <div>
-      <div className="flex gap-2 mb-5 overflow-x-auto scrollbar-hide -mx-5 px-5" role="group" aria-label="Filter collections">
+      <div className="flex gap-2 mb-5 overflow-x-auto scrollbar-hide -mx-gutter px-gutter" role="group" aria-label="Filter collections">
         <Chip selected={!kind} onClick={() => setKind(undefined)}>All</Chip>
         <Chip selected={kind === "thematic"} onClick={() => setKind("thematic")}>Thematic</Chip>
         {hasInstitutional && (
