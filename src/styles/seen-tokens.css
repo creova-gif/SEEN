@@ -68,6 +68,9 @@
   --seen-content-max: 428px;   /* mobile-first column used by every screen */
   --seen-gutter: 20px;         /* horizontal page padding; 24px from 360px up (Figma) */
   --seen-nav-height: 64px;     /* bottom navigation (Figma 316:82) */
+  /* Content clears the fixed header (68px + notch) and the bottom nav (64px + home indicator). */
+  --seen-header-offset: calc(5rem + env(safe-area-inset-top, 0px));
+  --seen-nav-clearance: calc(var(--seen-nav-height) + env(safe-area-inset-bottom, 0px) + 2rem);
   --seen-touch-min: 44px;      /* minimum hit area (WCAG 2.5.8 / Fitts) */
 
   /* Motion */
@@ -90,6 +93,8 @@
 
 @theme inline {
   --spacing-gutter: var(--seen-gutter);
+  --spacing-header: var(--seen-header-offset);
+  --spacing-clearance: var(--seen-nav-clearance);
   --font-seen-display: var(--seen-font-display);
   --font-seen-mono: var(--seen-font-mono);
   --height-seen-nav: var(--seen-nav-height);

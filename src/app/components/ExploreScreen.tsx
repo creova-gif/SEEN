@@ -76,7 +76,7 @@ export function ExploreScreen({
     
     return (
       <div className="min-h-dvh bg-black">
-        <div className="pt-20 pb-24">
+        <div className="pt-header pb-clearance px-gutter">
           <EmptyState
             icon="Compass"
             title={text.title}
@@ -99,7 +99,7 @@ export function ExploreScreen({
     >
 
       {/* Main Content */}
-      <main className="pt-20 pb-24 px-gutter max-w-[428px] mx-auto">
+      <main className="pt-header pb-clearance px-gutter max-w-[428px] mx-auto">
         <DemoModeNotice />
         {/* Header */}
         <motion.div

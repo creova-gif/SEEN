@@ -199,9 +199,9 @@ function AppContent() {
     if (["for-you", "explore", "library", "profile"].includes(screen)) trackedGo(screen);
   };
 
-  const isTab = TAB_SCREENS.includes(currentScreen);
   const role = state.userRole;
   const allowed = canAccess(currentScreen, role);
+  const isTab = TAB_SCREENS.includes(currentScreen) && allowed;
   useEffect(() => {
     if (!allowed) track("access_denied", { screen: currentScreen, role });
   }, [allowed, currentScreen, role]);
@@ -217,7 +217,7 @@ function AppContent() {
         {isTab && <BottomNav activeTab={currentScreen as "for-you" | "explore" | "library" | "profile"} onNavigate={handleNavigate} />}
         <Suspense
           fallback={
-            <div className="max-w-[428px] mx-auto px-5 pt-20">
+            <div className="max-w-[428px] mx-auto px-gutter pt-header">
               <SkeletonList count={4} label="Loading" />
             </div>
           }

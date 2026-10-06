@@ -97,7 +97,7 @@ export function ForYouScreen({
     
     return (
       <div className="min-h-dvh bg-black">
-        <div className="pt-20 pb-24">
+        <div className="pt-header pb-clearance px-gutter"><DemoModeNotice />
           <EmptyState
             icon="Compass"
             title={text.title}
@@ -119,11 +119,11 @@ export function ForYouScreen({
       className="min-h-dvh bg-black"
     >
 
-      {/* Editorial hero (Figma 316:2), full-bleed under the translucent header */}
-      {heroItem && <FeaturedHero item={heroItem} onExperience={onStoryClick} />}
-
       {/* Main Content */}
-      <main className={`${heroItem ? "pt-6" : "pt-20"} pb-[calc(var(--seen-nav-height)+2rem)] px-gutter max-w-[428px] mx-auto`}>
+      <main className={`${heroItem ? "pt-0" : "pt-header"} pb-clearance px-gutter max-w-[428px] mx-auto`}>
+        {/* Editorial hero (Figma 316:2), full-bleed under the translucent header */}
+        {heroItem && <FeaturedHero item={heroItem} onExperience={onStoryClick} />}
+        {heroItem && <div aria-hidden className="h-6" />}
         <DemoModeNotice />
         {/* Welcome Message for First Visit */}
         {isFirstVisit && (

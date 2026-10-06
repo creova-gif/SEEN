@@ -132,7 +132,7 @@ export function ProfileScreen({
       {/* Navigation */}
 
       {/* Main Content */}
-      <main className="pt-20 pb-24 px-gutter max-w-[428px] mx-auto">
+      <main className="pt-header pb-clearance px-gutter max-w-[428px] mx-auto">
         <DemoModeNotice />
         {/* Profile Header */}
         <motion.section
@@ -151,7 +151,7 @@ export function ProfileScreen({
             {/* User Info */}
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
-                <PageTitle className="text-2xl min-[360px]:text-[34px]">{user.name}</PageTitle>
+                <PageTitle>{user.name}</PageTitle>
                 {user.role === "creator" && (
                   <Moon className="w-4 h-4 text-purple-400" />
                 )}

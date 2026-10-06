@@ -30,7 +30,7 @@ export function FeaturedHero({ item, onExperience }: { item: HeroItem; onExperie
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={TRANSITIONS.default}
-      className="relative mx-auto max-w-[428px] h-[520px] overflow-hidden bg-seen-canvas"
+      className="relative -mx-gutter h-[520px] overflow-hidden bg-seen-canvas"
     >
       <SeenImage src={item.mediaSource} alt="" decorative seed={item.id} className="absolute inset-0 w-full h-full object-cover" />
       <div aria-hidden className="absolute inset-x-0 bottom-0 h-[300px] bg-gradient-to-b from-transparent to-seen-canvas" />
@@ -38,9 +38,9 @@ export function FeaturedHero({ item, onExperience }: { item: HeroItem; onExperie
         <p className="font-seen-mono text-[11px] leading-[1.3] tracking-[0.8px] uppercase text-white">
           Editor&rsquo;s feature · {item.type}
         </p>
-        <h2 id="hero-title" className="font-seen-display text-[34px] font-normal leading-[1.16] tracking-[-0.5px] text-white mt-2 max-w-[300px]">
+        <p id="hero-title" className="font-seen-display text-[34px] font-normal leading-[1.16] tracking-[-0.5px] text-white mt-2 max-w-[300px]">
           {item.title}
-        </h2>
+        </p>
         <p className="text-[13px] leading-[1.5] tracking-[0.1px] text-seen-secondary mt-3">{meta}</p>
         <Button shape="rounded" className="mt-4 w-40 bg-white text-seen-canvas hover:bg-white/90" icon={<Play className="w-3.5 h-3.5 fill-current" aria-hidden />} onClick={() => onExperience(item.id)} aria-label={`Experience ${item.title}`}>
           Experience

@@ -44,6 +44,10 @@ Full inventory and the remaining recommendations: `docs/design/audit/MOTION_AUDI
 
 `e2e/for-you-alignment.spec.ts`: widths 320, 360, 375, 390, 414, 430, 768, 1024, 1280, 1440 (no horizontal overflow, gutter 20/24, nav 64 px, four equal columns, 11 px labels, 600-weight section titles); heights 568, 667, 844, 1000 (nav flush to the bottom, last content clears the nav); hero is 520×, CTA 160 wide and ≥ 44 high, only one button, opens the story; reduced motion zeroes transitions; header does not replay on tab switch; first content of Explore, Library and Profile clears the fixed header. `e2e/audit/ux-audit.spec.ts` still guards tap targets and nav occlusion for all roles. Mobile landscape and real browser-chrome behaviour need a physical-device check.
 
+## Independent review (read-only agent) and what was fixed
+
+Fixed after review: safe-area top offset (new `--seen-header-offset` / `pt-header`, so notched phones do not hide the first content), bottom clearance includes the home-indicator inset (`pb-clearance`), hero moved inside `<main>` with its title as a paragraph (one h1, correct landmark and heading order), tab chrome hidden on role-denied screens, demo note also on empty states, profile title size conflict removed, `h-screen` in Search replaced. Not changed: hard-coded English in the new rails (the rest of For You is also English; translating the whole screen is a separate task) and the older header motion blocks in Explore, Library and Profile (listed in the motion audit).
+
 ## Remaining differences (not hidden)
 
 - **No Figma-matching data yet, so not built:** "Because you listened to …" (needs recommendations), the regional feature card "Songs of the Basin" (needs curated regional data), "Trending conversations" (needs a conversations feature), and "A project seeking support" pill (E3, gated on the legal check on linking stories to real funders).
