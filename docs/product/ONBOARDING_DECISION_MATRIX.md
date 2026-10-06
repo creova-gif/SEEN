@@ -1,13 +1,14 @@
 # Onboarding decision matrix
 
 Previous flow: Language, Invocation, Purpose, Role, Intent, Account, Accessibility, Presence, Threshold = **9 screens**, no back control, no progress.
-New flow: Language, "What brings you to SEEN?", "What are you interested in?" (optional), Account = **4 screens**, with Back and "Step n of 3", then straight into For You.
+Current flow: Language, **Invocation (entry button, protected)**, **Manifesto "This is not social media" (protected)**, then "What brings you to SEEN?", "What are you interested in?" (optional), Account, with Back and "Step n of 3" on those last three, then straight into For You.
 
 | Screen | Decision | Reason | Where its data went |
 |---|---|---|---|
 | Language | KEEP | Drives every string | `state.language` (unchanged) |
-| Invocation (splash button) | MERGE into Purpose | One brand moment, no extra tap | none |
-| Purpose (manifesto) | REMOVE | Marketing text, no data | none |
+| Invocation (glowing S.E.E.N entry button) | KEEP (protected) | The owner's first screen and one brand moment. It was merged away by mistake in the first cut and restored | none |
+| Purpose (manifesto, "This is not social media") | KEEP (protected) | States what SEEN is before any question is asked. Restored on the owner's instruction | none |
+| What brings you to SEEN? | ADD | Replaces the old Role and Intent screens (see below) | `role` and `intent` via `roleAndIntentFor` |
 | Role | MERGE into "What brings you here?" | Creator is implied by "Share my story" or "Build an audience"; viewer otherwise | `role` derived by `roleAndIntentFor`; account role stays authoritative |
 | Intent | MERGE into "What brings you here?" | Same question | `intent` derived (create / contribute / explore) |
 | What are you interested in? | ADD (optional, skippable) | Real topics from the catalogue; replaces typing | `state.interests`, used for the "Based on your interests" rail on For You |
@@ -24,7 +25,7 @@ New flow: Language, "What brings you to SEEN?", "What are you interested in?" (o
 
 ## Protected first screen
 
-The Invocation screen (glowing S.E.E.N entry button, "You are entering SEEN.") is the first thing a new visitor sees after choosing a language. It was merged away in the nine-to-four cut by mistake and restored on the owner's instruction. It is not counted in "Step n of 3" and must not be removed. Guarded by the e2e test "the first screen is the glowing S.E.E.N entry button".
+The Invocation screen (glowing S.E.E.N entry button, "You are entering SEEN.") is the first thing a new visitor sees after choosing a language. It was merged away in the nine-to-four cut and restored on the owner's instruction. It is not counted in "Step n of 3" and must not be removed. Guarded by the e2e test "the first screen is the glowing S.E.E.N entry button".
 
 ## Protected manifesto screen
 
