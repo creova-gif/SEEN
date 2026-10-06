@@ -205,6 +205,7 @@ describe("playback engine", () => {
   });
 
   it("lets the listener change playback speed and remembers it", async () => {
+    installFakeVoice();
     localStorage.removeItem("seen.v1.playbackRate");
     render(
       <PlaybackProvider>
