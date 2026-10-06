@@ -33,6 +33,8 @@ test.describe("keyboard-only journeys", () => {
     await page.goto("/");
     await tabTo(page, /s\W*e\W*e\W*n/i);
     await page.keyboard.press("Enter");
+    // Each onboarding screen fades out before the next fades in; wait for it so Tab starts on the real page.
+    await expect(page.getByRole("heading", { name: /this is not\s+social media/i })).toBeVisible();
     await tabTo(page, /^continue$/i);
     await page.keyboard.press("Enter");
     // The entry screen fades out before the first step fades in; wait for it so Tab starts on the real page.
