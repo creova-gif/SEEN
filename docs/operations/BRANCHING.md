@@ -13,7 +13,6 @@ Flow: `feature/*` or `fix/*` → `dev` → `staging` → `main`.
 | `dev` | Integration branch for ongoing work. May contain merged but unfinished features. | Vercel preview alias `seen-git-dev-creovas-projects.vercel.app` (Vercel login required) | **Developers** |
 | `feature/<name>` | One feature, branched from `dev`. | Per-push Vercel preview | Author and reviewers |
 | `fix/<name>` | One bug fix, branched from `dev` (or from `main` for a hotfix). | Per-push Vercel preview | Author and reviewers |
-| `archive/*` (tags) | Frozen copies of retired branches. Never developed on. | none | nobody |
 
 `develop` and `release/*` are not used; `dev` and `staging` play those roles.
 

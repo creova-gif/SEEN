@@ -4,7 +4,7 @@
 
 ## Other SEEN branches in this repository (audited 2026-10-06)
 
-All were compared against `main`. Nothing was deleted. Branches with unique commits are preserved by an `archive/<name>` tag.
+All were compared against `main`. Nothing was deleted: every branch below still exists with its history. Branches marked "archived" are frozen; do not develop on them. (Creating `archive/*` tags was attempted but the push was refused with HTTP 403 from the tooling used; a repository owner can add them with `git tag archive/<name> origin/<branch> && git push origin --tags` if wanted.)
 
 | Branch | State vs `main` | Verdict |
 |---|---|---|
