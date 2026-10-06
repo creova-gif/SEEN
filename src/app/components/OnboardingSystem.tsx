@@ -8,16 +8,18 @@ import { localizeError } from "../i18n/strings";
 import { useStoryState } from "../contexts/StoryStateContext";
 import type { UserRole, UserIntent, Language } from "../contexts/StoryStateContext";
 import { LanguageSelectionScreen } from "./LanguageSelectionScreen";
+import { OnboardingPurpose } from "./OnboardingPurpose";
 import { PurposeStep, InterestsStep, roleAndIntentFor, type Purpose } from "./OnboardingOrientation";
 
 /**
  * ONBOARDING SYSTEM
  * SEEN by CREOVA
  *
- * Five screens (was nine). Each earns its place:
+ * Six screens (was nine). Each earns its place:
  * 0. Language: drives every string; required before anything else.
  * 0b. Invocation: the first screen with the glowing S.E.E.N button. PROTECTED:
  *    never remove or merge it (owner decision; an e2e test guards it).
+ * 0c. Manifesto ("This is not social media", OnboardingPurpose.tsx). PROTECTED likewise.
  * 1. Purpose: "What brings you to SEEN?" (tap, multi-select). Sets role and intent.
  * 2. Interests: topics from the real catalogue (tap, optional). Feeds For You.
  * 3. Account: needed to save progress.
@@ -36,7 +38,7 @@ interface OnboardingSystemProps {
   hasEnteredSEEN?: boolean;
 }
 
-type OnboardingLayer = "language" | "invocation" | "orientation";
+type OnboardingLayer = "language" | "invocation" | "manifesto" | "orientation";
 type OrientationStep = "purpose" | "interests" | "account" | "entering";
 const ORIENTATION_STEPS: OrientationStep[] = ["purpose", "interests", "account"];
 
@@ -63,7 +65,9 @@ export function OnboardingSystem({ onComplete, initialStep = 0, hasEnteredSEEN =
     setCurrentLayer("invocation");
   };
 
-  const handleInvocationComplete = () => {
+  const handleInvocationComplete = () => setCurrentLayer("manifesto");
+
+  const handleManifestoComplete = () => {
     localStorage.setItem("hasEnteredSEEN", "true");
     setCurrentLayer("orientation");
     setCurrentStep("purpose");
@@ -123,6 +127,8 @@ export function OnboardingSystem({ onComplete, initialStep = 0, hasEnteredSEEN =
         {currentLayer === "language" && <LanguageSelectionScreen key="language" onSelectLanguage={handleLanguageSelect} />}
 
         {currentLayer === "invocation" && <InvocationLayer key="invocation" onComplete={handleInvocationComplete} />}
+
+        {currentLayer === "manifesto" && <OnboardingPurpose key="manifesto" onNext={handleManifestoComplete} />}
 
         {currentLayer === "orientation" && currentStep !== "entering" && (
           <motion.div key="orientation" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="min-h-dvh flex flex-col">

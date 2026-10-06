@@ -3,6 +3,7 @@ import { expect, signInAs, test } from "./fixtures";
 /** The first screen: the glowing S.E.E.N entry button. It must never be removed. */
 async function enterSeen(page: import("@playwright/test").Page) {
   await page.getByRole("button", { name: /s\W*e\W*e\W*n/i }).click();
+  await page.getByRole("button", { name: /^continue$/i }).click();
 }
 
 test.describe("first visit", () => {
@@ -12,6 +13,8 @@ test.describe("first visit", () => {
     await expect(enter).toBeVisible();
     await expect(page.getByText(/you are entering seen/i)).toBeVisible();
     await enter.click();
+    await expect(page.getByRole("heading", { name: /this is not\s+social media/i })).toBeVisible();
+    await page.getByRole("button", { name: /^continue$/i }).click();
     await expect(page.getByText(/step 1 of 3/i)).toBeVisible();
   });
 

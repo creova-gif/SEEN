@@ -25,3 +25,7 @@ New flow: Language, "What brings you to SEEN?", "What are you interested in?" (o
 ## Protected first screen
 
 The Invocation screen (glowing S.E.E.N entry button, "You are entering SEEN.") is the first thing a new visitor sees after choosing a language. It was merged away in the nine-to-four cut by mistake and restored on the owner's instruction. It is not counted in "Step n of 3" and must not be removed. Guarded by the e2e test "the first screen is the glowing S.E.E.N entry button".
+
+## Protected manifesto screen
+
+The screen after the entry button ("This is not social media": image, three short lines, Continue) is also protected. It was removed in the same cut and restored on the owner's instruction with a new background image (open books, from the catalogue). Flow: language, entry button, manifesto, then Step 1 of 3. Guarded by the e2e test "the first screen is the glowing S.E.E.N entry button", which also checks the manifesto heading.
