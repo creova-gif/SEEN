@@ -58,7 +58,7 @@ export function StoryChapterScreen({
   // Early return if no chapter is found
   if (!currentChapter) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-dvh bg-black flex items-center justify-center">
         <div className="text-white/60 text-center px-5">
           <p className="mb-4">No chapters available</p>
           <button 

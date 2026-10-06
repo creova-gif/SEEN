@@ -6,15 +6,18 @@
  * NO hardcoded content - all data from queries
  */
 
+import { DemoModeNotice } from "./DemoModeNotice";
+import { PageTitle } from "./seen/primitives";
 import { motion } from "motion/react";
-import { NavigationBar } from "./NavigationBar";
-import { BottomNav } from "./seen/BottomNav";
 import { useAppNav } from "../navigation/AppNav";
 import { api } from "../services";
 import { useResource } from "../hooks/useResource";
 import { ContentCard } from "./ContentCard";
 import { StoryCard } from "./StoryCard";
 import { SectionHeader } from "./SectionHeader";
+import { FeaturedHero, Rail, RailCard, VoicesToDiscover } from "./ForYouSections";
+import { useStoryState } from "../contexts/StoryStateContext";
+import { getLibraryStories } from "../data/storyService";
 import { EmptyState } from "./EmptyState";
 import { Play, TrendingUp, Music, Film, BookOpen, Archive, Folder, Users, Home, Compass, Library, User } from "lucide-react";
 import type { ContentLanguage, UserIntent } from "../data/types";
@@ -46,6 +49,9 @@ export function ForYouScreen({
   language,
   isFirstVisit
 }: ForYouScreenProps) {
+  const { state: storyState } = useStoryState();
+  const continueItems = getLibraryStories(storyState.progressSnapshots, language as Language).inProgress.slice(0, 6);
+
   // Get personalized feed from story service
   const feedItems = getForYouFeed({
     language: language as Language,
@@ -55,7 +61,9 @@ export function ForYouScreen({
   
 
   // Separate content types
-  const featuredContent = feedItems.filter(item => item.featured).slice(0, 2);
+  const featuredAll = feedItems.filter(item => item.featured);
+  const heroItem = featuredAll[0] ?? null;
+  const featuredContent = featuredAll.slice(1, 3);
   const trendingContent = feedItems.filter(item => item.trending && !item.featured).slice(0, 3);
   const newContent = feedItems.filter(item => item.new && !item.featured && !item.trending).slice(0, 3);
   const allStories = feedItems.slice(0, 8);
@@ -88,8 +96,7 @@ export function ForYouScreen({
     const text = emptyStateText[language as Language] || emptyStateText.en;
     
     return (
-      <div className="min-h-screen bg-black">
-        <NavigationBar onSearch={onSearch} />
+      <div className="min-h-dvh bg-black">
         <div className="pt-20 pb-24">
           <EmptyState
             icon="Compass"
@@ -99,7 +106,6 @@ export function ForYouScreen({
             onAction={() => onNavigate('explore')}
           />
         </div>
-        <BottomNav onNavigate={onNavigate} activeTab="for-you" />
       </div>
     );
   }
@@ -109,13 +115,16 @@ export function ForYouScreen({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.4 }}
-      className="min-h-screen bg-black"
+      transition={{ duration: 0.2 }}
+      className="min-h-dvh bg-black"
     >
-      <NavigationBar />
+
+      {/* Editorial hero (Figma 316:2), full-bleed under the translucent header */}
+      {heroItem && <FeaturedHero item={heroItem} onExperience={onStoryClick} />}
 
       {/* Main Content */}
-      <main className="pt-20 pb-24 px-5 max-w-[428px] mx-auto">
+      <main className={`${heroItem ? "pt-6" : "pt-20"} pb-[calc(var(--seen-nav-height)+2rem)] px-gutter max-w-[428px] mx-auto`}>
+        <DemoModeNotice />
         {/* Welcome Message for First Visit */}
         {isFirstVisit && (
           <motion.div
@@ -133,16 +142,14 @@ export function ForYouScreen({
 
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
+          transition={{ duration: 0.25 }}
           className="mb-8"
         >
           {/* Editorial Hero Block */}
           <div className="mb-8">
-            <h1 className="text-4xl font-light text-white/95 mb-3 tracking-tight">
-              For You
-            </h1>
+            <PageTitle className="mb-3">For You</PageTitle>
             <p className="text-base text-white/50 font-light tracking-wide leading-relaxed">
               Your presence, unfolding in real time.
             </p>
@@ -152,12 +159,30 @@ export function ForYouScreen({
           <PresenceIndicators storyCount={feedItems.length} />
         </motion.div>
 
+        {/* Continue experiencing — only when there is real progress */}
+        {continueItems.length > 0 && (
+          <motion.section initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }} className="mb-12" aria-label="Continue experiencing">
+            <SectionHeader title="Continue experiencing" subtitle="Pick up where you paused" />
+            <Rail>
+              {continueItems.map(({ content, progress }) => (
+                <RailCard
+                  key={content.id}
+                  w={240}
+                  h={140}
+                  onSelect={onStoryClick}
+                  item={{ id: content.id, title: content.title, eyebrow: `${progress.progressPercentage}% read`, subtitle: content.creator, imageUrl: content.mediaSource }}
+                />
+              ))}
+            </Rail>
+          </motion.section>
+        )}
+
         {/* Featured Content */}
         {featuredContent.length > 0 && (
           <motion.section
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
+            transition={{ duration: 0.25, delay: 0.05 }}
             className="mb-12"
           >
             <SectionHeader
@@ -187,9 +212,9 @@ export function ForYouScreen({
         {/* Trending */}
         {trendingContent.length > 0 && (
           <motion.section
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
+            transition={{ duration: 0.25, delay: 0.1 }}
             className="mb-12"
           >
             <SectionHeader 
@@ -198,7 +223,7 @@ export function ForYouScreen({
               onViewAll={() => onNavigate('explore')}
               icon={<TrendingUp className="w-5 h-5" />}
             />
-            <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-5 px-5">
+            <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-gutter px-gutter">
               {trendingContent.map(item => (
                 <StoryCard
                   key={item.id}
@@ -218,9 +243,9 @@ export function ForYouScreen({
         {/* New Releases */}
         {newContent.length > 0 && (
           <motion.section
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
+            transition={{ duration: 0.25, delay: 0.15 }}
             className="mb-12"
           >
             <SectionHeader 
@@ -229,7 +254,7 @@ export function ForYouScreen({
               onViewAll={() => onNavigate('explore')}
               icon={<Music className="w-5 h-5" />}
             />
-            <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-5 px-5">
+            <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-gutter px-gutter">
               {newContent.map(item => (
                 <StoryCard
                   key={item.id}
@@ -246,11 +271,13 @@ export function ForYouScreen({
           </motion.section>
         )}
 
+        <VoicesToDiscover />
+
         {/* Recommendation reason hint */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
+          transition={{ duration: 0.25, delay: 0.2 }}
           className="text-center text-xs text-white/55 mt-8"
         >
           Content personalized for {userIntent === 'explore' ? 'exploration' : userIntent === 'create' ? 'creators' : 'contributors'}
@@ -258,7 +285,6 @@ export function ForYouScreen({
       </main>
 
       {/* Bottom Navigation */}
-      <BottomNav onNavigate={onNavigate} activeTab="for-you" />
     </motion.div>
   );
 }
@@ -277,7 +303,7 @@ function PresenceIndicators({ storyCount }: { storyCount: number }) {
   return (
     <ul className="space-y-1">
       {rows.map((r, i) => (
-        <motion.li key={r.tab} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 + i * 0.1, duration: 0.8 }}>
+        <motion.li key={r.tab} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 * i, duration: 0.25 }}>
           <button
             type="button"
             onClick={() => nav.go("explore", { tab: r.tab })}

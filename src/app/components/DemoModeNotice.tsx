@@ -30,7 +30,7 @@ export function DemoModeNotice({ mode = backend.mode }: { mode?: "demo" | "supab
     setHidden(true);
   };
   return (
-    <div role="note" className="relative z-30 flex items-center justify-between gap-2 bg-seen-surface border-b border-seen-border pl-5 pr-2 text-xs text-white/70">
+    <div role="note" className="mb-4 flex items-center justify-between gap-2 rounded-seen-md border border-seen-border bg-seen-surface pl-4 pr-1 text-xs text-white/70">
       <p className="py-2 min-w-0">
         <span className="uppercase tracking-[0.14em] text-white/55">{t("demo.label")}</span> · {t("demo.body")}
       </p>

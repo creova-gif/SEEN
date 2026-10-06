@@ -10,7 +10,7 @@ export function ScreenFrame({ title, onBack, action, children }: { title: string
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 24 }}
       transition={{ duration: 0.25, ease: [0.2, 0, 0, 1] }}
-      className="min-h-screen bg-black text-white"
+      className="min-h-dvh bg-black text-white"
     >
       <TopBar title={title} onBack={onBack} action={action} />
       <Page>{children}</Page>

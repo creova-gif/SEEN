@@ -20,7 +20,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, { errorId:
   render() {
     if (!this.state.errorId) return this.props.children;
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center px-5">
+      <div className="min-h-dvh bg-black flex items-center justify-center px-5">
         <div className="max-w-[428px] w-full">
           <StateTemplate
             kind="error"

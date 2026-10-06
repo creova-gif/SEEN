@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { motion } from "motion/react";
 import { ChevronRight } from "lucide-react";
+import { TRANSITIONS } from "../utils/motion";
 
 interface SectionHeaderProps {
   title: string;
@@ -13,19 +14,19 @@ interface SectionHeaderProps {
 export function SectionHeader({ title, subtitle, icon, onViewAll }: SectionHeaderProps) {
   return (
     <motion.div
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.5 }}
-      className="flex items-center justify-between mb-5"
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={TRANSITIONS.default}
+      className="flex items-center justify-between mb-4"
     >
       <div className="flex items-center gap-2">
         {icon && <span className="text-white/70">{icon}</span>}
         <div>
-          <h2 className="text-xl tracking-tight text-white">
+          <h2 className="text-xl font-semibold leading-[1.3] text-white">
             {title}
           </h2>
           {subtitle && (
-            <p className="text-xs text-white/55 mt-1">
+            <p className="text-xs leading-[1.4] tracking-[0.02em] text-seen-muted mt-0.5">
               {subtitle}
             </p>
           )}

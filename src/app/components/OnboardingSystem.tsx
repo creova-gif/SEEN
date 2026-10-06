@@ -193,7 +193,7 @@ export function OnboardingSystem({
   };
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center">
+    <div className="min-h-dvh bg-black flex items-center justify-center">
       <AnimatePresence mode="wait">
         {/* Layer 0: Language Selection */}
         {currentLayer === "language" && (

@@ -33,7 +33,7 @@ export function PostPublishSuccess({
   };
 
   return (
-    <div className="min-h-screen bg-black text-white flex items-center justify-center px-5">
+    <div className="min-h-dvh bg-black text-white flex items-center justify-center px-5">
       <div className="max-w-md w-full">
         {/* Success Icon */}
         <motion.div

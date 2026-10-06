@@ -60,7 +60,7 @@ export function ContentCard({
       animate="visible"
       whileHover={!reducedMotion ? "hover" : undefined}
       whileTap={!reducedMotion ? "tap" : undefined}
-      transition={{ ...TRANSITIONS.reveal, delay: getStaggerDelay(index) }}
+      transition={{ ...TRANSITIONS.default, delay: Math.min(getStaggerDelay(index), 0.2) }}
       className={`relative w-full ${aspect === "portrait" ? "aspect-[4/5]" : "aspect-[16/10]"} overflow-hidden rounded-seen-lg group cursor-pointer text-left border border-white/5`}
     >
       <div className="absolute inset-0">

@@ -590,7 +590,7 @@ export function ModerationGovernanceSystem({ onBack }: ModerationGovernanceSyste
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="min-h-screen bg-black"
+      className="min-h-dvh bg-black"
     >
       {/* Header */}
       <div className="sticky top-0 z-10 bg-black/95 backdrop-blur-xl border-b border-white/10">

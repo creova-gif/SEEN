@@ -30,10 +30,12 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   icon?: ReactNode;
   fullWidth?: boolean;
   size?: "md" | "sm";
+  /** pill is the default; rounded uses the md radius (Figma hero CTA). */
+  shape?: "pill" | "rounded";
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
-  { variant = "primary", loading = false, icon, fullWidth, size = "md", className, children, disabled, ...rest },
+  { variant = "primary", loading = false, icon, fullWidth, size = "md", shape = "pill", className, children, disabled, ...rest },
   ref,
 ) {
   return (
@@ -43,7 +45,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       disabled={disabled || loading}
       aria-busy={loading || undefined}
       className={cx(
-        "inline-flex items-center justify-center gap-2 rounded-full uppercase font-semibold tracking-[0.12em] transition-colors",
+        "inline-flex items-center justify-center gap-2 uppercase font-semibold tracking-[0.12em] transition-colors duration-[var(--seen-duration-fast)]",
+        shape === "pill" ? "rounded-full" : "rounded-seen-md",
         "disabled:opacity-40 disabled:cursor-not-allowed",
         size === "md" ? "min-h-11 px-6 text-[13px]" : "min-h-11 px-4 text-[11px]",
         BUTTON_STYLES[variant],
@@ -158,7 +161,7 @@ export function Badge({ tone = "surface", children, className }: { tone?: BadgeT
 // ---------------------------------------------------------------------------
 // Avatar — Figma 296:20 (Small 32 / Medium 48 / Large 80)
 // ---------------------------------------------------------------------------
-const AVATAR_SIZES = { sm: "w-8 h-8 text-[11px]", md: "w-12 h-12 text-sm", lg: "w-20 h-20 text-xl" } as const;
+const AVATAR_SIZES = { sm: "w-8 h-8 text-[11px]", md: "w-12 h-12 text-sm", lg: "w-20 h-20 text-xl", xl: "w-16 h-16 text-lg" } as const;
 
 export function initialsOf(name: string): string {
   return name
@@ -322,7 +325,7 @@ export function SegmentedTabs<T extends string>({ tabs, value, onChange, label }
 export function TopBar({ title, onBack, action }: { title: string; onBack: () => void; action?: ReactNode }) {
   return (
     <header className="sticky top-0 z-40 backdrop-blur-xl bg-black/70 border-b border-white/5">
-      <div className="max-w-[428px] mx-auto px-5 h-14 flex items-center gap-3">
+      <div className="max-w-[428px] mx-auto px-gutter h-14 flex items-center gap-3">
         <IconButton label="Back" onClick={onBack}>
           <ArrowLeft className="w-4 h-4 text-white/80" />
         </IconButton>
@@ -340,8 +343,8 @@ export function SectionTitle({ title, subtitle, action }: { title: string; subti
   return (
     <div className="flex items-end justify-between gap-4 mb-4">
       <div className="min-w-0">
-        <h2 className="text-xl font-light tracking-tight text-white">{title}</h2>
-        {subtitle && <p className="text-xs text-white/55 mt-1">{subtitle}</p>}
+        <h2 className="text-xl font-semibold leading-[1.3] text-white">{title}</h2>
+        {subtitle && <p className="text-xs leading-[1.4] tracking-[0.02em] text-seen-muted mt-0.5">{subtitle}</p>}
       </div>
       {action}
     </div>
@@ -361,7 +364,12 @@ export function MetricCard({ label, value, hint, className }: { label: string; v
   );
 }
 
+/** Tab and page title (Figma Heading 1: Fraunces 34 / 1.16 / -0.5). One h1 per screen. */
+export function PageTitle({ children, className }: { children: ReactNode; className?: string }) {
+  return <h1 className={cx("font-seen-display text-[34px] font-normal leading-[1.16] tracking-[-0.5px] text-white break-words", className)}>{children}</h1>;
+}
+
 /** Page container shared by feature screens so every screen uses the same column + gutters. */
 export function Page({ children, className }: { children: ReactNode; className?: string }) {
-  return <main className={cx("max-w-[428px] mx-auto px-5 pt-5 pb-28", className)}>{children}</main>;
+  return <main className={cx("max-w-[428px] mx-auto px-gutter pt-5 pb-28", className)}>{children}</main>;
 }

@@ -6,10 +6,10 @@
  * NO default or promotional content - empty states only
  */
 
+import { DemoModeNotice } from "./DemoModeNotice";
+import { PageTitle } from "./seen/primitives";
 import { motion } from "motion/react";
 import { useState } from "react";
-import { NavigationBar } from "./NavigationBar";
-import { BottomNav } from "./seen/BottomNav";
 import { ConfirmDialog } from "./seen/overlays";
 import { CircularProgress } from "./seen/display";
 import { toast } from "sonner";
@@ -68,13 +68,13 @@ export function LibraryScreen({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.4 }}
-      className="min-h-screen bg-black"
+      transition={{ duration: 0.2 }}
+      className="min-h-dvh bg-black"
     >
-      <NavigationBar onSearch={onSearch} />
 
       {/* Main Content */}
-      <main className="pt-20 pb-24 px-5 max-w-[428px] mx-auto">
+      <main className="pt-20 pb-24 px-gutter max-w-[428px] mx-auto">
+        <DemoModeNotice />
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -82,7 +82,7 @@ export function LibraryScreen({
           transition={{ delay: 0.1 }}
           className="mb-8"
         >
-          <h1 className="text-2xl font-bold text-white mb-2">Library</h1>
+          <PageTitle className="mb-2">Library</PageTitle>
           <p className="text-sm text-white/60">Your saved and in-progress content</p>
         </motion.div>
 
@@ -299,7 +299,6 @@ export function LibraryScreen({
         }}
       />
 
-      <BottomNav onNavigate={onNavigate} activeTab="library" />
     </motion.div>
   );
 }

@@ -1,6 +1,6 @@
+import { DemoModeNotice } from "./DemoModeNotice";
+import { PageTitle } from "./seen/primitives";
 import { motion } from "motion/react";
-import { NavigationBar } from "./NavigationBar";
-import { BottomNav } from "./seen/BottomNav";
 import { ListItem } from "./seen/display";
 import { 
   Settings, 
@@ -126,14 +126,14 @@ export function ProfileScreen({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.4 }}
-      className="min-h-screen bg-black"
+      transition={{ duration: 0.2 }}
+      className="min-h-dvh bg-black"
     >
       {/* Navigation */}
-      <NavigationBar onSearch={onSearch} />
 
       {/* Main Content */}
-      <main className="pt-20 pb-24 px-5 max-w-[428px] mx-auto">
+      <main className="pt-20 pb-24 px-gutter max-w-[428px] mx-auto">
+        <DemoModeNotice />
         {/* Profile Header */}
         <motion.section
           initial={{ opacity: 0, y: 20 }}
@@ -151,7 +151,7 @@ export function ProfileScreen({
             {/* User Info */}
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
-                <h1 className="text-xl font-bold text-white">{user.name}</h1>
+                <PageTitle className="text-2xl min-[360px]:text-[34px]">{user.name}</PageTitle>
                 {user.role === "creator" && (
                   <Moon className="w-4 h-4 text-purple-400" />
                 )}
@@ -488,7 +488,6 @@ export function ProfileScreen({
       </main>
 
       {/* Bottom Navigation */}
-      <BottomNav onNavigate={onNavigate} activeTab="profile" />
     </motion.div>
   );
 }

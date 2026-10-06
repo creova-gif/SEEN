@@ -6,11 +6,11 @@
  * NO personalized content - different from For You
  */
 
+import { DemoModeNotice } from "./DemoModeNotice";
+import { PageTitle } from "./seen/primitives";
 import { languageChipText } from "./seen/languageChip";
 import { motion } from "motion/react";
 import { useState } from "react";
-import { NavigationBar } from "./NavigationBar";
-import { BottomNav } from "./seen/BottomNav";
 import { ContentCard } from "./ContentCard";
 import { StoryCard } from "./StoryCard";
 import { SectionHeader } from "./SectionHeader";
@@ -75,8 +75,7 @@ export function ExploreScreen({
     const text = emptyStateText[language as Language] || emptyStateText.en;
     
     return (
-      <div className="min-h-screen bg-black">
-        <NavigationBar onSearch={onSearch} />
+      <div className="min-h-dvh bg-black">
         <div className="pt-20 pb-24">
           <EmptyState
             icon="Compass"
@@ -86,7 +85,6 @@ export function ExploreScreen({
             onAction={() => onNavigate('for-you')}
           />
         </div>
-        <BottomNav onNavigate={onNavigate} activeTab="explore" />
       </div>
     );
   }
@@ -96,13 +94,13 @@ export function ExploreScreen({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.4 }}
-      className="min-h-screen bg-black"
+      transition={{ duration: 0.2 }}
+      className="min-h-dvh bg-black"
     >
-      <NavigationBar onSearch={onSearch} />
 
       {/* Main Content */}
-      <main className="pt-20 pb-24 px-5 max-w-[428px] mx-auto">
+      <main className="pt-20 pb-24 px-gutter max-w-[428px] mx-auto">
+        <DemoModeNotice />
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -110,7 +108,7 @@ export function ExploreScreen({
           transition={{ delay: 0.1 }}
           className="mb-6"
         >
-          <h1 className="text-2xl font-bold text-white mb-2">Explore</h1>
+          <PageTitle className="mb-2">Explore</PageTitle>
           <p className="text-sm text-white/60">Discover cultural stories and creators</p>
         </motion.div>
 
@@ -194,7 +192,7 @@ export function ExploreScreen({
             {/* Render based on category type */}
             {category.id === 'new-music' ? (
               // Horizontal scroll for music
-              <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-5 px-5">
+              <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-gutter px-gutter">
                 {category.items.map(item => (
                   <StoryCard
                     key={item.id}
@@ -232,7 +230,6 @@ export function ExploreScreen({
       </main>
 
       {/* Bottom Navigation */}
-      <BottomNav onNavigate={onNavigate} activeTab="explore" />
     </motion.div>
   );
 }

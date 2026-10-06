@@ -67,9 +67,9 @@ export const EASING = {
 
 export const DURATION = {
   instant: 0,
-  fast: 0.2,
-  normal: 0.3,
-  slow: 0.5,
+  fast: 0.15,   // feedback: buttons, icons, hover
+  normal: 0.25, // cards, tabs, content
+  slow: 0.4,    // sheets, drawers, page-level
   slowest: 0.8,
   cinematic: 1.2,
 } as const;
@@ -254,13 +254,15 @@ export const CARD_VARIANTS = {
     y: 0,
     scale: 1,
   },
+  // Feedback is fast and independent of the entrance transition (and its stagger delay).
   hover: {
-    y: -4,
-    scale: 1.02,
+    y: -2,
     boxShadow: "0 12px 40px rgba(0,0,0,0.6)",
+    transition: { duration: DURATION.fast, ease: EASING.interaction, delay: 0 },
   },
   tap: {
-    scale: 0.98,
+    scale: 0.99,
+    transition: { duration: DURATION.fast, ease: EASING.interaction, delay: 0 },
   },
 } as const;
 

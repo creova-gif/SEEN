@@ -66,16 +66,33 @@
 
   /* Layout contracts */
   --seen-content-max: 428px;   /* mobile-first column used by every screen */
-  --seen-gutter: 20px;         /* horizontal page padding (px-5) */
+  --seen-gutter: 20px;         /* horizontal page padding; 24px from 360px up (Figma) */
+  --seen-nav-height: 64px;     /* bottom navigation (Figma 316:82) */
   --seen-touch-min: 44px;      /* minimum hit area (WCAG 2.5.8 / Fitts) */
 
   /* Motion */
+  /* Three durations only: fast (feedback), base (cards, tabs, content), slow (sheets, drawers, page-level). */
   --seen-duration-fast: 150ms;
   --seen-duration-base: 250ms;
+  --seen-duration-slow: 400ms;
   --seen-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --seen-ease-enter: cubic-bezier(0, 0, 0.2, 1);
+  --seen-ease-exit: cubic-bezier(0.4, 0, 1, 1);
+
+  /* Type families (Figma): Inter for UI, Fraunces for editorial titles, Geist Mono for metadata. */
+  --seen-font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --seen-font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+@media (min-width: 360px) {
+  :root { --seen-gutter: 24px; }
 }
 
 @theme inline {
+  --spacing-gutter: var(--seen-gutter);
+  --font-seen-display: var(--seen-font-display);
+  --font-seen-mono: var(--seen-font-mono);
+  --height-seen-nav: var(--seen-nav-height);
   --color-seen-canvas: var(--seen-canvas);
   --color-seen-surface: var(--seen-surface-base);
   --color-seen-elevated: var(--seen-surface-elevated);
@@ -118,6 +135,7 @@
 }
 
 /* User preference: Settings → Reduce motion (mirrors the OS media query above). */
+:root[data-motion="reduced"],
 :root[data-motion="reduced"] *,
 :root[data-motion="reduced"] *::before,
 :root[data-motion="reduced"] *::after {

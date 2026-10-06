@@ -14,10 +14,9 @@ export function NavigationBar({ onSearch }: NavigationBarProps) {
 
   return (
     <motion.header
-      initial={{ y: -20, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6 }}
-      className="fixed top-0 left-0 right-0 z-50 px-5 py-3 backdrop-blur-xl bg-black/60 border-b border-white/5"
+      // The header is part of every tab screen, so animating it in would replay on each tab switch.
+      initial={false}
+      className="fixed top-0 left-0 right-0 z-50 px-gutter pb-3 pt-[max(0.75rem,env(safe-area-inset-top))] backdrop-blur-xl bg-black/60 border-b border-white/5"
     >
       <div className="max-w-[428px] mx-auto flex items-center justify-between">
         <div className="flex flex-col">

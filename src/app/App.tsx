@@ -28,9 +28,10 @@ import { ScreenFrame } from "./screens/ScreenFrame";
 import { SkeletonList, StateTemplate } from "./components/seen/primitives";
 import { AppNavProvider, type AppNav, type RouteParams } from "./navigation/AppNav";
 import { rememberReturn, takeReturn } from "./navigation/safeReturn";
-import { type AppScreen, NOT_DEEP_LINKABLE, PUBLIC_SCREENS, canAccess, fromHash, isScreen, toHash } from "./navigation/routes";
+import { type AppScreen, NOT_DEEP_LINKABLE, PUBLIC_SCREENS, TAB_SCREENS, canAccess, fromHash, isScreen, toHash } from "./navigation/routes";
 import { api } from "./services";
-import { DemoModeNotice } from "./components/DemoModeNotice";
+import { NavigationBar } from "./components/NavigationBar";
+import { BottomNav } from "./components/seen/BottomNav";
 import { initializeDemoData } from "./data/demoData";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { PlaybackProvider } from "./playback/PlaybackProvider";
@@ -79,7 +80,7 @@ function AppContent() {
     (entry: HistoryEntry) => {
       if (entry.screen === "story-preview" && entry.params.id) enterStoryWorld(entry.params.id);
       setRoute(entry);
-      window.scrollTo?.({ top: 0 });
+      window.scrollTo?.({ top: 0, behavior: "instant" });
     },
     [enterStoryWorld],
   );
@@ -198,6 +199,7 @@ function AppContent() {
     if (["for-you", "explore", "library", "profile"].includes(screen)) trackedGo(screen);
   };
 
+  const isTab = TAB_SCREENS.includes(currentScreen);
   const role = state.userRole;
   const allowed = canAccess(currentScreen, role);
   useEffect(() => {
@@ -210,7 +212,9 @@ function AppContent() {
       <div className="size-full bg-black">
         {/* Bottom, above the nav + mini player, so toasts never cover header actions (Close, Back). */}
         <Toaster theme="dark" position="bottom-center" offset={{ bottom: 150 }} mobileOffset={{ bottom: 150 }} richColors closeButton />
-        {["for-you", "explore", "library", "profile"].includes(currentScreen) && <DemoModeNotice />}
+        {/* Tab chrome lives outside the screen transition, so only the content fades on a tab switch. */}
+        {isTab && <NavigationBar onSearch={nav.openSearch} />}
+        {isTab && <BottomNav activeTab={currentScreen as "for-you" | "explore" | "library" | "profile"} onNavigate={handleNavigate} />}
         <Suspense
           fallback={
             <div className="max-w-[428px] mx-auto px-5 pt-20">
