@@ -1,4 +1,4 @@
-import { Info, Shield } from "lucide-react";
+import { Info, Shield, UserCog } from "lucide-react";
 import { useStoryState, type Language } from "../contexts/StoryStateContext";
 import { useAppNav } from "../navigation/AppNav";
 import { ScreenFrame } from "../screens/ScreenFrame";
@@ -102,7 +102,10 @@ export function ProfilePreferencesScreen({ onBack }: ProfilePreferencesScreenPro
         </div>
       </section>
 
-      <ListItem icon={<Info className="w-5 h-5" />} label={t.about} onClick={() => nav.go("about")} />
+      <div className="flex flex-col gap-3">
+        <ListItem icon={<UserCog className="w-5 h-5" />} label="Account and privacy" description="Notifications, your data, sign out" onClick={() => nav.go("account")} />
+        <ListItem icon={<Info className="w-5 h-5" />} label={t.about} onClick={() => nav.go("about")} />
+      </div>
 
       <p className="text-center text-xs text-seen-muted mt-10">SEEN · CREOVA</p>
     </ScreenFrame>

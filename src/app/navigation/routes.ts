@@ -26,6 +26,7 @@ export const SCREENS = [
   "opportunity",
   "about",
   "settings",
+  "account",
   "creator-publish",
   "creator-monetization",
   "creator-earnings",

@@ -21,6 +21,7 @@ import { CollectionsScreen } from "./screens/CollectionsScreen";
 import { FundingScreen } from "./screens/FundingScreen";
 import { OpportunityDetailScreen } from "./screens/OpportunityDetailScreen";
 import { NotificationsScreen } from "./screens/NotificationsScreen";
+import { AccountPrivacyScreen } from "./screens/AccountPrivacyScreen";
 import { ScreenFrame } from "./screens/ScreenFrame";
 import { SkeletonList, StateTemplate } from "./components/seen/primitives";
 import { AppNavProvider, type AppNav, type RouteParams } from "./navigation/AppNav";
@@ -307,6 +308,7 @@ function AppContent() {
           {allowed && currentScreen === "admin-dashboard" && <AdminDashboardScreen key="admin-dashboard" onClose={back} />}
           {currentScreen === "about" && <AboutScreen key="about" onClose={back} />}
           {currentScreen === "settings" && <ProfilePreferencesScreen key="settings" onBack={back} />}
+          {currentScreen === "account" && <AccountPrivacyScreen key="account" />}
 
           {currentScreen === "creator-publish" && (
             <CreatorPublishFlow
