@@ -250,10 +250,29 @@ export function createAuthHandlers(deps: AuthDeps) {
     };
   }
 
+  /** Number of auth users whose app_metadata.role is admin, or null if it could not be read. */
+  async function countAdmins(): Promise<number | null> {
+    let count = 0;
+    const perPage = 1000;
+    for (let page = 1; page <= 100; page++) {
+      const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage });
+      if (error) {
+        log.error("role_grant.admin_count_failed", errInfo(error));
+        return null;
+      }
+      const users = data?.users ?? [];
+      count += users.filter((u: Json) => u?.app_metadata?.role === "admin").length;
+      if (users.length < perPage) return count;
+    }
+    log.error("role_grant.admin_count_failed", { reason: "too_many_pages" });
+    return null;
+  }
+
   /**
    * POST /admin/users/:userId/role  Body: { role }   (mount behind requireRole(['admin']))
    * The only API path that grants moderator/admin. Writes app_metadata (authoritative)
-   * and the KV profile, and audit-logs actor id, target id and role.
+   * and the KV profile, and audit-logs actor id, target id and role. An admin cannot
+   * change their own role, and the last admin cannot be demoted.
    */
   async function grantRole(c: Ctx) {
     try {
@@ -269,10 +288,26 @@ export function createAuthHandlers(deps: AuthDeps) {
       if (!targetId) return c.json({ error: "Missing user id" }, 400);
       if (!isRole(role)) return c.json({ error: "Invalid role. Must be: viewer, creator, moderator, or admin" }, 400);
 
+      if (actor?.id && actor.id === targetId) {
+        log.warn("role_grant.rejected", { actorId: actor.id, targetId, reason: "self_change" });
+        return c.json({ error: "You cannot change your own role." }, 403);
+      }
+
       const { data: targetData, error: targetError } = await supabaseAdmin.auth.admin.getUserById(targetId);
       if (targetError || !targetData?.user) {
         log.warn("role_grant.target_not_found", { actorId: actor?.id, targetId, ...errInfo(targetError) });
         return c.json({ error: "User not found" }, 404);
+      }
+
+      if (targetData.user.app_metadata?.role === "admin" && role !== "admin") {
+        const admins = await countAdmins();
+        if (admins === null) {
+          return c.json({ error: "Could not update the role. Please try again." }, 500);
+        }
+        if (admins <= 1) {
+          log.warn("role_grant.rejected", { actorId: actor?.id, targetId, reason: "last_admin" });
+          return c.json({ error: "Cannot remove the last admin." }, 409);
+        }
       }
 
       const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(targetId, {
@@ -289,7 +324,7 @@ export function createAuthHandlers(deps: AuthDeps) {
 
       const audit = { actorId: actor?.id ?? null, targetId, role };
       await kv.set(`audit_role_grant:${stamp}:${randomId()}`, audit);
-      log.info("audit.role_grant", audit);
+      log.info("audit.role_grant", { actorId: audit.actorId, targetId: audit.targetId, role: audit.role });
 
       return c.json({ userId: targetId, role });
     } catch (error) {

@@ -43,6 +43,10 @@ function makeBackend() {
           const user = users.get(id);
           return user ? { data: { user }, error: null } : { data: { user: null }, error: { name: "AuthApiError", status: 404 } };
         }),
+        listUsers: vi.fn(async ({ page = 1, perPage = 50 }: { page?: number; perPage?: number } = {}) => {
+          const all = [...users.values()];
+          return { data: { users: all.slice((page - 1) * perPage, page * perPage) }, error: null };
+        }),
         updateUserById: vi.fn(async (id: string, attrs: any) => {
           const user = users.get(id)!;
           if (attrs.app_metadata) user.app_metadata = attrs.app_metadata;
@@ -293,6 +297,56 @@ describe("grantRole (admin-only path)", () => {
 
     const granted = await callProtected(be.handlers, ["moderator", "admin"], `tok_${targetId}`);
     expect(granted.reached).toBe(true);
+  });
+});
+
+describe("grantRole guards", () => {
+  async function grant(be: ReturnType<typeof makeBackend>, actorToken: string, targetId: string, role: string) {
+    const { c, res } = ctx({ token: actorToken, params: { userId: targetId }, body: { role } });
+    await be.handlers.requireRole(["admin"])(c, () => be.handlers.grantRole(c));
+    return res;
+  }
+
+  it("an admin cannot change their own role", async () => {
+    const be = makeBackend();
+    be.seedUser({ id: "op", email: "op@example.org", app_metadata: { role: "admin" }, user_metadata: {} }, { id: "op", role: "admin" });
+    const res = await grant(be, "tok_op", "op", "viewer");
+    expect(res.status).toBe(403);
+    expect(be.users.get("op")!.app_metadata.role).toBe("admin");
+    expect([...be.kvStore.keys()].some((k) => k.startsWith("audit_role_grant:"))).toBe(false);
+  });
+
+  it("refuses to demote the last admin", async () => {
+    const be = makeBackend();
+    be.seedUser({ id: "op", email: "op@example.org", app_metadata: { role: "admin" }, user_metadata: {} }, { id: "op", role: "admin" });
+    be.seedUser({ id: "a2", email: "a2@example.org", app_metadata: { role: "admin" }, user_metadata: {} }, { id: "a2", role: "admin" });
+    // Simulate the actor having been demoted concurrently: only a2 is still an admin when counted.
+    be.supabaseAdmin.auth.admin.listUsers.mockImplementationOnce(async () => ({
+      data: { users: [be.users.get("a2")!] },
+      error: null,
+    }));
+    const res = await grant(be, "tok_op", "a2", "viewer");
+    expect(res.status).toBe(409);
+    expect(be.users.get("a2")!.app_metadata.role).toBe("admin");
+  });
+
+  it("allows demoting an admin when another admin remains", async () => {
+    const be = makeBackend();
+    be.seedUser({ id: "op", email: "op@example.org", app_metadata: { role: "admin" }, user_metadata: {} }, { id: "op", role: "admin" });
+    be.seedUser({ id: "a2", email: "a2@example.org", app_metadata: { role: "admin" }, user_metadata: {} }, { id: "a2", role: "admin" });
+    const res = await grant(be, "tok_op", "a2", "moderator");
+    expect(res.status).toBe(200);
+    expect(be.users.get("a2")!.app_metadata.role).toBe("moderator");
+  });
+
+  it("fails closed if the admin count cannot be read", async () => {
+    const be = makeBackend();
+    be.seedUser({ id: "op", email: "op@example.org", app_metadata: { role: "admin" }, user_metadata: {} }, { id: "op", role: "admin" });
+    be.seedUser({ id: "a2", email: "a2@example.org", app_metadata: { role: "admin" }, user_metadata: {} }, { id: "a2", role: "admin" });
+    be.supabaseAdmin.auth.admin.listUsers.mockImplementationOnce(async () => ({ data: null, error: { name: "AuthApiError", status: 500 } }) as any);
+    const res = await grant(be, "tok_op", "a2", "viewer");
+    expect(res.status).toBe(500);
+    expect(be.users.get("a2")!.app_metadata.role).toBe("admin");
   });
 });
 
