@@ -8,6 +8,7 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import * as kv from './kv_store.tsx';
+import { log } from './safe_log.ts';
 
 const supabase = createClient(
   Deno.env.get('SUPABASE_URL') ?? '',
@@ -79,7 +80,7 @@ export async function setContextCard(
 ): Promise<void> {
   const key = `context-card:${card.id}`;
   await kv.set(key, card);
-  console.log(`[ContextCard] Saved: ${card.id}`);
+  log.info('context_card.saved', { cardId: card.id });
 }
 
 /**
@@ -154,7 +155,7 @@ export async function updateUserReadingPreferences(
   const key = `user-preferences:${userId}`;
   await kv.set(key, updated);
 
-  console.log(`[Preferences] Updated for user: ${userId}`);
+  log.info('preferences.updated', { userId });
   return updated;
 }
 
@@ -167,16 +168,14 @@ export async function saveChapterConsumptionState(
 ): Promise<void> {
   if (!userId) {
     // Anonymous user: store in localStorage (client-side)
-    console.log('[ConsumptionState] Anonymous user, skipping server save');
+    log.info('consumption_state.skipped_anonymous');
     return;
   }
 
   const key = `consumption-state:${userId}:${state.chapterId}`;
   await kv.set(key, state);
 
-  console.log(
-    `[ConsumptionState] Saved for ${state.chapterId}, mode: ${state.mode}`,
-  );
+  log.info('consumption_state.saved', { chapterId: state.chapterId, mode: state.mode });
 }
 
 /**
@@ -202,7 +201,7 @@ export async function createInstitutionalCollection(
 ): Promise<void> {
   const key = `collection:${collection.id}`;
   await kv.set(key, collection);
-  console.log(`[Collection] Created: ${collection.id}`);
+  log.info('collection.created', { collectionId: collection.id });
 }
 
 /**
@@ -401,7 +400,7 @@ export async function generatePlatformMetrics(
 export async function setCreatorNote(note: CreatorNote): Promise<void> {
   const key = `creator-note:${note.storyWorldId}`;
   await kv.set(key, note);
-  console.log(`[CreatorNote] Saved for story: ${note.storyWorldId}`);
+  log.info('creator_note.saved', { storyWorldId: note.storyWorldId });
 }
 
 /**
@@ -441,7 +440,7 @@ export async function submitCommunityReflection(
   const key = `reflection:${id}`;
   await kv.set(key, newReflection);
 
-  console.log(`[Reflection] Submitted: ${id}, awaiting moderation`);
+  log.info('reflection.submitted', { reflectionId: id });
   return newReflection;
 }
 
@@ -458,7 +457,7 @@ export async function moderateReflection(
   const reflection = await kv.get<CommunityReflection>(key);
 
   if (!reflection) {
-    console.error(`[Moderation] Reflection not found: ${reflectionId}`);
+    log.warn('reflection.not_found', { reflectionId });
     return null;
   }
 
@@ -474,9 +473,7 @@ export async function moderateReflection(
 
   await kv.set(key, updated);
 
-  console.log(
-    `[Moderation] Reflection ${reflectionId} set to: ${status} by ${moderatorId}`,
-  );
+  log.info('reflection.moderated', { reflectionId, status, moderatorId });
   return updated;
 }
 
@@ -516,7 +513,7 @@ export async function createOfflinePack(
 ): Promise<void> {
   const key = `offline-pack:${pack.id}`;
   await kv.set(key, pack);
-  console.log(`[OfflinePack] Created: ${pack.id}`);
+  log.info('offline_pack.created', { packId: pack.id });
 }
 
 /**
@@ -574,9 +571,7 @@ export async function addNarrationTrack(
   existing.push(track);
   await kv.set(key, existing);
 
-  console.log(
-    `[NarrationTrack] Added for ${track.chapterId}, narrator: ${track.narratorId}`,
-  );
+  log.info('narration_track.added', { chapterId: track.chapterId, narratorId: track.narratorId });
 }
 
 // ============================================================================
@@ -595,9 +590,7 @@ export async function addChapterVersion(
   // Update story history
   await updateStoryHistory(version.chapterId, version);
 
-  console.log(
-    `[ChapterVersion] Saved: ${version.chapterId} v${version.versionNumber}`,
-  );
+  log.info('chapter_version.saved', { chapterId: version.chapterId, version: version.versionNumber });
 }
 
 /**
@@ -666,7 +659,7 @@ async function updateStoryHistory(
 export async function setContentRights(rights: ContentRights): Promise<void> {
   const key = `content-rights:${rights.contentId}`;
   await kv.set(key, rights);
-  console.log(`[ContentRights] Saved for: ${rights.contentId}`);
+  log.info('content_rights.saved', { contentId: rights.contentId });
 }
 
 /**
@@ -691,7 +684,7 @@ export async function setSeasonalFraming(
 ): Promise<void> {
   const key = `seasonal-framing:season-${framing.season}`;
   await kv.set(key, framing);
-  console.log(`[SeasonalFraming] Saved for Season ${framing.season}`);
+  log.info('seasonal_framing.saved', { season: framing.season });
 }
 
 /**
@@ -769,7 +762,7 @@ export async function updateUserFeaturePreferences(
   const key = `feature-preferences:${userId}`;
   await kv.set(key, updated);
 
-  console.log(`[FeaturePreferences] Updated for user: ${userId}`);
+  log.info('feature_preferences.updated', { userId });
   return updated;
 }
 

@@ -12,6 +12,7 @@
  */
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { errInfo, log } from './safe_log.ts';
 
 const supabase = createClient(
   Deno.env.get('SUPABASE_URL') ?? '',
@@ -60,14 +61,14 @@ export async function createAudioBuckets() {
       );
 
       if (error) {
-        console.error(`[Audio] Failed to create bucket ${bucket.name}:`, error);
+        log.error('audio.bucket_create_failed', { bucket: bucket.name, ...errInfo(error) });
         results.push({ bucket: bucket.name, status: 'error', error });
       } else {
-        console.log(`[Audio] Created bucket: ${bucket.name}`);
+        log.info('audio.bucket_created', { bucket: bucket.name });
         results.push({ bucket: bucket.name, status: 'created', data });
       }
     } else {
-      console.log(`[Audio] Bucket already exists: ${bucket.name}`);
+      log.info('audio.bucket_exists', { bucket: bucket.name });
       results.push({ bucket: bucket.name, status: 'exists' });
     }
   }
@@ -116,7 +117,7 @@ export async function uploadAudioFile(params: UploadAudioParams) {
     ? `season${season}/${storyId}/${chapterId}_${language}.mp3`
     : `${fileName || 'ambient'}.mp3`;
 
-  console.log(`[Audio] Uploading to ${bucketName}/${filePath}`);
+  log.info('audio.upload_started', { bucket: bucketName, path: filePath });
 
   // Upload file
   const { data, error } = await supabase.storage
@@ -127,11 +128,11 @@ export async function uploadAudioFile(params: UploadAudioParams) {
     });
 
   if (error) {
-    console.error(`[Audio] Upload failed:`, error);
+    log.error('audio.upload_failed', { bucket: bucketName, path: filePath, ...errInfo(error) });
     throw new Error(`Upload failed: ${error.message}`);
   }
 
-  console.log(`[Audio] Upload successful: ${data.path}`);
+  log.info('audio.upload_succeeded', { path: data.path });
 
   // Generate signed URL (expires in 1 year)
   const { data: urlData, error: urlError } = await supabase.storage
@@ -139,7 +140,7 @@ export async function uploadAudioFile(params: UploadAudioParams) {
     .createSignedUrl(filePath, 31536000); // 1 year = 365 * 24 * 60 * 60
 
   if (urlError) {
-    console.error(`[Audio] Failed to generate signed URL:`, urlError);
+    log.error('audio.signed_url_failed', errInfo(urlError));
     throw new Error(`Signed URL generation failed: ${urlError.message}`);
   }
 
@@ -210,9 +211,7 @@ export async function batchUploadNarration(
         signedUrl: result.signedUrl,
       });
 
-      console.log(
-        `[Audio] ✓ Uploaded ${season}/${storyId}/${chapterId}_${language}`,
-      );
+      log.info('audio.batch_item_uploaded', { season, storyId, chapterId, language });
     } catch (error) {
       results.failed.push({
         chapterId,
@@ -220,10 +219,7 @@ export async function batchUploadNarration(
         error: error instanceof Error ? error.message : 'Unknown error',
       });
 
-      console.error(
-        `[Audio] ✗ Failed ${season}/${storyId}/${chapterId}_${language}:`,
-        error,
-      );
+      log.error('audio.batch_item_failed', { season, storyId, chapterId, language, ...errInfo(error) });
     }
   }
 
@@ -253,11 +249,11 @@ export async function regenerateSignedUrl(
     .createSignedUrl(filePath, expiresIn);
 
   if (error) {
-    console.error(`[Audio] Failed to regenerate signed URL:`, error);
+    log.error('audio.signed_url_regenerate_failed', errInfo(error));
     throw new Error(`Signed URL regeneration failed: ${error.message}`);
   }
 
-  console.log(`[Audio] Regenerated signed URL for ${bucket}/${filePath}`);
+  log.info('audio.signed_url_regenerated', { bucket, path: filePath });
   return data.signedUrl;
 }
 
@@ -292,7 +288,7 @@ export async function registerAudio(entry: AudioRegistryEntry) {
 
   await set(key, entry);
 
-  console.log(`[Audio] Registered audio metadata for ${key}`);
+  log.info('audio.registered', { key });
   return entry;
 }
 
@@ -349,9 +345,7 @@ export async function updateAudioUrl(
 
   await registerAudio(entry);
 
-  console.log(
-    `[Audio] Updated ${language} URL for ${season}/${storyId}/${chapterId}`,
-  );
+  log.info('audio.url_updated', { season, storyId, chapterId, language });
   return entry;
 }
 
@@ -390,14 +384,14 @@ export async function validateAudioIntegration(
 
         if (!registry || !registry.audioUrls[language]) {
           report.missing.push(key);
-          console.warn(`[Audio] Missing: ${key}`);
+          log.warn('audio.validate_missing', { key });
         } else {
           report.validated++;
-          console.log(`[Audio] ✓ Validated: ${key}`);
+          log.info('audio.validated', { key });
         }
       } catch (error) {
         report.errors.push(key);
-        console.error(`[Audio] Error validating ${key}:`, error);
+        log.error('audio.validate_failed', { key, ...errInfo(error) });
       }
     }
   }
@@ -449,9 +443,7 @@ export async function generateSeason2AudioRegistry() {
     }
   }
 
-  console.log(
-    `[Audio] Generated registry template for ${registrations.length} chapters`,
-  );
+  log.info('audio.registry_template_generated', { chapters: registrations.length });
   return registrations;
 }
 
