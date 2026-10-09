@@ -29,6 +29,14 @@ describe("server log guard", () => {
     ["console.warn('CSRF', { origin, referer, host });", "request-metadata"],
     ["const role = data.user.user_metadata?.role || 'viewer';", "user-metadata-role-read"],
     ['import { logger } from "npm:hono/logger";', "hono-logger"],
+    ['console.log("plain");', "direct-console"],
+    ["log.info('signup.created', body);", "object-variable"],
+    ["log.info('signin.succeeded', { ...profile });", "object-spread-variable"],
+    ["log.info('signin.succeeded', { user });", "object-variable"],
+    ["log.warn('x', { snapshot: data });", "object-variable"],
+    ["const { role } = user.user_metadata;", "user-metadata-role-read"],
+    ["const { isAdmin, name } = data.user.user_metadata ?? {};", "user-metadata-role-read"],
+    ["function f({ user_metadata: { role } }) { return role; }", "user-metadata-role-read"],
   ])("flags %s", (src, rule) => {
     expect(rules(src)).toContain(rule);
   });
@@ -37,5 +45,7 @@ describe("server log guard", () => {
     expect(rules("log.warn('signup.rejected', { reason: 'weak_password' });")).toEqual([]);
     expect(rules("log.error('signin.failed', { userId, ...errInfo(error) });")).toEqual([]);
     expect(rules("log.info('http.request', { method, path: c.req.path, status: 201 });")).toEqual([]);
+    expect(rules("log.error('http.unhandled', errInfo(err));")).toEqual([]);
+    expect(rules("const { name } = user.user_metadata;")).toEqual([]);
   });
 });

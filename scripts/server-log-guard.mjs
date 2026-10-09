@@ -6,7 +6,11 @@
  *  - a console.* or log.* call references a request body, password, token, email,
  *    name, phone, auth header, JSON.stringify, user_metadata or a raw error object
  *    (log errInfo(error) instead), or the hono logger middleware is used;
- *  - any code reads a role from user_metadata (roles live in app_metadata / KV).
+ *  - any console.* call is used outside safe_log.ts (all logging goes through log.*);
+ *  - a log.* call gets a variable as its fields object, spreads anything but
+ *    errInfo(...), or puts an object-like variable (user, profile, body...) in a field;
+ *  - any code reads a role from user_metadata, including destructuring
+ *    (const { role } = user.user_metadata) (roles live in app_metadata / KV).
  *
  * String literal contents are ignored, so event names like 'signup.rejected' with
  * { reason: 'weak_password' } are fine; only code inside the call is checked.
@@ -108,6 +112,36 @@ function splitTopLevelArgs(args) {
   return parts;
 }
 
+// Names that usually hold whole objects (users, profiles, requests, sessions...).
+const OBJECT_LIKE = /^(?:user|users|profile|profiles|data|session|sessions|req|request|c|ctx|context|body|updates|preferences|metadata|user_metadata|app_metadata|headers|res|response|result|payload|params|entry|item|content|card|state|track|version|rights|framing|note|pack|collection|reflection|error|err|e)$/;
+
+/**
+ * log.*(event, fields?) must get an object literal of scalar fields. Flags passing a
+ * variable as the fields object, spreading anything but errInfo(...), and fields whose
+ * value is an object-like variable (e.g. { user } or { profile: profile }).
+ */
+export function checkLogFieldsShape(rest) {
+  const found = [];
+  for (const arg of rest) {
+    if (/^errInfo\(/.test(arg)) continue;
+    if (!arg.startsWith("{")) {
+      found.push("object-variable");
+      continue;
+    }
+    const inner = arg.slice(1, arg.lastIndexOf("}"));
+    for (const prop of splitTopLevelArgs(inner)) {
+      if (prop.startsWith("...")) {
+        if (!/^\.\.\.errInfo\(/.test(prop)) found.push("object-spread-variable");
+        continue;
+      }
+      const colon = prop.indexOf(":");
+      const value = (colon === -1 ? prop : prop.slice(colon + 1)).trim();
+      if (OBJECT_LIKE.test(value)) found.push("object-variable");
+    }
+  }
+  return found;
+}
+
 const CALL_RE = /\b(console\.(?:log|info|warn|error|debug|trace)|log\.(?:info|warn|error))\s*\(/g;
 
 /** Returns violations for one source file's text. */
@@ -132,6 +166,13 @@ export function findViolations(source, file = "<source>") {
     }
     const args = code.slice(start, j - 1);
     const line = lineOf(m.index);
+    if (callee.startsWith("console.")) {
+      violations.push({ file, line, rule: "direct-console", call: callee });
+    } else {
+      for (const rule of checkLogFieldsShape(splitTopLevelArgs(args).slice(1))) {
+        violations.push({ file, line, rule, call: callee });
+      }
+    }
     for (const rule of RULES) {
       if (rule.re.test(args)) violations.push({ file, line, rule: rule.id, call: callee });
     }
@@ -142,6 +183,11 @@ export function findViolations(source, file = "<source>") {
 
   if (/hono\/logger/.test(source) || /\blogger\s*\(\s*console/.test(code)) {
     violations.push({ file, line: 0, rule: "hono-logger", call: "logger" });
+  }
+  const destructured = /(?:\{[^{}]*\b(?:role|isAdmin|is_admin)\b[^{}]*\}\s*=\s*[\w.?\s()]*user_metadata\b)|(?:\buser_metadata\s*:\s*\{[^{}]*\b(?:role|isAdmin|is_admin)\b[^{}]*\}\s*[},=)])/g;
+  let d;
+  while ((d = destructured.exec(code))) {
+    violations.push({ file, line: lineOf(d.index), rule: "user-metadata-role-read", call: "-" });
   }
   const roleRead = /user_metadata\s*\??\.\s*(?:role|isAdmin|is_admin)\b|user_metadata\s*\??\.?\s*\[\s*['"`](?:role|isAdmin|is_admin)/g;
   let r;
