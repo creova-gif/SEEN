@@ -12,8 +12,12 @@ import { registerCMFEndpoints } from "./cmf_endpoints.tsx";
 import { createAuthHandlers, bearerToken } from "./auth_handlers.ts";
 import { resolveEffectiveRole, isRole } from "./auth_policy.ts";
 import { errInfo, log } from "./safe_log.ts";
+import { registerErrorHandlers } from "./http_errors.ts";
 
 const app = new Hono();
+
+// Generic 500/404 with errInfo-only logging; replaces Hono's default console.error(err).
+registerErrorHandlers(app);
 
 // Initialize Supabase client with service role for admin operations
 const supabaseAdmin = createClient(
