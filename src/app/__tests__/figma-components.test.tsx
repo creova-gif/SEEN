@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { act, render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 import { Checkbox, PasswordField, RadioGroup, SearchBar, TextField, Toggle } from "../components/seen/forms";
@@ -182,14 +182,45 @@ describe("display organisms", () => {
     expect(screen.getByText("Current plan")).toBeInTheDocument();
   });
 
-  it("BottomNav marks the active tab and ignores re-taps", async () => {
+  it("BottomNav marks the active tab; tapping it again scrolls to the top instead of navigating", async () => {
     const onNavigate = vi.fn();
+    const scrollTo = vi.spyOn(window, "scrollTo").mockImplementation(() => {});
     render(<StoryStateProvider><BottomNav activeTab="library" onNavigate={onNavigate} /></StoryStateProvider>);
     expect(screen.getByRole("button", { name: "Library" })).toHaveAttribute("aria-current", "page");
     await userEvent.click(screen.getByRole("button", { name: "Library" }));
     expect(onNavigate).not.toHaveBeenCalled();
+    expect(scrollTo).toHaveBeenCalledWith({ top: 0, behavior: "smooth" });
+    document.documentElement.dataset.motion = "reduced";
+    await userEvent.click(screen.getByRole("button", { name: "Library" }));
+    expect(scrollTo).toHaveBeenLastCalledWith({ top: 0, behavior: "instant" });
+    delete document.documentElement.dataset.motion;
+    scrollTo.mockRestore();
     await userEvent.click(screen.getByRole("button", { name: "Explore" }));
     expect(onNavigate).toHaveBeenCalledWith("explore");
+  });
+
+  it("BottomNav has five tabs in order, Create in the middle and never the current page", async () => {
+    const onNavigate = vi.fn();
+    render(<StoryStateProvider><BottomNav activeTab="for-you" onNavigate={onNavigate} /></StoryStateProvider>);
+    const nav = screen.getByRole("navigation", { name: "Main" });
+    expect(within(nav).getAllByRole("button").map(b => b.textContent)).toEqual(["For You", "Explore", "Create", "Library", "Profile"]);
+    await userEvent.click(screen.getByRole("button", { name: "Create" }));
+    expect(onNavigate).toHaveBeenCalledWith("create");
+    expect(screen.getByRole("button", { name: "Create" })).not.toHaveAttribute("aria-current");
+  });
+
+  it("BottomNav locked tabs stay real buttons and say sign in is required", async () => {
+    const onNavigate = vi.fn();
+    render(<StoryStateProvider><BottomNav activeTab="for-you" onNavigate={onNavigate} locked={["create", "library", "profile"]} /></StoryStateProvider>);
+    for (const tab of ["Create", "Library", "Profile"]) {
+      const b = screen.getByRole("button", { name: `${tab}, sign in required` });
+      expect(b).not.toBeDisabled();
+      expect(b).not.toHaveAttribute("aria-disabled");
+      expect(b).toHaveTextContent(tab); // visible text is part of the accessible name (WCAG 2.5.3)
+    }
+    expect(screen.getByRole("button", { name: "Explore" })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Library, sign in required" }));
+    expect(onNavigate).toHaveBeenCalledWith("library");
   });
 });
 

@@ -13,6 +13,7 @@ import { shareUrl } from "../navigation/shareUrl";
 import { deleteBookmark, isBookmarked, saveBookmark } from "../data/userDataService";
 import { useStoryState } from "../contexts/StoryStateContext";
 import { useAuth } from "../contexts/AuthContext";
+import { useGuest } from "../guest/useGuest";
 import { getStoryWorldData } from "../data/storyService";
 import { getStoryWorldById, type Language } from "../data/storyDatabase";
 import { PaywallModal } from "./PaywallModal";
@@ -32,6 +33,7 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
   const t = useT();
   const nav = useAppNav();
   const { state: authState } = useAuth();
+  const { requireAccount } = useGuest();
 
   // Get story data from current story world ID
   const storyData = state.currentStoryWorldId
@@ -71,16 +73,17 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
     }
   };
 
-  const handleToggleSaved = () => {
-    if (saved) {
-      deleteBookmark(storyData.id);
-      toast.success("Removed from Saved");
-    } else {
-      saveBookmark({ contentId: storyData.id, contentType: "story", savedAt: new Date().toISOString() });
-      toast.success("Saved to your Library");
-    }
-    setSaved(!saved);
-  };
+  const handleToggleSaved = () =>
+    requireAccount({ reason: "save", subject: storyData.title }, () => {
+      if (saved) {
+        deleteBookmark(storyData.id);
+        toast.success("Removed from Saved");
+      } else {
+        saveBookmark({ contentId: storyData.id, contentType: "story", savedAt: new Date().toISOString() });
+        toast.success("Saved to your Library");
+      }
+      setSaved(!saved);
+    });
 
   const creatorId = creatorIdFromName(storyData.creator);
   const pricing = getContentPricing(storyData.id);

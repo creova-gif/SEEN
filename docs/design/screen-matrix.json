@@ -1922,12 +1922,12 @@
  {
   "id": "10:444",
   "name": "guest-explore",
-  "status": "EXCLUDED",
+  "status": "DUPLICATE",
   "route": "-",
   "component": "-",
   "functional": "-",
   "vercel": "-",
-  "note": "Guest browsing without an account is not in the current onboarding-gated flow; return-route support exists (safeReturn) for when it is"
+  "note": "Same screen: For You with the guest banner and locked tabs (canonical: ? ONBOARDING / Explore without an account / Mobile)"
  },
  {
   "id": "16:9",
@@ -2512,12 +2512,12 @@
  {
   "id": "107:70",
   "name": "13-02 — Guest Upgrade Prompt (A2)",
-  "status": "EXCLUDED",
+  "status": "DUPLICATE",
   "route": "-",
   "component": "-",
   "functional": "-",
   "vercel": "-",
-  "note": "Concept frame; no guest mode"
+  "note": "Same sheet (canonical: ? GUEST / Sign-in sheet / Mobile)"
  },
  {
   "id": "107:470",
@@ -2992,12 +2992,12 @@
  {
   "id": "68:715",
   "name": "guest-signup-prompt",
-  "status": "EXCLUDED",
+  "status": "DUPLICATE",
   "route": "-",
   "component": "-",
   "functional": "-",
   "vercel": "-",
-  "note": "No guest mode"
+  "note": "Same sheet (canonical: ? GUEST / Sign-in sheet / Mobile)"
  },
  {
   "id": "71:204",

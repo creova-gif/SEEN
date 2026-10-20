@@ -6,12 +6,14 @@ import { pushNotification } from "../services";
 import { deleteBookmark, isBookmarked, saveBookmark } from "../data/userDataService";
 import { toast } from "sonner";
 import { ExpandedPlayer } from "./seen/MediaPlayerBar";
+import { Button } from "./seen/primitives";
 import { CaptionBar, PlayerAlert, ReaderTools, StoryCompletion, TranscriptSheet } from "./StoryReaderExtras";
 import { useAppNav } from "../navigation/AppNav";
 import { useT } from "../i18n/useT";
 import { SeenImage } from "./seen/SeenImage";
 import { useStoryState } from "../contexts/StoryStateContext";
 import { useAuth } from "../contexts/AuthContext";
+import { useGuest } from "../guest/useGuest";
 import {
   getChaptersForStory,
   getLocalizedText,
@@ -40,6 +42,7 @@ export function StoryChapterScreen({
 }: StoryChapterScreenProps) {
   const { state, navigateToChapter, updateAudioState, saveProgress, setLanguage, recordBranchChoice, setAccessibilityPreferences } = useStoryState();
   const nav = useAppNav();
+  const { requireAccount } = useGuest();
   const { state: authState } = useAuth();
   const chapters = getChaptersForStory(storyWorldId);
   const storyWorld = getStoryWorldById(storyWorldId);
@@ -181,16 +184,17 @@ export function StoryChapterScreen({
   const [submissionForceRefresh, setSubmissionForceRefresh] = useState(0);
 
   const [saved, setSaved] = useState(() => isBookmarked(storyWorldId));
-  const handleToggleSaved = () => {
-    if (saved) {
-      deleteBookmark(storyWorldId);
-      toast.success("Removed from Saved");
-    } else {
-      saveBookmark({ contentId: storyWorldId, contentType: "story", savedAt: new Date().toISOString() });
-      toast.success("Saved to your Library");
-    }
-    setSaved(!saved);
-  };
+  const handleToggleSaved = () =>
+    requireAccount({ reason: "save", subject: storyWorld ? getLocalizedText(storyWorld.title, state.language) : undefined }, () => {
+      if (saved) {
+        deleteBookmark(storyWorldId);
+        toast.success("Removed from Saved");
+      } else {
+        saveBookmark({ contentId: storyWorldId, contentType: "story", savedAt: new Date().toISOString() });
+        toast.success("Saved to your Library");
+      }
+      setSaved(!saved);
+    });
 
   const handleShare = async () => {
     const url = shareUrl(storyWorldId);
@@ -245,6 +249,11 @@ export function StoryChapterScreen({
   }, [currentChapter.id]);
 
   const navigateChapter = (direction: 'prev' | 'next') => {
+    // Guests read chapter 1; the rest asks for an account (limited guest mode, D2).
+    if (direction === 'next' && !authState.isAuthenticated) {
+      requireAccount({ reason: "continue", subject: storyWorld ? getLocalizedText(storyWorld.title, state.language) : undefined });
+      return;
+    }
     const currentIndex = chapters.findIndex(ch => ch.id === currentChapter.id);
     let newIndex = direction === 'prev' ? currentIndex - 1 : currentIndex + 1;
     
@@ -471,6 +480,13 @@ export function StoryChapterScreen({
 
           {/* Audio player */}
           <ExpandedPlayer compact />
+
+          {/* At the end of a chapter, offer the next one clearly. It never starts by itself (PR-4). */}
+          {canGoNext && playback.status === "ended" && (
+            <Button fullWidth onClick={() => navigateChapter('next')} icon={<ChevronRight className="w-4 h-4" aria-hidden />}>
+              {t("reader.nextChapter")}
+            </Button>
+          )}
 
           <div className="flex justify-center">
             <ReaderTools

@@ -8,6 +8,7 @@
 
 import { storiesForInterests } from "../data/interests";
 import { DemoModeNotice } from "./DemoModeNotice";
+import { GuestBanner } from "../guest/GuestBanner";
 import { PageTitle } from "./seen/primitives";
 import { motion } from "motion/react";
 import { useAppNav } from "../navigation/AppNav";
@@ -100,7 +101,7 @@ export function ForYouScreen({
     
     return (
       <div className="min-h-dvh bg-black">
-        <div className="pt-header pb-clearance px-gutter"><DemoModeNotice />
+        <div className="pt-header pb-clearance px-gutter"><DemoModeNotice /><GuestBanner />
           <EmptyState
             icon="Compass"
             title={text.title}
@@ -127,7 +128,7 @@ export function ForYouScreen({
         {/* Editorial hero (Figma 316:2), full-bleed under the translucent header */}
         {heroItem && <FeaturedHero item={heroItem} onExperience={onStoryClick} />}
         {heroItem && <div aria-hidden className="h-6" />}
-        <DemoModeNotice />
+        <DemoModeNotice /><GuestBanner />
         {/* Welcome Message for First Visit */}
         {isFirstVisit && (
           <motion.div

@@ -13,11 +13,11 @@ Rule: Vercel is the foundation. A frame is IMPLEMENTED only when it exists in th
 | MISSING | 0 |
 | STATE | 35 |
 | RESPONSIVE_VARIANT | 7 |
-| DUPLICATE | 87 |
+| DUPLICATE | 90 |
 | OUTDATED | 18 |
 | COMPONENT | 17 |
 | NOTE | 12 |
-| EXCLUDED | 80 |
+| EXCLUDED | 77 |
 
 ## Matrix
 
@@ -37,7 +37,7 @@ Rule: Vercel is the foundation. A frame is IMPLEMENTED only when it exists in th
 | 12-06 — Bibliothèque (Français) | 103:935 | - | - | RESPONSIVE_VARIANT | - | - | French locale variant (canonical: 330:2 LIBRARY / Saved · Default / Mobile) |
 | 13 — PROTOTYPE FLOWS | 352:2 | - | - | NOTE | - | - | Design notes / prototype wiring, not a screen |
 | 13-01 - Cultural Resonance Quiz (A1/A3) | 107:7 | - | - | EXCLUDED | - | - | Concept frame |
-| 13-02 — Guest Upgrade Prompt (A2) | 107:70 | - | - | EXCLUDED | - | - | Concept frame; no guest mode |
+| 13-02 — Guest Upgrade Prompt (A2) | 107:70 | - | - | DUPLICATE | - | - | Same sheet (canonical: ? GUEST / Sign-in sheet / Mobile) |
 | 13-03 — Cultural Map Discovery (B2) | 107:123 | - | - | EXCLUDED | - | - | Concept frame |
 | 13-04 — Story Mood Mixer (B1) | 107:193 | - | - | EXCLUDED | - | - | Concept frame |
 | 13-05 — Community Reaction Heatmap (C3) | 107:355 | - | - | EXCLUDED | - | - | Concept frame; conflicts with no public counts |
@@ -297,8 +297,8 @@ Rule: Vercel is the foundation. A frame is IMPLEMENTED only when it exists in th
 | fr-settings | 71:127 | - | - | RESPONSIVE_VARIANT | - | - | French locale variant (canonical: 345:57 PROFILE / Settings Hub / Mobile) |
 | fr-signup | 71:44 | - | - | RESPONSIVE_VARIANT | - | - | French locale variant (canonical: 312:47 ONBOARDING / Sign Up / Default / Mobile) |
 | fr-story-entry | 71:77 | - | - | RESPONSIVE_VARIANT | - | - | French locale variant (canonical: 323:2 STORY / Story World / Default / Mobile) |
-| guest-explore | 10:444 | - | - | EXCLUDED | - | - | Guest browsing without an account is not in the current onboarding-gated flow; return-route support exists (safeReturn) for when it is |
-| guest-signup-prompt | 68:715 | - | - | EXCLUDED | - | - | No guest mode |
+| guest-explore | 10:444 | - | - | DUPLICATE | - | - | Same screen: For You with the guest banner and locked tabs (canonical: ? ONBOARDING / Explore without an account / Mobile) |
+| guest-signup-prompt | 68:715 | - | - | DUPLICATE | - | - | Same sheet (canonical: ? GUEST / Sign-in sheet / Mobile) |
 | home-french | 29:719 | - | - | RESPONSIVE_VARIANT | - | - | French language variant (locale), strings in i18n and per-screen COPY (canonical: 316:2 DISCOVERY / For You / Default / Mobile) |
 | institutional-collection | 7:1053 | - | Institutional collection detail is CollectionDetailScreen (badge, curator, stories, save); management is excluded (D-12) | IMPLEMENTED | yes | yes | Legacy single-screen frame |
 | language-selection | 7:11 | - | - | DUPLICATE | - | - | Same screen (canonical: 310:14 ONBOARDING / Language Selection / Default / Mobile) |

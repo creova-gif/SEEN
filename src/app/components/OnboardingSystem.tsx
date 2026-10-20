@@ -37,13 +37,15 @@ interface OnboardingSystemProps {
   initialStep?: number;
   /** True once the first screen (the glowing S.E.E.N entry button) has been passed. */
   hasEnteredSEEN?: boolean;
+  /** "Explore without an account": leave onboarding as a guest (limited guest mode, D2). */
+  onGuest?: () => void;
 }
 
 type OnboardingLayer = "language" | "invocation" | "manifesto" | "orientation";
 type OrientationStep = "purpose" | "interests" | "account" | "entering";
 const ORIENTATION_STEPS: OrientationStep[] = ["purpose", "interests", "account"];
 
-export function OnboardingSystem({ onComplete, initialStep = 0, hasEnteredSEEN = false }: OnboardingSystemProps) {
+export function OnboardingSystem({ onComplete, initialStep = 0, hasEnteredSEEN = false, onGuest }: OnboardingSystemProps) {
   const { signUp, signIn, state: authState } = useAuth();
   const { state, setLanguage, setInterests } = useStoryState();
 
@@ -151,6 +153,7 @@ export function OnboardingSystem({ onComplete, initialStep = 0, hasEnteredSEEN =
                 selected={purposes}
                 onChange={setPurposes}
                 onNext={() => setCurrentStep("interests")}
+                onGuest={onGuest}
               />
             )}
             {currentStep === "interests" && (
@@ -186,14 +189,16 @@ export function OnboardingSystem({ onComplete, initialStep = 0, hasEnteredSEEN =
   );
 }
 
-// Step 3: Account Creation
-function AccountStep({ 
+// Step 3: Account Creation (also the sign-in form behind the guest sheet)
+export function AccountStep({ 
   onComplete, 
   onSignIn,
   onRecover,
   isLoading, 
   error,
+  initialMode,
 }: { 
+  initialMode?: 'signup' | 'signin';
   onComplete: (email: string, password: string, name: string) => void; 
   onSignIn: (email: string, password: string) => void;
   onRecover: (email: string) => Promise<string | null>;
@@ -205,7 +210,7 @@ function AccountStep({
   const [name, setName] = useState("");
   const { state: authState, signInWithGoogle } = useAuth();
   const { state: story } = useStoryState();
-  const [mode, setMode] = useState<'signup' | 'signin' | 'recovery'>(authState.sessionExpired ? 'signin' : 'signup');
+  const [mode, setMode] = useState<'signup' | 'signin' | 'recovery'>(initialMode ?? (authState.sessionExpired ? 'signin' : 'signup'));
   const [online, setOnline] = useState(typeof navigator === 'undefined' ? true : navigator.onLine);
   useEffect(() => {
     const up = () => setOnline(true);

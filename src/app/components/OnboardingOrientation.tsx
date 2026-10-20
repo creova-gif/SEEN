@@ -3,6 +3,7 @@ import { motion } from "motion/react";
 import { Check } from "lucide-react";
 import type { UserIntent, UserRole } from "../contexts/StoryStateContext";
 import { availableInterests } from "../data/interests";
+import { useT } from "../i18n/useT";
 
 /**
  * The two choice screens of onboarding. Both are tap-only (no typing), expose their
@@ -59,7 +60,19 @@ function Choice({ label, hint, selected, onToggle }: { label: string; hint?: str
   );
 }
 
-export function PurposeStep({ selected, onChange, onNext }: { selected: Purpose[]; onChange: (p: Purpose[]) => void; onNext: () => void }) {
+export function PurposeStep({
+  selected,
+  onChange,
+  onNext,
+  onGuest,
+}: {
+  selected: Purpose[];
+  onChange: (p: Purpose[]) => void;
+  onNext: () => void;
+  /** Lets someone look around first; they skip the account steps and land on For You (D2). */
+  onGuest?: () => void;
+}) {
+  const t = useT();
   const toggle = (p: Purpose) => onChange(selected.includes(p) ? selected.filter(x => x !== p) : [...selected, p]);
   return (
     <motion.main initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }} className="flex-1 flex flex-col">
@@ -85,6 +98,11 @@ export function PurposeStep({ selected, onChange, onNext }: { selected: Purpose[
         <button type="button" onClick={() => { onChange([]); onNext(); }} className="w-full min-h-11 text-sm text-white/80 underline underline-offset-2">
           Skip for now
         </button>
+        {onGuest && (
+          <button type="button" onClick={onGuest} className="w-full min-h-11 text-sm text-white/80 underline underline-offset-2">
+            {t("guest.explore")}
+          </button>
+        )}
       </Footer>
     </motion.main>
   );

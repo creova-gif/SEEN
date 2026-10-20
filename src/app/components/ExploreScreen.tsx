@@ -7,6 +7,7 @@
  */
 
 import { DemoModeNotice } from "./DemoModeNotice";
+import { GuestBanner } from "../guest/GuestBanner";
 import { PageTitle } from "./seen/primitives";
 import { languageChipText } from "./seen/languageChip";
 import { motion } from "motion/react";
@@ -108,7 +109,7 @@ export function ExploreScreen({
 
       {/* Main Content */}
       <main className="pt-header pb-clearance px-gutter max-w-[428px] mx-auto">
-        <DemoModeNotice />
+        <DemoModeNotice /><GuestBanner />
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

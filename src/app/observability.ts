@@ -14,6 +14,9 @@
 
 export type AnalyticsEvent =
   | "onboarding_completed"
+  | "guest_entered"
+  | "guest_prompted"
+  | "guest_converted"
   | "story_opened"
   | "search_performed"
   | "creator_followed"

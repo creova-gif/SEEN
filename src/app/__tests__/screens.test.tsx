@@ -1,8 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, renderHook, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ReactNode } from "react";
 import { StoryStateProvider } from "../contexts/StoryStateContext";
+import { AuthProvider, DEMO_PASSWORD, useAuth } from "../contexts/AuthContext";
+import { dismissGuestPrompt, useGuestStore } from "../guest/guestStore";
 import { AppNavProvider, type AppNav } from "../navigation/AppNav";
 import { NotificationsScreen } from "../screens/NotificationsScreen";
 import { OpportunityDetailScreen } from "../screens/OpportunityDetailScreen";
@@ -19,7 +21,9 @@ function nav(overrides: Partial<AppNav> = {}): AppNav {
 function wrap(ui: ReactNode, n: AppNav = nav()) {
   return render(
     <StoryStateProvider>
-      <AppNavProvider value={n}>{ui}</AppNavProvider>
+      <AuthProvider>
+        <AppNavProvider value={n}>{ui}</AppNavProvider>
+      </AuthProvider>
     </StoryStateProvider>,
   );
 }
@@ -64,8 +68,26 @@ describe("CreatorsPanel", () => {
   });
 });
 
+/** Signs the demo viewer in and stores the session, as a returning member would have it. */
+async function signInDemoViewer() {
+  const { result, unmount } = renderHook(() => useAuth(), { wrapper: AuthProvider });
+  await waitFor(() => expect(localStorage.getItem("seenos_users_db")).toContain("viewer@seen.demo"));
+  await act(() => result.current.signIn("viewer@seen.demo", DEMO_PASSWORD));
+  unmount();
+}
+
 describe("CreatorProfileScreen", () => {
+  it("asks a guest to sign in instead of following, and keeps nothing", async () => {
+    wrap(<CreatorProfileScreen creatorId="kira-chen" />);
+    await userEvent.click(await screen.findByRole("button", { name: /^follow$/i }));
+    const { result } = renderHook(() => useGuestStore());
+    expect(result.current.prompt).toMatchObject({ reason: "follow" });
+    expect(localStorage.getItem("seen.v1.following")).toBeNull();
+    act(() => dismissGuestPrompt());
+  });
+
   it("follows and unfollows", async () => {
+    await signInDemoViewer();
     wrap(<CreatorProfileScreen creatorId="kira-chen" />);
     const follow = await screen.findByRole("button", { name: /^follow$/i });
     await userEvent.click(follow);

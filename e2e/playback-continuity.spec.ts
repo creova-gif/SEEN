@@ -101,3 +101,24 @@ test("narration keeps playing as one audio element across tabs, scrolling and Ba
   await expect.poll(async () => (await audioState(page)).time, { timeout: 15_000 }).toBeGreaterThan(started.time + 2);
   expect((await audioState(page)).count).toBe(1);
 });
+
+test("at the end of a chapter, Next chapter is offered and nothing advances by itself", async ({ page }) => {
+  await page.route("**/media/narration/maria-interview.mp3", route =>
+    route.fulfill({ status: 200, contentType: "audio/wav", headers: { "Accept-Ranges": "bytes" }, body: toneWav(2) }),
+  );
+  await signInAs(page, "viewer");
+  await page.goto("/#/story/voices-of-migration");
+  await page.getByRole("button", { name: /start reading/i }).click();
+  const prev = page.getByRole("button", { name: /^prev/i });
+  await expect(prev).toBeDisabled(); // chapter 1
+  await page.getByRole("button", { name: "Play", exact: true }).first().click();
+
+  const next = page.getByRole("button", { name: "Next chapter", exact: true });
+  await expect(next).toBeVisible({ timeout: 15_000 });
+  await page.waitForTimeout(1500);
+  await expect(prev).toBeDisabled(); // still chapter 1: it did not advance on its own
+
+  await next.click();
+  await expect(prev).toBeEnabled();
+  await expect(next).toHaveCount(0);
+});

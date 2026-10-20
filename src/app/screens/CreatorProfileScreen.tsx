@@ -11,6 +11,7 @@ import { Avatar, Badge, Button, SectionTitle, SkeletonList } from "../components
 import { StoryRow } from "../components/seen/StoryRow";
 import { useAppNav } from "../navigation/AppNav";
 import { useStoryState } from "../contexts/StoryStateContext";
+import { useGuest } from "../guest/useGuest";
 import { ScreenFrame } from "./ScreenFrame";
 
 const LANG_LABEL: Record<string, string> = { en: "English", fr: "Français", es: "Español" };
@@ -18,6 +19,7 @@ const LANG_LABEL: Record<string, string> = { en: "English", fr: "Français", es:
 export function CreatorProfileScreen({ creatorId }: { creatorId: string }) {
   const t = useT();
   const nav = useAppNav();
+  const { requireAccount } = useGuest();
   const { state } = useStoryState();
   const resource = useResource(
     async () => {
@@ -29,7 +31,12 @@ export function CreatorProfileScreen({ creatorId }: { creatorId: string }) {
   const [busy, setBusy] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
 
-  const toggleFollow = async () => {
+  const toggleFollow = () => {
+    if (!resource.data) return;
+    requireAccount({ reason: "follow", subject: resource.data.creator.name }, () => void applyFollow());
+  };
+
+  const applyFollow = async () => {
     if (!resource.data) return;
     const next = !resource.data.following;
     setBusy(true);

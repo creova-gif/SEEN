@@ -32,6 +32,7 @@ export const SCREENS = [
   "legal",
   "notes",
   "reset-password",
+  "creator-intro",
   "creator-publish",
   "creator-monetization",
   "creator-earnings",
@@ -60,6 +61,32 @@ export const SCREEN_ROLES: Partial<Record<AppScreen, UserRole[]>> = {
   "moderation-governance": ["moderator", "admin"],
   "admin-dashboard": ["admin"],
 };
+
+/**
+ * What a visitor without an account may open (limited guest mode, D2). Everything else asks them to sign in:
+ * a guest on a gated URL gets the sign-in sheet, never a blank or private screen. UX only; real enforcement
+ * is the backend (RLS). Chapter 1 is open to guests; later chapters ask for an account (see StoryChapterScreen).
+ */
+export const GUEST_SCREENS: AppScreen[] = [
+  "onboarding",
+  "for-you",
+  "explore",
+  "search",
+  "story-preview",
+  "story-chapter",
+  "creator-profile",
+  "collections",
+  "collection-detail",
+  "funding",
+  "opportunity",
+  "about",
+  "legal",
+  "reset-password",
+];
+
+export function canGuestAccess(screen: AppScreen): boolean {
+  return GUEST_SCREENS.includes(screen);
+}
 
 export function canAccess(screen: AppScreen, role: UserRole): boolean {
   const allowed = SCREEN_ROLES[screen];

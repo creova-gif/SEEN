@@ -7,6 +7,8 @@ interface StoryIntentStepProps {
   onNext: (data: StoryIntentData) => void;
   onSaveDraft: (data: Partial<StoryIntentData>) => void;
   initialData?: Partial<StoryIntentData>;
+  /** Optional link under the draft indicator (the publish flow passes "Your stories" for creators). */
+  footerLink?: { label: string; onClick: () => void };
 }
 
 export interface StoryIntentData {
@@ -41,7 +43,8 @@ const LANGUAGES = [
 export function StoryIntentStep({ 
   onNext, 
   onSaveDraft,
-  initialData 
+  initialData,
+  footerLink,
 }: StoryIntentStepProps) {
   const reducedMotion = prefersReducedMotion();
   
@@ -339,13 +342,20 @@ export function StoryIntentStep({
       <div className="fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur-xl border-t border-white/10 p-5">
         <div className="max-w-[428px] mx-auto flex items-center justify-between">
           {/* Auto-save indicator */}
-          <motion.span
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-xs text-white/55"
-          >
-            Draft saved
-          </motion.span>
+          <div className="flex flex-col items-start">
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-xs text-white/55"
+            >
+              Draft saved
+            </motion.span>
+            {footerLink && (
+              <button type="button" onClick={footerLink.onClick} className="min-h-11 text-xs text-white/80 underline underline-offset-2">
+                {footerLink.label}
+              </button>
+            )}
+          </div>
 
           {/* Next button */}
           <motion.button

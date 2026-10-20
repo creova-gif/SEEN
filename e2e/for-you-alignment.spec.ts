@@ -19,7 +19,7 @@ test.describe("for you: figma alignment", () => {
         const cs = getComputedStyle(main);
         const nav = document.querySelector("nav[aria-label=Main]")!;
         const items = [...nav.querySelectorAll("button")].map(b => b.getBoundingClientRect());
-        const label = nav.querySelector("button span") as HTMLElement;
+        const label = nav.querySelector("button span:last-child") as HTMLElement;
         return {
           overflow: document.documentElement.scrollWidth - innerWidth,
           padL: parseFloat(cs.paddingLeft),
@@ -35,8 +35,8 @@ test.describe("for you: figma alignment", () => {
       expect(m.padL).toBe(w >= 360 ? 24 : 20);
       expect(m.navH).toBe(64);
       expect(Math.round(m.navBottom)).toBe(m.vh);
-      expect(new Set(m.widths).size).toBe(1); // four equal columns
-      expect(m.labelPx).toBe(11);
+      expect(new Set(m.widths).size).toBe(1); // five equal columns
+      expect(m.labelPx).toBe(w < 360 ? 10 : 11); // 10 px below 360 so "Bibliothèque" fits
       expect(m.h2Weight).toBe("600");
     });
   }

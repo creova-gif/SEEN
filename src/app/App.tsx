@@ -33,10 +33,15 @@ import { ScreenFrame } from "./screens/ScreenFrame";
 import { SkeletonList, StateTemplate } from "./components/seen/primitives";
 import { AppNavProvider, type AppNav, type RouteParams } from "./navigation/AppNav";
 import { rememberReturn, takeReturn } from "./navigation/safeReturn";
-import { type AppScreen, NOT_DEEP_LINKABLE, PUBLIC_SCREENS, TAB_SCREENS, canAccess, fromHash, isScreen, toHash } from "./navigation/routes";
+import { type AppScreen, NOT_DEEP_LINKABLE, PUBLIC_SCREENS, TAB_SCREENS, canAccess, canGuestAccess, fromHash, isScreen, toHash } from "./navigation/routes";
 import { api } from "./services";
 import { NavigationBar } from "./components/NavigationBar";
-import { BottomNav } from "./components/seen/BottomNav";
+import { BottomNav, type NavItemId } from "./components/seen/BottomNav";
+import { GuestLayer } from "./guest/GuestLayer";
+import { enterGuestMode, hasChosenGuest, openGuestPrompt, type GuestReason } from "./guest/guestStore";
+import { hasSeenCreatorIntro } from "./guest/creatorIntro";
+import { CreatorIntroScreen } from "./screens/CreatorIntroScreen";
+import { useT } from "./i18n/useT";
 import { initializeDemoData } from "./data/demoData";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { PlaybackProvider } from "./playback/PlaybackProvider";
@@ -60,6 +65,7 @@ type HistoryEntry = { screen: AppScreen; params: RouteParams };
 function AppContent() {
   const { state, setLanguage, setIntent, setUserRole, enterStoryWorld, navigateToChapter } = useStoryState();
   const { state: authState } = useAuth();
+  const t = useT();
 
   // Sync user role from auth state when user is authenticated
   useEffect(() => {
@@ -150,6 +156,24 @@ function AppContent() {
     }
   }, [authState.isLoading, authState.isAuthenticated, hasCompletedOnboarding, currentScreen, go]);
 
+  // "Explore without an account": leave onboarding as a guest, honouring a deep link they arrived on (D2).
+  const leaveOnboardingAsGuest = useCallback(() => {
+    const linked = fromHash(takeReturn() ?? window.location.hash);
+    if (linked && !NOT_DEEP_LINKABLE.includes(linked.screen)) go(linked.screen, linked.params, { replace: true });
+    else go("for-you", {}, { replace: true });
+  }, [go]);
+
+  const handleGuest = useCallback(() => {
+    enterGuestMode();
+    track("guest_entered");
+    leaveOnboardingAsGuest();
+  }, [leaveOnboardingAsGuest]);
+
+  // A returning guest skips onboarding too.
+  useEffect(() => {
+    if (!authState.isLoading && !authState.isAuthenticated && hasChosenGuest() && currentScreen === "onboarding") leaveOnboardingAsGuest();
+  }, [authState.isLoading, authState.isAuthenticated, currentScreen, leaveOnboardingAsGuest]);
+
   // Accessibility preferences apply app-wide via root data attributes (see seen-tokens.css).
   useEffect(() => {
     const root = document.documentElement;
@@ -206,6 +230,30 @@ function AppContent() {
   };
 
   const role = state.userRole;
+  const signedOut = !authState.isAuthenticated;
+
+  // Create is an action: guests get the sheet, newcomers the one-time creator intro, everyone else the publish flow.
+  const handleCreate = () => {
+    if (signedOut) return openGuestPrompt({ reason: "create" });
+    const needsIntro = role !== "creator" && role !== "admin" && !hasSeenCreatorIntro(authState.user?.id);
+    trackedGo(needsIntro ? "creator-intro" : "creator-publish");
+  };
+
+  const handleNavItem = (id: NavItemId) => {
+    if (id === "create") return handleCreate();
+    if (signedOut && (id === "library" || id === "profile")) return openGuestPrompt({ reason: id });
+    handleNavigate(id);
+  };
+
+  // A guest who opens a gated screen (typed URL, shared link, a button that leads there) gets the sign-in sheet,
+  // never a blank or private screen. Signing in unblocks the same screen.
+  const guestBlocked = signedOut && !canGuestAccess(currentScreen);
+  const shown = guestBlocked ? null : currentScreen;
+  const gateReason: GuestReason = currentScreen === "library" ? "library" : currentScreen === "profile" ? "profile" : currentScreen === "creator-publish" || currentScreen === "creator-intro" ? "create" : "page";
+  useEffect(() => {
+    if (guestBlocked) openGuestPrompt({ reason: gateReason });
+  }, [guestBlocked, gateReason]);
+
   const allowed = canAccess(currentScreen, role);
   const isTab = TAB_SCREENS.includes(currentScreen) && allowed;
   useEffect(() => {
@@ -217,10 +265,17 @@ function AppContent() {
       <MotionConfig reducedMotion={state.accessibilityPreferences.reducedMotion ? "always" : "user"}>
       <div className="size-full bg-black">
         {/* Bottom, above the nav + mini player, so toasts never cover header actions (Close, Back). */}
+        <GuestLayer />
         <Toaster theme="dark" position="bottom-center" offset={{ bottom: 150 }} mobileOffset={{ bottom: 150 }} richColors closeButton />
         {/* Tab chrome lives outside the screen transition, so only the content fades on a tab switch. */}
         {isTab && <NavigationBar onSearch={nav.openSearch} />}
-        {isTab && <BottomNav activeTab={currentScreen as "for-you" | "explore" | "library" | "profile"} onNavigate={handleNavigate} />}
+        {isTab && (
+          <BottomNav
+            activeTab={currentScreen as "for-you" | "explore" | "library" | "profile"}
+            onNavigate={handleNavItem}
+            locked={signedOut ? ["create", "library", "profile"] : []}
+          />
+        )}
         <Suspense
           fallback={
             <div className="max-w-[428px] mx-auto px-gutter pt-header">
@@ -229,16 +284,29 @@ function AppContent() {
           }
         >
         <AnimatePresence mode="wait">
-          {currentScreen === "onboarding" && (
+          {shown === "onboarding" && (
             <OnboardingSystem
               key="onboarding"
               onComplete={handleOnboardingComplete}
               initialStep={savedStep ? parseInt(savedStep) : 0}
               hasEnteredSEEN={hasEnteredSEEN}
+              onGuest={handleGuest}
             />
           )}
 
-          {!allowed && (
+          {guestBlocked && (
+            <ScreenFrame key="guest-gate" title={t("guest.page.title")} onBack={back}>
+              <StateTemplate
+                kind="denied"
+                title={t("guest.page.title")}
+                message={t("guest.page.body")}
+                actionLabel={t("guest.cta.create")}
+                onAction={() => openGuestPrompt({ reason: gateReason })}
+              />
+            </ScreenFrame>
+          )}
+
+          {!guestBlocked && !allowed && (
             <ScreenFrame key="denied" title="Restricted" onBack={back}>
               <StateTemplate
                 kind="denied"
@@ -250,11 +318,11 @@ function AppContent() {
             </ScreenFrame>
           )}
 
-          {allowed && currentScreen === "story-preview" && state.currentStoryWorldId && (
+          {allowed && shown === "story-preview" && state.currentStoryWorldId && (
             <FeaturedStoryPreview key="story-preview" onClose={back} onEnterStory={() => trackedGo("story-chapter")} />
           )}
 
-          {allowed && currentScreen === "story-chapter" && state.currentStoryWorldId && (
+          {allowed && shown === "story-chapter" && state.currentStoryWorldId && (
             <StoryChapterScreen
               key="story-chapter"
               onClose={() => go("for-you")}
@@ -263,7 +331,7 @@ function AppContent() {
             />
           )}
 
-          {allowed && currentScreen === "chapter-index" && state.currentStoryWorldId && (
+          {allowed && shown === "chapter-index" && state.currentStoryWorldId && (
             <ChapterIndexScreen
               key="chapter-index"
               onClose={back}
@@ -276,7 +344,7 @@ function AppContent() {
             />
           )}
 
-          {currentScreen === "for-you" && (
+          {shown === "for-you" && (
             <ForYouScreen
               key="for-you"
               onStoryClick={openStory}
@@ -288,7 +356,7 @@ function AppContent() {
             />
           )}
 
-          {currentScreen === "explore" && (
+          {shown === "explore" && (
             <ExploreScreen
               key="explore"
               onStoryClick={openStory}
@@ -299,11 +367,11 @@ function AppContent() {
             />
           )}
 
-          {currentScreen === "library" && (
+          {shown === "library" && (
             <LibraryScreen key="library" onStoryClick={openStory} onNavigate={handleNavigate} onSearch={nav.openSearch} />
           )}
 
-          {currentScreen === "profile" && (
+          {shown === "profile" && (
             <ProfileScreen
               key="profile"
               onNavigate={handleNavigate}
@@ -323,32 +391,33 @@ function AppContent() {
             />
           )}
 
-          {currentScreen === "search" && <SearchScreen key="search" onClose={back} onSelectStory={id => go("story-preview", { id }, { replace: true })} />}
-          {currentScreen === "notifications" && <NotificationsScreen key="notifications" />}
-          {currentScreen === "creator-profile" && route.params.id && <CreatorProfileScreen key={`creator-${route.params.id}`} creatorId={route.params.id} />}
-          {currentScreen === "collections" && <CollectionsScreen key="collections" />}
-          {currentScreen === "collection-detail" && route.params.id && (
+          {shown === "search" && <SearchScreen key="search" onClose={back} onSelectStory={id => go("story-preview", { id }, { replace: true })} />}
+          {shown === "notifications" && <NotificationsScreen key="notifications" />}
+          {shown === "creator-profile" && route.params.id && <CreatorProfileScreen key={`creator-${route.params.id}`} creatorId={route.params.id} />}
+          {shown === "collections" && <CollectionsScreen key="collections" />}
+          {shown === "collection-detail" && route.params.id && (
             <CollectionDetailScreen key={`collection-${route.params.id}`} collectionId={route.params.id} />
           )}
-          {currentScreen === "funding" && <FundingScreen key="funding" />}
-          {currentScreen === "opportunity" && route.params.id && <OpportunityDetailScreen key={`opp-${route.params.id}`} opportunityId={route.params.id} />}
+          {shown === "funding" && <FundingScreen key="funding" />}
+          {shown === "opportunity" && route.params.id && <OpportunityDetailScreen key={`opp-${route.params.id}`} opportunityId={route.params.id} />}
 
-          {allowed && currentScreen === "creator-monetization" && <CreatorMonetizationScreen key="creator-monetization" onClose={back} />}
-          {currentScreen === "funding-readiness" && <FundingReadinessScreen key="funding-readiness" />}
-          {allowed && currentScreen === "creator-stories" && <CreatorStoriesScreen key="creator-stories" />}
-          {allowed && currentScreen === "creator-earnings" && <CreatorEarningsScreen key="creator-earnings" onClose={back} />}
-          {currentScreen === "subscription-management" && <SubscriptionManagementScreen key="subscription-management" onClose={back} />}
-          {allowed && currentScreen === "admin-dashboard" && <AdminDashboardScreen key="admin-dashboard" onClose={back} />}
-          {currentScreen === "about" && <AboutScreen key="about" onClose={back} />}
-          {currentScreen === "settings" && <ProfilePreferencesScreen key="settings" onBack={back} />}
-          {currentScreen === "account" && <AccountPrivacyScreen key="account" />}
-          {allowed && currentScreen === "notes" && <NotesScreen key="notes" />}
-          {currentScreen === "edit-profile" && <EditProfileScreen key="edit-profile" />}
-          {currentScreen === "change-password" && <ChangePasswordScreen key="change-password" />}
-          {currentScreen === "legal" && <LegalScreen key="legal" />}
-          {currentScreen === "reset-password" && route.params.id && <ResetPasswordScreen key="reset-password" token={route.params.id} />}
+          {allowed && shown === "creator-monetization" && <CreatorMonetizationScreen key="creator-monetization" onClose={back} />}
+          {shown === "funding-readiness" && <FundingReadinessScreen key="funding-readiness" />}
+          {allowed && shown === "creator-stories" && <CreatorStoriesScreen key="creator-stories" />}
+          {allowed && shown === "creator-earnings" && <CreatorEarningsScreen key="creator-earnings" onClose={back} />}
+          {shown === "subscription-management" && <SubscriptionManagementScreen key="subscription-management" onClose={back} />}
+          {allowed && shown === "admin-dashboard" && <AdminDashboardScreen key="admin-dashboard" onClose={back} />}
+          {shown === "about" && <AboutScreen key="about" onClose={back} />}
+          {shown === "settings" && <ProfilePreferencesScreen key="settings" onBack={back} />}
+          {shown === "account" && <AccountPrivacyScreen key="account" />}
+          {allowed && shown === "notes" && <NotesScreen key="notes" />}
+          {shown === "edit-profile" && <EditProfileScreen key="edit-profile" />}
+          {shown === "change-password" && <ChangePasswordScreen key="change-password" />}
+          {shown === "legal" && <LegalScreen key="legal" />}
+          {shown === "reset-password" && route.params.id && <ResetPasswordScreen key="reset-password" token={route.params.id} />}
 
-          {currentScreen === "creator-publish" && (
+          {shown === "creator-intro" && <CreatorIntroScreen key="creator-intro" />}
+          {shown === "creator-publish" && (
             <CreatorPublishFlow
               key="creator-publish"
               onClose={back}
@@ -358,7 +427,7 @@ function AppContent() {
             />
           )}
 
-          {allowed && currentScreen === "moderation-governance" && <ModerationGovernanceSystem key="moderation-governance" onBack={back} />}
+          {allowed && shown === "moderation-governance" && <ModerationGovernanceSystem key="moderation-governance" onBack={back} />}
         </AnimatePresence>
         </Suspense>
         {currentScreen !== "onboarding" && currentScreen !== "story-chapter" && (

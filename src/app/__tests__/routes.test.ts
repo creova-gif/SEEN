@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { SCREENS, canAccess, fromHash, toHash, type AppScreen } from "../navigation/routes";
+import { GUEST_SCREENS, SCREENS, canAccess, canGuestAccess, fromHash, toHash, type AppScreen } from "../navigation/routes";
 
 describe("hash routes", () => {
   it("round-trips id routes", () => {
@@ -80,10 +80,29 @@ describe("screen permissions", () => {
     expect(canAccess("creator-publish", "viewer")).toBe(true);
   });
 
-  // Not built yet (guest mode, task DT1). Listed here as explicit requirements; todo tests do not fail CI.
-  it.todo("a guest can open For You, Explore, Search and a story preview");
-  it.todo("a guest opening #/library, #/profile or #/creator-publish gets the sign-in sheet, never a blank or private screen");
-  it.todo("a guest can never open creator, moderator or admin screens, even by typing the URL");
+  // Limited guest mode (D2): a guest browses; anything private or creator/staff is behind an account.
+  it("a guest can open For You, Explore, Search and a story preview", () => {
+    for (const s of ["for-you", "explore", "search", "story-preview", "story-chapter", "creator-profile", "funding"] as AppScreen[]) {
+      expect(canGuestAccess(s), s).toBe(true);
+    }
+  });
+
+  it("a guest opening Library, Profile, Create or any private screen is stopped, even by typing the URL", () => {
+    for (const s of ["library", "profile", "creator-publish", "creator-intro", "notifications", "settings", "account", "edit-profile", "change-password", "chapter-index"] as AppScreen[]) {
+      expect(canGuestAccess(s), s).toBe(false);
+    }
+  });
+
+  it("a guest can never open creator, moderator or admin screens", () => {
+    for (const s of ["creator-monetization", "creator-earnings", "creator-stories", "notes", "moderation-governance", "admin-dashboard", "subscription-management"] as AppScreen[]) {
+      expect(canGuestAccess(s), s).toBe(false);
+    }
+  });
+
+  it("only lists screens that exist, and every restricted-role screen stays out of the guest list", () => {
+    for (const s of GUEST_SCREENS) expect(SCREENS).toContain(s);
+    for (const s of Object.keys(RESTRICTED) as AppScreen[]) expect(GUEST_SCREENS).not.toContain(s);
+  });
 
   it("keeps every public screen open to viewers", () => {
     const restricted = new Set(["creator-stories", "admin-dashboard", "moderation-governance", "creator-earnings", "creator-monetization", "notes"]);
