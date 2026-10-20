@@ -177,11 +177,12 @@ export function initialsOf(name: string): string {
     .join("");
 }
 
-export function Avatar({ name, src, size = "md" }: { name: string; src?: string; size?: keyof typeof AVATAR_SIZES }) {
+export function Avatar({ name, src, size = "md", ring }: { name: string; src?: string; size?: keyof typeof AVATAR_SIZES; ring?: boolean }) {
   return (
     <span
       className={cx(
         "relative rounded-full overflow-hidden flex items-center justify-center flex-shrink-0 bg-seen-elevated border border-seen-border text-white/80 font-medium",
+        ring && "ring-2 ring-seen-accent ring-offset-2 ring-offset-black text-white",
         AVATAR_SIZES[size],
       )}
       aria-hidden

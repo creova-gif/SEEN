@@ -18,6 +18,15 @@ import { SeenImage } from "./SeenImage";
 const cardBase =
   "group w-full h-full text-left flex flex-col rounded-seen-lg border border-seen-border bg-seen-surface overflow-hidden transition-colors hover:border-white/20 focus-visible:border-white/40";
 
+/** A creator's banner image: the cover of their first catalogue story, if they have one. */
+export function creatorCover(creator: Creator): string | undefined {
+  for (const id of creator.storyIds) {
+    const cover = getStoryWorldById(id)?.coverImage;
+    if (cover) return cover;
+  }
+  return undefined;
+}
+
 // ------------------------------------------------------------ Creator Card (570:3)
 export function CreatorCard({
   creator,
@@ -29,15 +38,31 @@ export function CreatorCard({
   onOpen: (id: string) => void;
 }) {
   return (
-    <button type="button" data-testid="creator-card" onClick={() => onOpen(creator.id)} className={`${cardBase} p-4 gap-3`}>
-      <Avatar name={creator.name} size="md" />
-      <h3 className="text-sm font-semibold text-white leading-tight line-clamp-2 min-h-[2.5em] break-words hyphens-auto">{creator.name}</h3>
-      <p className="text-xs text-seen-secondary line-clamp-2 min-h-[2.8em] leading-relaxed">{creator.themes.join(" · ")}</p>
-      <div className="mt-auto flex items-center justify-between">
-        <span className="text-[10px] tracking-[0.14em] uppercase text-seen-muted">
+    <button type="button" data-testid="creator-card" onClick={() => onOpen(creator.id)} className={cardBase}>
+      {/* The creator's own work as the banner: the first story's cover, softened into the card. */}
+      <div className="relative h-20 w-full overflow-hidden">
+        <SeenImage src={creatorCover(creator)} alt="" decorative seed={creator.id} className="absolute inset-0 w-full h-full object-cover opacity-80 transition-transform duration-700 group-hover:scale-105" />
+        <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-seen-surface via-seen-surface/30 to-transparent" />
+        <div aria-hidden className="absolute inset-x-0 top-0 h-0.5 bg-seen-accent" />
+        {following && (
+          <span className="absolute top-3 right-2">
+            <Badge tone="overImage">Following</Badge>
+          </span>
+        )}
+      </div>
+      <div className="relative -mt-6 flex flex-1 flex-col gap-2 px-4 pb-4">
+        <Avatar name={creator.name} size="md" ring />
+        <h3 className="text-sm font-semibold text-white leading-tight line-clamp-2 min-h-[2.5em] break-words hyphens-auto">{creator.name}</h3>
+        <ul aria-label="Themes" className="flex flex-wrap content-start gap-1 h-[3.25rem] overflow-hidden">
+          {creator.themes.slice(0, 2).map(theme => (
+            <li key={theme} className="max-w-full truncate rounded-full border border-seen-accent/30 bg-seen-accent/10 px-2 py-0.5 text-[11px] leading-snug text-seen-accent">
+              {theme}
+            </li>
+          ))}
+        </ul>
+        <span className="mt-auto text-[10px] tracking-[0.14em] uppercase text-seen-accent">
           {creator.storyIds.length} {creator.storyIds.length === 1 ? "story" : "stories"}
         </span>
-        {following && <Badge tone="purple">Following</Badge>}
       </div>
     </button>
   );

@@ -19,6 +19,8 @@ What the product should do, how we will know it does, and which decisions are st
 | PR-7 | Chapter autoplay | Awaiting approval | Medium |
 | PR-8 | "Here is your story" section | Awaiting approval | Medium |
 | PR-9 | Expandable story description | Awaiting approval | Low |
+| PR-11 | Creator cards and profile design | Built | Medium |
+| PR-12 | Follow-along reading while content plays | Built | High |
 | PR-10 | Brand refresh: palette, buttons, creator profiles | Blocked: brand reference not supplied | High |
 
 ## Approved requirements
@@ -75,6 +77,19 @@ These are interpretations of unclear feedback. Do not build them until the owner
 ### PR-9 Expandable story description ("info collapsing")
 - **Recommendation.** An expandable description with "Read more / Show less" that keeps the reader's position when it opens or closes.
 - **Confirm.** The original feedback line was unfinished. Which screen, what collapses, and on what trigger?
+
+## Built from later feedback
+
+### PR-11 Creator cards and profile design
+- **Behavior.** Creator cards and profiles use the creator's own work as a banner (the cover of their first catalogue story, a generated gradient if none), a purple-ringed avatar, theme tags and counts in the existing creator accent (`--seen-domain-creator`, `#c084fc`). The profile adds a stats row (stories, languages, themes). Following shows in the card's status corner.
+- **Problem.** Creator pages were flat initials on grey boxes, unlike the image-led story cards.
+- **Scope note.** Uses only existing tokens. When the brand reference arrives (PR-10), these colors may change with it.
+- **Acceptance (met).** Equal card heights in the grid and no overflow at 320 px; accent text on its tinted fill passes axe; the card is still one tap target.
+
+### PR-12 Follow-along reading
+- **Behavior.** While narration or a recording plays, the chapter text lights the sentence being spoken and keeps it in view (smooth scroll, instant under reduced motion). Scrolling or touching the text hands control to the reader and shows "Follow along" to resume. Nothing moves when playback is paused or finished.
+- **Limits.** Timing is by position in the text, not per-word cues, so it can drift a little on long chapters. True word timing needs timed transcripts from the transcription work (T12).
+- **Acceptance (met).** Unit tests for timing, scrolling, reduced motion and hand-over; an e2e test with real audio shows the lit sentence move on and stay on screen.
 
 ## Blocked
 

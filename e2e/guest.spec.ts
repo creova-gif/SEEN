@@ -260,3 +260,32 @@ test.describe("language clarity (11A) and account note (7A)", () => {
     await expect(page.getByRole("button", { name: /discover stories/i })).toBeVisible();
   });
 });
+
+test.describe("creator profile design", () => {
+  test("a profile shows its banner, avatar ring, stats and a Follow button without overflow", async ({ page }) => {
+    await signInAs(page, "viewer");
+    for (const width of [320, 390]) {
+      await page.setViewportSize({ width, height: 800 });
+      await page.goto("/#/creator/kira-chen");
+      await expect(page.getByRole("heading", { name: "Kira Chen", level: 2 })).toBeVisible();
+      const stats = page.locator("dl");
+      await expect(stats.getByText("Stories", { exact: true })).toBeVisible();
+      await expect(stats.getByText("Languages", { exact: true })).toBeVisible();
+      await expect(stats.getByText("Themes", { exact: true })).toBeVisible();
+      await expect(page.getByRole("button", { name: /^follow$/i })).toBeVisible();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
+    }
+  });
+
+  test("creator cards in the grid keep equal heights and stay inside the screen at 320 px", async ({ page }) => {
+    await signInAs(page, "viewer");
+    await page.setViewportSize({ width: 320, height: 800 });
+    await page.goto("/#/explore/creators");
+    const cards = page.getByTestId("creator-card");
+    await expect(cards.first()).toBeVisible();
+    const rows = await cards.evaluateAll(els => els.slice(0, 4).map(e => [Math.round(e.getBoundingClientRect().top), Math.round(e.getBoundingClientRect().height), Math.round(e.getBoundingClientRect().right)]));
+    expect(rows[0][1]).toBe(rows[1][1]); // same row, same height
+    expect(rows[2][1]).toBe(rows[3][1]);
+    for (const r of rows) expect(r[2]).toBeLessThanOrEqual(320);
+  });
+});

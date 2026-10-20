@@ -8,6 +8,8 @@ import { api } from "../services";
 import { useResource } from "../hooks/useResource";
 import { ResourceView } from "../components/seen/ResourceView";
 import { Avatar, Badge, Button, SectionTitle, SkeletonList } from "../components/seen/primitives";
+import { creatorCover } from "../components/seen/cards";
+import { SeenImage } from "../components/seen/SeenImage";
 import { StoryRow } from "../components/seen/StoryRow";
 import { useAppNav } from "../navigation/AppNav";
 import { useStoryState } from "../contexts/StoryStateContext";
@@ -58,10 +60,28 @@ export function CreatorProfileScreen({ creatorId }: { creatorId: string }) {
       <ResourceView resource={resource} what="creator" skeleton={<SkeletonList count={4} label="Loading creator" />}>
         {({ creator, following }) => (
           <>
-            <section className="flex flex-col items-center text-center pt-4 pb-8 border-b border-white/5">
-              <Avatar name={creator.name} size="lg" />
-              <h2 className="text-2xl font-light tracking-tight mt-4">{creator.name}</h2>
+            {/* Banner: the creator's own work, fading into the page, with an accent line on top. */}
+            <div aria-hidden className="relative -mx-gutter h-40 overflow-hidden">
+              <SeenImage src={creatorCover(creator)} alt="" decorative seed={creator.id} className="absolute inset-0 w-full h-full object-cover opacity-80" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+              <div className="absolute inset-x-0 top-0 h-0.5 bg-seen-accent" />
+            </div>
+            <section className="relative -mt-12 flex flex-col items-center text-center pb-8 border-b border-white/5">
+              <Avatar name={creator.name} size="lg" ring />
+              <h2 className="font-seen-display text-[30px] font-normal leading-[1.16] tracking-[-0.5px] mt-5">{creator.name}</h2>
               <p className="text-sm text-seen-secondary mt-2 max-w-[320px] leading-relaxed">{creator.bio}</p>
+              <dl className="mt-5 grid grid-cols-3 gap-2 w-full max-w-[320px]">
+                {[
+                  [creator.storyIds.length, t("creator.stat.stories")],
+                  [creator.languages.length, t("creator.stat.languages")],
+                  [creator.themes.length, t("creator.stat.themes")],
+                ].map(([n, label]) => (
+                  <div key={label as string} className="rounded-seen-md border border-seen-accent/30 bg-seen-accent/10 py-2">
+                    <dt className="text-[10px] tracking-[0.14em] uppercase text-seen-accent">{label}</dt>
+                    <dd className="text-lg font-semibold text-white">{n}</dd>
+                  </div>
+                ))}
+              </dl>
               <div className="flex flex-wrap justify-center gap-1.5 mt-4">
                 {creator.languages.map(l => (
                   <Badge key={l}>{LANG_LABEL[l] ?? l}</Badge>

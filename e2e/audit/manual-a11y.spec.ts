@@ -241,8 +241,8 @@ test("text over images keeps 4.5:1 (or 3:1 for large text) against the lightest 
       return out.slice(0, 40);
     });
     findings.push({ check: "image-contrast-coverage", route: r, targets: targets.length, imgs: await page.locator("img").count(), fallbacks: await page.getByTestId("image-fallback").count() });
-    // Hide all text, capture the backdrop once per route.
-    const hide = await page.addStyleTag({ content: "*{color:transparent !important;text-shadow:none !important}" });
+    // Hide all text, capture the backdrop once per route. Transitions are switched off too, or fading text would still show in the shot.
+    const hide = await page.addStyleTag({ content: "*{color:transparent !important;text-shadow:none !important;transition:none !important}" });
     const shot = (await page.screenshot()).toString("base64");
     await hide.evaluate(e => e.remove()); // hash navigation keeps the document, so the style must not leak into the next route
     const worst = await page.evaluate(async ({ shot, targets }) => {
