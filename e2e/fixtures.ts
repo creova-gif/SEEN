@@ -1,4 +1,4 @@
-import { test as base, expect, type Page } from "@playwright/test";
+import { test as base, expect, type Locator, type Page } from "@playwright/test";
 
 /**
  * Signs a seeded demo account in by writing the same localStorage records the
@@ -17,6 +17,18 @@ export async function signInAs(page: Page, role: "viewer" | "creator" | "moderat
     localStorage.setItem("onboarding_completed", "true");
     localStorage.setItem("hasEnteredSEEN", "true");
   }, role);
+}
+
+/**
+ * Presses Escape until the dialog closes. The dialog library only starts listening for Escape a few
+ * milliseconds after a dialog opens, so a key pressed in that window can be ignored; pressing it again
+ * is what a person would do. It still fails if Escape never closes the dialog.
+ */
+export async function closeWithEscape(page: Page, dialog: Locator) {
+  await expect(async () => {
+    await page.keyboard.press("Escape");
+    await expect(dialog).toBeHidden({ timeout: 750 });
+  }).toPass({ timeout: 10_000 });
 }
 
 export const test = base;

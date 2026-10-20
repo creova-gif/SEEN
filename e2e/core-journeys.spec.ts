@@ -1,4 +1,4 @@
-import { expect, signInAs, test } from "./fixtures";
+import { closeWithEscape, expect, signInAs, test } from "./fixtures";
 
 /** The first screen: the glowing S.E.E.N entry button. It must never be removed. */
 async function enterSeen(page: import("@playwright/test").Page) {
@@ -127,8 +127,7 @@ test.describe("keyboard-only", () => {
     await del.focus();
     await page.keyboard.press("Enter");
     await expect(page.getByRole("alertdialog").or(page.getByRole("dialog"))).toBeVisible();
-    await page.keyboard.press("Escape");
-    await expect(page.getByRole("alertdialog").or(page.getByRole("dialog"))).toBeHidden();
+    await closeWithEscape(page, page.getByRole("alertdialog").or(page.getByRole("dialog")));
     await expect(del).toBeFocused();
     await expect(page).toHaveURL(/#\/account$/);
   });
@@ -221,7 +220,7 @@ test.describe("reader: transcript, captions, completion", () => {
     const dialog = page.getByRole("dialog", { name: /transcript/i });
     await expect(dialog).toBeVisible();
     await expect(dialog.getByText(/timed captions are not available yet/i)).toBeVisible();
-    await page.keyboard.press("Escape");
+    await closeWithEscape(page, dialog);
     const cc = page.getByRole("button", { name: /^captions$/i });
     await expect(cc).toHaveAttribute("aria-pressed", "false");
     await cc.click();

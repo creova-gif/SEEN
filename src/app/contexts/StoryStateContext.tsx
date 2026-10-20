@@ -1,7 +1,4 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { projectId, publicAnonKey } from '../../../utils/supabase/info';
-
-const API_BASE = `https://${projectId}.supabase.co/functions/v1/make-server-2bdc05e6`;
 
 // Language types
 export type Language = 'en' | 'fr' | 'es';

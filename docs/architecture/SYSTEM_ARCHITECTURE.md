@@ -13,7 +13,8 @@ Browser (React SPA on Vercel static hosting)
  ├── Auth: AuthContext (local demo accounts, hashed passwords in localStorage)
  └── Telemetry: observability.ts (ring buffer; optional sendBeacon endpoint)
 
-Supabase Edge Function (supabase/functions/server) — exists, NOT called by the web app
+Legacy Hono Edge Function — archived to archive/supabase/functions/server (ADR-001); never called by the web app,
+no longer in supabase/functions, so it cannot be deployed from the active tree
 ```
 
 Consequences to state plainly: data is per-browser; two testers never see each

@@ -17,4 +17,4 @@
 | `FRONTEND_URL` | Edge Function | no | Allowed origin for CSRF checks |
 
 `VITE_*` values are compiled into the public bundle — never put a secret in one.
-Supabase project id + anon key currently live in `utils/supabase/info.tsx` (public by design); move to `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` when the adapter is wired so staging and production can differ.
+The web app reads the Supabase URL and anon key only from `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` (see `src/app/services/backend.ts`), so staging and production can differ. The old hard-coded copy in `utils/supabase/info.tsx` was unused and is archived under `archive/utils/`.
