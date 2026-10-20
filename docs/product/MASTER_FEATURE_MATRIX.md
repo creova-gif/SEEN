@@ -1,7 +1,7 @@
 # Master feature matrix
 
 The execution control plane. **Vercel** = production at `707b179`; **Figma** = component library; **Code** = this branch.
-Backend column: *Demo* = typed contract + local demo adapter (ADR-002); *None* = no server; *Edge fn* = endpoint exists in `supabase/functions/server` but is not wired.
+Backend column: *Demo* = typed contract + local demo adapter (ADR-002); *None* = no server; *Edge fn* = endpoint existed in the legacy `supabase/functions/server`, now archived at `archive/supabase/functions/server` and not wired.
 
 | ID | Feature | Screen / flow | Vercel (before) | Figma | Code (now) | Backend | State coverage | Tests | Decision | Priority |
 |---|---|---|---|---|---|---|---|---|---|---|

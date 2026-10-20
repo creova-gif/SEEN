@@ -15,7 +15,7 @@ Scope: web app on `claude/clever-gates-cs9out`, the unused Supabase Edge Functio
 | S7 | Info | Passwords hashed with SHA-256 + static salt client-side (demo only; comment in code says so) | Replace with Supabase Auth |
 | S8 | Low | Edge fn CSRF check trusts any request whose `Host` contains `supabase.co` | Open — remove bypass when wiring the backend |
 | S9 | Low | No CSP / security headers on Vercel | **Partly fixed** — `vercel.json` adds nosniff, referrer, frame, permissions headers and a CSP in *Report-Only* mode. Promote to enforcing after one clean preview deploy |
-| S10 | Info | Supabase **anon** key committed in `utils/supabase/info.tsx` | Acceptable (public by design) **if** RLS is enabled on every table; service-role key is not in the repo |
+| S10 | Info | Supabase **anon** key committed in `utils/supabase/info.tsx` | Acceptable (public by design) **if** RLS is enabled on every table; service-role key is not in the repo. **Update:** the file was unused and is now archived (`archive/utils/supabase/info.tsx`); the app reads `VITE_SUPABASE_*` only |
 
 ## Checks run
 
