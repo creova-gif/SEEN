@@ -26,4 +26,4 @@ Use the production link (`https://seen-sigma-eight.vercel.app`). Preview links o
 
 ## If a store app is wanted later
 
-Wrap this same web app with Capacitor (iOS and Android) and keep one codebase. The `mobile/` folder is an old Expo prototype of a different, earlier app; it does not run this app and Expo Go cannot open it, so it is not the route.
+Wrap this same web app with Capacitor (iOS and Android) and keep one codebase. The `mobile/` folder is a different thing: a small Expo shell that loads the live SEEN web app in a WebView and runs in Expo Go (see `mobile/README.md`). It is a way to try SEEN on a phone, not the store route: it has no native audio in the background and no push notifications.

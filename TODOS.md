@@ -18,3 +18,10 @@ Engineering tasks for approved requirements only. Items awaiting product approva
 - [x] **PR-4 Chapter-end Next.** Show Next when a chapter ends, no auto-advance; guests get the sign-in sheet. Verify: e2e plus `playback-continuity.spec.ts` unchanged. Effort: S. Priority: P1.
 - [x] **PR-5 Single interest chip row.** Replace the interests rail and any separate filter; guests see popular topics. Verify: no overflow at 320 px, keyboard and axe. Effort: M. Priority: P2.
 - [ ] **PR-6 First-screen poster and motion background.** Poster first, size cap, no video under reduced motion or data saver; the protected first-screen e2e test must pass unchanged. Blocked on the owner supplying original artwork (U2). Effort: M. Priority: P2.
+
+## Engineering hygiene (from the first-beta plan review)
+
+- [ ] **Figma sync.** Update the Figma file to match approved decisions: guest sheet 348:99 (add the Sign in link and trigger copy), 407:2 and 334:46 (review wording; fix the body text running behind the status card in 334:46), 316:2 (responsive hero), 248:163 (sentence-case labels, five tabs), and mark guest-explore 10:444 as the guest state. Why: keeps design and product in sync so a later audit does not revert approved choices. Needs a Figma editor, about half a day. Priority: P3.
+- [ ] **Strict TypeScript.** `tsconfig.json` has `"strict": false`. Turn on `strict` (then `noUnusedLocals`) in stages, one folder at a time, starting with `src/app/services/` and `src/app/guest/`, keeping `npm run typecheck` at zero errors at each step. Effort: M to L. Priority: P3.
+- [ ] **Bundle budget.** Re-measured 20 Oct 2026 on `feature/guest-mode-and-create-tab`: entry chunk 97.5 KB gzip (366.9 KB raw), up from about 93 KB before guest mode. Add a CI check that fails when the entry chunk passes 110 KB gzip, and keep heavy screens lazy (the largest lazy chunk, creator earnings, is 100 KB gzip). Effort: S. Priority: P3.
+- [ ] **Close stale PRs.** Close #12 and #23 with a pointer comment; compare #14 with `dev`, port any missing fix as a new small change, then close #14 (decision D10). Needs the owner to say go, since closing PRs is visible to others. Priority: P2.

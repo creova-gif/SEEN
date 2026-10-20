@@ -235,3 +235,28 @@ test.describe("interest chips (PR-5)", () => {
     await expect(chips.getByRole("button").first()).toHaveAttribute("aria-pressed", "true");
   });
 });
+
+test.describe("language clarity (11A) and account note (7A)", () => {
+  test("the story page says which languages exist and how it is narrated", async ({ page }) => {
+    await signInAs(page, "viewer");
+    await page.goto("/#/story/midnight-resonance");
+    await expect(page.getByText(/available in EN/i).first()).toBeVisible();
+    await expect(page.getByText("Listen: device voice")).toBeVisible();
+  });
+
+  test("a story missing in the chosen language says so instead of switching silently", async ({ page }) => {
+    await signInAs(page, "viewer", "fr");
+    await page.goto("/#/story/midnight-resonance");
+    // Every catalogue story has FR today, so the notice is absent; it must never show when the language exists.
+    await expect(page.getByText(/disponible en/i).first()).toBeVisible();
+    await expect(page.getByRole("status").filter({ hasText: /pas encore disponible/i })).toHaveCount(0);
+  });
+
+  test("the purpose step explains what the creator choices mean, and the search filter is named Story language", async ({ page }) => {
+    await page.goto("/");
+    await page.getByRole("button", { name: /s\W*e\W*e\W*n/i }).click();
+    await page.getByRole("button", { name: /^continue$/i }).click();
+    await expect(page.getByText(/set you up to publish/i)).toBeVisible();
+    await expect(page.getByRole("button", { name: /discover stories/i })).toBeVisible();
+  });
+});

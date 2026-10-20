@@ -6,6 +6,8 @@ import { ArrowLeft, Play, Share2, Bookmark, Lock, Flag, PenLine } from "lucide-r
 import { ReportContentSheet } from "./ReportContentSheet";
 import { NoteSheet } from "./NoteSheet";
 import { useT } from "../i18n/useT";
+import { languageCodesLine, languageNamesList, substitutedLanguage } from "./seen/languageChip";
+import type { StringKey } from "../i18n/strings";
 import { SeenImage } from "./seen/SeenImage";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -205,6 +207,32 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
               </span>
             )}
           </div>
+
+          {/* Which languages the story has, how it will be heard, and a notice when the viewer's language is missing. */}
+          {(() => {
+            const codes = languageCodesLine(storyData.languagesAvailable);
+            const shown = substitutedLanguage(storyData.languagesAvailable, state.language);
+            const name = (l: string) => t(`search.lang.${l}` as StringKey);
+            return (
+              <div className="space-y-1">
+                <p className="text-xs text-white/70">
+                  {codes && (
+                    <>
+                      <span aria-hidden>{t("story.available", { list: codes })}</span>
+                      <span className="sr-only">{t("story.available", { list: languageNamesList(storyData.languagesAvailable.map(name), t("list.and")) })}</span>
+                      {" · "}
+                    </>
+                  )}
+                  {t("story.listenDevice")}
+                </p>
+                {shown && (
+                  <p role="status" className="text-xs text-white/80">
+                    {t("story.fallback", { shown: name(shown), wanted: name(state.language) })}
+                  </p>
+                )}
+              </div>
+            );
+          })()}
 
           {/* Title and description */}
           <div className="space-y-3">

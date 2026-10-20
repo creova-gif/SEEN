@@ -14,7 +14,7 @@ const COPY = {
   en: {
     title: "Preferences",
     language: "Language",
-    languageHint: "Stories, chapters and the interface switch immediately.",
+    languageHint: "Changes the interface and the story text together, straight away.",
     a11y: "Accessibility",
     contrast: "High contrast",
     contrastHint: "Brighter secondary text and stronger borders",
@@ -30,7 +30,7 @@ const COPY = {
   fr: {
     title: "Préférences",
     language: "Langue",
-    languageHint: "Les histoires, chapitres et l’interface changent immédiatement.",
+    languageHint: "Change l’interface et le texte des histoires en même temps, tout de suite.",
     a11y: "Accessibilité",
     contrast: "Contraste élevé",
     contrastHint: "Texte secondaire plus lumineux et bordures plus marquées",
@@ -46,7 +46,7 @@ const COPY = {
   es: {
     title: "Preferencias",
     language: "Idioma",
-    languageHint: "Las historias, capítulos y la interfaz cambian de inmediato.",
+    languageHint: "Cambia la interfaz y el texto de las historias a la vez, de inmediato.",
     a11y: "Accesibilidad",
     contrast: "Alto contraste",
     contrastHint: "Texto secundario más brillante y bordes más marcados",

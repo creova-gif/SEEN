@@ -85,6 +85,7 @@ export function PurposeStep({
             <Choice key={p.id} label={p.label} hint={p.hint} selected={selected.includes(p.id)} onToggle={() => toggle(p.id)} />
           ))}
         </div>
+        <p className="text-sm text-seen-secondary mt-4 pb-4">{t("onboard.accountNote")}</p>
       </div>
       <Footer>
         <button

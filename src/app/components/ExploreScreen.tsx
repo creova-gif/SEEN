@@ -9,7 +9,9 @@
 import { DemoModeNotice } from "./DemoModeNotice";
 import { GuestBanner } from "../guest/GuestBanner";
 import { PageTitle } from "./seen/primitives";
-import { languageChipText } from "./seen/languageChip";
+import { languageChipText, languageNamesList } from "./seen/languageChip";
+import type { StringKey } from "../i18n/strings";
+import { useT } from "../i18n/useT";
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { useAppNav } from "../navigation/AppNav";
@@ -63,7 +65,20 @@ export function ExploreScreen({
   };
 
   // Get curated categories
+  const t = useT();
   const chipFor = (l: readonly string[] | undefined) => languageChipText(l, language);
+  // Compact chip for the eye, full sentence for assistive tech ("Available in English and Français").
+  const chipNode = (l: readonly string[] | undefined) => {
+    const chip = chipFor(l);
+    if (!chip || !l) return null;
+    const names = languageNamesList([...new Set(l)].map(code => t(`search.lang.${code}` as StringKey)), t("list.and"));
+    return (
+      <span className="text-white/70">
+        <span aria-hidden> · {chip}</span>
+        <span className="sr-only">. {t("story.available", { list: names })}</span>
+      </span>
+    );
+  };
   const categories = getExploreCategories(language as Language);
   
 
@@ -171,7 +186,7 @@ export function ExploreScreen({
                     subtitle={item.description}
                     duration={item.duration}
                     imageUrl={item.mediaSource}
-                    typeLabel={<><BookOpen className="w-3 h-3" aria-hidden />{item.type}{chipFor(item.language) && <span className="text-white/70"> · {chipFor(item.language)}</span>}</>}
+                    typeLabel={<><BookOpen className="w-3 h-3" aria-hidden />{item.type}{chipNode(item.language)}</>}
                     onSelect={onStoryClick}
                   />
                 ))}
@@ -226,7 +241,7 @@ export function ExploreScreen({
                     subtitle={item.description}
                     duration={item.duration}
                     imageUrl={item.mediaSource}
-                    typeLabel={<><BookOpen className="w-3 h-3" aria-hidden />{item.type}{chipFor(item.language) && <span className="text-white/70"> · {chipFor(item.language)}</span>}</>}
+                    typeLabel={<><BookOpen className="w-3 h-3" aria-hidden />{item.type}{chipNode(item.language)}</>}
                     onSelect={onStoryClick}
                   />
                 ))}
