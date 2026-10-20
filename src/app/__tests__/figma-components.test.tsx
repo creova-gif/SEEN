@@ -6,9 +6,28 @@ import { Checkbox, PasswordField, RadioGroup, SearchBar, TextField, Toggle } fro
 import { ConfirmDialog, Drawer, Sheet } from "../components/seen/overlays";
 import { ChapterRow, CircularProgress, LinearProgress, ListItem, SubscriptionCard } from "../components/seen/display";
 import { BottomNav } from "../components/seen/BottomNav";
+import { IconButton } from "../components/seen/primitives";
 import { StoryStateProvider } from "../contexts/StoryStateContext";
 import { PlaybackProvider, usePlayback, formatTime } from "../playback/PlaybackProvider";
 import { ExpandedPlayer } from "../components/seen/MediaPlayerBar";
+
+describe("icon button badge", () => {
+  it("names the button with exactly the number shown on the badge (WCAG 2.5.3 Label in Name)", () => {
+    const { rerender } = render(<IconButton label="Notifications" badge={3} />);
+    expect(screen.getByRole("button", { name: "Notifications, 3 unread" })).toBeInTheDocument();
+    expect(screen.getByText("3")).toBeInTheDocument();
+    // Above nine the badge reads "9+", so the name must say 9+ too, not the raw count.
+    rerender(<IconButton label="Notifications" badge={12} />);
+    expect(screen.getByRole("button", { name: "Notifications, 9+ unread" })).toBeInTheDocument();
+    expect(screen.getByText("9+")).toBeInTheDocument();
+  });
+
+  it("has a plain name and no badge when nothing is unread", () => {
+    render(<IconButton label="Notifications" badge={0} />);
+    expect(screen.getByRole("button", { name: "Notifications" })).toBeInTheDocument();
+    expect(screen.queryByText("0")).not.toBeInTheDocument();
+  });
+});
 
 describe("form atoms", () => {
   it("TextField links its label and error for assistive tech", () => {

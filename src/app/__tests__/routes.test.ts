@@ -53,6 +53,38 @@ describe("screen permissions", () => {
     expect(canAccess("moderation-governance", "moderator")).toBe(true);
   });
 
+  // The whole role-by-route matrix, written out by hand so any change to who can open what fails here
+  // (D14 regression contract). Screens not listed below are open to all four signed-in roles.
+  const ROLES = ["viewer", "creator", "moderator", "admin"] as const;
+  const RESTRICTED: Partial<Record<AppScreen, readonly (typeof ROLES)[number][]>> = {
+    "creator-monetization": ["creator", "admin"],
+    "creator-earnings": ["creator", "admin"],
+    "creator-stories": ["creator", "admin"],
+    notes: ["creator", "admin"],
+    "moderation-governance": ["moderator", "admin"],
+    "admin-dashboard": ["admin"],
+  };
+
+  it("matches the written matrix for every screen and every role", () => {
+    const wrong: string[] = [];
+    for (const screen of SCREENS) {
+      for (const role of ROLES) {
+        const expected = RESTRICTED[screen] ? RESTRICTED[screen]!.includes(role) : true;
+        if (canAccess(screen, role) !== expected) wrong.push(`${role} -> ${screen}: expected ${expected}`);
+      }
+    }
+    expect(wrong).toEqual([]);
+  });
+
+  it("lets a signed-in viewer open the publish flow (becoming a creator happens on first publish)", () => {
+    expect(canAccess("creator-publish", "viewer")).toBe(true);
+  });
+
+  // Not built yet (guest mode, task DT1). Listed here as explicit requirements; todo tests do not fail CI.
+  it.todo("a guest can open For You, Explore, Search and a story preview");
+  it.todo("a guest opening #/library, #/profile or #/creator-publish gets the sign-in sheet, never a blank or private screen");
+  it.todo("a guest can never open creator, moderator or admin screens, even by typing the URL");
+
   it("keeps every public screen open to viewers", () => {
     const restricted = new Set(["creator-stories", "admin-dashboard", "moderation-governance", "creator-earnings", "creator-monetization", "notes"]);
     for (const s of SCREENS) {

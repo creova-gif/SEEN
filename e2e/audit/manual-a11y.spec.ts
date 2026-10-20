@@ -1,4 +1,4 @@
-import { expect, signInAs, test, type Page } from "../fixtures";
+import { closeWithEscape, expect, signInAs, test, type Page } from "../fixtures";
 import { mkdirSync, writeFileSync } from "node:fs";
 
 /**
@@ -65,6 +65,8 @@ test.describe("keyboard-only journeys", () => {
     const card = await tabTo(page, /midnight resonance/i, 80);
     await page.keyboard.press("Enter");
     await expect(page).toHaveURL(/#\/story\//);
+    // The For You screen fades out and the story page loads lazily; wait for it so Tab starts on the real page.
+    await expect(page.getByRole("button", { name: /^save to library$/i })).toBeVisible();
     // save
     await tabTo(page, /^save to library$/i);
     await page.keyboard.press("Enter");
@@ -77,22 +79,25 @@ test.describe("keyboard-only journeys", () => {
     await tabTo(page, /close|back|index|chapters/i, 40);
     // Library > Saved
     await page.goto("/#/library");
+    // The reader fades out and Library loads lazily; wait for the destination so Tab starts on the real page.
+    await expect(page.getByRole("heading", { name: "Library" })).toBeVisible();
     await tabTo(page, /saved stor(y|ies)$/i);
     await page.keyboard.press("Enter");
     await expect(page.getByTestId("story-row").first()).toBeVisible();
     // Settings: Larger text switch with Space
     await page.goto("/#/settings");
+    await expect(page.getByText(/larger text/i).first()).toBeVisible();
     await tabTo(page, /larger text/i);
     await page.keyboard.press("Space");
     await expect(page.locator("html")).toHaveAttribute("data-text", "large");
     // Sign out with confirmation
     await page.goto("/#/profile");
+    await expect(page.getByRole("button", { name: /^sign out$/i })).toBeVisible();
     await tabTo(page, /^sign out$/i, 120);
     await page.keyboard.press("Enter");
     const dialog = page.getByRole("dialog", { name: /sign out\?/i });
     await expect(dialog).toBeVisible();
-    await page.keyboard.press("Escape");
-    await expect(dialog).toBeHidden();
+    await closeWithEscape(page, dialog);
     await expect(page.getByRole("button", { name: /^sign out$/i })).toBeFocused();
   });
 
