@@ -9,6 +9,7 @@ async function enterAsGuest(page: Page, hash = "/") {
   await page.getByRole("button", { name: /s\W*e\W*e\W*n/i }).click();
   await page.getByRole("button", { name: /^continue$/i }).click();
   await page.getByRole("button", { name: /explore without an account/i }).click();
+  await expect(page.getByRole("heading", { name: "For You", level: 1 })).toBeVisible(); // let the screen change finish, as a person would
 }
 
 const nav = (page: Page) => page.getByRole("navigation", { name: "Main" });
@@ -57,7 +58,7 @@ test.describe("guest", () => {
       await page.getByRole("dialog").getByRole("button", { name: /not now/i }).click();
       await expect(page.getByRole("dialog")).toBeHidden();
       // Behind the sheet is the same sign-in prompt, not the screen.
-      await expect(page.getByRole("button", { name: "Create free account" }).first()).toBeVisible();
+      await expect(page.getByRole("button", { name: "Create free account" }).first(), `behind the sheet at ${hash}`).toBeVisible();
     }
   });
 
