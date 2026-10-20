@@ -22,6 +22,7 @@ export interface HeroItem {
 }
 
 /** Editorial hero: full-bleed 520px, one primary action. The button is the only tap target. */
+/** About 55% of the screen above the tab bar, never taller than 520 px (Figma 316:2) nor shorter than its text needs, so the first rail peeks in on a short phone. */
 export function FeaturedHero({ item, onExperience }: { item: HeroItem; onExperience: (id: string) => void }) {
   const meta = [item.creator, item.duration.replace(/\s*•\s*/g, " · ")].filter(Boolean).join(" · ");
   return (
@@ -30,7 +31,7 @@ export function FeaturedHero({ item, onExperience }: { item: HeroItem; onExperie
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={TRANSITIONS.default}
-      className="relative -mx-gutter h-[520px] overflow-hidden bg-seen-canvas"
+      className="relative -mx-gutter h-[min(520px,calc((100dvh-var(--seen-nav-height))*0.55))] min-h-[300px] overflow-hidden bg-seen-canvas"
     >
       <SeenImage src={item.mediaSource} alt="" decorative seed={item.id} className="absolute inset-0 w-full h-full object-cover" />
       {/* Scrims keep text readable on any photo, light ones included: dark under the header, dark under the title block. */}

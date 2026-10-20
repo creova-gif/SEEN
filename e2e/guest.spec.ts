@@ -206,3 +206,31 @@ test.describe("creator navigation (PR-2)", () => {
     await expect(page.getByRole("button", { name: "Your stories", exact: true })).toHaveCount(0);
   });
 });
+
+test.describe("interest chips (PR-5)", () => {
+  test("a guest sees topic chips, picks one and gets matching stories under them", async ({ page }) => {
+    await enterAsGuest(page);
+    const chips = page.getByRole("group", { name: "Topics" });
+    await expect(chips).toBeVisible();
+    await expect(page.getByRole("region", { name: /based on your interests/i })).toHaveCount(0);
+    const chip = chips.getByRole("button").first();
+    await chip.click();
+    await expect(chip).toHaveAttribute("aria-pressed", "true");
+    await expect(page.getByRole("region", { name: /based on your interests/i })).toBeVisible();
+    await chip.click();
+    await expect(page.getByRole("region", { name: /based on your interests/i })).toHaveCount(0);
+  });
+
+  test("the chip row scrolls sideways without making the page wider, at 320 px", async ({ page }) => {
+    await signInAs(page, "viewer");
+    await page.setViewportSize({ width: 320, height: 700 });
+    await page.goto("/#/for-you");
+    const chips = page.getByRole("group", { name: "Topics" });
+    await expect(chips).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
+    for (const b of await chips.getByRole("button").all()) expect((await b.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    await chips.getByRole("button").first().focus();
+    await page.keyboard.press("Space");
+    await expect(chips.getByRole("button").first()).toHaveAttribute("aria-pressed", "true");
+  });
+});

@@ -9,6 +9,7 @@
 import { storiesForInterests } from "../data/interests";
 import { DemoModeNotice } from "./DemoModeNotice";
 import { GuestBanner } from "../guest/GuestBanner";
+import { InterestChips } from "./InterestChips";
 import { PageTitle } from "./seen/primitives";
 import { motion } from "motion/react";
 import { useAppNav } from "../navigation/AppNav";
@@ -51,7 +52,7 @@ export function ForYouScreen({
   language,
   isFirstVisit
 }: ForYouScreenProps) {
-  const { state: storyState } = useStoryState();
+  const { state: storyState, setInterests } = useStoryState();
   const interests = storyState.interests ?? [];
   const interestItems = interests.length > 0 ? storiesForInterests(interests, language as Language).slice(0, 8) : [];
   const continueItems = getLibraryStories(storyState.progressSnapshots, language as Language).inProgress.slice(0, 6);
@@ -161,6 +162,21 @@ export function ForYouScreen({
           <PresenceIndicators storyCount={feedItems.length} />
         </motion.div>
 
+        {/* One interest filter (PR-5): chips on top, and the matching stories right under them when any are chosen. */}
+        <section className="mb-10">
+          <InterestChips selected={interests} onChange={setInterests} language={language as Language} />
+          {interestItems.length > 0 && (
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }} className="mt-6" role="region" aria-label="Based on your interests">
+              <SectionHeader title="Based on your interests" subtitle={interests.slice(0, 3).join(" · ")} />
+              <Rail>
+                {interestItems.map(item => (
+                  <RailCard key={item.id} w={150} h={200} onSelect={onStoryClick} item={{ id: item.id, title: item.title, eyebrow: item.type, imageUrl: item.mediaSource }} />
+                ))}
+              </Rail>
+            </motion.div>
+          )}
+        </section>
+
         {/* Continue experiencing — only when there is real progress */}
         {continueItems.length > 0 && (
           <motion.section initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }} className="mb-12" aria-label="Keep reading">
@@ -174,18 +190,6 @@ export function ForYouScreen({
                   onSelect={onStoryClick}
                   item={{ id: content.id, title: content.title, eyebrow: `${progress.progressPercentage}% read`, subtitle: content.creator, imageUrl: content.mediaSource }}
                 />
-              ))}
-            </Rail>
-          </motion.section>
-        )}
-
-        {/* Picked from the interests chosen at sign-up; hidden when none were chosen or nothing matches. */}
-        {interestItems.length > 0 && (
-          <motion.section initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }} className="mb-12" aria-label="Based on your interests">
-            <SectionHeader title="Based on your interests" subtitle={interests.slice(0, 3).join(" · ")} />
-            <Rail>
-              {interestItems.map(item => (
-                <RailCard key={item.id} w={150} h={200} onSelect={onStoryClick} item={{ id: item.id, title: item.title, eyebrow: item.type, imageUrl: item.mediaSource }} />
               ))}
             </Rail>
           </motion.section>

@@ -47,7 +47,7 @@ test.describe("for you: figma alignment", () => {
     const hero = page.locator("section[aria-labelledby=hero-title]");
     await expect(hero).toBeVisible();
     const hb = await hero.boundingBox();
-    expect(Math.round(hb!.height)).toBe(520);
+    expect(Math.round(hb!.height)).toBe(Math.round(Math.min(520, Math.max(300, (844 - 64) * 0.55)))); // 55% of the space above the tab bar
     const btn = hero.getByRole("button", { name: /^start reading/i });
     const bb = await btn.boundingBox();
     expect(Math.round(bb!.width)).toBe(160);
@@ -58,6 +58,16 @@ test.describe("for you: figma alignment", () => {
   });
 
   for (const h of [568, 667, 844, 1000]) {
+    test(`content peeks in below the hero at height ${h}px`, async ({ page }) => {
+      await page.setViewportSize({ width: 390, height: h });
+      await page.goto("/#/for-you");
+      await page.waitForTimeout(700);
+      const hero = await page.locator("section[aria-labelledby=hero-title]").boundingBox();
+      expect(hero!.height).toBeLessThanOrEqual(520);
+      const next = await page.getByRole("heading", { name: "For You", level: 1 }).boundingBox();
+      expect(next!.y, "content starts below the hero and above the tab bar, so it is clear the page scrolls").toBeLessThan(h - 64 - 8);
+    });
+
     test(`no clipping at height ${h}px`, async ({ page }) => {
       await page.setViewportSize({ width: 390, height: h });
       await page.goto("/#/for-you");

@@ -284,6 +284,7 @@ export const STRINGS = {
   "nav.create": { en: "Create", fr: "Créer", es: "Crear" },
   "nav.yourStories": { en: "Your stories", fr: "Vos histoires", es: "Tus historias" },
   "reader.nextChapter": { en: "Next chapter", fr: "Chapitre suivant", es: "Capítulo siguiente" },
+  "foryou.topics": { en: "Topics", fr: "Thèmes", es: "Temas" },
   "nav.locked": { en: "{tab}, sign in required", fr: "{tab}, connexion requise", es: "{tab}, requiere iniciar sesión" },
   "guest.explore": { en: "Explore without an account", fr: "Explorer sans compte", es: "Explorar sin cuenta" },
   "guest.banner": { en: "Exploring as a guest. Sign up to save stories and pick up where you left off.", fr: "Vous explorez en tant qu'invité. Créez un compte pour enregistrer des histoires et reprendre votre lecture.", es: "Estás explorando como invitado. Crea una cuenta para guardar historias y retomar tu lectura." },
