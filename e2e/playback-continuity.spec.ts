@@ -122,3 +122,35 @@ test("at the end of a chapter, Next chapter is offered and nothing advances by i
   await expect(prev).toBeEnabled();
   await expect(next).toHaveCount(0);
 });
+
+test("while narration plays, the spoken sentence is lit and followed; scrolling away pauses following until asked", async ({ page }) => {
+  await page.route("**/media/narration/maria-interview.mp3", route =>
+    route.fulfill({ status: 200, contentType: "audio/wav", headers: { "Accept-Ranges": "bytes" }, body: toneWav(12) }),
+  );
+  await signInAs(page, "viewer");
+  await page.setViewportSize({ width: 390, height: 640 });
+  await page.goto("/#/story/voices-of-migration");
+  await page.getByRole("button", { name: /start reading/i }).click();
+  const lit = page.locator("[data-current=true]");
+  await expect(lit).toHaveCount(0); // nothing is lit before playback
+
+  await page.getByRole("button", { name: "Play", exact: true }).first().click();
+  await expect(lit).toHaveCount(1, { timeout: 15_000 });
+  const first = await lit.textContent();
+  await expect.poll(async () => lit.textContent(), { timeout: 20_000 }).not.toBe(first); // it moves on as the audio plays
+
+  // The lit sentence stays inside the visible text area.
+  const inView = await page.evaluate(() => {
+    const el = document.querySelector("[data-current=true]")!.getBoundingClientRect();
+    return el.top >= 0 && el.bottom <= window.innerHeight;
+  });
+  expect(inView).toBe(true);
+
+  // Scrolling away hands control to the reader, with a way back.
+  await page.mouse.move(200, 250);
+  await page.mouse.wheel(0, -400);
+  const resume = page.getByRole("button", { name: "Follow along" });
+  await expect(resume).toBeVisible();
+  await resume.click();
+  await expect(resume).toHaveCount(0);
+});

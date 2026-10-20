@@ -9,6 +9,7 @@ if (!window.matchMedia) {
     ({ matches: false, media: query, onchange: null, addListener() {}, removeListener() {}, addEventListener() {}, removeEventListener() {}, dispatchEvent: () => false }) as MediaQueryList;
 }
 window.scrollTo = () => {};
+if (!Element.prototype.scrollBy) Element.prototype.scrollBy = () => {};
 
 beforeEach(() => {
   localStorage.clear();

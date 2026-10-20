@@ -24,11 +24,106 @@ export function transcriptParagraphs(text: string): string[] {
   return out.length ? out : [text];
 }
 
+export const sentencesOf = (text: string) => text.split(/(?<=[.!?…])\s+/).filter(Boolean);
+
+/** Which sentence is being spoken, from playback progress (0 to 1). Timing is by position in the text, not per-word cues. */
+export function sentenceIndexAt(count: number, progress: number): number {
+  return count === 0 ? 0 : Math.min(count - 1, Math.max(0, Math.floor(progress * count)));
+}
+
 /** The sentence being spoken, from the device voice's progress. */
 export function currentSentence(text: string, progress: number): string {
-  const sentences = text.split(/(?<=[.!?…])\s+/).filter(Boolean);
-  if (sentences.length === 0) return "";
-  return sentences[Math.min(sentences.length - 1, Math.max(0, Math.floor(progress * sentences.length)))];
+  const sentences = sentencesOf(text);
+  return sentences.length === 0 ? "" : sentences[sentenceIndexAt(sentences.length, progress)];
+}
+
+/**
+ * The chapter text with the spoken sentence lit and kept in view while it plays (follow-along reading).
+ * The reader can scroll away at any time: that pauses following until they tap "Follow along".
+ * Nothing scrolls unless the content is playing, and reduced motion jumps instead of gliding.
+ */
+export function FollowAlongText({
+  text,
+  progress,
+  playing,
+  scroller,
+  reducedMotion,
+  chapterKey,
+}: {
+  text: string;
+  progress: number;
+  playing: boolean;
+  scroller: React.RefObject<HTMLElement | null>;
+  reducedMotion?: boolean;
+  chapterKey: string;
+}) {
+  const t = useT();
+  const sentences = sentencesOf(text);
+  const index = sentenceIndexAt(sentences.length, progress);
+  const lit = playing || progress > 0;
+  const [paused, setPaused] = useState(false);
+  const current = useRef<HTMLSpanElement | null>(null);
+
+  useEffect(() => setPaused(false), [chapterKey]);
+
+  // Touching or scrolling the text hands control to the reader.
+  useEffect(() => {
+    const el = scroller.current;
+    if (!el) return;
+    const stop = () => setPaused(true);
+    el.addEventListener("wheel", stop, { passive: true });
+    el.addEventListener("touchmove", stop, { passive: true });
+    return () => {
+      el.removeEventListener("wheel", stop);
+      el.removeEventListener("touchmove", stop);
+    };
+  }, [scroller]);
+
+  const follow = () => {
+    const box = scroller.current;
+    const el = current.current;
+    if (!box || !el) return;
+    const b = box.getBoundingClientRect();
+    const r = el.getBoundingClientRect();
+    box.scrollBy({ top: r.top - b.top - b.height * 0.35, behavior: reducedMotion ? "auto" : "smooth" });
+  };
+
+  useEffect(() => {
+    if (playing && !paused) follow();
+  }, [index, playing, paused]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  return (
+    <>
+      <p className="text-base leading-relaxed">
+        {sentences.map((s, i) => {
+          const on = lit && i === index;
+          return (
+            <span
+              key={i}
+              ref={on ? current : undefined}
+              data-current={on ? "true" : undefined}
+              className={`transition-colors duration-[var(--seen-duration-fast)] ${on ? "text-white bg-white/10 rounded-sm box-decoration-clone px-0.5" : lit ? "text-white/55" : "text-white/70"}`}
+            >
+              {s}
+              {i < sentences.length - 1 ? " " : ""}
+            </span>
+          );
+        })}
+      </p>
+      {playing && paused && (
+        <button
+          type="button"
+          onClick={() => {
+            setPaused(false);
+            follow();
+          }}
+          className="sticky bottom-2 self-center min-h-11 px-4 rounded-full bg-white text-black text-xs font-semibold uppercase tracking-[0.12em] shadow-lg"
+        >
+          {t("reader.followAlong")}
+        </button>
+      )}
+    </>
+  );
 }
 
 export function TranscriptSheet({ open, onOpenChange, chapterTitle, text }: { open: boolean; onOpenChange: (o: boolean) => void; chapterTitle: string; text: string }) {

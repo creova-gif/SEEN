@@ -290,6 +290,7 @@ export const STRINGS = {
   "story.fallback": { en: "Shown in {shown}. Not yet available in {wanted}.", fr: "Affichée en {shown}. Pas encore disponible en {wanted}.", es: "Se muestra en {shown}. Aún no está disponible en {wanted}." },
   "list.and": { en: " and ", fr: " et ", es: " y " },
   "onboard.accountNote": { en: "Share my story and Find readers and listeners set you up to publish. You can start from + Create any time.", fr: "Partager mon histoire et Trouver des lecteurs et des auditeurs vous préparent à publier. Vous pouvez commencer depuis + Créer à tout moment.", es: "Compartir mi historia y Encontrar lectores y oyentes te preparan para publicar. Puedes empezar desde + Crear cuando quieras." },
+  "reader.followAlong": { en: "Follow along", fr: "Suivre la lecture", es: "Seguir la lectura" },
   "nav.locked": { en: "{tab}, sign in required", fr: "{tab}, connexion requise", es: "{tab}, requiere iniciar sesión" },
   "guest.explore": { en: "Explore without an account", fr: "Explorer sans compte", es: "Explorar sin cuenta" },
   "guest.banner": { en: "Exploring as a guest. Sign up to save stories and pick up where you left off.", fr: "Vous explorez en tant qu'invité. Créez un compte pour enregistrer des histoires et reprendre votre lecture.", es: "Estás explorando como invitado. Crea una cuenta para guardar historias y retomar tu lectura." },

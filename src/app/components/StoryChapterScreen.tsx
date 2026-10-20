@@ -1,13 +1,13 @@
 import { motion, AnimatePresence } from "motion/react";
 import { ArrowLeft, ChevronLeft, ChevronRight, List, Share2, Bookmark, Info, MessageCircle } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { usePlayback } from "../playback/PlaybackProvider";
 import { pushNotification } from "../services";
 import { deleteBookmark, isBookmarked, saveBookmark } from "../data/userDataService";
 import { toast } from "sonner";
 import { ExpandedPlayer } from "./seen/MediaPlayerBar";
 import { Button } from "./seen/primitives";
-import { CaptionBar, PlayerAlert, ReaderTools, StoryCompletion, TranscriptSheet } from "./StoryReaderExtras";
+import { CaptionBar, FollowAlongText, PlayerAlert, ReaderTools, StoryCompletion, TranscriptSheet } from "./StoryReaderExtras";
 import { useAppNav } from "../navigation/AppNav";
 import { useT } from "../i18n/useT";
 import { SeenImage } from "./seen/SeenImage";
@@ -114,6 +114,7 @@ export function StoryChapterScreen({
 
   const t = useT();
   const [transcriptOpen, setTranscriptOpen] = useState(false);
+  const textScroller = useRef<HTMLDivElement>(null);
   const [completionOpen, setCompletionOpen] = useState(false);
   const [completionSeen, setCompletionSeen] = useState(false);
   const chapterText = getLocalizedText(currentChapter.text, state.language);
@@ -368,7 +369,7 @@ export function StoryChapterScreen({
 
       {/* Content */}
       {/* Scrollable text region: long chapters must be readable, never clipped behind the player */}
-      <div className="relative z-10 flex-1 min-h-0 overflow-y-auto">
+      <div ref={textScroller} className="relative z-10 flex-1 min-h-0 overflow-y-auto">
         <div className="max-w-[428px] mx-auto min-h-full flex flex-col justify-end p-6 pt-28 space-y-6">
           {/* Chapter indicator */}
           <motion.div
@@ -405,16 +406,23 @@ export function StoryChapterScreen({
             {getLocalizedText(currentChapter.title, state.language)}
           </motion.h1>
 
-          {/* Chapter content */}
-          <motion.p
+          {/* Chapter content: the spoken sentence is lit and followed while it plays */}
+          <motion.div
             key={`${currentChapter.id}-content`}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-base text-white/70 leading-relaxed"
+            className="flex flex-col"
           >
-            {getLocalizedText(currentChapter.text, state.language)}
-          </motion.p>
+            <FollowAlongText
+              text={chapterText}
+              progress={playback.progress}
+              playing={playback.status === "playing"}
+              scroller={textScroller}
+              reducedMotion={state.accessibilityPreferences.reducedMotion}
+              chapterKey={currentChapter.id}
+            />
+          </motion.div>
 
 
         </div>
