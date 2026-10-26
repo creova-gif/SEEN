@@ -289,3 +289,34 @@ test.describe("creator profile design", () => {
     for (const r of rows) expect(r[2]).toBeLessThanOrEqual(320);
   });
 });
+
+test.describe("creator profile: featured story, share, app feel", () => {
+  test("the lead story is a big card that opens the story; Share profile is a named 44px button", async ({ page }) => {
+    await signInAs(page, "viewer");
+    await page.goto("/#/creator/kira-chen");
+    const featured = page.getByTestId("featured-story");
+    await expect(featured).toBeVisible();
+    await expect(featured.getByText("Start reading")).toBeVisible();
+    const share = page.getByRole("button", { name: "Share profile" });
+    const box = (await share.boundingBox())!;
+    expect(box.width).toBeGreaterThanOrEqual(44);
+    expect(box.height).toBeGreaterThanOrEqual(44);
+    await featured.click();
+    await expect(page).toHaveURL(/#\/story\//);
+  });
+
+  test("on a touch screen, controls cannot be selected and give press feedback, while reading text can be selected", async ({ page }) => {
+    await signInAs(page, "viewer");
+    await page.goto("/#/for-you");
+    const nav = page.getByRole("navigation", { name: "Main" });
+    await expect(page.getByRole("heading", { name: "For You", level: 1 })).toBeVisible();
+    const sel = await nav.evaluate(e => getComputedStyle(e).userSelect);
+    expect(sel).toBe("none");
+    await page.evaluate(() => { window.location.hash = "#/story/voices-of-migration"; });
+    await expect(page.getByRole("heading", { name: /voices of migration/i }).first()).toBeVisible();
+    await page.getByRole("button", { name: /start reading/i }).click();
+    const text = page.locator("[data-selectable]").first();
+    await expect(text).toBeVisible();
+    expect(await text.evaluate(e => getComputedStyle(e).userSelect)).toBe("text");
+  });
+});

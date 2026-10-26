@@ -553,7 +553,7 @@ function InvocationLayer({ onComplete }: { onComplete: () => void }) {
           <h1 className="text-4xl tracking-tight text-white mb-2">
             SEEN
           </h1>
-          <p className="text-xs tracking-[0.4em] uppercase text-white/55">
+          <p className="text-xs tracking-[0.4em] uppercase text-white/70">
             by CREOVA
           </p>
         </motion.div>
@@ -563,7 +563,7 @@ function InvocationLayer({ onComplete }: { onComplete: () => void }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8, duration: 1.5 }}
-          className="text-base text-white/60 text-center leading-relaxed mb-16"
+          className="text-base text-white/75 text-center leading-relaxed mb-16"
         >
           {t("onboard.tagline1")}
           <br />

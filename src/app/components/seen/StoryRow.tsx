@@ -28,3 +28,30 @@ export function StoryRow({ storyId, language, onOpen }: { storyId: string; langu
     </button>
   );
 }
+
+/** A creator's lead story as a wide, image-led card: cover, type and length, title, and a clear way in. One tap target. */
+export function FeaturedStoryCard({ storyId, language, onOpen, startLabel }: { storyId: string; language: Language; onOpen: (id: string) => void; startLabel: string }) {
+  const story = getStoryWorldById(storyId);
+  if (!story) return null;
+  const title = getLocalizedText(story.title, language);
+  return (
+    <button
+      type="button"
+      data-testid="featured-story"
+      onClick={() => onOpen(story.id)}
+      className="group relative block w-full aspect-[4/3] overflow-hidden rounded-seen-lg border border-seen-border text-left"
+    >
+      <SeenImage src={story.coverImage} alt={title} seed={story.id} decorative className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+      <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-black via-black/55 to-black/10" />
+      <span className="absolute inset-x-0 bottom-0 flex flex-col gap-1 p-4">
+        <span className="font-seen-mono text-[11px] tracking-[0.8px] uppercase text-white/80">
+          {story.chapterCount} chapters · {story.totalDuration}
+        </span>
+        <span className="font-seen-display text-[26px] leading-[1.15] text-white line-clamp-2">{title}</span>
+        <span className="mt-2 inline-flex min-h-11 items-center gap-2 self-start rounded-full bg-white px-5 text-[13px] font-semibold uppercase tracking-[0.12em] text-black">
+          {startLabel}
+        </span>
+      </span>
+    </button>
+  );
+}

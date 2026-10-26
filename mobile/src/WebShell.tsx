@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, BackHandler, Linking, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import * as Haptics from 'expo-haptics';
 import { WebView, type WebViewNavigation } from 'react-native-webview';
 import type { ShouldStartLoadRequest } from 'react-native-webview/lib/WebViewTypes';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -35,6 +36,18 @@ export function WebShell() {
 
   const onNavigationStateChange = useCallback((nav: WebViewNavigation) => {
     canGoBack.current = nav.canGoBack;
+  }, []);
+
+  // The web app asks for a light tap on tab changes. Anything else it sends is ignored.
+  const onMessage = useCallback((e: { nativeEvent: { data: string } }) => {
+    try {
+      const msg = JSON.parse(e.nativeEvent.data) as { type?: string; kind?: string };
+      if (msg.type !== 'haptic') return;
+      if (msg.kind === 'success') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+      else Haptics.selectionAsync().catch(() => {});
+    } catch {
+      /* not a message we know */
+    }
   }, []);
 
   const onShouldStart = useCallback((req: ShouldStartLoadRequest) => {
@@ -76,6 +89,7 @@ export function WebShell() {
           containerStyle={styles.web}
           applicationNameForUserAgent="SEEN-Expo"
           injectedJavaScriptBeforeContentLoaded={`window.__SEEN_NATIVE__ = { platform: '${Platform.OS}' }; true;`}
+          onMessage={onMessage}
           onShouldStartLoadWithRequest={onShouldStart}
           onNavigationStateChange={onNavigationStateChange}
           onError={() => setFailed(true)}

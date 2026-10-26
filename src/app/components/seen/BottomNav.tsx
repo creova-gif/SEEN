@@ -1,6 +1,7 @@
 import { Compass, Home, Library, Lock, PlusCircle, User } from "lucide-react";
 import { useT } from "../../i18n/useT";
 import type { StringKey } from "../../i18n/strings";
+import { haptic } from "../../native/native";
 
 /**
  * The single bottom navigation (Figma 248:163): For You, Explore, Create, Library, Profile.
@@ -46,7 +47,11 @@ export function BottomNav({
             <button
               key={id}
               type="button"
-              onClick={() => (active ? scrollToTop() : onNavigate(id))}
+              onClick={() => {
+                haptic("select");
+                if (active) scrollToTop();
+                else onNavigate(id);
+              }}
               aria-current={active ? "page" : undefined}
               aria-label={isLocked ? t("nav.locked", { tab: t(label) }) : undefined}
               className={`flex-1 min-w-0 h-[calc(var(--seen-nav-height)-1px)] flex flex-col items-center justify-center gap-1 transition-colors duration-[var(--seen-duration-fast)] group ${

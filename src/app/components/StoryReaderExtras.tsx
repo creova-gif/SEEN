@@ -94,7 +94,7 @@ export function FollowAlongText({
 
   return (
     <>
-      <p className="text-base leading-relaxed">
+      <p data-selectable className="text-base leading-relaxed">
         {sentences.map((s, i) => {
           const on = lit && i === index;
           return (
@@ -132,7 +132,7 @@ export function TranscriptSheet({ open, onOpenChange, chapterTitle, text }: { op
     <Sheet open={open} onOpenChange={onOpenChange} title={t("reader.transcript")} description={chapterTitle} footer={<Button fullWidth variant="secondary" onClick={() => onOpenChange(false)}>{t("note.done")}</Button>}>
       <div className="space-y-4">
         {transcriptParagraphs(text).map((p, i) => (
-          <p key={i} className="text-[15px] leading-[1.6] text-white/85">{p}</p>
+          <p key={i} data-selectable className="text-[15px] leading-[1.6] text-white/85">{p}</p>
         ))}
         <p className="text-xs text-seen-muted pt-2">{t("reader.transcript.note")}</p>
       </div>
