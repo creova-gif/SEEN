@@ -25,7 +25,7 @@ export const copy = {
       h1: "You're seen in the app.",
       lead: "SEEN is a home for community stories in English, French and Spanish. Read and listen to stories, follow the people who tell them, explore collections, and find funding for storytellers.",
       secondary: "See beta status",
-      note: "The demo uses sample stories and sample accounts. Nothing you do in it is shared with anyone.",
+      note: "The demo uses sample stories and sample accounts. What you create in it stays in your own browser.",
     },
     what: {
       h2: "What is SEEN?",
@@ -88,7 +88,9 @@ export const copy = {
     },
     footer: {
       line: "SEEN by CREOVA",
-      privacy: "This site sets no cookies and has no analytics.",
+      noTracking: "This site sets no cookies and has no analytics.",
+      terms: "Terms",
+      privacyLink: "Privacy",
       language: "Language",
     },
   },
@@ -114,7 +116,7 @@ export const copy = {
       h1: "Vous êtes vu·e dans l'app.",
       lead: "SEEN est un lieu pour les histoires communautaires en français, en anglais et en espagnol. Lisez et écoutez des histoires, suivez celles et ceux qui les racontent, explorez des collections et trouvez du financement pour les conteurs.",
       secondary: "Voir l'état de la bêta",
-      note: "La démo utilise des histoires et des comptes d'exemple. Rien de ce que vous y faites n'est partagé avec qui que ce soit.",
+      note: "La démo utilise des histoires et des comptes d'exemple. Ce que vous y créez reste dans votre propre navigateur.",
     },
     what: {
       h2: "Qu'est-ce que SEEN ?",
@@ -177,7 +179,9 @@ export const copy = {
     },
     footer: {
       line: "SEEN par CREOVA",
-      privacy: "Ce site n'utilise aucun témoin (cookie) et n'a pas d'outil d'analyse.",
+      noTracking: "Ce site n'utilise aucun témoin (cookie) et n'a pas d'outil d'analyse.",
+      terms: "Conditions",
+      privacyLink: "Confidentialité",
       language: "Langue",
     },
   },
@@ -203,7 +207,7 @@ export const copy = {
       h1: "Te ven en la app.",
       lead: "SEEN es un lugar para historias comunitarias en español, inglés y francés. Lee y escucha historias, sigue a quienes las cuentan, explora colecciones y encuentra financiamiento para quienes cuentan historias.",
       secondary: "Ver el estado de la beta",
-      note: "La demo usa historias y cuentas de ejemplo. Nada de lo que hagas en ella se comparte con nadie.",
+      note: "La demo usa historias y cuentas de ejemplo. Lo que creas en ella se queda en tu propio navegador.",
     },
     what: {
       h2: "¿Qué es SEEN?",
@@ -266,8 +270,13 @@ export const copy = {
     },
     footer: {
       line: "SEEN de CREOVA",
-      privacy: "Este sitio no usa cookies ni analítica.",
+      noTracking: "Este sitio no usa cookies ni analítica.",
+      terms: "Términos",
+      privacyLink: "Privacidad",
       language: "Idioma",
     },
   },
 };
+
+import { legal } from "./legal.mjs";
+for (const lang of LANGS) copy[lang].legal = legal[lang];

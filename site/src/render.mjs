@@ -1,21 +1,42 @@
 import { LANGS, copy } from "./content.mjs";
 
+export const PAGES = ["home", "terms", "privacy"];
+
 const escapeHtml = (s) =>
   String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
-/** URL path of a language's page: "/" for English, "/fr/" and "/es/" for the others. */
-export const pathFor = (lang) => (lang === "en" ? "/" : `/${lang}/`);
+/** Absolute URL path of a page: English at the root, "/fr/" and "/es/" for the others. */
+export const pathFor = (lang, page = "home") =>
+  (lang === "en" ? "/" : `/${lang}/`) + (page === "home" ? "" : `${page}/`);
+
+/** Relative link from one page's URL path to another, so the site works on any host or sub-path. */
+export function rel(from, to) {
+  const depth = from.split("/").filter(Boolean).length;
+  const target = to.replace(/^\//, "");
+  return depth === 0 ? target || "./" : "../".repeat(depth) + target;
+}
 
 const list = (items) => `<ul>${items.map((i) => `<li>${escapeHtml(i)}</li>`).join("")}</ul>`;
 
+// Same policy the Firebase headers send; repeated here so it also holds on hosts that cannot set headers.
+const CSP =
+  "default-src 'none'; style-src 'self'; img-src 'self' data:; base-uri 'self'; form-action 'none'";
+
 /**
- * Render one language's page.
+ * Render one page.
  * cfg: { appUrl, creovaUrl, siteUrl? }  siteUrl is optional; without it no canonical or hreflang is emitted.
  */
-export function renderPage(lang, cfg) {
+export function renderPage(lang, cfg, page = "home") {
   const c = copy[lang];
-  const base = lang === "en" ? "" : "../";
-  const abs = (l) => (cfg.siteUrl ? cfg.siteUrl.replace(/\/$/, "") + pathFor(l) : null);
+  const here = pathFor(lang, page);
+  const toHome = rel(here, pathFor(lang, "home"));
+  const isHome = page === "home";
+  const anchor = (id) => (isHome ? `#${id}` : `${toHome}#${id}`);
+  const abs = (l) => (cfg.siteUrl ? cfg.siteUrl.replace(/\/$/, "") + pathFor(l, page) : null);
+
+  const doc = isHome ? null : c.legal[page];
+  const title = isHome ? c.title : `${doc.title} · SEEN`;
+  const description = isHome ? c.description : doc.description;
 
   const alternates = cfg.siteUrl
     ? LANGS.map((l) => `<link rel="alternate" hreflang="${l}" href="${abs(l)}" />`).join("\n    ") +
@@ -25,36 +46,40 @@ export function renderPage(lang, cfg) {
   const langLinks = LANGS.map((l) =>
     l === lang
       ? `<li><span aria-current="true" lang="${l}">${escapeHtml(copy[l].langName)}</span></li>`
-      : `<li><a href="${pathFor(l)}" lang="${l}" hreflang="${l}">${escapeHtml(copy[l].langName)}</a></li>`,
+      : `<li><a href="${rel(here, pathFor(l, page))}" lang="${l}" hreflang="${l}">${escapeHtml(copy[l].langName)}</a></li>`,
   ).join("");
+
+  const main = isHome ? homeMain(c, cfg) : legalMain(c, doc, cfg, toHome);
 
   return `<!DOCTYPE html>
 <html lang="${c.htmlLang}">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>${escapeHtml(c.title)}</title>
-    <meta name="description" content="${escapeHtml(c.description)}" />
+    <meta http-equiv="Content-Security-Policy" content="${CSP}" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <title>${escapeHtml(title)}</title>
+    <meta name="description" content="${escapeHtml(description)}" />
     <meta name="theme-color" content="#000000" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="SEEN by CREOVA" />
-    <meta property="og:title" content="${escapeHtml(c.title)}" />
-    <meta property="og:description" content="${escapeHtml(c.description)}" />
+    <meta property="og:title" content="${escapeHtml(title)}" />
+    <meta property="og:description" content="${escapeHtml(description)}" />
     <meta name="twitter:card" content="summary" />
     ${alternates}
-    <link rel="stylesheet" href="${base}styles.css" />
+    <link rel="stylesheet" href="${rel(here, "/styles.css")}" />
   </head>
   <body>
     <a class="skip" href="#main">${escapeHtml(c.skip)}</a>
     <header class="site-header">
       <div class="wrap header-row">
-        <a class="wordmark" href="${pathFor(lang)}" aria-label="SEEN">SEEN</a>
+        <a class="wordmark" href="${toHome}" aria-label="SEEN">SEEN</a>
         <nav aria-label="${escapeHtml(c.navLabel)}">
           <ul class="nav">
-            <li><a href="#what">${escapeHtml(c.nav.what)}</a></li>
-            <li><a href="#creators">${escapeHtml(c.nav.creators)}</a></li>
-            <li><a href="#viewers">${escapeHtml(c.nav.viewers)}</a></li>
-            <li><a href="#beta">${escapeHtml(c.nav.beta)}</a></li>
+            <li><a href="${anchor("what")}">${escapeHtml(c.nav.what)}</a></li>
+            <li><a href="${anchor("creators")}">${escapeHtml(c.nav.creators)}</a></li>
+            <li><a href="${anchor("viewers")}">${escapeHtml(c.nav.viewers)}</a></li>
+            <li><a href="${anchor("beta")}">${escapeHtml(c.nav.beta)}</a></li>
             <li><a href="${escapeHtml(cfg.creovaUrl)}" rel="noopener">${escapeHtml(c.nav.about)}</a></li>
           </ul>
         </nav>
@@ -62,7 +87,29 @@ export function renderPage(lang, cfg) {
     </header>
 
     <main id="main">
-      <section class="hero wrap" aria-labelledby="hero-title">
+${main}
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap footer-row">
+        <p>${escapeHtml(c.footer.line)} · <a href="${escapeHtml(cfg.creovaUrl)}" rel="noopener">creova.one</a></p>
+        <nav aria-label="${escapeHtml(c.footer.language)}">
+          <ul class="langs">${langLinks}</ul>
+        </nav>
+        <ul class="langs">
+          <li><a href="${rel(here, pathFor(lang, "terms"))}">${escapeHtml(c.footer.terms)}</a></li>
+          <li><a href="${rel(here, pathFor(lang, "privacy"))}">${escapeHtml(c.footer.privacyLink)}</a></li>
+        </ul>
+        <p class="note">${escapeHtml(c.footer.noTracking)}</p>
+      </div>
+    </footer>
+  </body>
+</html>
+`;
+}
+
+function homeMain(c, cfg) {
+  return `      <section class="hero wrap" aria-labelledby="hero-title">
         <p class="eyebrow">${escapeHtml(c.hero.eyebrow)}</p>
         <h1 id="hero-title">${escapeHtml(c.hero.h1)}</h1>
         <p class="lead">${escapeHtml(c.hero.lead)}</p>
@@ -109,19 +156,16 @@ export function renderPage(lang, cfg) {
         <h2 id="about-title">${escapeHtml(c.about.h2)}</h2>
         <p>${escapeHtml(c.about.p)}</p>
         <p class="actions"><a class="btn btn-secondary" href="${escapeHtml(cfg.creovaUrl)}" rel="noopener">${escapeHtml(c.about.link)}</a></p>
-      </section>
-    </main>
+      </section>`;
+}
 
-    <footer class="site-footer">
-      <div class="wrap footer-row">
-        <p>${escapeHtml(c.footer.line)} · <a href="${escapeHtml(cfg.creovaUrl)}" rel="noopener">creova.one</a></p>
-        <nav aria-label="${escapeHtml(c.footer.language)}">
-          <ul class="langs">${langLinks}</ul>
-        </nav>
-        <p class="note">${escapeHtml(c.footer.privacy)}</p>
-      </div>
-    </footer>
-  </body>
-</html>
-`;
+function legalMain(c, doc, cfg, toHome) {
+  const l = c.legal;
+  return `      <article class="wrap section legal">
+        <p><a href="${toHome}">${escapeHtml(l.back)}</a></p>
+        <h1>${escapeHtml(doc.title)}</h1>
+        <p class="note">${escapeHtml(l.updatedLabel)}: <time datetime="${l.updated}">${l.updated}</time></p>
+        ${doc.sections.map((s) => `<section><h2>${escapeHtml(s.h2)}</h2><p>${escapeHtml(s.p)}</p></section>`).join("\n        ")}
+        <section id="contact"><h2>${escapeHtml(l.contactH2)}</h2><p>${escapeHtml(l.contactP)} <a href="${escapeHtml(cfg.creovaUrl)}" rel="noopener">creova.one</a>.</p></section>
+      </article>`;
 }

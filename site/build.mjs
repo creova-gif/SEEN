@@ -6,7 +6,7 @@ import { mkdirSync, rmSync, writeFileSync, copyFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { LANGS } from "./src/content.mjs";
-import { renderPage, pathFor } from "./src/render.mjs";
+import { renderPage, pathFor, PAGES } from "./src/render.mjs";
 
 const root = dirname(fileURLToPath(import.meta.url));
 const dist = join(root, "dist");
@@ -21,9 +21,11 @@ export function build(cfg = config, outDir = dist) {
   rmSync(outDir, { recursive: true, force: true });
   mkdirSync(outDir, { recursive: true });
   for (const lang of LANGS) {
-    const dir = lang === "en" ? outDir : join(outDir, lang);
-    mkdirSync(dir, { recursive: true });
-    writeFileSync(join(dir, "index.html"), renderPage(lang, cfg));
+    for (const page of PAGES) {
+      const dir = join(outDir, pathFor(lang, page));
+      mkdirSync(dir, { recursive: true });
+      writeFileSync(join(dir, "index.html"), renderPage(lang, cfg, page));
+    }
   }
   copyFileSync(join(root, "src", "styles.css"), join(outDir, "styles.css"));
 
@@ -33,7 +35,7 @@ export function build(cfg = config, outDir = dist) {
     `User-agent: *\nAllow: /\n${site ? `Sitemap: ${site}/sitemap.xml\n` : ""}`,
   );
   if (site) {
-    const urls = LANGS.map((l) => `  <url><loc>${site}${pathFor(l)}</loc></url>`).join("\n");
+    const urls = LANGS.flatMap((l) => PAGES.map((p) => `  <url><loc>${site}${pathFor(l, p)}</loc></url>`)).join("\n");
     writeFileSync(
       join(outDir, "sitemap.xml"),
       `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`,
