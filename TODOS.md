@@ -17,7 +17,7 @@ Engineering tasks for approved requirements only. Items awaiting product approva
 - [x] **PR-3 Re-tap active tab scrolls to top.** Replace the ignored re-tap in `BottomNav`/`App`; instant under reduced motion; change the "ignores re-taps" unit test to the new behavior. Effort: S. Priority: P1.
 - [x] **PR-4 Chapter-end Next.** Show Next when a chapter ends, no auto-advance; guests get the sign-in sheet. Verify: e2e plus `playback-continuity.spec.ts` unchanged. Effort: S. Priority: P1.
 - [x] **PR-5 Single interest chip row.** Replace the interests rail and any separate filter; guests see popular topics. Verify: no overflow at 320 px, keyboard and axe. Effort: M. Priority: P2.
-- [ ] **PR-6 First-screen poster and motion background.** Poster first, size cap, no video under reduced motion or data saver; the protected first-screen e2e test must pass unchanged. Blocked on the owner supplying original artwork (U2). Effort: M. Priority: P2.
+- [x] **PR-6 First-screen motion background (code-drawn).** Done; real footage or a photo poster is still blocked on the owner supplying it (U2). Original entry: Poster first, size cap, no video under reduced motion or data saver; the protected first-screen e2e test must pass unchanged. Blocked on the owner supplying original artwork (U2). Effort: M. Priority: P2.
 
 ## Engineering hygiene (from the first-beta plan review)
 

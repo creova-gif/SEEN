@@ -15,7 +15,7 @@ What the product should do, how we will know it does, and which decisions are st
 | PR-3 | Bottom navigation and scroll behavior | Approved; nav built, re-tap to top not built | High |
 | PR-4 | Chapter-end Next | Approved | High |
 | PR-5 | Interest chips and back-to-top | Approved | Medium |
-| PR-6 | Intro video behind the first screen | Approved as poster first; footage blocked | Medium |
+| PR-6 | Intro video behind the first screen | Code-drawn motion built; real footage blocked | Medium |
 | PR-7 | Chapter autoplay | Awaiting approval | Medium |
 | PR-8 | "Here is your story" section | Awaiting approval | Medium |
 | PR-9 | Expandable story description | Awaiting approval | Low |
@@ -59,7 +59,7 @@ What the product should do, how we will know it does, and which decisions are st
 - **Behavior.** The first screen (the glowing S.E.E.N entry button, protected) gets an original poster image and a short motion concept first. Original or licensed footage can replace the motion later. It never delays, replaces or skips the first screen or the manifesto.
 - **Problem.** The first screen does not show what SEEN is.
 - **Constraints.** Muted. Poster shows immediately. A size cap for any video file. Reduced motion and data saver get the poster only. S.E.E.N and the entry button keep 4.5:1 contrast over any frame. No unlicensed footage.
-- **Blocked.** The original poster artwork, and later footage, need an owner source (U2 in the engineering review).
+- **Built.** An original, code-drawn motion backdrop (drifting light and a quiet sound-wave) sits behind the first screen: no download, a still frame under reduced motion, text contrast unchanged. Real footage or a poster photo is still blocked on an owner source (U2 in the engineering review) and would replace or sit alongside it.
 - **Acceptance.** The e2e test that guards the first screen still passes unchanged; with motion reduced no video element loads; first-screen time to interactive does not regress.
 
 ## Awaiting approval (recommendations, not requirements)

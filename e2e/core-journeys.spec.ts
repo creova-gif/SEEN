@@ -413,3 +413,27 @@ test.describe("accessibility preferences and creator audience", () => {
     await expect(page.getByPlaceholder(/pick above, or add your own/i)).toHaveValue("Educators");
   });
 });
+
+test.describe("first screen backdrop (PR-6)", () => {
+  test("the motion sits behind the protected first screen and the entry button still works", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.getByTestId("first-screen-backdrop")).toBeAttached();
+    const enter = page.getByRole("button", { name: /s\W*e\W*e\W*n/i });
+    await expect(enter).toBeVisible();
+    // Behind the content: the button is what a tap on it hits.
+    const box = (await enter.boundingBox())!;
+    const hit = await page.evaluate(([x, y]) => document.elementFromPoint(x, y)?.closest("button") !== null, [box.x + box.width / 2, box.y + box.height / 2]);
+    expect(hit).toBe(true);
+    await enter.click();
+    await expect(page.getByRole("heading", { name: /this is not\s+social media/i })).toBeVisible();
+  });
+
+  test("with reduced motion the first screen is a still frame and loads no video", async ({ browser }) => {
+    const ctx = await browser.newContext({ reducedMotion: "reduce" });
+    const page = await ctx.newPage();
+    await page.goto("http://localhost:4173/");
+    await expect(page.getByTestId("first-screen-backdrop")).toBeAttached();
+    expect(await page.locator("video").count()).toBe(0);
+    await ctx.close();
+  });
+});

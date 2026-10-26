@@ -10,6 +10,7 @@ import { useStoryState } from "../contexts/StoryStateContext";
 import type { UserRole, UserIntent, Language } from "../contexts/StoryStateContext";
 import { LanguageSelectionScreen } from "./LanguageSelectionScreen";
 import { OnboardingPurpose } from "./OnboardingPurpose";
+import { FirstScreenBackdrop } from "./FirstScreenBackdrop";
 import { PurposeStep, InterestsStep, roleAndIntentFor, type Purpose } from "./OnboardingOrientation";
 
 /**
@@ -538,20 +539,7 @@ function InvocationLayer({ onComplete }: { onComplete: () => void }) {
       className="fixed inset-0 bg-black overflow-y-auto overflow-x-hidden px-6"
     >
       <div className="min-h-full flex flex-col items-center justify-center py-10">
-      {/* Subtle animated background */}
-      <motion.div
-        initial={{ opacity: 0, scale: 1.2 }}
-        animate={reduce ? { opacity: 0.25, scale: 1.2 } : {
-          opacity: [0.2, 0.3, 0.2],
-          scale: [1.2, 1.3, 1.2],
-        }}
-        transition={reduce ? { duration: 0 } : { 
-          duration: 8,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
-        className="fixed inset-0 bg-gradient-to-br from-purple-900/10 via-black to-blue-900/10"
-      />
+      <FirstScreenBackdrop reduce={!!reduce} />
 
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center max-w-md">
