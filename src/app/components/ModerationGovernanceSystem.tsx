@@ -594,7 +594,7 @@ export function ModerationGovernanceSystem({ onBack }: ModerationGovernanceSyste
     >
       {/* Header */}
       <div className="sticky top-0 z-10 bg-black/95 backdrop-blur-xl border-b border-white/10">
-        <div className="max-w-[428px] mx-auto px-5 py-4">
+        <div className="max-w-(--seen-content-max) mx-auto px-5 py-4">
           <div className="flex items-center gap-3">
             <button
               onClick={onBack}
@@ -616,7 +616,7 @@ export function ModerationGovernanceSystem({ onBack }: ModerationGovernanceSyste
 
       {/* Tab Navigation */}
       <div className="sticky top-[73px] z-10 bg-black/95 backdrop-blur-xl border-b border-white/5">
-        <div className="max-w-[428px] mx-auto px-5">
+        <div className="max-w-(--seen-content-max) mx-auto px-5">
           <div className="flex gap-1 overflow-x-auto">
             <button
               onClick={() => setActiveTab("queue")}
@@ -663,7 +663,7 @@ export function ModerationGovernanceSystem({ onBack }: ModerationGovernanceSyste
       </div>
 
       {/* Content */}
-      <div className="max-w-[428px] mx-auto pb-20">
+      <div className="max-w-(--seen-content-max) mx-auto pb-20">
         {activeTab === "queue" && (
           <div className="px-5 pt-5">
           <ModerationQueue

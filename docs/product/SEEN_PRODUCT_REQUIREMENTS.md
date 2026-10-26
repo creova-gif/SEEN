@@ -100,6 +100,16 @@ These are interpretations of unclear feedback. Do not build them until the owner
 - **Conflict to settle first.** Today's tokens come from the Figma design system (`seen-tokens.css`, `DESIGN_SYSTEM.md`): white primary buttons on a black canvas, with `#c084fc` as the one accent. "Replace default white and black buttons" changes that identity, so the owner should confirm that the new reference supersedes the Figma tokens, and whether the black canvas stays.
 - **Acceptance.** Every color in the shipped CSS comes from the supplied reference or a documented status color (success, warning, error, info). Contrast is checked for every text and button pairing at AA (4.5:1 text, 3:1 large text and controls). Focus states stay visible. The protected first screens keep their content. The Figma sync item in `TODOS.md` is updated after the change.
 
+## Direction change (26 Oct 2026): store apps, not a web release
+
+The owner reversed decision D1: SEEN ships as a mobile app on the Apple App Store and Google Play, including foldable and flip phones, and there is no public web release for now. The website stays as the build the app wraps and as the place the team tests; testers get the app.
+
+- **Route chosen:** Expo with EAS builds, using the existing `mobile/` shell and bundle ids (`com.creova.seen`), rather than adding Capacitor. Reason: the shell, the Expo Go test flow and the build config already exist.
+- **Apple risk:** a shell that only shows a website can be rejected under App Store guideline 4.2 (minimum functionality). The store build therefore needs real native features: background and lock-screen audio, push notifications, offline reading, haptics, native share and a native splash. These are the first store tasks.
+- **Foldables:** the column now widens (428 px, 600 px from 600 wide, 760 px from 840 wide) and the app can rotate. A true two-pane layout (list and reader side by side) and fold-aware behavior (hinge, flex mode, keeping state through fold and unfold) come next.
+- **Owner needs:** Apple Developer and Google Play accounts, privacy and data-safety answers, store listing text and screenshots, a support URL and a privacy policy page.
+- **Vercel:** no longer on the critical path. A free Hobby plan only deploys commits from the account that owns it, which is why preview deployments were blocked.
+
 ## Overlaps resolved
 
 - Create tab and creator navigation: the tab is New story; Your stories is a separate link (PR-1, PR-2).

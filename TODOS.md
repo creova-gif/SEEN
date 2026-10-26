@@ -25,3 +25,14 @@ Engineering tasks for approved requirements only. Items awaiting product approva
 - [ ] **Strict TypeScript.** `tsconfig.json` has `"strict": false`. Turn on `strict` (then `noUnusedLocals`) in stages, one folder at a time, starting with `src/app/services/` and `src/app/guest/`, keeping `npm run typecheck` at zero errors at each step. Effort: M to L. Priority: P3.
 - [ ] **Bundle budget.** Re-measured 20 Oct 2026 on `feature/guest-mode-and-create-tab`: entry chunk 97.5 KB gzip (366.9 KB raw), up from about 93 KB before guest mode. Add a CI check that fails when the entry chunk passes 110 KB gzip, and keep heavy screens lazy (the largest lazy chunk, creator earnings, is 100 KB gzip). Effort: S. Priority: P3.
 - [ ] **Close stale PRs.** Close #12 and #23 with a pointer comment; compare #14 with `dev`, port any missing fix as a new small change, then close #14 (decision D10). Needs the owner to say go, since closing PRs is visible to others. Priority: P2.
+
+## Store apps and foldables (decision: `docs/product/SEEN_PRODUCT_REQUIREMENTS.md`, "Direction change")
+
+- [x] **Wider column and rotation for foldables.** `--seen-content-max` widens at 600 and 840 px; `orientation` is "default" in `mobile/app.json`; tests at fold-inner and flip sizes.
+- [ ] **Two-pane layout.** From 840 px wide (and on dual-segment screens): list on the left, story or creator on the right, state kept when the phone folds or unfolds. Use the `horizontal-viewport-segments` media query and `env(viewport-segment-*)` for hinge-aware screens. Effort: L. Priority: P1.
+- [ ] **Side navigation rail on wide screens.** Replace the bottom tab bar from 840 px. Effort: M. Priority: P2.
+- [ ] **Background and lock-screen audio in the shell.** Native audio session so narration continues with the screen off; lock-screen controls. Needed for App Store review (4.2) and for the product. Effort: L. Priority: P1.
+- [ ] **Push notifications.** `expo-notifications`, permission prompt at a sensible moment, token stored per account. Needs the backend phase. Effort: L. Priority: P1.
+- [ ] **Offline reading in the shell.** Chapters saved for offline use, with a clear indicator. Effort: M. Priority: P1.
+- [ ] **EAS build and submit setup.** Development, preview and production profiles, app icons and splash at store sizes, version and build numbers, Android signing. Needs the owner's Apple and Google accounts. Effort: M. Priority: P1.
+- [ ] **Real-device pass on a phone, a foldable and a flip phone.** iOS and Android. Effort: M. Priority: P1.

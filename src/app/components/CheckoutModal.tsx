@@ -82,7 +82,7 @@ export function CheckoutModal({ isOpen, onClose, title, description, amount, onS
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
-            className="fixed inset-x-0 bottom-0 z-[70] bg-black border-t border-white/10 rounded-t-3xl max-w-[428px] mx-auto overflow-hidden"
+            className="fixed inset-x-0 bottom-0 z-[70] bg-black border-t border-white/10 rounded-t-3xl max-w-(--seen-content-max) mx-auto overflow-hidden"
           >
             <div className="p-6 pb-8 max-h-[85vh] overflow-y-auto">
               <div className="flex justify-center pt-1 pb-4">

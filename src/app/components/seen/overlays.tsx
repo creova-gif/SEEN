@@ -137,7 +137,7 @@ export function Sheet({ open, onOpenChange, title, description, children, footer
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay className={overlay} />
-        <DialogPrimitive.Content className="fixed z-[61] inset-x-0 bottom-0 mx-auto max-w-[428px] max-h-[85vh] overflow-y-auto rounded-t-seen-xl border-t border-x border-seen-border bg-seen-elevated px-5 pt-3 pb-8 focus:outline-none data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom">
+        <DialogPrimitive.Content className="fixed z-[61] inset-x-0 bottom-0 mx-auto max-w-(--seen-content-max) max-h-[85vh] overflow-y-auto rounded-t-seen-xl border-t border-x border-seen-border bg-seen-elevated px-5 pt-3 pb-8 focus:outline-none data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom">
           <div aria-hidden className="mx-auto mb-3 h-1 w-10 rounded-full bg-white/20" />
           <div className="flex items-center justify-between gap-4">
             <DialogPrimitive.Title className="text-base font-semibold text-white">{title}</DialogPrimitive.Title>

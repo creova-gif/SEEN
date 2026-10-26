@@ -18,7 +18,7 @@ export function NavigationBar({ onSearch }: NavigationBarProps) {
       initial={false}
       className="fixed top-0 left-0 right-0 z-50 px-gutter pb-3 pt-[max(0.75rem,env(safe-area-inset-top))] backdrop-blur-xl bg-black/60 border-b border-white/5"
     >
-      <div className="max-w-[428px] mx-auto flex items-center justify-between">
+      <div className="max-w-(--seen-content-max) mx-auto flex items-center justify-between">
         <div className="flex flex-col">
           <span className="text-lg tracking-tight text-white">SEEN</span>
           <span className="text-[10px] tracking-[0.3em] uppercase text-white/55">by CREOVA</span>

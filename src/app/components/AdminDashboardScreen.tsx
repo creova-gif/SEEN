@@ -54,7 +54,7 @@ export function AdminDashboardScreen({ onClose }: AdminDashboardScreenProps) {
       exit={{ opacity: 0 }}
       className="fixed inset-0 bg-black z-50 overflow-y-auto"
     >
-      <div className="min-h-full max-w-[428px] mx-auto pb-24">
+      <div className="min-h-full max-w-(--seen-content-max) mx-auto pb-24">
         <div className="sticky top-0 z-10 backdrop-blur-xl bg-black/80 border-b border-white/5">
           <div className="flex items-center justify-between p-5 pt-8">
             <button

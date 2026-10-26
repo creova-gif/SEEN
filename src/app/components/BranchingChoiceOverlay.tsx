@@ -47,7 +47,7 @@ export function BranchingChoiceOverlay({
       exit={{ opacity: 0 }}
       className="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center"
     >
-      <div className="relative z-10 max-w-[428px] w-full px-6">
+      <div className="relative z-10 max-w-(--seen-content-max) w-full px-6">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

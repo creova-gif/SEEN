@@ -75,7 +75,7 @@ export function LibraryScreen({
     >
 
       {/* Main Content */}
-      <main className="pt-header pb-clearance px-gutter max-w-[428px] mx-auto">
+      <main className="pt-header pb-clearance px-gutter max-w-(--seen-content-max) mx-auto">
         <DemoModeNotice />
         {/* Header */}
         <motion.div

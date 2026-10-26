@@ -39,7 +39,7 @@ export function BottomNav({
   const t = useT();
   return (
     <nav aria-label="Main" className="fixed bottom-0 left-0 right-0 z-50 backdrop-blur-xl bg-seen-surface/95 border-t border-seen-border pb-[env(safe-area-inset-bottom)]">
-      <div className="max-w-[428px] mx-auto flex">
+      <div className="max-w-(--seen-content-max) mx-auto flex">
         {TABS.map(({ id, label, Icon }) => {
           const active = id === activeTab;
           const isLocked = locked.includes(id);

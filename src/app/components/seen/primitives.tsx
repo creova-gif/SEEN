@@ -331,7 +331,7 @@ export function SegmentedTabs<T extends string>({ tabs, value, onChange, label }
 export function TopBar({ title, onBack, action }: { title: string; onBack: () => void; action?: ReactNode }) {
   return (
     <header className="sticky top-0 z-40 backdrop-blur-xl bg-black/70 border-b border-white/5">
-      <div className="max-w-[428px] mx-auto px-gutter h-14 flex items-center gap-3">
+      <div className="max-w-(--seen-content-max) mx-auto px-gutter h-14 flex items-center gap-3">
         <IconButton label="Back" onClick={onBack}>
           <ArrowLeft className="w-4 h-4 text-white/80" />
         </IconButton>
@@ -377,5 +377,5 @@ export function PageTitle({ children, className }: { children: ReactNode; classN
 
 /** Page container shared by feature screens so every screen uses the same column + gutters. */
 export function Page({ children, className }: { children: ReactNode; className?: string }) {
-  return <main className={cx("max-w-[428px] mx-auto px-gutter pt-5 pb-28", className)}>{children}</main>;
+  return <main className={cx("max-w-(--seen-content-max) mx-auto px-gutter pt-5 pb-28", className)}>{children}</main>;
 }

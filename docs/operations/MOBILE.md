@@ -24,6 +24,6 @@ Use the production link (`https://seen-sigma-eight.vercel.app`). Preview links o
 - **Push notifications, app-store listing, native audio in the background:** need a native wrapper.
 - **Real-device checks:** tested at phone widths in a browser only. Test on a real iPhone and Android before announcing it widely.
 
-## If a store app is wanted later
+## Store apps (decided 26 Oct 2026)
 
-Wrap this same web app with Capacitor (iOS and Android) and keep one codebase. The `mobile/` folder is a different thing: a small Expo shell that loads the live SEEN web app in a WebView and runs in Expo Go (see `mobile/README.md`). It is a way to try SEEN on a phone, not the store route: it has no native audio in the background and no push notifications.
+SEEN ships through the App Store and Google Play using Expo with EAS builds, from the `mobile/` shell (see `mobile/README.md` and `docs/product/SEEN_PRODUCT_REQUIREMENTS.md`). A shell that only shows a website risks rejection under App Store guideline 4.2, so the store build adds native features: background and lock-screen audio, push notifications, offline reading, haptics and native sharing. Foldable and flip phones are supported by the wider column and rotation now, and by a two-pane layout next. Capacitor is not used.

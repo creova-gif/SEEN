@@ -301,7 +301,7 @@ export function StoryChapterScreen({
             exit={{ opacity: 0, y: -20 }}
             className="absolute top-0 left-0 right-0 z-20"
           >
-            <div className="max-w-[428px] mx-auto flex items-center justify-between p-5 pt-8">
+            <div className="max-w-(--seen-content-max) mx-auto flex items-center justify-between p-5 pt-8">
               <button
                 onClick={onClose}
                 className="w-11 h-11 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center hover:bg-black/60 transition-colors"
@@ -370,7 +370,7 @@ export function StoryChapterScreen({
       {/* Content */}
       {/* Scrollable text region: long chapters must be readable, never clipped behind the player */}
       <div ref={textScroller} className="relative z-10 flex-1 min-h-0 overflow-y-auto">
-        <div className="max-w-[428px] mx-auto min-h-full flex flex-col justify-end p-6 pt-28 space-y-6">
+        <div className="max-w-(--seen-content-max) mx-auto min-h-full flex flex-col justify-end p-6 pt-28 space-y-6">
           {/* Chapter indicator */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -481,7 +481,7 @@ export function StoryChapterScreen({
 
       {/* Bottom controls */}
       <div className="relative z-20 flex-shrink-0 bg-black/90 backdrop-blur-xl border-t border-white/5">
-        <div className="max-w-[428px] mx-auto px-5 pt-4 pb-5 space-y-3">
+        <div className="max-w-(--seen-content-max) mx-auto px-5 pt-4 pb-5 space-y-3">
           <PlayerAlert status={playback.status} onRetry={loadChapter} />
           <CaptionBar text={chapterText} progress={playback.progress} show={captionsOn && playback.source === "voice" && (playback.status === "playing" || playback.status === "paused")} />
           {captionsOn && playback.source === "recording" && <p className="text-xs text-seen-muted text-center">{t("reader.captions.voiceOnly")}</p>}

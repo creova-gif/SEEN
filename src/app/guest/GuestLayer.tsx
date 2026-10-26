@@ -92,7 +92,7 @@ export function GuestLayer() {
 
       {g.authOpen && (
         <div role="dialog" aria-modal="true" aria-label={t("guest.cta.create")} className="fixed inset-0 z-[70] bg-black overflow-y-auto">
-          <div className="max-w-[428px] mx-auto min-h-full flex flex-col pb-[max(1rem,env(safe-area-inset-bottom))]">
+          <div className="max-w-(--seen-content-max) mx-auto min-h-full flex flex-col pb-[max(1rem,env(safe-area-inset-bottom))]">
             <div className="flex justify-end px-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
               <button type="button" onClick={closeGuestAuth} aria-label={t("guest.auth.close")} className="w-11 h-11 rounded-full flex items-center justify-center text-white/80 hover:bg-white/5">
                 <X className="w-5 h-5" aria-hidden />

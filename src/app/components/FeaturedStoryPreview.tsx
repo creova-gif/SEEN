@@ -117,7 +117,7 @@ export function FeaturedStoryPreview({ onClose, onEnterStory }: FeaturedStoryPre
       </div>
 
       {/* Content overlay */}
-      <div className="relative z-10 h-full flex flex-col max-w-[428px] mx-auto">
+      <div className="relative z-10 h-full flex flex-col max-w-(--seen-content-max) mx-auto">
         {/* Top bar */}
         <div className="flex items-center justify-between p-5 pt-8">
           <motion.button

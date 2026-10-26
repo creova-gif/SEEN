@@ -125,7 +125,7 @@ export function ForYouScreen({
     >
 
       {/* Main Content */}
-      <main className={`${heroItem ? "pt-0" : "pt-header"} pb-clearance px-gutter max-w-[428px] mx-auto`}>
+      <main className={`${heroItem ? "pt-0" : "pt-header"} pb-clearance px-gutter max-w-(--seen-content-max) mx-auto`}>
         {/* Editorial hero (Figma 316:2), full-bleed under the translucent header */}
         {heroItem && <FeaturedHero item={heroItem} onExperience={onStoryClick} />}
         {heroItem && <div aria-hidden className="h-6" />}

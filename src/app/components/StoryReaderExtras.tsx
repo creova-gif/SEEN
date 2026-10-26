@@ -227,7 +227,7 @@ export function StoryCompletion({ story, language, minutes, chapterCount, onRefl
   const related = [...new Map(story.culturalThemes.flatMap(th => searchByTheme(th, language)).filter(i => i.id !== story.id).map(i => [i.id, i])).values()].slice(0, 4);
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25 }} ref={dialogRef} className="fixed inset-0 z-[55] bg-seen-canvas overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="done-title">
-      <div className="max-w-[428px] mx-auto px-gutter pt-header pb-clearance">
+      <div className="max-w-(--seen-content-max) mx-auto px-gutter pt-header pb-clearance">
         <p className="font-seen-mono text-[11px] tracking-[0.8px] uppercase text-seen-muted">{t("done.eyebrow")}</p>
         <h2 id="done-title" className="font-seen-display text-[34px] leading-[1.16] tracking-[-0.5px] text-white mt-3">{t("done.title", { title })}</h2>
         <p className="text-[13px] text-seen-secondary mt-3">

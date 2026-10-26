@@ -51,7 +51,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, { errorId:
     const escape = crashEscape(typeof window === "undefined" ? "" : window.location.hash);
     return (
       <div className="min-h-dvh bg-black flex items-center justify-center px-5">
-        <div className="max-w-[428px] w-full">
+        <div className="max-w-(--seen-content-max) w-full">
           <StateTemplate
             kind="error"
             title="Something broke on this screen"

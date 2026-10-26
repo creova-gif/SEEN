@@ -29,7 +29,7 @@ export function OnboardingPurpose({ onNext }: OnboardingPurposeProps) {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 min-h-full flex flex-col justify-between p-8 pt-16 pb-12 max-w-[428px] mx-auto">
+      <div className="relative z-10 min-h-full flex flex-col justify-between p-8 pt-16 pb-12 max-w-(--seen-content-max) mx-auto">
         {/* Top: Logo */}
         <div className="flex items-center justify-between">
           <div>

@@ -278,7 +278,7 @@ function AppContent() {
         )}
         <Suspense
           fallback={
-            <div className="max-w-[428px] mx-auto px-gutter pt-header">
+            <div className="max-w-(--seen-content-max) mx-auto px-gutter pt-header">
               <SkeletonList count={4} label="Loading" />
             </div>
           }

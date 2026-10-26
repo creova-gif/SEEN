@@ -320,3 +320,24 @@ test.describe("creator profile: featured story, share, app feel", () => {
     expect(await text.evaluate(e => getComputedStyle(e).userSelect)).toBe("text");
   });
 });
+
+test.describe("foldables and tablets", () => {
+  for (const [name, w, h] of [["Fold inner screen", 700, 880], ["Fold inner, large", 884, 1104], ["Flip, tall and narrow", 412, 960]] as const) {
+    test(`${name} (${w}x${h}): column widens, nothing overflows, tab bar matches the column`, async ({ page }) => {
+      await signInAs(page, "viewer");
+      await page.setViewportSize({ width: w, height: h });
+      for (const r of ["for-you", "explore/creators", "library", "profile", "story/midnight-resonance"]) {
+        await page.goto(`/#/${r}`);
+        await page.waitForTimeout(700);
+        expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth), `${r} overflows sideways`).toBeLessThanOrEqual(0);
+      }
+      await page.goto("/#/for-you");
+      await expect(page.getByRole("heading", { name: "For You", level: 1 })).toBeVisible();
+      const col = await page.evaluate(() => parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--seen-content-max")));
+      expect(col).toBe(w >= 840 ? 760 : w >= 600 ? 600 : 428);
+      const main = (await page.locator("main").boundingBox())!;
+      expect(Math.round(main.width)).toBeLessThanOrEqual(col);
+      if (w >= 600) expect(main.width).toBeGreaterThan(440); // wider than the phone column
+    });
+  }
+});

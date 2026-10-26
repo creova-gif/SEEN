@@ -86,7 +86,7 @@ export function SearchScreen({ onClose, onSelectStory }: SearchScreenProps) {
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: -20, opacity: 0 }}
-          className="relative max-w-[428px] mx-auto h-dvh flex flex-col bg-black/40"
+          className="relative max-w-(--seen-content-max) mx-auto h-dvh flex flex-col bg-black/40"
           onClick={e => e.stopPropagation()}
         >
           {/* Search Header */}

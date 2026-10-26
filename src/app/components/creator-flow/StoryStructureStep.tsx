@@ -283,7 +283,7 @@ export function StoryStructureStep({
 
       {/* Bottom Actions */}
       <div className="fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur-xl border-t border-white/10 p-5">
-        <div className="max-w-[428px] mx-auto flex items-center justify-between">
+        <div className="max-w-(--seen-content-max) mx-auto flex items-center justify-between">
           {/* Back button */}
           <motion.button
             type="button"

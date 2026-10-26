@@ -25,7 +25,7 @@ export function CreatorsPanel() {
       }
     >
       {([creators, following]) => (
-        <ul className="grid grid-cols-2 gap-3 auto-rows-fr" aria-label="Creators">
+        <ul className="grid grid-cols-2 min-[840px]:grid-cols-3 gap-3 auto-rows-fr" aria-label="Creators">
           {creators.map(c => (
             <li key={c.id}>
               <CreatorCard creator={c} following={following.includes(c.id)} onOpen={id => nav.go("creator-profile", { id })} />
