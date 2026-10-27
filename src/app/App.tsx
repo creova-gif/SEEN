@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { lazy, Suspense, useState, useEffect, useCallback, useMemo, useRef, type CSSProperties } from "react";
 import { AnimatePresence, MotionConfig } from "motion/react";
 import { Toaster } from "sonner";
 import { StoryStateProvider, useStoryState } from "./contexts/StoryStateContext";
@@ -36,7 +36,8 @@ import { rememberReturn, takeReturn } from "./navigation/safeReturn";
 import { type AppScreen, NOT_DEEP_LINKABLE, PUBLIC_SCREENS, TAB_SCREENS, canAccess, canGuestAccess, fromHash, isScreen, toHash } from "./navigation/routes";
 import { api } from "./services";
 import { NavigationBar } from "./components/NavigationBar";
-import { BottomNav, type NavItemId } from "./components/seen/BottomNav";
+import { BottomNav, type NavItemId, type TabId } from "./components/seen/BottomNav";
+import { useMediaQuery } from "./native/useMediaQuery";
 import { GuestLayer } from "./guest/GuestLayer";
 import { enterGuestMode, hasChosenGuest, openGuestPrompt, type GuestReason } from "./guest/guestStore";
 import { hasSeenCreatorIntro } from "./guest/creatorIntro";
@@ -92,6 +93,8 @@ function AppContent() {
       if (entry.screen === "story-preview" && entry.params.id) enterStoryWorld(entry.params.id);
       setRoute(entry);
       window.scrollTo?.({ top: 0, behavior: "instant" });
+      // On wide screens the detail pane scrolls on its own: a new screen starts at its top.
+      document.querySelector<HTMLElement>('[data-pane="detail"] [data-scroll-root]')?.scrollTo?.({ top: 0, behavior: "instant" });
     },
     [enterStoryWorld],
   );
@@ -260,31 +263,30 @@ function AppContent() {
     if (!allowed) track("access_denied", { screen: currentScreen, role });
   }, [allowed, currentScreen, role]);
 
-  return (
-    <AppNavProvider value={nav}>
-      <MotionConfig reducedMotion={state.accessibilityPreferences.reducedMotion ? "always" : "user"}>
-      <div className="size-full bg-black">
-        {/* Bottom, above the nav + mini player, so toasts never cover header actions (Close, Back). */}
-        <GuestLayer />
-        <Toaster theme="dark" position="bottom-center" offset={{ bottom: 150 }} mobileOffset={{ bottom: 150 }} richColors closeButton />
-        {/* Tab chrome lives outside the screen transition, so only the content fades on a tab switch. */}
-        {isTab && <NavigationBar onSearch={nav.openSearch} />}
-        {isTab && (
-          <BottomNav
-            activeTab={currentScreen as "for-you" | "explore" | "library" | "profile"}
-            onNavigate={handleNavItem}
-            locked={signedOut ? ["create", "library", "profile"] : []}
-          />
-        )}
-        <Suspense
-          fallback={
-            <div className="max-w-(--seen-content-max) mx-auto px-gutter pt-header">
-              <SkeletonList count={4} label="Loading" />
-            </div>
-          }
-        >
-        <AnimatePresence mode="wait">
-          {shown === "onboarding" && (
+  const wide = useMediaQuery("(min-width: 840px)");
+  const [lastTab, setLastTab] = useState<TabId>("for-you");
+  useEffect(() => {
+    if (shown && TAB_SCREENS.includes(shown) && allowed) setLastTab(shown as TabId);
+  }, [shown, allowed]);
+  // Wide screens (unfolded foldables, tablets): the tab stays on the left and what you open appears on the right.
+  const twoPane = wide && currentScreen !== "onboarding";
+  const shownIsTab = !!shown && TAB_SCREENS.includes(shown);
+  const listScreen: TabId = shownIsTab ? (shown as TabId) : lastTab;
+  const detailScreen: AppScreen | null = shownIsTab ? null : shown;
+  const detailOpen = twoPane && !shownIsTab;
+
+  const openChapter = (storyId: string, chapterId: string) => {
+    enterStoryWorld(storyId);
+    navigateToChapter(chapterId);
+    trackedGo("story-chapter");
+  };
+
+  type Pane = "single" | "list" | "detail";
+  // The same screen list serves the one-pane phone layout and both panes of the wide layout. The fragment's children
+  // are handed to AnimatePresence as a flat list, so each screen keeps its key and exit animation.
+  const renderScreens = (shown: AppScreen | null, pane: Pane) => (
+    <>
+          {pane !== "list" && shown === "onboarding" && (
             <OnboardingSystem
               key="onboarding"
               onComplete={handleOnboardingComplete}
@@ -294,7 +296,7 @@ function AppContent() {
             />
           )}
 
-          {guestBlocked && (
+          {pane !== "list" && guestBlocked && (
             <ScreenFrame key="guest-gate" title={t("guest.page.title")} onBack={back}>
               <StateTemplate
                 kind="denied"
@@ -306,7 +308,7 @@ function AppContent() {
             </ScreenFrame>
           )}
 
-          {!guestBlocked && !allowed && (
+          {pane !== "list" && !guestBlocked && !allowed && (
             <ScreenFrame key="denied" title="Restricted" onBack={back}>
               <StateTemplate
                 kind="denied"
@@ -428,17 +430,74 @@ function AppContent() {
           )}
 
           {allowed && shown === "moderation-governance" && <ModerationGovernanceSystem key="moderation-governance" onBack={back} />}
-        </AnimatePresence>
-        </Suspense>
-        {currentScreen !== "onboarding" && currentScreen !== "story-chapter" && (
-          <MediaPlayerBar
-            bottomOffset={["for-you", "explore", "library", "profile"].includes(currentScreen)}
-            onOpenChapter={(storyId, chapterId) => {
-              enterStoryWorld(storyId);
-              navigateToChapter(chapterId);
-              trackedGo("story-chapter");
-            }}
-          />
+    </>
+  ).props.children;
+
+  return (
+    <AppNavProvider value={nav}>
+      <MotionConfig reducedMotion={state.accessibilityPreferences.reducedMotion ? "always" : "user"}>
+      <div className="size-full bg-black">
+        {/* Bottom, above the nav + mini player, so toasts never cover header actions (Close, Back). */}
+        <GuestLayer />
+        <Toaster theme="dark" position="bottom-center" offset={{ bottom: 150 }} mobileOffset={{ bottom: 150 }} richColors closeButton />
+        {twoPane ? (
+          <>
+            {/* List pane: the current tab, always on the left, with the tab chrome and mini player. */}
+            <div data-pane="list" style={{ "--seen-content-max": "420px" } as CSSProperties} className="fixed inset-y-0 left-0 w-[420px] transform-gpu border-r border-white/10 bg-black">
+              <NavigationBar onSearch={nav.openSearch} />
+              <BottomNav
+                activeTab={listScreen}
+                onNavigate={handleNavItem}
+                onReselect={detailOpen ? () => trackedGo(listScreen) : undefined}
+                locked={signedOut ? ["create", "library", "profile"] : []}
+              />
+              <div data-scroll-root className="absolute inset-0 overflow-y-auto overflow-x-hidden">
+                <Suspense fallback={<div className="px-gutter pt-header"><SkeletonList count={4} label="Loading" /></div>}>
+                  <AnimatePresence mode="wait">{renderScreens(listScreen, "list")}</AnimatePresence>
+                </Suspense>
+              </div>
+              {currentScreen !== "story-chapter" && <MediaPlayerBar bottomOffset onOpenChapter={openChapter} />}
+            </div>
+            {/* Detail pane: whatever was opened from the list. Fixed full-screen screens (story page, reader) fill this pane. */}
+            <div data-pane="detail" style={{ "--seen-content-max": "760px" } as CSSProperties} className="fixed inset-y-0 left-[420px] right-0 transform-gpu bg-black">
+              <div data-scroll-root className="absolute inset-0 overflow-y-auto overflow-x-hidden">
+                <Suspense fallback={<div className="mx-auto max-w-(--seen-content-max) px-gutter pt-header"><SkeletonList count={4} label="Loading" /></div>}>
+                  <AnimatePresence mode="wait">
+                    {renderScreens(detailScreen, "detail")}
+                    {!detailScreen && !guestBlocked && (
+                      <div key="detail-empty" data-testid="detail-empty" className="min-h-dvh flex items-center justify-center px-8 text-center">
+                        <p className="max-w-[280px] text-sm text-seen-muted leading-relaxed">{t("twopane.empty")}</p>
+                      </div>
+                    )}
+                  </AnimatePresence>
+                </Suspense>
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            {/* Tab chrome lives outside the screen transition, so only the content fades on a tab switch. */}
+            {isTab && <NavigationBar onSearch={nav.openSearch} />}
+            {isTab && (
+              <BottomNav
+                activeTab={currentScreen as "for-you" | "explore" | "library" | "profile"}
+                onNavigate={handleNavItem}
+                locked={signedOut ? ["create", "library", "profile"] : []}
+              />
+            )}
+            <Suspense
+              fallback={
+                <div className="max-w-(--seen-content-max) mx-auto px-gutter pt-header">
+                  <SkeletonList count={4} label="Loading" />
+                </div>
+              }
+            >
+              <AnimatePresence mode="wait">{renderScreens(shown, "single")}</AnimatePresence>
+            </Suspense>
+            {currentScreen !== "onboarding" && currentScreen !== "story-chapter" && (
+              <MediaPlayerBar bottomOffset={["for-you", "explore", "library", "profile"].includes(currentScreen)} onOpenChapter={openChapter} />
+            )}
+          </>
         )}
       </div>
       </MotionConfig>

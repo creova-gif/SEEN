@@ -29,7 +29,7 @@ Engineering tasks for approved requirements only. Items awaiting product approva
 ## Store apps and foldables (decision: `docs/product/SEEN_PRODUCT_REQUIREMENTS.md`, "Direction change")
 
 - [x] **Wider column and rotation for foldables.** `--seen-content-max` widens at 600 and 840 px; `orientation` is "default" in `mobile/app.json`; tests at fold-inner and flip sizes.
-- [ ] **Two-pane layout.** From 840 px wide (and on dual-segment screens): list on the left, story or creator on the right, state kept when the phone folds or unfolds. Use the `horizontal-viewport-segments` media query and `env(viewport-segment-*)` for hinge-aware screens. Effort: L. Priority: P1.
+- [x] **Two-pane layout (from 840 px wide).** A 420 px list pane (current tab, header, tab bar, mini player) on the left and a detail pane on the right; tests in `e2e/guest.spec.ts`. Still to do: hinge-aware layout on dual-segment screens (`horizontal-viewport-segments`, `env(viewport-segment-*)`), and checking that state survives fold and unfold on a real foldable. Effort: M. Priority: P1.
 - [ ] **Side navigation rail on wide screens.** Replace the bottom tab bar from 840 px. Effort: M. Priority: P2.
 - [ ] **Background and lock-screen audio in the shell.** Native audio session so narration continues with the screen off; lock-screen controls. Needed for App Store review (4.2) and for the product. Effort: L. Priority: P1.
 - [ ] **Push notifications.** `expo-notifications`, permission prompt at a sensible moment, token stored per account. Needs the backend phase. Effort: L. Priority: P1.

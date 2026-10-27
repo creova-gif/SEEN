@@ -47,14 +47,14 @@ for (const role of ["viewer", "creator", "moderator", "admin"] as const) test(`u
         return { small, overlaps, clipped, off };
       });
       // At the bottom of the page, nothing may sit under the fixed nav.
-      await page.evaluate(() => { document.documentElement.style.scrollBehavior = "auto"; window.scrollTo(0, document.documentElement.scrollHeight); });
+      await page.evaluate(() => { document.documentElement.style.scrollBehavior = "auto"; window.scrollTo(0, document.documentElement.scrollHeight); document.querySelectorAll("[data-scroll-root]").forEach(e => { (e as HTMLElement).style.scrollBehavior = "auto"; e.scrollTop = e.scrollHeight; }); });
       await page.waitForTimeout(500);
       const hidden = await page.evaluate(() => {
         const nav = document.querySelector("nav[aria-label=Main]");
         const nb = nav?.getBoundingClientRect();
         if (!nb) return [];
         return [...document.querySelectorAll("button, a[href], [role=button], input, select, textarea")]
-          .filter(e => !nav!.contains(e)).filter(e => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && r.bottom > nb.top + 4 && r.top < nb.bottom; })
+          .filter(e => !nav!.contains(e)).filter(e => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && r.bottom > nb.top + 4 && r.top < nb.bottom && r.right > nb.left + 1 && r.left < nb.right - 1; })
           .map(e => ((e.getAttribute("aria-label") || (e as HTMLElement).innerText || e.tagName) + "").trim().replace(/\s+/g, " ").slice(0, 40));
       });
       findings.push({ width: w, route: `${role}:${r}`, ...res, hidden });

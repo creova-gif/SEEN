@@ -23,18 +23,23 @@ const TABS: { id: NavItemId; label: StringKey; Icon: typeof Home }[] = [
 /** Re-tapping the current tab returns to the top of its screen; instant when the person asked for less motion. */
 function scrollToTop() {
   const reduced = document.documentElement.dataset.motion === "reduced" || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-  window.scrollTo({ top: 0, behavior: reduced ? "instant" : "smooth" });
+  // On wide screens the list pane scrolls on its own; otherwise the page does.
+  const pane = document.querySelector<HTMLElement>('[data-pane="list"] [data-scroll-root]');
+  (pane ?? window).scrollTo({ top: 0, behavior: reduced ? "instant" : "smooth" });
 }
 
 export function BottomNav({
   activeTab,
   onNavigate,
   locked = [],
+  onReselect,
 }: {
   activeTab: TabId;
   onNavigate: (tab: NavItemId) => void;
   /** Items that need an account (guests). They stay real buttons and open the sign-in sheet. */
   locked?: NavItemId[];
+  /** What tapping the current tab does. Default: scroll to the top. */
+  onReselect?: () => void;
 }) {
   const t = useT();
   return (
@@ -49,7 +54,7 @@ export function BottomNav({
               type="button"
               onClick={() => {
                 haptic("select");
-                if (active) scrollToTop();
+                if (active) (onReselect ?? scrollToTop)();
                 else onNavigate(id);
               }}
               aria-current={active ? "page" : undefined}

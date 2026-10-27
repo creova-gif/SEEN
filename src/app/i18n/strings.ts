@@ -300,6 +300,7 @@ export const STRINGS = {
   "creator.featured": { en: "Featured story", fr: "Histoire à la une", es: "Historia destacada" },
   "creator.more": { en: "More stories", fr: "Plus d'histoires", es: "Más historias" },
   "creator.start": { en: "Start reading", fr: "Commencer la lecture", es: "Empezar a leer" },
+  "twopane.empty": { en: "Choose a story, creator or collection from the list.", fr: "Choisissez une histoire, un créateur ou une collection dans la liste.", es: "Elige una historia, un creador o una colección de la lista." },
   "nav.locked": { en: "{tab}, sign in required", fr: "{tab}, connexion requise", es: "{tab}, requiere iniciar sesión" },
   "guest.explore": { en: "Explore without an account", fr: "Explorer sans compte", es: "Explorar sin cuenta" },
   "guest.banner": { en: "Exploring as a guest. Sign up to save stories and pick up where you left off.", fr: "Vous explorez en tant qu'invité. Créez un compte pour enregistrer des histoires et reprendre votre lecture.", es: "Estás explorando como invitado. Crea una cuenta para guardar historias y retomar tu lectura." },

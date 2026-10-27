@@ -333,11 +333,57 @@ test.describe("foldables and tablets", () => {
       }
       await page.goto("/#/for-you");
       await expect(page.getByRole("heading", { name: "For You", level: 1 })).toBeVisible();
-      const col = await page.evaluate(() => parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--seen-content-max")));
-      expect(col).toBe(w >= 840 ? 760 : w >= 600 ? 600 : 428);
-      const main = (await page.locator("main").boundingBox())!;
-      expect(Math.round(main.width)).toBeLessThanOrEqual(col);
-      if (w >= 600) expect(main.width).toBeGreaterThan(440); // wider than the phone column
+      if (w >= 840) {
+        // Wide enough for two panes: a 420 px list beside a detail pane.
+        expect(Math.round((await page.locator('[data-pane="list"]').boundingBox())!.width)).toBe(420);
+        await expect(page.getByTestId("detail-empty")).toBeVisible();
+      } else {
+        const col = await page.evaluate(() => parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--seen-content-max")));
+        expect(col).toBe(w >= 600 ? 600 : 428);
+        const main = (await page.locator("main").boundingBox())!;
+        expect(Math.round(main.width)).toBeLessThanOrEqual(col);
+        if (w >= 600) expect(main.width).toBeGreaterThan(440); // wider than the phone column
+      }
     });
   }
+});
+
+test.describe("two-pane layout on wide screens", () => {
+  test("the list stays on the left while a story and a creator open on the right; Back returns to the empty detail pane", async ({ page }) => {
+    await signInAs(page, "viewer");
+    await page.setViewportSize({ width: 1000, height: 1000 });
+    await page.goto("/#/for-you");
+    const list = page.locator('[data-pane="list"]');
+    const detail = page.locator('[data-pane="detail"]');
+    await expect(list.getByRole("heading", { name: "For You", level: 1 })).toBeVisible();
+    await expect(page.getByTestId("detail-empty")).toBeVisible();
+
+    await list.getByRole("button", { name: /^start reading/i }).first().click();
+    await expect(detail.getByRole("heading", { name: /midnight resonance/i }).first()).toBeVisible();
+    await expect(list.getByRole("heading", { name: "For You", level: 1 })).toBeVisible(); // list is still there
+    expect((await list.boundingBox())!.width).toBe(420);
+    expect((await detail.boundingBox())!.x).toBe(420);
+
+    await detail.getByRole("button", { name: "Go back" }).click();
+    await expect(page.getByTestId("detail-empty")).toBeVisible();
+    await expect(list.getByRole("heading", { name: "For You", level: 1 })).toBeVisible();
+  });
+
+  test("tab chrome belongs to the list pane, a tab tap closes the detail, and phones are not two-pane", async ({ page }) => {
+    await signInAs(page, "viewer");
+    await page.setViewportSize({ width: 1000, height: 1000 });
+    await page.goto("/#/creator/kira-chen");
+    const list = page.locator('[data-pane="list"]');
+    await expect(page.locator('[data-pane="detail"]').getByRole("heading", { name: "Kira Chen", level: 2 })).toBeVisible();
+    const nav = list.getByRole("navigation", { name: "Main" });
+    await expect(nav).toBeVisible();
+    expect(Math.round((await nav.boundingBox())!.width)).toBeGreaterThanOrEqual(419); // the list pane, less its 1 px divider
+    expect(Math.round((await nav.boundingBox())!.width)).toBeLessThanOrEqual(420);
+    await nav.getByRole("button", { name: "Explore", exact: true }).click();
+    await expect(page).toHaveURL(/#\/explore/);
+    await expect(page.getByTestId("detail-empty")).toBeVisible();
+
+    await page.setViewportSize({ width: 412, height: 900 });
+    await expect(page.locator('[data-pane="detail"]')).toHaveCount(0);
+  });
 });
