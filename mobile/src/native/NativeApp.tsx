@@ -1,0 +1,80 @@
+import './polyfill';
+import { DarkTheme, NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { StatusBar } from 'expo-status-bar';
+import { ActivityIndicator, Text, View } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { t } from './data';
+import { PlayerProvider } from './player';
+import { AppStateProvider, useApp } from './storage';
+import { Explore } from './screens/Explore';
+import { ForYou } from './screens/ForYou';
+import { CreateIntro, Library, Profile } from './screens/Others';
+import { Reader } from './screens/Reader';
+import { Story } from './screens/Story';
+import { c } from './theme';
+import { tap } from './ui';
+
+const Tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator();
+
+const theme = { ...DarkTheme, colors: { ...DarkTheme.colors, background: c.canvas, card: c.surface, border: c.border, primary: '#fff', text: c.text } };
+const ICON: Record<string, string> = { ForYou: '⌂', Explore: '◎', Create: '⊕', Library: '▥', Profile: '☺' };
+
+function Tabs() {
+  const { lang } = useApp();
+  const label = (k: 'nav.forYou' | 'nav.explore' | 'nav.create' | 'nav.library' | 'nav.profile') => t(k, lang);
+  return (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        headerShown: false,
+        tabBarActiveTintColor: '#fff',
+        tabBarInactiveTintColor: 'rgba(255,255,255,0.55)',
+        tabBarStyle: { backgroundColor: c.surface, borderTopColor: c.border, height: 64 },
+        tabBarLabelStyle: { fontSize: 11, fontWeight: '500' },
+        tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 20 }}>{ICON[route.name]}</Text>,
+      })}
+      screenListeners={{ tabPress: () => void tap() }}
+    >
+      <Tab.Screen name="ForYou" component={ForYou} options={{ title: label('nav.forYou') }} />
+      <Tab.Screen name="Explore" component={Explore} options={{ title: label('nav.explore') }} />
+      <Tab.Screen
+        name="Create"
+        component={View}
+        options={{ title: label('nav.create') }}
+        listeners={({ navigation }) => ({ tabPress: e => { e.preventDefault(); navigation.getParent()?.navigate('CreateIntro'); } })}
+      />
+      <Tab.Screen name="Library" component={Library} options={{ title: label('nav.library') }} />
+      <Tab.Screen name="Profile" component={Profile} options={{ title: label('nav.profile') }} />
+    </Tab.Navigator>
+  );
+}
+
+function Root() {
+  const { ready } = useApp();
+  if (!ready) return <View style={{ flex: 1, backgroundColor: c.canvas, alignItems: 'center', justifyContent: 'center' }}><ActivityIndicator color="#fff" /></View>;
+  return (
+    <NavigationContainer theme={theme}>
+      <Stack.Navigator screenOptions={{ headerShown: false, contentStyle: { backgroundColor: c.canvas } }}>
+        <Stack.Screen name="Tabs" component={Tabs} />
+        <Stack.Screen name="Story" component={Story} />
+        <Stack.Screen name="Reader" component={Reader} options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }} />
+        <Stack.Screen name="CreateIntro" component={CreateIntro} options={{ presentation: 'modal' }} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
+
+export function NativeApp() {
+  return (
+    <SafeAreaProvider>
+      <AppStateProvider>
+        <PlayerProvider>
+          <StatusBar style="light" />
+          <Root />
+        </PlayerProvider>
+      </AppStateProvider>
+    </SafeAreaProvider>
+  );
+}

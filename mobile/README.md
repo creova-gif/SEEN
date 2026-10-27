@@ -38,16 +38,16 @@ The earlier native-only prototype (sample data, old onboarding, no reader) is ke
 - App Store / Play Store builds: `eas.json` has the profiles; building needs an Expo account and, for iPhone, an Apple Developer account. Apple may reject an app that is only a website in a frame (guideline 4.2), so a store release should add native features first (for example push notifications, native audio, share sheet).
 - Deep links (`seen://story/...`) are not mapped to screens yet.
 
-## Testing a branch on your phone (before it is on Vercel)
+## Run the native app on your phone
 
-Vercel previews need a Vercel sign-in, which a WebView cannot do. To test unreleased work in the app shell, serve the build from your computer and point the shell at it:
+The app is native (React Native, Expo SDK 58): its own screens and audio player, not the website in a web view. It reuses the website's story catalogue, strings and search from `../src/app`.
 
 ```bash
-# in the repo root: build and serve on your network
-npm run build && npx vite preview --host 0.0.0.0 --port 4180
-
-# in mobile/: start Expo pointed at that server (use your computer's LAN address)
-EXPO_PUBLIC_SEEN_URL=http://192.168.0.10:4180 npx expo start --lan
+cd mobile
+npm install
+npx expo start --lan
 ```
 
-Open Expo Go on the phone (same Wi-Fi) and scan the QR code, or choose "Enter URL manually" and type the `exp://...` address Expo prints. The shell adds app-like touches the browser cannot: no browser bars, no rubber-band scrolling, native back gesture, light haptic taps on tab changes.
+Scan the QR code with the Camera app (iPhone) or the Expo Go app (Android), on the same Wi-Fi. Expo Go must support SDK 58 (the store version does). Background audio and lock-screen controls need a development build (`eas build --profile development`); Expo Go ignores background modes.
+
+Checks: `npm run typecheck` (native code only), and `npx expo export --platform ios` proves the bundle builds.

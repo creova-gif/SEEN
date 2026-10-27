@@ -55,7 +55,10 @@
         {
           "microphonePermission": false
         }
-      ]
+      ],
+      "expo-font",
+      "expo-status-bar",
+      "expo-image"
     ]
   }
 }

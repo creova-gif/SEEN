@@ -1,13 +1,6 @@
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { PrototypeApp } from './src/PrototypeApp';
-import { WebShell } from './src/WebShell';
-import { PROTOTYPE_MODE } from './src/config';
+import { NativeApp } from './src/native/NativeApp';
 
+/** SEEN, native: real screens and a real audio player, not the website in a web view. */
 export default function App() {
-  if (PROTOTYPE_MODE) return <PrototypeApp />;
-  return (
-    <SafeAreaProvider>
-      <WebShell />
-    </SafeAreaProvider>
-  );
+  return <NativeApp />;
 }

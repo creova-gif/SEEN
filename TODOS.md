@@ -36,3 +36,14 @@ Engineering tasks for approved requirements only. Items awaiting product approva
 - [ ] **Offline reading in the shell.** Chapters saved for offline use, with a clear indicator. Effort: M. Priority: P1.
 - [ ] **EAS build and submit setup.** Development, preview and production profiles, app icons and splash at store sizes, version and build numbers, Android signing. Needs the owner's Apple and Google accounts. Effort: M. Priority: P1.
 - [ ] **Real-device pass on a phone, a foldable and a flip phone.** iOS and Android. Effort: M. Priority: P1.
+
+## Native app (the product is now the native app; see "Direction change" in the requirements doc)
+
+- [x] **Native slice 1 (Expo SDK 58, React Native).** Five tabs, For You with hero and rails, Explore with topic chips and search, story page (languages line, fallback notice, chapters, save), reader with follow-along text and a native audio player (recordings through the system player with lock-screen controls; the device voice otherwise), Library from saved stories, Profile with the language switch. Reuses the website's story catalogue, strings and search. Bundles for iOS and Android; not yet run on a device by the owner.
+- [ ] **Native: sign-in, guest mode and the guest sheet.** Port `guestStore` logic and the account forms. Priority: P1.
+- [ ] **Native: creator profiles and the Create flow** (intro, publish wizard, Your stories). Priority: P1.
+- [ ] **Native: collections, funding, notifications, search screen, settings and account screens.** Priority: P2.
+- [ ] **Native: strings.** The slice has some English-only labels (Chapters, Content notes, library empty text, Create placeholder). Move them into `strings.ts` with FR and ES. Priority: P1.
+- [ ] **Native: two-pane layout on foldables and tablets** (list left, reader right) and hinge awareness. Priority: P1.
+- [ ] **Native tests.** Add React Native Testing Library tests for the player, reader and navigation, and a Maestro or Detox journey on a device. Priority: P1.
+- [ ] **Retire the web app as a product** once the native app covers the screens above; keep it only as a test bench or remove it. Priority: P2.
