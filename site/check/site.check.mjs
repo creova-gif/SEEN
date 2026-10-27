@@ -125,6 +125,13 @@ test("without SITE_URL no canonical, hreflang or sitemap is written", () => {
   assert.ok(!existsSync(join(dir, "sitemap.xml")));
 });
 
+test("GitHub Pages files: CNAME carries the site's host, .nojekyll present", () => {
+  assert.equal(readFileSync(join(out, "CNAME"), "utf8"), "example.test\n");
+  assert.ok(existsSync(join(out, ".nojekyll")));
+  const dir = build({ ...cfg, siteUrl: "" }, mkdtempSync(join(tmpdir(), "seen-site-nocname-")));
+  assert.ok(!existsSync(join(dir, "CNAME")), "no CNAME without SITE_URL");
+});
+
 test("build output contains every page, styles, robots and a sitemap listing them all", () => {
   for (const lang of LANGS) for (const page of PAGES) assert.ok(existsSync(file(lang, page)), `${lang}/${page}`);
   for (const f of ["styles.css", "robots.txt", "sitemap.xml"]) assert.ok(existsSync(join(out, f)), `${f} exists`);

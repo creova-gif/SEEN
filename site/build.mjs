@@ -1,5 +1,6 @@
 // Builds the SEEN website into site/dist. No dependencies.
-//   SITE_URL    optional, e.g. https://example.com. Without it no canonical, hreflang or sitemap is written.
+//   SITE_URL    defaults to https://seen.creova.one. Set it to an empty string to build without canonical, hreflang,
+//               sitemap or CNAME (for example for a local preview).
 //   APP_URL     where "Try the demo app" points. Defaults to the current production demo.
 //   CREOVA_URL  where the links back to CREOVA point.
 import { mkdirSync, rmSync, writeFileSync, copyFileSync } from "node:fs";
@@ -12,7 +13,7 @@ const root = dirname(fileURLToPath(import.meta.url));
 const dist = join(root, "dist");
 
 export const config = {
-  siteUrl: process.env.SITE_URL || "",
+  siteUrl: process.env.SITE_URL ?? "https://seen.creova.one",
   appUrl: process.env.APP_URL || "https://seen-sigma-eight.vercel.app",
   creovaUrl: process.env.CREOVA_URL || "https://creova.one",
 };
@@ -30,6 +31,9 @@ export function build(cfg = config, outDir = dist) {
   copyFileSync(join(root, "src", "styles.css"), join(outDir, "styles.css"));
 
   const site = cfg.siteUrl.replace(/\/$/, "");
+  // GitHub Pages: keep the custom domain across deploys and skip Jekyll processing.
+  writeFileSync(join(outDir, ".nojekyll"), "");
+  if (site) writeFileSync(join(outDir, "CNAME"), new URL(site).hostname + "\n");
   writeFileSync(
     join(outDir, "robots.txt"),
     `User-agent: *\nAllow: /\n${site ? `Sitemap: ${site}/sitemap.xml\n` : ""}`,

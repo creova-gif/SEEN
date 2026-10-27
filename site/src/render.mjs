@@ -18,7 +18,7 @@ export function rel(from, to) {
 
 const list = (items) => `<ul>${items.map((i) => `<li>${escapeHtml(i)}</li>`).join("")}</ul>`;
 
-// Same policy the Firebase headers send; repeated here so it also holds on hosts that cannot set headers.
+// The only policy on hosts that cannot send headers (GitHub Pages), so it must stay in every page.
 const CSP =
   "default-src 'none'; style-src 'self'; img-src 'self' data:; base-uri 'self'; form-action 'none'";
 
