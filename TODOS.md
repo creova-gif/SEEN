@@ -40,7 +40,7 @@ Engineering tasks for approved requirements only. Items awaiting product approva
 ## Native app (the product is now the native app; see "Direction change" in the requirements doc)
 
 - [x] **Native slice 1 (Expo SDK 58, React Native).** Five tabs, For You with hero and rails, Explore with topic chips and search, story page (languages line, fallback notice, chapters, save), reader with follow-along text and a native audio player (recordings through the system player with lock-screen controls; the device voice otherwise), Library from saved stories, Profile with the language switch. Reuses the website's story catalogue, strings and search. Bundles for iOS and Android; not yet run on a device by the owner.
-- [ ] **Native: sign-in, guest mode and the guest sheet.** Port `guestStore` logic and the account forms. Priority: P1.
+- [x] **Native: first-run, sign-in, guest mode and the guest sheet.** Language, S.E.E.N entry with story-cover imagery, manifesto, purpose with "Explore without an account", account form (hashed, stored on the phone), the guest sheet for Save, Follow, Library, Create and chapters after the first; sign out. Accounts are local until the backend phase. Still to do: interests step, the guest banner, Profile account details, native tests of the screens. Priority: P1.
 - [x] **Native: creator profiles** (banner, ringed avatar, stats, follow, share, featured story) and Explore creators tab. Done in slice 2.
 - [ ] **Native: the Create flow** (intro, publish wizard, Your stories). Priority: P1.
 - [ ] **Native: collections, funding, notifications, search screen, settings and account screens.** Priority: P2.

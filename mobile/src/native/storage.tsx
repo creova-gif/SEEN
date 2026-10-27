@@ -1,6 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Crypto from 'expo-crypto';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { Language } from './data';
+import { findAccount, signIn as signInLocal, signUp as signUpLocal, type Account, type AccountStore, type Me } from './auth';
 
 /** What the phone remembers: language, saved stories, and where you were in each story. */
 interface Persisted {
@@ -8,12 +10,29 @@ interface Persisted {
   saved: string[];
   following: string[];
   chapter: Record<string, number>;
+  /** The first-run screens are done. */
+  onboarded: boolean;
+  /** They chose "Explore without an account". */
+  guest: boolean;
+  userId: string | null;
 }
 const KEY = 'seen.native.v1';
-const DEFAULT: Persisted = { lang: 'en', saved: [], following: [], chapter: {} };
+const DEFAULT: Persisted = { lang: 'en', saved: [], following: [], chapter: {}, onboarded: false, guest: false, userId: null };
+
+const ACCOUNTS = 'seen.native.accounts.v1';
+const accountStore: AccountStore = {
+  load: async () => JSON.parse((await AsyncStorage.getItem(ACCOUNTS)) ?? '[]') as Account[],
+  save: async list => AsyncStorage.setItem(ACCOUNTS, JSON.stringify(list)),
+};
+const sha = (text: string) => Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, text);
 
 interface AppState extends Persisted {
   ready: boolean;
+  user: Me | null;
+  signUp: (i: { name: string; email: string; password: string }) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<void>;
+  signOut: () => void;
+  enterGuest: () => void;
   setLang: (l: Language) => void;
   toggleSaved: (storyId: string) => void;
   isSaved: (storyId: string) => boolean;
@@ -32,10 +51,15 @@ export const useApp = () => {
 export function AppStateProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<Persisted>(DEFAULT);
   const [ready, setReady] = useState(false);
+  const [user, setUser] = useState<Me | null>(null);
 
   useEffect(() => {
     AsyncStorage.getItem(KEY)
-      .then(raw => raw && setData({ ...DEFAULT, ...(JSON.parse(raw) as Partial<Persisted>) }))
+      .then(async raw => {
+        const saved = raw ? { ...DEFAULT, ...(JSON.parse(raw) as Partial<Persisted>) } : DEFAULT;
+        setData(saved);
+        if (saved.userId) setUser(await findAccount(accountStore, saved.userId));
+      })
       .catch(() => {})
       .finally(() => setReady(true));
   }, []);
@@ -52,6 +76,22 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     () => ({
       ...data,
       ready,
+      user,
+      signUp: async input => {
+        const me = await signUpLocal(accountStore, sha, input, () => Crypto.randomUUID());
+        setUser(me);
+        update(p => ({ ...p, userId: me.id, onboarded: true, guest: false }));
+      },
+      signIn: async (email, password) => {
+        const me = await signInLocal(accountStore, sha, email, password);
+        setUser(me);
+        update(p => ({ ...p, userId: me.id, onboarded: true, guest: false }));
+      },
+      signOut: () => {
+        setUser(null);
+        update(p => ({ ...p, userId: null, guest: true }));
+      },
+      enterGuest: () => update(p => ({ ...p, onboarded: true, guest: true })),
       setLang: lang => update(p => ({ ...p, lang })),
       toggleSaved: id => update(p => ({ ...p, saved: p.saved.includes(id) ? p.saved.filter(x => x !== id) : [...p.saved, id] })),
       isSaved: id => data.saved.includes(id),
@@ -59,7 +99,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       isFollowing: id => data.following.includes(id),
       rememberChapter: (id, index) => update(p => ({ ...p, chapter: { ...p.chapter, [id]: index } })),
     }),
-    [data, ready, update],
+    [data, ready, user, update],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

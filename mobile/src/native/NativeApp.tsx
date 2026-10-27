@@ -13,6 +13,10 @@ import { ForYou } from './screens/ForYou';
 import { CreateIntro, Library, Profile } from './screens/Others';
 import { Reader } from './screens/Reader';
 import { Story } from './screens/Story';
+import { Account } from './screens/Account';
+import { Invocation, LanguageStep, Manifesto, Purpose } from './screens/Onboarding';
+import { GuestProvider, useGuest } from './guest';
+import { navRef } from './navRef';
 import { Creator } from './screens/Creator';
 import { c } from './theme';
 import { tap } from './ui';
@@ -24,7 +28,8 @@ const theme = { ...DarkTheme, colors: { ...DarkTheme.colors, background: c.canva
 const ICON: Record<string, string> = { ForYou: '⌂', Explore: '◎', Create: '⊕', Library: '▥', Profile: '☺' };
 
 function Tabs() {
-  const { lang } = useApp();
+  const { lang, user } = useApp();
+  const { requireAccount } = useGuest();
   const label = (k: 'nav.forYou' | 'nav.explore' | 'nav.create' | 'nav.library' | 'nav.profile') => t(k, lang);
   return (
     <Tab.Navigator
@@ -44,26 +49,48 @@ function Tabs() {
         name="Create"
         component={View}
         options={{ title: label('nav.create') }}
-        listeners={({ navigation }) => ({ tabPress: e => { e.preventDefault(); navigation.getParent()?.navigate('CreateIntro'); } })}
+        listeners={({ navigation }) => ({ tabPress: e => { e.preventDefault(); requireAccount({ reason: 'create' }, () => navigation.getParent()?.navigate('CreateIntro')); } })}
       />
-      <Tab.Screen name="Library" component={Library} options={{ title: label('nav.library') }} />
+      <Tab.Screen
+        name="Library"
+        component={Library}
+        options={{ title: label('nav.library'), tabBarAccessibilityLabel: user ? undefined : `${label('nav.library')}, ${t('guest.cta.create', lang)}` }}
+        listeners={() => ({ tabPress: e => { if (!user) { e.preventDefault(); requireAccount({ reason: 'library' }); } } })}
+      />
       <Tab.Screen name="Profile" component={Profile} options={{ title: label('nav.profile') }} />
     </Tab.Navigator>
   );
 }
 
 function Root() {
-  const { ready } = useApp();
+  const { ready, onboarded } = useApp();
   if (!ready) return <View style={{ flex: 1, backgroundColor: c.canvas, alignItems: 'center', justifyContent: 'center' }}><ActivityIndicator color="#fff" /></View>;
+  if (!onboarded) {
+    // First run: language, the S.E.E.N entry, the manifesto, then purpose and account (or explore as a guest).
+    return (
+      <NavigationContainer theme={theme} ref={navRef}>
+        <Stack.Navigator screenOptions={{ headerShown: false, contentStyle: { backgroundColor: c.canvas }, animation: 'fade' }}>
+          <Stack.Screen name="Language" component={LanguageStep} />
+          <Stack.Screen name="Invocation" component={Invocation} />
+          <Stack.Screen name="Manifesto" component={Manifesto} />
+          <Stack.Screen name="Purpose" component={Purpose} />
+          <Stack.Screen name="Account" component={Account} initialParams={{ firstRun: true }} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    );
+  }
   return (
-    <NavigationContainer theme={theme}>
+    <NavigationContainer theme={theme} ref={navRef}>
+      <GuestProvider>
       <Stack.Navigator screenOptions={{ headerShown: false, contentStyle: { backgroundColor: c.canvas } }}>
         <Stack.Screen name="Tabs" component={Tabs} />
+        <Stack.Screen name="Account" component={Account} options={{ presentation: 'modal' }} />
         <Stack.Screen name="Story" component={Story} />
         <Stack.Screen name="Creator" component={Creator} />
         <Stack.Screen name="Reader" component={Reader} options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }} />
         <Stack.Screen name="CreateIntro" component={CreateIntro} options={{ presentation: 'modal' }} />
       </Stack.Navigator>
+      </GuestProvider>
     </NavigationContainer>
   );
 }

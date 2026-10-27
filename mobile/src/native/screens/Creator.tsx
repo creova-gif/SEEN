@@ -4,6 +4,7 @@ import { ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { creatorCover, getCreator, getLocalizedText, getStoryWorldById, initialsOf, t } from '../data';
 import { useApp } from '../storage';
+import { useGuest } from '../guest';
 import { c, font, gutter, radius, space } from '../theme';
 import { Button, Cover, Eyebrow, Press } from '../ui';
 import { Avatar } from './CreatorCard';
@@ -15,6 +16,7 @@ export function Creator() {
   const { id } = useRoute<any>().params as { id: string };
   const { lang, isFollowing, toggleFollow } = useApp();
   const insets = useSafeAreaInsets();
+  const { requireAccount } = useGuest();
   const creator = getCreator(id);
   if (!creator) return <View style={{ flex: 1, backgroundColor: c.canvas }} />;
   const following = isFollowing(id);
@@ -52,7 +54,7 @@ export function Creator() {
           {creator.languages.map(l => <Text key={l} style={styles.lang}>{NAMES[l as keyof typeof NAMES] ?? l}</Text>)}
         </View>
         <View style={styles.actions}>
-          <Button label={following ? t('native.following', lang) : t('native.follow', lang)} variant={following ? 'secondary' : 'primary'} onPress={() => toggleFollow(id)} />
+          <Button label={following ? t('native.following', lang) : t('native.follow', lang)} variant={following ? 'secondary' : 'primary'} onPress={() => requireAccount({ reason: 'follow', subject: creator.name }, () => toggleFollow(id))} />
           <Press accessibilityRole="button" accessibilityLabel={t('creator.share', lang)} onPress={share} style={styles.share}>
             <Text style={{ color: c.text, fontSize: 18 }}>⇪</Text>
           </Press>

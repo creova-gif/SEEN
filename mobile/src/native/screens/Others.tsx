@@ -29,7 +29,8 @@ export function Library() {
 
 export function Profile() {
   const insets = useSafeAreaInsets();
-  const { lang, setLang } = useApp();
+  const nav = useNavigation<any>();
+  const { lang, setLang, user, signOut } = useApp();
   const langs: [Language, string][] = [['en', 'English'], ['fr', 'Français'], ['es', 'Español']];
   return (
     <ScrollView style={{ flex: 1, backgroundColor: c.canvas }} contentContainerStyle={{ paddingTop: insets.top, paddingBottom: space.xxl }}>
@@ -40,7 +41,18 @@ export function Profile() {
         {langs.map(([code, name]) => <Chip key={code} label={name} selected={lang === code} onPress={() => setLang(code)} />)}
       </View>
       <Text style={styles.h2}>{t('native.account', lang)}</Text>
-      <Text style={styles.note}>{t('native.accountSoon', lang)}</Text>
+      {user ? (
+        <>
+          <Text style={styles.note}>{t('native.acct.signedInAs', lang, { name: user.name })}</Text>
+          <View style={{ marginHorizontal: gutter, marginTop: space.lg, alignSelf: 'flex-start' }}><Button label={t('native.acct.signout', lang)} variant="secondary" onPress={signOut} /></View>
+        </>
+      ) : (
+        <>
+          <Text style={styles.note}>{t('guest.banner', lang)}</Text>
+          <View style={{ marginHorizontal: gutter, marginTop: space.lg, alignSelf: 'flex-start' }}><Button label={t('guest.cta.create', lang)} onPress={() => nav.navigate('Account', { mode: 'signup' })} /></View>
+        </>
+      )}
+      <Text style={styles.note}>{t('native.acct.local', lang)}</Text>
     </ScrollView>
   );
 }

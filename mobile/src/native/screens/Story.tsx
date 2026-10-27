@@ -4,6 +4,7 @@ import { ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-n
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getChaptersForStory, getCreators, getLocalizedText, getStoryWorldById, t } from '../data';
 import { useApp } from '../storage';
+import { useGuest } from '../guest';
 import { c, font, gutter, radius, space } from '../theme';
 import { Button, Cover, Eyebrow, Press } from '../ui';
 
@@ -14,6 +15,7 @@ export function Story() {
   const { id } = useRoute<any>().params as { id: string };
   const { lang, isSaved, toggleSaved, chapter: last } = useApp();
   const insets = useSafeAreaInsets();
+  const { requireAccount } = useGuest();
   const { height } = useWindowDimensions();
   const story = getStoryWorldById(id);
   if (!story) return <View style={styles.missing}><Text style={{ color: c.text }}>{t('unavail.title', lang)}</Text></View>;
@@ -31,7 +33,7 @@ export function Story() {
         <LinearGradient colors={['transparent', '#000']} style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '60%' }} />
         <View style={{ position: 'absolute', top: insets.top + space.sm, left: gutter, right: gutter, flexDirection: 'row', justifyContent: 'space-between' }}>
           <Round label="Back" glyph="←" onPress={() => nav.goBack()} />
-          <Round label={saved ? 'Remove from Library' : 'Save to Library'} glyph={saved ? '★' : '☆'} onPress={() => toggleSaved(id)} />
+          <Round label={saved ? 'Remove from Library' : 'Save to Library'} glyph={saved ? '★' : '☆'} onPress={() => requireAccount({ reason: 'save', subject: getLocalizedText(story.title, lang) }, () => toggleSaved(id))} />
         </View>
       </View>
       <View style={{ paddingHorizontal: gutter, marginTop: -space.xxl }}>
@@ -49,7 +51,7 @@ export function Story() {
         <Button label={last[id] ? t('native.continue', lang) : t('story.start', lang)} icon="▶" onPress={() => nav.navigate('Reader', { id, index: start })} style={{ marginTop: space.xl }} />
         <Text style={styles.h2}>{t('native.chapters', lang)}</Text>
         {chapters.map((ch, i) => (
-          <Press key={ch.id} accessibilityRole="button" onPress={() => nav.navigate('Reader', { id, index: i })} style={styles.row}>
+          <Press key={ch.id} accessibilityRole="button" onPress={() => (i > 0 ? requireAccount({ reason: 'continue', subject: getLocalizedText(story.title, lang) }, () => nav.navigate('Reader', { id, index: i })) : nav.navigate('Reader', { id, index: i }))} style={styles.row}>
             <Text style={styles.rowNum}>{ch.order}</Text>
             <View style={{ flex: 1 }}>
               <Text style={styles.rowTitle}>{getLocalizedText(ch.title, lang)}</Text>

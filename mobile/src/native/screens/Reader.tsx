@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getChaptersForStory, getLocalizedText, getStoryWorldById, sentencesOf, t } from '../data';
 import { RATES, formatTime, usePlayer } from '../player';
 import { useApp } from '../storage';
+import { useGuest } from '../guest';
 import { c, font, gutter, radius, space } from '../theme';
 import { Button, Press } from '../ui';
 
@@ -16,6 +17,9 @@ export function Reader() {
   const { lang, rememberChapter } = useApp();
   const insets = useSafeAreaInsets();
   const player = usePlayer();
+  const { requireAccount } = useGuest();
+  // Guests read chapter 1; going on asks for an account.
+  const goTo = (next: number) => (next > i ? requireAccount({ reason: 'continue', subject: story ? getLocalizedText(story.title, lang) : undefined }, () => setI(next)) : setI(next));
   const story = getStoryWorldById(id);
   const chapters = getChaptersForStory(id);
   const [i, setI] = useState(Math.min(index, Math.max(0, chapters.length - 1)));
@@ -102,7 +106,7 @@ export function Reader() {
       ) : null}
 
       <View style={[styles.controls, { paddingBottom: insets.bottom + space.md }]}>
-        {ended && canNext ? <Button label={t('reader.nextChapter', lang)} onPress={() => setI(i + 1)} style={{ marginBottom: space.md }} /> : null}
+        {ended && canNext ? <Button label={t('reader.nextChapter', lang)} onPress={() => goTo(i + 1)} style={{ marginBottom: space.md }} /> : null}
         {player.status === 'unavailable' ? <Text style={styles.alert} accessibilityRole="alert">{t('reader.failed', lang)}</Text> : null}
         <Bar progress={player.progress} onSeek={player.seek} />
         <View style={styles.times}>
@@ -110,11 +114,11 @@ export function Reader() {
           <Text style={styles.time}>{player.source === 'voice' ? `≈ ${formatTime(player.duration)}` : formatTime(player.duration)}</Text>
         </View>
         <View style={styles.row}>
-          <Press accessibilityRole="button" accessibilityLabel="Previous chapter" disabled={i === 0} onPress={() => setI(i - 1)} style={[styles.small, i === 0 && { opacity: 0.35 }]}><Text style={styles.glyph}>⏮</Text></Press>
+          <Press accessibilityRole="button" accessibilityLabel="Previous chapter" disabled={i === 0} onPress={() => goTo(i - 1)} style={[styles.small, i === 0 && { opacity: 0.35 }]}><Text style={styles.glyph}>⏮</Text></Press>
           <Press accessibilityRole="button" accessibilityLabel="Back 15 seconds" onPress={() => player.skip(-15)} style={styles.small}><Text style={styles.glyph}>↺15</Text></Press>
           <Press accessibilityRole="button" accessibilityLabel={playing ? 'Pause' : 'Play'} onPress={player.toggle} style={styles.play}><Text style={styles.playGlyph}>{playing ? '❚❚' : '▶'}</Text></Press>
           <Press accessibilityRole="button" accessibilityLabel="Forward 15 seconds" onPress={() => player.skip(15)} style={styles.small}><Text style={styles.glyph}>15↻</Text></Press>
-          <Press accessibilityRole="button" accessibilityLabel="Next chapter" disabled={!canNext} onPress={() => setI(i + 1)} style={[styles.small, !canNext && { opacity: 0.35 }]}><Text style={styles.glyph}>⏭</Text></Press>
+          <Press accessibilityRole="button" accessibilityLabel="Next chapter" disabled={!canNext} onPress={() => goTo(i + 1)} style={[styles.small, !canNext && { opacity: 0.35 }]}><Text style={styles.glyph}>⏭</Text></Press>
         </View>
         <View style={styles.meta}>
           <Text style={styles.time}>{player.source === 'recording' ? 'Recorded narration' : t('story.listenDevice', lang)}</Text>
