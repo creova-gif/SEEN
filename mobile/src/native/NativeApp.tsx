@@ -13,6 +13,7 @@ import { ForYou } from './screens/ForYou';
 import { CreateIntro, Library, Profile } from './screens/Others';
 import { Reader } from './screens/Reader';
 import { Story } from './screens/Story';
+import { Creator } from './screens/Creator';
 import { c } from './theme';
 import { tap } from './ui';
 
@@ -59,6 +60,7 @@ function Root() {
       <Stack.Navigator screenOptions={{ headerShown: false, contentStyle: { backgroundColor: c.canvas } }}>
         <Stack.Screen name="Tabs" component={Tabs} />
         <Stack.Screen name="Story" component={Story} />
+        <Stack.Screen name="Creator" component={Creator} />
         <Stack.Screen name="Reader" component={Reader} options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }} />
         <Stack.Screen name="CreateIntro" component={CreateIntro} options={{ presentation: 'modal' }} />
       </Stack.Navigator>

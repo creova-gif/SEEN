@@ -8,6 +8,8 @@ import {
 } from '@seen/data/storyDatabase';
 import { getChaptersForStory } from '@seen/data/storyDatabase';
 import { translate, type StringKey } from '@seen/i18n/strings';
+import { buildCreators } from '@seen/services/demo/catalog';
+import type { Creator } from '@seen/services/contracts';
 
 export type { Language, StoryWorld };
 export { getPublicStories, getStoryWorldById, getLocalizedText, getChaptersForStory };
@@ -16,3 +18,12 @@ export const t = (key: StringKey, lang: Language, vars?: Record<string, string>)
 
 /** Splits chapter text into sentences, the same way the website does (for follow-along reading). */
 export const sentencesOf = (text: string) => text.split(/(?<=[.!?…])\s+/).filter(Boolean);
+
+export type { Creator };
+let creators: Creator[] | null = null;
+/** The creators, built from the catalogue exactly as the website builds them. */
+export const getCreators = () => (creators ??= buildCreators());
+export const getCreator = (id: string) => getCreators().find(c => c.id === id);
+/** A creator's banner: the cover of their first catalogue story. */
+export const creatorCover = (cr: Creator) => cr.storyIds.map(id => getStoryWorldById(id)?.coverImage).find(Boolean);
+export const initialsOf = (name: string) => name.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]?.toUpperCase()).join('');

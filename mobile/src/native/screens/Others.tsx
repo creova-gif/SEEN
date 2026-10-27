@@ -21,7 +21,7 @@ export function Library() {
         columnWrapperStyle={{ gap: space.md, paddingHorizontal: gutter, marginBottom: space.lg }}
         ListHeaderComponent={<Text style={styles.h1}>{t('nav.library', lang)}</Text>}
         renderItem={({ item }) => <View style={{ flex: 1 }}><StoryCard story={item} wide onPress={() => nav.navigate('Story', { id: item.id })} /></View>}
-        ListEmptyComponent={<Text style={styles.empty}>Stories you save show up here. Tap the star on a story to keep it.</Text>}
+        ListEmptyComponent={<Text style={styles.empty}>{t('native.libraryEmpty', lang)}</Text>}
       />
     </View>
   );
@@ -34,13 +34,13 @@ export function Profile() {
   return (
     <ScrollView style={{ flex: 1, backgroundColor: c.canvas }} contentContainerStyle={{ paddingTop: insets.top, paddingBottom: space.xxl }}>
       <Text style={styles.h1}>{t('nav.profile', lang)}</Text>
-      <Text style={styles.h2}>Language</Text>
-      <Text style={styles.note}>Changes the app and the story text together, straight away.</Text>
+      <Text style={styles.h2}>{t('native.language', lang)}</Text>
+      <Text style={styles.note}>{t('native.languageHint', lang)}</Text>
       <View style={styles.chips}>
         {langs.map(([code, name]) => <Chip key={code} label={name} selected={lang === code} onPress={() => setLang(code)} />)}
       </View>
-      <Text style={styles.h2}>Account</Text>
-      <Text style={styles.note}>Sign-in, following creators and your profile arrive in the next part of the native app. Everything here is stored on this phone.</Text>
+      <Text style={styles.h2}>{t('native.account', lang)}</Text>
+      <Text style={styles.note}>{t('native.accountSoon', lang)}</Text>
     </ScrollView>
   );
 }
@@ -54,7 +54,7 @@ export function CreateIntro() {
       <Text style={styles.eyebrow}>{t('creator.intro.eyebrow', lang)}</Text>
       <Text style={styles.h1b}>{t('creator.intro.title', lang)}</Text>
       <Text style={styles.note}>{t('creator.intro.body', lang)}</Text>
-      <Text style={[styles.note, { marginTop: space.lg }]}>Publishing from the phone is being rebuilt natively and will come after sign-in.</Text>
+      <Text style={[styles.note, { marginTop: space.lg }]}>{t('native.createSoon', lang)}</Text>
       <Button label={t('creator.intro.later', lang)} variant="secondary" onPress={() => nav.goBack()} style={{ marginTop: space.xl }} />
     </View>
   );

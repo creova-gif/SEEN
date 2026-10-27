@@ -6,16 +6,19 @@ import type { Language } from './data';
 interface Persisted {
   lang: Language;
   saved: string[];
+  following: string[];
   chapter: Record<string, number>;
 }
 const KEY = 'seen.native.v1';
-const DEFAULT: Persisted = { lang: 'en', saved: [], chapter: {} };
+const DEFAULT: Persisted = { lang: 'en', saved: [], following: [], chapter: {} };
 
 interface AppState extends Persisted {
   ready: boolean;
   setLang: (l: Language) => void;
   toggleSaved: (storyId: string) => void;
   isSaved: (storyId: string) => boolean;
+  toggleFollow: (creatorId: string) => void;
+  isFollowing: (creatorId: string) => boolean;
   rememberChapter: (storyId: string, index: number) => void;
 }
 
@@ -52,6 +55,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       setLang: lang => update(p => ({ ...p, lang })),
       toggleSaved: id => update(p => ({ ...p, saved: p.saved.includes(id) ? p.saved.filter(x => x !== id) : [...p.saved, id] })),
       isSaved: id => data.saved.includes(id),
+      toggleFollow: id => update(p => ({ ...p, following: p.following.includes(id) ? p.following.filter(x => x !== id) : [...p.following, id] })),
+      isFollowing: id => data.following.includes(id),
       rememberChapter: (id, index) => update(p => ({ ...p, chapter: { ...p.chapter, [id]: index } })),
     }),
     [data, ready, update],

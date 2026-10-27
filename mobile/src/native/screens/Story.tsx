@@ -2,7 +2,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { getChaptersForStory, getLocalizedText, getStoryWorldById, t } from '../data';
+import { getChaptersForStory, getCreators, getLocalizedText, getStoryWorldById, t } from '../data';
 import { useApp } from '../storage';
 import { c, font, gutter, radius, space } from '../theme';
 import { Button, Cover, Eyebrow, Press } from '../ui';
@@ -37,15 +37,17 @@ export function Story() {
       <View style={{ paddingHorizontal: gutter, marginTop: -space.xxl }}>
         <Eyebrow>{`${story.culturalThemes[0] ?? 'Story'} · ${story.totalDuration}`}</Eyebrow>
         <Text style={styles.title}>{getLocalizedText(story.title, lang)}</Text>
-        <Text style={styles.by}>{getLocalizedText(story.creator, lang)}</Text>
+        <Press accessibilityRole="button" onPress={() => { const cr = getCreators().find(x => x.storyIds.includes(id)); if (cr) nav.navigate('Creator', { id: cr.id }); }} style={{ alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' }}>
+          <Text style={styles.by}>{getLocalizedText(story.creator, lang)}</Text>
+        </Press>
         <Text style={styles.small}>
           {t('story.available', lang, { list: story.languagesAvailable.map(l => l.toUpperCase()).join(' · ') })} · {t('story.listenDevice', lang)}
         </Text>
         {missing && <Text style={styles.notice} accessibilityRole="alert">{t('story.fallback', lang, { shown: NAMES[shownLang], wanted: NAMES[lang] })}</Text>}
         <Text style={styles.desc}>{getLocalizedText(story.description, lang)}</Text>
-        {story.contentWarnings?.length ? <Text style={styles.small}>Content notes: {story.contentWarnings.join(', ')}</Text> : null}
-        <Button label={last[id] ? 'Continue reading' : t('story.start', lang)} icon="▶" onPress={() => nav.navigate('Reader', { id, index: start })} style={{ marginTop: space.xl }} />
-        <Text style={styles.h2}>Chapters</Text>
+        {story.contentWarnings?.length ? <Text style={styles.small}>{t('native.contentNotes', lang, { list: story.contentWarnings.join(', ') })}</Text> : null}
+        <Button label={last[id] ? t('native.continue', lang) : t('story.start', lang)} icon="▶" onPress={() => nav.navigate('Reader', { id, index: start })} style={{ marginTop: space.xl }} />
+        <Text style={styles.h2}>{t('native.chapters', lang)}</Text>
         {chapters.map((ch, i) => (
           <Press key={ch.id} accessibilityRole="button" onPress={() => nav.navigate('Reader', { id, index: i })} style={styles.row}>
             <Text style={styles.rowNum}>{ch.order}</Text>
