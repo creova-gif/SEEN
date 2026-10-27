@@ -46,6 +46,7 @@ import { useT } from "./i18n/useT";
 import { initializeDemoData } from "./data/demoData";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { PlaybackProvider } from "./playback/PlaybackProvider";
+import { MediaSessionBridge } from "./playback/MediaSessionBridge";
 import { MediaPlayerBar } from "./components/seen/MediaPlayerBar";
 import { TooltipProvider } from "./components/seen/overlays";
 import { installGlobalHandlers, track } from "./observability";
@@ -512,6 +513,7 @@ export default function App() {
         <AuthProvider>
           <PlaybackProvider>
             <TooltipProvider>
+              <MediaSessionBridge />
               <AppContent />
             </TooltipProvider>
           </PlaybackProvider>

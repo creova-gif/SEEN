@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, BackHandler, Linking, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import * as Haptics from 'expo-haptics';
+import { setAudioModeAsync } from 'expo-audio';
 import { WebView, type WebViewNavigation } from 'react-native-webview';
 import type { ShouldStartLoadRequest } from 'react-native-webview/lib/WebViewTypes';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -20,6 +21,12 @@ export function WebShell() {
   const insets = useSafeAreaInsets();
   const [failed, setFailed] = useState(false);
   const [attempt, setAttempt] = useState(0);
+
+  // Narration keeps playing with the screen off and the phone silent switch on: the app holds a playback audio session.
+  // The web page's own audio then shows on the lock screen through the Media Session the web app sets up.
+  useEffect(() => {
+    setAudioModeAsync({ playsInSilentMode: true, shouldPlayInBackground: true, interruptionMode: 'doNotMix' }).catch(() => {});
+  }, []);
 
   // Android hardware / gesture back goes back inside the app first, and only leaves the app at the start.
   useEffect(() => {
