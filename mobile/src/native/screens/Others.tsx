@@ -1,5 +1,10 @@
 import { useNavigation } from '@react-navigation/native';
+import { createAudioPlayer } from 'expo-audio';
+import * as Speech from 'expo-speech';
+import { useState } from 'react';
 import { FlatList, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { narrationFor } from '../narration';
+import { audioSetup, configureAudio } from '../player';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getPublicStories, t, type Language } from '../data';
 import { useApp } from '../storage';
@@ -53,7 +58,47 @@ export function Profile() {
         </>
       )}
       <Text style={styles.note}>{t('native.acct.local', lang)}</Text>
+      <Text style={styles.h2}>Sound</Text>
+      <Text style={styles.note}>If you hear nothing in the reader, run this and send me what it says.</Text>
+      <SoundCheck lang={lang} />
     </ScrollView>
+  );
+}
+
+/** Plays the bundled recording and the phone's voice, and says what the phone reported, so a silent phone can be diagnosed. */
+function SoundCheck({ lang }: { lang: Language }) {
+  const [lines, setLines] = useState<string[]>([]);
+  const log = (l: string) => setLines(x => [...x.slice(-12), l]);
+  const run = async () => {
+    setLines([]);
+    await configureAudio();
+    log(`Silent-switch mode: ${audioSetup.silent}`);
+    log(`Background audio: ${audioSetup.background}`);
+    const asset = narrationFor('voices-ch1', lang === 'fr' ? 'fr' : 'en');
+    try {
+      const p = createAudioPlayer(asset as number);
+      let last = '';
+      p.addListener('playbackStatusUpdate', s => {
+        const msg = `Recording: loaded=${s.isLoaded} playing=${s.playing} time=${(s.currentTime ?? 0).toFixed(1)}/${(s.duration ?? 0).toFixed(1)}s volume=${p.volume}${s.didJustFinish ? ' finished' : ''}`;
+        if (msg !== last && (!s.playing || Math.floor(s.currentTime ?? 0) !== Number(last.match(/time=(\d+)/)?.[1]))) { last = msg; log(msg); }
+        if (s.didJustFinish) {
+          p.remove();
+          log('Now the phone voice…');
+          Speech.speak('Sound check. Can you hear this voice?', { onStart: () => log('Voice: started'), onDone: () => log('Voice: finished'), onError: e => log(`Voice error: ${String(e)}`) });
+        }
+      });
+      p.volume = 1;
+      p.play();
+      log('Recording: play() called');
+    } catch (e) {
+      log(`Recording error: ${(e as Error)?.message ?? e}`);
+    }
+  };
+  return (
+    <View style={{ marginHorizontal: gutter, marginTop: space.lg }}>
+      <Button label="Sound check" variant="secondary" onPress={run} />
+      {lines.map((l, i) => <Text key={i} style={[styles.note, { marginHorizontal: 0, fontSize: 12 }]}>{l}</Text>)}
+    </View>
   );
 }
 

@@ -23,6 +23,28 @@ export interface Track {
 }
 export type Status = 'idle' | 'loading' | 'playing' | 'paused' | 'ended' | 'unavailable';
 
+/** What happened when the audio session was set up, shown by the Sound check in Profile. */
+export const audioSetup = { silent: 'not tried' as string, background: 'not tried' as string };
+
+/**
+ * Two separate calls on purpose: sound with the ringer switch on silent is the part that must not fail. Background
+ * playback needs a development build and can be refused in Expo Go; that must not take the first part down with it.
+ */
+export async function configureAudio() {
+  try {
+    await setAudioModeAsync({ playsInSilentMode: true, interruptionMode: 'doNotMix' });
+    audioSetup.silent = 'ok';
+  } catch (e) {
+    audioSetup.silent = `failed: ${(e as Error)?.message ?? e}`;
+  }
+  try {
+    await setAudioModeAsync({ playsInSilentMode: true, shouldPlayInBackground: true, interruptionMode: 'doNotMix' });
+    audioSetup.background = 'ok';
+  } catch (e) {
+    audioSetup.background = `not available here: ${(e as Error)?.message ?? e}`;
+  }
+}
+
 const WORDS_PER_SECOND = 2.5;
 const LANG_TAG: Record<Language, string> = { en: 'en-CA', fr: 'fr-CA', es: 'es-ES' };
 export const RATES = [0.75, 1, 1.25, 1.5] as const;
@@ -85,7 +107,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    setAudioModeAsync({ playsInSilentMode: true, shouldPlayInBackground: true, interruptionMode: 'doNotMix' }).catch(() => {});
+    configureAudio();
   }, []);
 
   const clearTick = () => {
