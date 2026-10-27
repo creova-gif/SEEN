@@ -3,7 +3,7 @@
 //               sitemap or CNAME (for example for a local preview).
 //   APP_URL     where "Try the demo app" points. Defaults to the current production demo.
 //   CREOVA_URL  where the links back to CREOVA point.
-import { mkdirSync, rmSync, writeFileSync, copyFileSync } from "node:fs";
+import { mkdirSync, rmSync, writeFileSync, copyFileSync, cpSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { LANGS } from "./src/content.mjs";
@@ -30,6 +30,8 @@ export function build(cfg = config, outDir = dist) {
   }
   copyFileSync(join(root, "src", "styles.css"), join(outDir, "styles.css"));
   copyFileSync(join(root, "src", "creova-mark.png"), join(outDir, "creova-mark.png"));
+  cpSync(join(root, "src", "fonts"), join(outDir, "fonts"), { recursive: true });
+  cpSync(join(root, "src", "img"), join(outDir, "img"), { recursive: true });
 
   const site = cfg.siteUrl.replace(/\/$/, "");
   // GitHub Pages: keep the custom domain across deploys and skip Jekyll processing.
