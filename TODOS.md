@@ -57,12 +57,12 @@ Engineering tasks for approved requirements only. Items awaiting product approva
 - [ ] **Full narration.** Generate all chapters, add them to `narration.ts` (or serve them from storage once the backend exists), and check clip sizes against app size. Priority: P2.
 - [ ] **Decide the disclosure and licence wording** for AI narration in the app and the store listing, and confirm the ElevenLabs plan covers commercial use of the generated voice. Owner. Priority: P1.
 
-## One app, mobile only (decision: `docs/product/SEEN_PRODUCT_REQUIREMENTS.md`, "One app, mobile only")
+## One app, mobile first (decision: `docs/product/SEEN_PRODUCT_REQUIREMENTS.md`, "One app, mobile first")
 
-- [x] **No web product.** `vercel.json` skips builds; the web export of the native app exists only to run browser tests (`e2e-native/`, in CI).
+- [x] **Vercel serves the native app, installable (testing channel).** `vercel.json` builds the native app's web export; `scripts/pwa-postbuild.mjs` adds the manifest, icons and phone tags; tests in `e2e-native/` (installability, app feel, guest journey) run in CI.
 - [ ] **Share the app without the developer's Mac: EAS Update.** `eas login`, `eas init`, `eas update --branch preview`, then a link or QR works in Expo Go from anywhere. Needs the owner's Expo account. Priority: P1.
 - [ ] **Installable test builds: TestFlight (iOS) and Google Play internal testing.** `eas build --profile preview` and `eas submit`. Needs Apple Developer and Google Play accounts. Priority: P1.
 - [ ] **Reach parity with the old website, then archive it.** Still only in the old code: Create/publish flow and Your stories, collections, funding and opportunities, notifications, search screen, settings and account/privacy screens, moderation and admin. Move each into the native app, then move `src/` to `archive/web/` and drop its CI jobs. Priority: P1.
 - [ ] **Accessibility checks on the native app** (screen-reader names, focus order, large text, contrast), run through the web export in CI and on real devices. Priority: P1.
 - [ ] **Link sharing and deep links** (the old `/s/<id>` previews): decide how stories are shared from the native app (`expo-linking`, universal links, Android app links). Priority: P2.
-- [ ] **Switch the Vercel project off** in the Vercel dashboard once nobody needs the old site. Owner. Priority: P3.
+- [ ] **Fix Vercel team access** (add the `Justin-Mafie` GitHub account to the Vercel team, or re-author commits) so previews deploy. Owner. Priority: P1.

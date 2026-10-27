@@ -52,10 +52,12 @@ Scan the QR code with the Camera app (iPhone) or the Expo Go app (Android), on t
 
 Checks: `npm run typecheck` (native code only), and `npx expo export --platform ios` proves the bundle builds.
 
-## Browser tests of the app (not a website)
+## The same app on a phone browser (testing channel on Vercel)
 
-The app can be exported with `react-native-web` so automated tests can drive its real screens. It is never published.
+Vercel builds the native app's web export and `scripts/pwa-postbuild.mjs` makes it installable: open the Vercel link on the phone, then Share → Add to Home Screen (iPhone) or Install app (Android). It opens full screen, like an app. It is a way to test, not the product.
 
 ```bash
-npx playwright test -c playwright.native.config.ts   # from the repo root
+cd mobile && npx expo export --platform web --output-dir dist && cd .. && node scripts/pwa-postbuild.mjs mobile/dist
+node scripts/serve-static.mjs mobile/dist 4174          # preview locally
+npx playwright test -c playwright.native.config.ts       # browser tests of this export
 ```

@@ -110,14 +110,13 @@ The owner reversed decision D1: SEEN ships as a mobile app on the Apple App Stor
 - **Owner needs:** Apple Developer and Google Play accounts, privacy and data-safety answers, store listing text and screenshots, a support URL and a privacy policy page.
 - **Vercel:** no longer on the critical path. A free Hobby plan only deploys commits from the account that owns it, which is why preview deployments were blocked.
 
-## One app, mobile only (27 Oct 2026)
+## One app, mobile first (27 Oct 2026)
 
-The owner decided SEEN is one app and it is a mobile app: the native app in `mobile/` (Expo, React Native). There is no web product. It is tested in Expo Go, then in TestFlight and Google Play internal testing, then released on the App Store and Google Play. The old website code in `src/` is legacy: kept only until the native app has every screen it has, then archived (not deleted, as in ADR-001).
+SEEN is one app: the native app in `mobile/` (Expo, React Native). It is what ships on the App Store and Google Play, and the same code runs in Expo Go. There is no separate website product and no second app to keep in step. The old website code in `src/` is legacy: kept only until the native app has every screen it has, then archived (not deleted, as in ADR-001).
 
-- **Vercel:** not part of the product. `vercel.json` tells Vercel to skip builds (`ignoreCommand`), so it no longer builds or blocks anything; the old live site stays as it was until the owner switches the Vercel project off. Vercel is not what limits testing in Expo Go.
-- **Web export:** the native app can be exported with `react-native-web` only as a test tool, so automated browser tests (`e2e-native/`) can drive the real app screens. It is never published.
-- **Testing without the developer's computer:** Expo Go needs a server it can reach. Today that is a development server on a Mac, which lasts as long as the session. The fix is EAS Update (publishes the app bundle to Expo's servers so a link or QR code works from anywhere) and then TestFlight and Play internal testing. These need the owner's Expo account, then Apple and Google developer accounts.
-- **Tests:** Jest tests of the native app and the browser tests of its web export both run in the CI job "Native app". The old website's tests keep running until the old code is retired.
+- **Vercel is a testing channel, not the product.** Testers were opening the Vercel link on their phones and getting a website. `vercel.json` now builds the native app's web export, and `scripts/pwa-postbuild.mjs` makes it installable (manifest, icons, full-screen, no browser bars once added to the home screen, app-style touch behavior). The Vercel link and Expo Go therefore show the same app and the same features. It takes effect on production only when this branch is merged into `main`, and Vercel still needs the team-access fix before it can deploy.
+- **Testing without the developer's computer:** the real fix for "it acts like a web app" is a real install. EAS Update gives a link that opens in Expo Go from anywhere; TestFlight and Google Play internal testing give installable builds. These need the owner's Expo account, then Apple and Google developer accounts.
+- **Tests:** Jest tests of the native app and browser tests of its web export (installability included) run in the CI job "Native app". The old website's tests keep running until the old code is retired.
 
 ## Overlaps resolved
 

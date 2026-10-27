@@ -45,3 +45,26 @@ test("a guest is asked to sign in to save, and the account form creates an accou
   await page.getByRole("button", { name: "Create account" }).click();
   await expect(page.getByRole("button", { name: /remove from library/i })).toBeVisible();
 });
+
+test("the app is installable on a phone: manifest, icons and the tags a phone reads", async ({ page, request }) => {
+  await page.goto("/");
+  const href = await page.locator('link[rel="manifest"]').getAttribute("href");
+  expect(href).toBe("/manifest.webmanifest");
+  const manifest = await (await request.get(href!)).json();
+  expect(manifest).toMatchObject({ short_name: "SEEN", display: "standalone", background_color: "#000000" });
+  expect(manifest.orientation).toBe("any");
+  for (const icon of manifest.icons) expect((await request.get(icon.src)).ok(), icon.src).toBe(true);
+  expect((await request.get("/icons/apple-touch-icon.png")).ok()).toBe(true);
+  await expect(page.locator('meta[name="apple-mobile-web-app-capable"]')).toHaveAttribute("content", "yes");
+  await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute("content", "#000000");
+  const viewport = await page.locator('meta[name="viewport"]').getAttribute("content");
+  expect(viewport).toContain("viewport-fit=cover");
+  expect(viewport).not.toMatch(/user-scalable=no|maximum-scale/); // pinch zoom stays on
+});
+
+test("it feels like an app on a touch screen: no text selection on the screens, no bounce", async ({ page }) => {
+  await page.goto("/");
+  const b = await page.evaluate(() => ({ select: getComputedStyle(document.body).userSelect, overscroll: getComputedStyle(document.documentElement).overscrollBehaviorY }));
+  expect(b.select).toBe("none");
+  expect(b.overscroll).toBe("none");
+});

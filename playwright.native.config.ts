@@ -13,7 +13,7 @@ export default defineConfig({
   use: { baseURL: "http://localhost:4174", trace: "retain-on-failure", screenshot: "only-on-failure", launchOptions: { executablePath } },
   projects: [{ name: "native-web-phone", use: { ...devices["Pixel 7"], browserName: "chromium", launchOptions: { executablePath } } }],
   webServer: {
-    command: "cd mobile && npx expo export --platform web --output-dir dist && cd .. && node scripts/serve-static.mjs mobile/dist 4174",
+    command: "cd mobile && npx expo export --platform web --output-dir dist && cd .. && node scripts/pwa-postbuild.mjs mobile/dist && node scripts/serve-static.mjs mobile/dist 4174",
     url: "http://localhost:4174",
     reuseExistingServer: !process.env.CI,
     timeout: 240_000,
