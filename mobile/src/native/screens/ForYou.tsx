@@ -2,18 +2,21 @@ import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { FlatList, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { getLocalizedText, getPublicStories, type StoryWorld } from '../data';
+import { getLocalizedText, getPublicStories, storiesForInterests, t, type StoryWorld } from '../data';
+import { GuestBanner } from '../GuestBanner';
+import { InterestChips } from '../InterestChips';
 import { useApp } from '../storage';
 import { c, font, gutter, radius, space } from '../theme';
 import { Button, Cover, Eyebrow, Press } from '../ui';
 
 export function ForYou() {
   const nav = useNavigation<any>();
-  const { lang } = useApp();
+  const { lang, interests, setInterests } = useApp();
   const insets = useSafeAreaInsets();
   const { height } = useWindowDimensions();
   const stories = getPublicStories();
   const hero = stories.find(s => s.featured) ?? stories[0];
+  const picked = storiesForInterests(interests, lang).slice(0, 8);
   const open = (s: StoryWorld) => nav.navigate('Story', { id: s.id });
   const rails: { title: string; items: StoryWorld[] }[] = [
     { title: 'Featured', items: stories.filter(s => s.featured && s.id !== hero?.id) },
@@ -42,7 +45,17 @@ export function ForYou() {
           </View>
         </View>
       )}
-      <Text style={styles.h1}>For You</Text>
+      <GuestBanner />
+      <Text style={styles.h1}>{t('nav.forYou', lang)}</Text>
+      <View style={{ marginBottom: space.xl }}>
+        <InterestChips selected={interests} onChange={setInterests} lang={lang} />
+        {interests.length > 0 && picked.length > 0 && (
+          <View style={{ marginTop: space.lg }} accessibilityLabel={t('native.basedOnInterests', lang)}>
+            <Text style={styles.h2}>{t('native.basedOnInterests', lang)}</Text>
+            <FlatList horizontal data={picked} keyExtractor={s => s.id} showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: gutter, gap: space.md }} renderItem={({ item }) => <StoryCard story={stories.find(s => s.id === item.id)!} onPress={() => nav.navigate('Story', { id: item.id })} />} />
+          </View>
+        )}
+      </View>
       {rails.map(r => (
         <View key={r.title} style={{ marginBottom: space.xl }}>
           <Text style={styles.h2}>{r.title}</Text>

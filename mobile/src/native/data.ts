@@ -10,6 +10,7 @@ import { getChaptersForStory } from '@seen/data/storyDatabase';
 import { translate, type StringKey } from '@seen/i18n/strings';
 import { buildCreators } from '@seen/services/demo/catalog';
 import type { Creator } from '@seen/services/contracts';
+import { availableInterests, storiesForInterests } from '@seen/data/interests';
 
 export type { Language, StoryWorld };
 export { getPublicStories, getStoryWorldById, getLocalizedText, getChaptersForStory };
@@ -20,6 +21,7 @@ export const t = (key: StringKey, lang: Language, vars?: Record<string, string>)
 export const sentencesOf = (text: string) => text.split(/(?<=[.!?…])\s+/).filter(Boolean);
 
 export type { Creator };
+export { availableInterests, storiesForInterests };
 let creators: Creator[] | null = null;
 /** The creators, built from the catalogue exactly as the website builds them. */
 export const getCreators = () => (creators ??= buildCreators());

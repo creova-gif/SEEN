@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { AccessibilityInfo, Animated, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getPublicStories, t, type Language } from '../data';
+import { topicOptions } from '../InterestChips';
 import { useApp } from '../storage';
 import { c, font, gutter, radius, space } from '../theme';
 import { Button, Chip, Press } from '../ui';
@@ -97,6 +98,35 @@ export function Manifesto() {
   );
 }
 
+export function Interests() {
+  const nav = useNavigation<any>();
+  const insets = useSafeAreaInsets();
+  const { lang, interests, setInterests } = useApp();
+  return (
+    <View style={{ flex: 1, backgroundColor: c.canvas }}>
+      <ScrollView contentContainerStyle={{ padding: gutter, paddingTop: insets.top + space.xl }}>
+        <Text style={styles.purposeTitle} accessibilityRole="header">{t('native.interests.title', lang)}</Text>
+        <Text style={styles.sub}>{t('native.interests.sub', lang)}</Text>
+        <View style={{ marginTop: space.xl }}>
+          <TopicWrap selected={interests} onChange={setInterests} lang={lang} />
+        </View>
+      </ScrollView>
+      <View style={[styles.footer, { paddingBottom: insets.bottom + space.md }]}>
+        <Button label={interests.length ? t('native.interests.next', lang) : t('native.interests.skip', lang)} onPress={() => nav.navigate('Account', { firstRun: true, mode: 'signup' })} />
+      </View>
+    </View>
+  );
+}
+
+function TopicWrap({ selected, onChange, lang }: { selected: string[]; onChange: (n: string[]) => void; lang: Language }) {
+  const toggle = (x: string) => onChange(selected.includes(x) ? selected.filter(y => y !== x) : [...selected, x]);
+  return (
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm }}>
+      {topicOptions(selected, lang).map(x => <Chip key={x} label={x} selected={selected.includes(x)} onPress={() => toggle(x)} />)}
+    </View>
+  );
+}
+
 const PURPOSES = ['discover', 'learn', 'share', 'audience'] as const;
 export function Purpose() {
   const nav = useNavigation<any>();
@@ -127,7 +157,7 @@ export function Purpose() {
         <Text style={styles.sub}>{t('onboard.accountNote', lang)}</Text>
       </ScrollView>
       <View style={[styles.footer, { paddingBottom: insets.bottom + space.md }]}>
-        <Button label={t('native.purpose.next', lang)} onPress={() => nav.navigate('Account', { firstRun: true, mode: 'signup' })} />
+        <Button label={t('native.purpose.next', lang)} onPress={() => nav.navigate('Interests')} />
         <Press accessibilityRole="button" onPress={enterGuest} style={styles.guest}>
           <Text style={styles.guestText}>{t('guest.explore', lang)}</Text>
         </Press>

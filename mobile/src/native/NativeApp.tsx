@@ -14,7 +14,7 @@ import { CreateIntro, Library, Profile } from './screens/Others';
 import { Reader } from './screens/Reader';
 import { Story } from './screens/Story';
 import { Account } from './screens/Account';
-import { Invocation, LanguageStep, Manifesto, Purpose } from './screens/Onboarding';
+import { Interests, Invocation, LanguageStep, Manifesto, Purpose } from './screens/Onboarding';
 import { GuestProvider, useGuest } from './guest';
 import { navRef } from './navRef';
 import { Creator } from './screens/Creator';
@@ -74,6 +74,7 @@ function Root() {
           <Stack.Screen name="Invocation" component={Invocation} />
           <Stack.Screen name="Manifesto" component={Manifesto} />
           <Stack.Screen name="Purpose" component={Purpose} />
+          <Stack.Screen name="Interests" component={Interests} />
           <Stack.Screen name="Account" component={Account} initialParams={{ firstRun: true }} />
         </Stack.Navigator>
       </NavigationContainer>
