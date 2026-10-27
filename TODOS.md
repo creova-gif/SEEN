@@ -56,3 +56,11 @@ Engineering tasks for approved requirements only. Items awaiting product approva
 - [ ] **Owner listens to the pilot** and approves or changes the voice before the full set. Full set: 40 chapters x 3 languages is about 120 clips; the pilot text is short, so real chapters will cost more per clip. Priority: P1.
 - [ ] **Full narration.** Generate all chapters, add them to `narration.ts` (or serve them from storage once the backend exists), and check clip sizes against app size. Priority: P2.
 - [ ] **Decide the disclosure and licence wording** for AI narration in the app and the store listing, and confirm the ElevenLabs plan covers commercial use of the generated voice. Owner. Priority: P1.
+
+## One app (decision: `docs/product/SEEN_PRODUCT_REQUIREMENTS.md`, "One app")
+
+- [x] **Native app also exports as a website for Vercel.** `react-native-web` added; `vercel.json` builds `mobile` with `expo export --platform web`; browser tests in `e2e-native/` (first-run order, guest, story, reader, save-then-sign-up) run in CI.
+- [ ] **Reach parity with the old website, then archive it.** Still only in the old code: Create/publish flow and Your stories, collections, funding and opportunities, notifications, search screen, settings and account/privacy screens, moderation and admin. Move each into the native app, then move `src/` to `archive/web/` and drop its CI jobs. Priority: P1.
+- [ ] **Web-specific checks on the exported app:** keyboard focus order, screen-reader names, 200% zoom and contrast (the old `a11y.spec.ts` / `manual-a11y.spec.ts` ideas, rewritten for the native app's web export). Priority: P1.
+- [ ] **Share links on the web export:** the old `/s/<id>` rich previews use `api/share-preview.ts`; decide whether the native app keeps them (deep links into the app need `expo-linking` and store association files). Priority: P2.
+- [ ] **Merge to `main` only when the owner is ready for testers to see the native app.** Needs the Vercel team-access fix (the `Justin-Mafie` author block) first.

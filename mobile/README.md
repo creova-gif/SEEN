@@ -51,3 +51,13 @@ npx expo start --lan
 Scan the QR code with the Camera app (iPhone) or the Expo Go app (Android), on the same Wi-Fi. Expo Go must support SDK 58 (the store version does). Background audio and lock-screen controls need a development build (`eas build --profile development`); Expo Go ignores background modes.
 
 Checks: `npm run typecheck` (native code only), and `npx expo export --platform ios` proves the bundle builds.
+
+## The same app on the web (Vercel)
+
+```bash
+cd mobile
+npx expo export --platform web --output-dir dist   # what Vercel runs
+node ../scripts/serve-static.mjs dist 4174         # preview it locally
+```
+
+From the repo root, `npx playwright test -c playwright.native.config.ts` builds and tests that web export in a phone-sized browser.

@@ -45,6 +45,10 @@ jobs:
       - name: The app bundles for iOS and Android
         run: npx expo export --platform ios --output-dir /tmp/export-ios && npx expo export --platform android --output-dir /tmp/export-android
         working-directory: mobile
+      - name: Browser tests of the native app (the web export Vercel serves)
+        run: |
+          npx playwright install --with-deps chromium
+          npx playwright test -c playwright.native.config.ts
 
   database:
     name: Database RLS tests · secret scan
