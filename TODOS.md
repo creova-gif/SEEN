@@ -46,5 +46,5 @@ Engineering tasks for approved requirements only. Items awaiting product approva
 - [ ] **Native: collections, funding, notifications, search screen, settings and account screens.** Priority: P2.
 - [x] **Native: strings (first pass).** Chapters, content notes, search, library, language, account and Create placeholders are in `strings.ts` with FR and ES. Still English: a few reader labels (control names, "Recorded narration") and hero eyebrows. Priority: P2.
 - [ ] **Native: two-pane layout on foldables and tablets** (list left, reader right) and hinge awareness. Priority: P1.
-- [ ] **Native tests.** Add React Native Testing Library tests for the player, reader and navigation, and a Maestro or Detox journey on a device. Priority: P1.
+- [x] **Native tests (first set).** Jest with React Native Testing Library: guest sheet (opens, Not now, finishes the action after sign-up, signed-in skips it, sign out and back in) and the player (device voice play, pause, progress, finish, seek, speed); CI job "Native app". Still to do: reader, onboarding and navigation tests, and a Maestro or Detox journey on a device. Priority: P1.
 - [ ] **Retire the web app as a product** once the native app covers the screens above; keep it only as a test bench or remove it. Priority: P2.

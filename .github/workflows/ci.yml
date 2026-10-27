@@ -26,6 +26,26 @@ jobs:
       - name: Dependency audit (high+ in production deps)
         run: npm audit --omit=dev --audit-level=high
 
+  native:
+    name: Native app · typecheck · tests · bundle
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # The native app shares plain-TypeScript data from ../src, which needs the website's packages (fuse.js) too.
+      - run: npm install --no-audit --no-fund
+      - run: npm install --no-audit --no-fund --legacy-peer-deps
+        working-directory: mobile
+      - run: npm run typecheck
+        working-directory: mobile
+      - run: npx jest
+        working-directory: mobile
+      - name: The app bundles for iOS and Android
+        run: npx expo export --platform ios --output-dir /tmp/export-ios && npx expo export --platform android --output-dir /tmp/export-android
+        working-directory: mobile
+
   database:
     name: Database RLS tests · secret scan
     runs-on: ubuntu-latest
