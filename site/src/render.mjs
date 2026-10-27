@@ -61,6 +61,7 @@ export function renderPage(lang, cfg, page = "home") {
     <title>${escapeHtml(title)}</title>
     <meta name="description" content="${escapeHtml(description)}" />
     <meta name="theme-color" content="#000000" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23000'/%3E%3Ctext x='32' y='45' font-size='38' font-family='sans-serif' font-weight='600' text-anchor='middle' fill='%23fff'%3ES%3C/text%3E%3C/svg%3E" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="SEEN by CREOVA" />
     <meta property="og:title" content="${escapeHtml(title)}" />
@@ -71,6 +72,12 @@ export function renderPage(lang, cfg, page = "home") {
   </head>
   <body>
     <a class="skip" href="#main">${escapeHtml(c.skip)}</a>
+    <div class="creova-bar">
+      <div class="wrap bar-row">
+        <img src="${rel(here, "/creova-mark.png")}" alt="" width="22" height="17" />
+        <p>${escapeHtml(c.bar.text)} · <a href="${escapeHtml(cfg.creovaUrl)}" rel="noopener">${escapeHtml(c.bar.link)}</a></p>
+      </div>
+    </div>
     <header class="site-header">
       <div class="wrap header-row">
         <a class="wordmark" href="${toHome}" aria-label="SEEN">SEEN</a>

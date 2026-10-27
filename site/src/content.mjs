@@ -10,6 +10,7 @@ export const copy = {
     title: "SEEN: You're seen in the app",
     description:
       "SEEN is a home for community stories in English, French and Spanish. Read and listen to stories, follow creators, explore collections and find funding for storytellers.",
+    bar: { text: "SEEN is a CREOVA product", link: "Visit creova.one" },
     skip: "Skip to content",
     navLabel: "Main",
     nav: {
@@ -101,6 +102,7 @@ export const copy = {
     title: "SEEN : Vous êtes vu·e dans l'app",
     description:
       "SEEN est un lieu pour les histoires communautaires en français, en anglais et en espagnol. Lisez et écoutez des histoires, suivez les créateurs, explorez des collections et trouvez du financement pour les conteurs.",
+    bar: { text: "SEEN est un produit de CREOVA", link: "Visiter creova.one" },
     skip: "Aller au contenu",
     navLabel: "Principale",
     nav: {
@@ -192,6 +194,7 @@ export const copy = {
     title: "SEEN: Te ven en la app",
     description:
       "SEEN es un lugar para historias comunitarias en español, inglés y francés. Lee y escucha historias, sigue a sus creadores, explora colecciones y encuentra financiamiento para quienes cuentan historias.",
+    bar: { text: "SEEN es un producto de CREOVA", link: "Visitar creova.one" },
     skip: "Saltar al contenido",
     navLabel: "Principal",
     nav: {

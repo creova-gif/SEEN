@@ -29,6 +29,7 @@ export function build(cfg = config, outDir = dist) {
     }
   }
   copyFileSync(join(root, "src", "styles.css"), join(outDir, "styles.css"));
+  copyFileSync(join(root, "src", "creova-mark.png"), join(outDir, "creova-mark.png"));
 
   const site = cfg.siteUrl.replace(/\/$/, "");
   // GitHub Pages: keep the custom domain across deploys and skip Jekyll processing.

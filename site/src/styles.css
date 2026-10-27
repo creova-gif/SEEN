@@ -35,6 +35,12 @@ a:focus-visible, .btn:focus-visible { outline: 3px solid var(--focus); outline-o
 }
 .skip:focus { top: 12px; }
 
+.creova-bar { background: var(--surface); border-bottom: 1px solid var(--border); font-size: 0.875rem; }
+.bar-row { display: flex; align-items: center; gap: 10px; min-height: 44px; }
+.bar-row p { margin: 0; color: var(--text-secondary); max-width: none; }
+.bar-row a { display: inline-block; padding: 12px 0; }
+.bar-row img { display: block; flex-shrink: 0; }
+
 .site-header { border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(0, 0, 0, 0.92); z-index: 5; }
 .header-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 24px; padding-top: 8px; padding-bottom: 8px; }
 .wordmark { font-weight: 600; letter-spacing: 0.3em; text-decoration: none; min-height: 44px; display: inline-flex; align-items: center; }

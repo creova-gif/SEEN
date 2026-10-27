@@ -87,7 +87,7 @@ test("every relative link and stylesheet resolves to a file in the build", () =>
       const from = file(lang, page);
       const html = readFileSync(from, "utf8");
       for (const [, href] of html.matchAll(/(?:href|src)="([^"]+)"/g)) {
-        if (/^(https?:|mailto:|#)/.test(href)) continue;
+        if (/^(https?:|mailto:|data:|#)/.test(href)) continue;
         const clean = href.split("#")[0];
         if (!clean) continue;
         let target = resolve(dirname(from), clean);
