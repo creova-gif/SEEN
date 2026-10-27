@@ -45,8 +45,8 @@ export function renderPage(lang, cfg, page = "home") {
 
   const langLinks = LANGS.map((l) =>
     l === lang
-      ? `<li><span aria-current="true" lang="${l}">${escapeHtml(copy[l].langName)}</span></li>`
-      : `<li><a href="${rel(here, pathFor(l, page))}" lang="${l}" hreflang="${l}">${escapeHtml(copy[l].langName)}</a></li>`,
+      ? `<li><span aria-current="true" lang="${l}" aria-label="${escapeHtml(copy[l].langName)}">${l.toUpperCase()}</span></li>`
+      : `<li><a href="${rel(here, pathFor(l, page))}" lang="${l}" hreflang="${l}" aria-label="${escapeHtml(copy[l].langName)}">${l.toUpperCase()}</a></li>`,
   ).join("");
 
   const main = isHome ? homeMain(c, cfg) : legalMain(c, doc, cfg, toHome);
@@ -81,7 +81,13 @@ export function renderPage(lang, cfg, page = "home") {
     <header class="site-header">
       <div class="wrap header-row">
         <a class="wordmark" href="${toHome}" aria-label="SEEN">SEEN</a>
-        <nav aria-label="${escapeHtml(c.navLabel)}">
+        <div class="header-tools">
+          <nav aria-label="${escapeHtml(c.footer.language)}">
+            <ul class="pill">${langLinks}</ul>
+          </nav>
+          <a class="btn btn-dark btn-small" href="${escapeHtml(cfg.appUrl)}" rel="noopener">${escapeHtml(c.cta)}</a>
+        </div>
+        <nav class="main-nav" aria-label="${escapeHtml(c.navLabel)}">
           <ul class="nav">
             <li><a href="${anchor("what")}">${escapeHtml(c.nav.what)}</a></li>
             <li><a href="${anchor("creators")}">${escapeHtml(c.nav.creators)}</a></li>
@@ -100,10 +106,7 @@ ${main}
     <footer class="site-footer">
       <div class="wrap footer-row">
         <p>${escapeHtml(c.footer.line)} · <a href="${escapeHtml(cfg.creovaUrl)}" rel="noopener">creova.one</a></p>
-        <nav aria-label="${escapeHtml(c.footer.language)}">
-          <ul class="langs">${langLinks}</ul>
-        </nav>
-        <ul class="langs">
+        <ul class="footer-links">
           <li><a href="${rel(here, pathFor(lang, "terms"))}">${escapeHtml(c.footer.terms)}</a></li>
           <li><a href="${rel(here, pathFor(lang, "privacy"))}">${escapeHtml(c.footer.privacyLink)}</a></li>
         </ul>
@@ -116,59 +119,87 @@ ${main}
 }
 
 function homeMain(c, cfg) {
-  return `      <section class="hero wrap" aria-labelledby="hero-title">
-        <p class="eyebrow">${escapeHtml(c.hero.eyebrow)}</p>
-        <h1 id="hero-title">${escapeHtml(c.hero.h1)}</h1>
-        <p class="lead">${escapeHtml(c.hero.lead)}</p>
-        <p class="actions">
-          <a class="btn btn-primary" href="${escapeHtml(cfg.appUrl)}" rel="noopener">${escapeHtml(c.cta)}</a>
-          <a class="btn btn-secondary" href="#beta">${escapeHtml(c.hero.secondary)}</a>
-        </p>
-        <p class="note">${escapeHtml(c.hero.note)}</p>
-      </section>
-
-      <section id="what" class="wrap section" aria-labelledby="what-title">
-        <h2 id="what-title">${escapeHtml(c.what.h2)}</h2>
-        <div class="cards">
-          ${c.what.cards.map((k) => `<article class="card"><h3>${escapeHtml(k.h3)}</h3><p>${escapeHtml(k.p)}</p></article>`).join("\n          ")}
+  const app = escapeHtml(cfg.appUrl);
+  return `      <section class="band band--dark hero" aria-labelledby="hero-title">
+        <div class="hero-art" aria-hidden="true"></div>
+        <div class="wrap hero-inner">
+          <p class="eyebrow">${escapeHtml(c.hero.eyebrow)}</p>
+          <h1 id="hero-title">${escapeHtml(c.hero.h1)}</h1>
+          <p class="lead">${escapeHtml(c.hero.lead)}</p>
+          <p class="actions">
+            <a class="btn btn-gold" href="${app}" rel="noopener">${escapeHtml(c.cta)}</a>
+            <a class="btn btn-ghost" href="#beta">${escapeHtml(c.hero.secondary)}</a>
+          </p>
+          <p class="note">${escapeHtml(c.hero.note)}</p>
         </div>
       </section>
 
-      <section id="creators" class="wrap section" aria-labelledby="creators-title">
-        <h2 id="creators-title">${escapeHtml(c.creators.h2)}</h2>
-        <p class="lead">${escapeHtml(c.creators.lead)}</p>
-        <p>${escapeHtml(c.creators.p)}</p>
-        <h3>${escapeHtml(c.creators.listTitle)}</h3>
-        ${list(c.creators.list)}
+      <section id="what" class="band band--beige" aria-labelledby="what-title">
+        <div class="wrap">
+          <h2 id="what-title">${escapeHtml(c.what.h2)}</h2>
+          <div class="cards">
+            ${c.what.cards.map((k) => `<article class="card"><h3>${escapeHtml(k.h3)}</h3><p>${escapeHtml(k.p)}</p></article>`).join("\n            ")}
+          </div>
+        </div>
       </section>
 
-      <section id="viewers" class="wrap section" aria-labelledby="viewers-title">
-        <h2 id="viewers-title">${escapeHtml(c.viewers.h2)}</h2>
-        <p class="lead">${escapeHtml(c.viewers.lead)}</p>
-        <p>${escapeHtml(c.viewers.p)}</p>
-        ${list(c.viewers.list)}
+      <section id="creators" class="band band--light" aria-labelledby="creators-title">
+        <div class="wrap split">
+          <div>
+            <h2 id="creators-title">${escapeHtml(c.creators.h2)}</h2>
+            <p class="lead">${escapeHtml(c.creators.lead)}</p>
+            <p>${escapeHtml(c.creators.p)}</p>
+          </div>
+          <div class="panel panel--outline">
+            <h3>${escapeHtml(c.creators.listTitle)}</h3>
+            ${list(c.creators.list)}
+          </div>
+        </div>
       </section>
 
-      <section id="beta" class="wrap section" aria-labelledby="beta-title">
-        <h2 id="beta-title">${escapeHtml(c.beta.h2)}</h2>
-        <h3>${escapeHtml(c.beta.todayTitle)}</h3>
-        <p>${escapeHtml(c.beta.today)}</p>
-        <p class="actions"><a class="btn btn-primary" href="${escapeHtml(cfg.appUrl)}" rel="noopener">${escapeHtml(c.cta)}</a></p>
-        <h3>${escapeHtml(c.beta.plannedTitle)}</h3>
-        ${list(c.beta.plannedList)}
-        <p class="note">${escapeHtml(c.beta.caveat)}</p>
+      <section id="viewers" class="band band--soft" aria-labelledby="viewers-title">
+        <div class="wrap split">
+          <div>
+            <h2 id="viewers-title">${escapeHtml(c.viewers.h2)}</h2>
+            <p class="lead">${escapeHtml(c.viewers.lead)}</p>
+            <p>${escapeHtml(c.viewers.p)}</p>
+          </div>
+          <div class="panel panel--outline">
+            ${list(c.viewers.list)}
+          </div>
+        </div>
       </section>
 
-      <section id="about" class="wrap section" aria-labelledby="about-title">
-        <h2 id="about-title">${escapeHtml(c.about.h2)}</h2>
-        <p>${escapeHtml(c.about.p)}</p>
-        <p class="actions"><a class="btn btn-secondary" href="${escapeHtml(cfg.creovaUrl)}" rel="noopener">${escapeHtml(c.about.link)}</a></p>
+      <section id="beta" class="band band--dark" aria-labelledby="beta-title">
+        <div class="wrap">
+          <h2 id="beta-title">${escapeHtml(c.beta.h2)}</h2>
+          <div class="beta-grid">
+            <div class="panel panel--now">
+              <h3>${escapeHtml(c.beta.todayTitle)}</h3>
+              <p>${escapeHtml(c.beta.today)}</p>
+              <p class="actions"><a class="btn btn-gold" href="${app}" rel="noopener">${escapeHtml(c.cta)}</a></p>
+            </div>
+            <div class="panel panel--plan">
+              <h3>${escapeHtml(c.beta.plannedTitle)}</h3>
+              ${list(c.beta.plannedList)}
+            </div>
+          </div>
+          <p class="note">${escapeHtml(c.beta.caveat)}</p>
+        </div>
+      </section>
+
+      <section id="about" class="band band--beige" aria-labelledby="about-title">
+        <div class="wrap">
+          <h2 id="about-title">${escapeHtml(c.about.h2)}</h2>
+          <p class="lead">${escapeHtml(c.about.p)}</p>
+          <p class="actions"><a class="btn btn-dark" href="${escapeHtml(cfg.creovaUrl)}" rel="noopener">${escapeHtml(c.about.link)}</a></p>
+        </div>
       </section>`;
 }
 
 function legalMain(c, doc, cfg, toHome) {
   const l = c.legal;
-  return `      <article class="wrap section legal">
+  return `      <article class="wrap legal">
         <p><a href="${toHome}">${escapeHtml(l.back)}</a></p>
         <h1>${escapeHtml(doc.title)}</h1>
         <p class="note">${escapeHtml(l.updatedLabel)}: <time datetime="${l.updated}">${l.updated}</time></p>
