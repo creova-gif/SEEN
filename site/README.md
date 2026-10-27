@@ -36,11 +36,19 @@ To update the site later, run step 2 again. A workflow in the private repo can a
 
 Limits to know: GitHub Pages cannot send custom headers, so the policy in each page's `<meta>` tags (CSP, referrer) is all there is; `frame-ancestors` and `X-Frame-Options` cannot be set, which matters little for a static page with no forms or login. The app should get its own one-level subdomain next to this one (for example `seenapp.creova.one`); a name two levels deep such as `app.seen.creova.one` is not covered by Cloudflare's free certificate if it is ever proxied. Firebase Hosting (Google Cloud) remains a fallback if headers become necessary; `site/` works on any static host.
 
+## Look and assets
+
+The look mixes the app's branding with CREOVA's. From the app (`src/styles/seen-tokens.css`): pure black canvas, Fraunces headlines over Inter, white pill buttons with spaced uppercase labels, hairline dark cards, the story / creator / funding accent colours, the green "live" glow, and the app's own tagline (reused from `src/app/i18n/strings.ts` so the FR/ES wording matches). From CREOVA (`creova-gif/creova` DESIGN.md): oxblood `#2D1011`, beige `#CDBFAE`, gold `#C6A45A`, and the mark in the top bar.
+
+- **Fonts**: Fraunces and Inter, open-licence (SIL OFL 1.1), self-hosted in `src/fonts/` with the licence in `src/fonts/OFL.txt`. Nothing is loaded from Google. CREOVA's Quasimoda is a licensed Adobe font and is not used.
+- **Photos** (`src/img/`, resized from the public creova.one site): `hero-portrait.jpg`, `creators-laptop.jpg`, `viewers-chess.jpg`. They show real people from CREOVA's community and event work. Before relying on them for SEEN marketing, confirm CREOVA holds releases covering this use. They must not be captioned or described as SEEN users, creators or testimonials; the alt text only describes what is pictured.
+- **Motion** is CSS only and switched off for visitors who prefer reduced motion.
+
 ## Rules for this site
 
 - Describe only what exists. The app runs on sample data today; say so. Planned items are labelled planned.
 - Name no real organisation as a partner without a signed agreement.
 - State the beta date only as the owner has confirmed it (currently: January 2027, to be confirmed). creova.one also carries a beta date, so change both together.
-- No scripts, trackers, fonts or images from other origins without updating the CSP and the "no cookies, no analytics" line in the footer.
+- No scripts, trackers, fonts or images from other origins without updating the CSP and the "no cookies, no analytics" line in the footer. Every image needs a real description in all three languages and explicit width and height.
 - Keep `src/legal.mjs` true to what the site does. If you add analytics, cookies, a form or any third-party request, change the privacy notice, the footer line and the CSP first.
 - The app's own terms and privacy notice (for real accounts) are separate and must be published before anyone can sign up.

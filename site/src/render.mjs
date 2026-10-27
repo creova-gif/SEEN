@@ -19,8 +19,9 @@ export function rel(from, to) {
 const list = (items) => `<ul>${items.map((i) => `<li>${escapeHtml(i)}</li>`).join("")}</ul>`;
 
 // The only policy on hosts that cannot send headers (GitHub Pages), so it must stay in every page.
+// Fonts and images are served from this site; nothing is requested from other origins.
 const CSP =
-  "default-src 'none'; style-src 'self'; img-src 'self' data:; base-uri 'self'; form-action 'none'";
+  "default-src 'none'; style-src 'self'; font-src 'self'; img-src 'self' data:; base-uri 'self'; form-action 'none'";
 
 /**
  * Render one page.
@@ -49,7 +50,7 @@ export function renderPage(lang, cfg, page = "home") {
       : `<li><a href="${rel(here, pathFor(l, page))}" lang="${l}" hreflang="${l}" aria-label="${escapeHtml(copy[l].langName)}">${l.toUpperCase()}</a></li>`,
   ).join("");
 
-  const main = isHome ? homeMain(c, cfg) : legalMain(c, doc, cfg, toHome);
+  const main = isHome ? homeMain(c, cfg, here) : legalMain(c, doc, cfg, toHome);
 
   return `<!DOCTYPE html>
 <html lang="${c.htmlLang}">
@@ -68,6 +69,8 @@ export function renderPage(lang, cfg, page = "home") {
     <meta property="og:description" content="${escapeHtml(description)}" />
     <meta name="twitter:card" content="summary" />
     ${alternates}
+    <link rel="preload" href="${rel(here, "/fonts/fraunces-latin-wght-normal.woff2")}" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="${rel(here, "/fonts/inter-latin-wght-normal.woff2")}" as="font" type="font/woff2" crossorigin />
     <link rel="stylesheet" href="${rel(here, "/styles.css")}" />
   </head>
   <body>
@@ -85,7 +88,7 @@ export function renderPage(lang, cfg, page = "home") {
           <nav aria-label="${escapeHtml(c.footer.language)}">
             <ul class="pill">${langLinks}</ul>
           </nav>
-          <a class="btn btn-dark btn-small" href="${escapeHtml(cfg.appUrl)}" rel="noopener">${escapeHtml(c.cta)}</a>
+          <a class="btn btn-primary btn-small" href="${escapeHtml(cfg.appUrl)}" rel="noopener">${escapeHtml(c.cta)}</a>
         </div>
         <nav class="main-nav" aria-label="${escapeHtml(c.navLabel)}">
           <ul class="nav">
@@ -118,23 +121,39 @@ ${main}
 `;
 }
 
-function homeMain(c, cfg) {
+const h1Html = (c) => {
+  const t = escapeHtml(c.hero.h1), a = escapeHtml(c.hero.accent);
+  return t.replace(a, `<em>${a}</em>`);
+};
+
+function homeMain(c, cfg, here) {
   const app = escapeHtml(cfg.appUrl);
-  return `      <section class="band band--dark hero" aria-labelledby="hero-title">
-        <div class="hero-art" aria-hidden="true"></div>
-        <div class="wrap hero-inner">
-          <p class="eyebrow">${escapeHtml(c.hero.eyebrow)}</p>
-          <h1 id="hero-title">${escapeHtml(c.hero.h1)}</h1>
-          <p class="lead">${escapeHtml(c.hero.lead)}</p>
-          <p class="actions">
-            <a class="btn btn-gold" href="${app}" rel="noopener">${escapeHtml(c.cta)}</a>
-            <a class="btn btn-ghost" href="#beta">${escapeHtml(c.hero.secondary)}</a>
-          </p>
-          <p class="note">${escapeHtml(c.hero.note)}</p>
+  const img = (name, alt, w, h, eager = false) =>
+    `<img src="${rel(here, `/img/${name}`)}" alt="${escapeHtml(alt)}" width="${w}" height="${h}"${eager ? "" : ' loading="lazy"'} decoding="async" />`;
+  return `      <section class="band band--black hero" aria-labelledby="hero-title">
+        <div class="wrap hero-grid">
+          <div class="hero-copy">
+            <p class="eyebrow">${escapeHtml(c.hero.eyebrow)}</p>
+            <h1 id="hero-title">${h1Html(c)}</h1>
+            <p class="lead">${escapeHtml(c.hero.lead)}</p>
+            <p class="actions">
+              <a class="btn btn-primary" href="${app}" rel="noopener">${escapeHtml(c.cta)}</a>
+              <a class="btn btn-ghost" href="#beta">${escapeHtml(c.hero.secondary)}</a>
+            </p>
+            <p class="note">${escapeHtml(c.hero.note)}</p>
+          </div>
+          <figure class="hero-figure">
+            <div class="rings" aria-hidden="true"></div>
+            ${img("hero-portrait.jpg", c.photos.hero, 533, 800, true)}
+          </figure>
         </div>
       </section>
 
-      <section id="what" class="band band--beige" aria-labelledby="what-title">
+      <section class="band band--oxblood tagline-band" aria-label="${escapeHtml(c.hero.eyebrow)}">
+        <div class="wrap"><p class="tagline">${escapeHtml(c.tagline)}</p></div>
+      </section>
+
+      <section id="what" class="band band--black" aria-labelledby="what-title">
         <div class="wrap">
           <h2 id="what-title">${escapeHtml(c.what.h2)}</h2>
           <div class="cards">
@@ -143,41 +162,41 @@ function homeMain(c, cfg) {
         </div>
       </section>
 
-      <section id="creators" class="band band--light" aria-labelledby="creators-title">
+      <section id="creators" class="band band--beige" aria-labelledby="creators-title">
         <div class="wrap split">
           <div>
             <h2 id="creators-title">${escapeHtml(c.creators.h2)}</h2>
             <p class="lead">${escapeHtml(c.creators.lead)}</p>
             <p>${escapeHtml(c.creators.p)}</p>
+            <div class="panel panel--paper">
+              <h3>${escapeHtml(c.creators.listTitle)}</h3>
+              ${list(c.creators.list)}
+            </div>
           </div>
-          <div class="panel panel--outline">
-            <h3>${escapeHtml(c.creators.listTitle)}</h3>
-            ${list(c.creators.list)}
-          </div>
+          <figure class="photo">${img("creators-laptop.jpg", c.photos.creators, 960, 639)}</figure>
         </div>
       </section>
 
-      <section id="viewers" class="band band--soft" aria-labelledby="viewers-title">
-        <div class="wrap split">
+      <section id="viewers" class="band band--surface" aria-labelledby="viewers-title">
+        <div class="wrap split split--flip">
           <div>
             <h2 id="viewers-title">${escapeHtml(c.viewers.h2)}</h2>
             <p class="lead">${escapeHtml(c.viewers.lead)}</p>
             <p>${escapeHtml(c.viewers.p)}</p>
-          </div>
-          <div class="panel panel--outline">
             ${list(c.viewers.list)}
           </div>
+          <figure class="photo">${img("viewers-chess.jpg", c.photos.viewers, 960, 639)}</figure>
         </div>
       </section>
 
-      <section id="beta" class="band band--dark" aria-labelledby="beta-title">
+      <section id="beta" class="band band--oxblood" aria-labelledby="beta-title">
         <div class="wrap">
           <h2 id="beta-title">${escapeHtml(c.beta.h2)}</h2>
           <div class="beta-grid">
             <div class="panel panel--now">
-              <h3>${escapeHtml(c.beta.todayTitle)}</h3>
+              <h3><span class="live-dot" aria-hidden="true"></span>${escapeHtml(c.beta.todayTitle)}</h3>
               <p>${escapeHtml(c.beta.today)}</p>
-              <p class="actions"><a class="btn btn-gold" href="${app}" rel="noopener">${escapeHtml(c.cta)}</a></p>
+              <p class="actions"><a class="btn btn-primary" href="${app}" rel="noopener">${escapeHtml(c.cta)}</a></p>
             </div>
             <div class="panel panel--plan">
               <h3>${escapeHtml(c.beta.plannedTitle)}</h3>
@@ -188,11 +207,12 @@ function homeMain(c, cfg) {
         </div>
       </section>
 
-      <section id="about" class="band band--beige" aria-labelledby="about-title">
+      <section id="about" class="band band--black" aria-labelledby="about-title">
         <div class="wrap">
           <h2 id="about-title">${escapeHtml(c.about.h2)}</h2>
           <p class="lead">${escapeHtml(c.about.p)}</p>
-          <p class="actions"><a class="btn btn-dark" href="${escapeHtml(cfg.creovaUrl)}" rel="noopener">${escapeHtml(c.about.link)}</a></p>
+          <p class="actions"><a class="btn btn-ghost" href="${escapeHtml(cfg.creovaUrl)}" rel="noopener">${escapeHtml(c.about.link)}</a></p>
+          <p class="note">${escapeHtml(c.photos.credit)}</p>
         </div>
       </section>`;
 }

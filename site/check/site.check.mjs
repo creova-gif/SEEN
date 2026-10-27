@@ -91,7 +91,7 @@ test("every relative link and stylesheet resolves to a file in the build", () =>
         const clean = href.split("#")[0];
         if (!clean) continue;
         let target = resolve(dirname(from), clean);
-        if (!/\.[a-z]+$/.test(target)) target = join(target, "index.html");
+        if (!/\.[a-z0-9]+$/.test(target)) target = join(target, "index.html");
         assert.ok(existsSync(target) && statSync(target).isFile(), `${lang}/${page}: ${href} does not resolve`);
       }
     }
@@ -137,6 +137,29 @@ test("build output contains every page, styles, robots and a sitemap listing the
   for (const f of ["styles.css", "robots.txt", "sitemap.xml"]) assert.ok(existsSync(join(out, f)), `${f} exists`);
   const sitemap = readFileSync(join(out, "sitemap.xml"), "utf8");
   for (const lang of LANGS) for (const page of PAGES) assert.ok(sitemap.includes(`${cfg.siteUrl}${pathFor(lang, page)}`));
+});
+
+test("headline accent, photos, fonts and licence are in place", () => {
+  for (const lang of LANGS) {
+    const c = copy[lang];
+    assert.ok(c.hero.h1.includes(c.hero.accent), `${lang}: accent word is part of the headline`);
+    const html = read(lang, "home");
+    assert.ok(html.includes(`<em>${c.hero.accent}</em>`), `${lang}: accent rendered`);
+    for (const k of ["hero", "creators", "viewers"]) {
+      assert.ok(c.photos[k].length > 40, `${lang}: ${k} photo has a real description`);
+      assert.ok(html.includes(`alt="${c.photos[k].replace(/"/g, "&quot;")}"`), `${lang}: ${k} alt text rendered`);
+    }
+    for (const [tag] of html.matchAll(/<img [^>]*>/g)) {
+      assert.match(tag, /\swidth="\d+"/, `img has width: ${tag}`);
+      assert.match(tag, /\sheight="\d+"/, `img has height: ${tag}`);
+      assert.match(tag, /\salt="/, `img has alt: ${tag}`);
+    }
+  }
+  for (const f of ["fonts/fraunces-latin-wght-normal.woff2", "fonts/fraunces-latin-wght-italic.woff2", "fonts/inter-latin-wght-normal.woff2", "fonts/OFL.txt", "img/hero-portrait.jpg", "img/creators-laptop.jpg", "img/viewers-chess.jpg"]) {
+    assert.ok(existsSync(join(out, f)), `${f} is in the build`);
+  }
+  const css = readFileSync(join(out, "styles.css"), "utf8");
+  for (const [, u] of css.matchAll(/url\("([^"]+)"\)/g)) assert.ok(existsSync(join(out, u)), `css asset ${u} exists`);
 });
 
 test("the site makes no third-party requests", () => {
