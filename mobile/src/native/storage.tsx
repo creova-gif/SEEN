@@ -1,6 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Crypto from 'expo-crypto';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import './polyfill';
+import { hydrateLocalStorage } from './polyfill';
 import type { Language } from './data';
 import { findAccount, signIn as signInLocal, signUp as signUpLocal, type Account, type AccountStore, type Me } from './auth';
 
@@ -16,9 +18,11 @@ interface Persisted {
   guest: boolean;
   userId: string | null;
   interests: string[];
+  /** Accounts that have seen the one-time "Become a creator" intro. */
+  creatorIntroSeen: string[];
 }
 const KEY = 'seen.native.v1';
-const DEFAULT: Persisted = { lang: 'en', saved: [], following: [], chapter: {}, onboarded: false, guest: false, userId: null, interests: [] };
+const DEFAULT: Persisted = { lang: 'en', saved: [], following: [], chapter: {}, onboarded: false, guest: false, userId: null, interests: [], creatorIntroSeen: [] };
 
 const ACCOUNTS = 'seen.native.accounts.v1';
 const accountStore: AccountStore = {
@@ -35,6 +39,7 @@ interface AppState extends Persisted {
   signOut: () => void;
   enterGuest: () => void;
   setInterests: (topics: string[]) => void;
+  markCreatorIntroSeen: (userId: string) => void;
   setLang: (l: Language) => void;
   toggleSaved: (storyId: string) => void;
   isSaved: (storyId: string) => boolean;
@@ -56,7 +61,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<Me | null>(null);
 
   useEffect(() => {
-    AsyncStorage.getItem(KEY)
+    hydrateLocalStorage()
+      .then(() => AsyncStorage.getItem(KEY))
       .then(async raw => {
         const saved = raw ? { ...DEFAULT, ...(JSON.parse(raw) as Partial<Persisted>) } : DEFAULT;
         setData(saved);
@@ -95,6 +101,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       },
       enterGuest: () => update(p => ({ ...p, onboarded: true, guest: true })),
       setInterests: interests => update(p => ({ ...p, interests })),
+      markCreatorIntroSeen: id => update(p => (p.creatorIntroSeen.includes(id) ? p : { ...p, creatorIntroSeen: [...p.creatorIntroSeen, id] })),
       setLang: lang => update(p => ({ ...p, lang })),
       toggleSaved: id => update(p => ({ ...p, saved: p.saved.includes(id) ? p.saved.filter(x => x !== id) : [...p.saved, id] })),
       isSaved: id => data.saved.includes(id),
