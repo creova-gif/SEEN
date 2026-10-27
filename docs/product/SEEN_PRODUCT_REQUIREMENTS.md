@@ -110,12 +110,14 @@ The owner reversed decision D1: SEEN ships as a mobile app on the Apple App Stor
 - **Owner needs:** Apple Developer and Google Play accounts, privacy and data-safety answers, store listing text and screenshots, a support URL and a privacy policy page.
 - **Vercel:** no longer on the critical path. A free Hobby plan only deploys commits from the account that owns it, which is why preview deployments were blocked.
 
-## One app (27 Oct 2026)
+## One app, mobile only (27 Oct 2026)
 
-The owner decided SEEN is one app, mobile first: the native app in `mobile/` (Expo, React Native). The same code runs in Expo Go, becomes the App Store and Google Play builds, and is exported as a website for Vercel (`expo export --platform web`), so there is no second app to keep in step. The old website code in `src/` is legacy: kept only until the native app has every screen it has, then archived (not deleted, as in ADR-001). A web product returns only if customers ask for one.
+The owner decided SEEN is one app and it is a mobile app: the native app in `mobile/` (Expo, React Native). There is no web product. It is tested in Expo Go, then in TestFlight and Google Play internal testing, then released on the App Store and Google Play. The old website code in `src/` is legacy: kept only until the native app has every screen it has, then archived (not deleted, as in ADR-001).
 
-- **Vercel:** `vercel.json` now builds the native app's web export. It takes effect on production only when this branch is merged into `main`, at which point testers see the native app, including the parts not yet ported (see `TODOS.md`, "Native app").
-- **Tests:** the native app has Jest tests (guest sheet, player, interests, account form) and browser tests of its web export (`e2e-native/`), both in the CI job "Native app". The old website's tests keep running until the old code is retired.
+- **Vercel:** not part of the product. `vercel.json` tells Vercel to skip builds (`ignoreCommand`), so it no longer builds or blocks anything; the old live site stays as it was until the owner switches the Vercel project off. Vercel is not what limits testing in Expo Go.
+- **Web export:** the native app can be exported with `react-native-web` only as a test tool, so automated browser tests (`e2e-native/`) can drive the real app screens. It is never published.
+- **Testing without the developer's computer:** Expo Go needs a server it can reach. Today that is a development server on a Mac, which lasts as long as the session. The fix is EAS Update (publishes the app bundle to Expo's servers so a link or QR code works from anywhere) and then TestFlight and Play internal testing. These need the owner's Expo account, then Apple and Google developer accounts.
+- **Tests:** Jest tests of the native app and the browser tests of its web export both run in the CI job "Native app". The old website's tests keep running until the old code is retired.
 
 ## Overlaps resolved
 

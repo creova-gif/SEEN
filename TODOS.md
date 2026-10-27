@@ -57,10 +57,12 @@ Engineering tasks for approved requirements only. Items awaiting product approva
 - [ ] **Full narration.** Generate all chapters, add them to `narration.ts` (or serve them from storage once the backend exists), and check clip sizes against app size. Priority: P2.
 - [ ] **Decide the disclosure and licence wording** for AI narration in the app and the store listing, and confirm the ElevenLabs plan covers commercial use of the generated voice. Owner. Priority: P1.
 
-## One app (decision: `docs/product/SEEN_PRODUCT_REQUIREMENTS.md`, "One app")
+## One app, mobile only (decision: `docs/product/SEEN_PRODUCT_REQUIREMENTS.md`, "One app, mobile only")
 
-- [x] **Native app also exports as a website for Vercel.** `react-native-web` added; `vercel.json` builds `mobile` with `expo export --platform web`; browser tests in `e2e-native/` (first-run order, guest, story, reader, save-then-sign-up) run in CI.
+- [x] **No web product.** `vercel.json` skips builds; the web export of the native app exists only to run browser tests (`e2e-native/`, in CI).
+- [ ] **Share the app without the developer's Mac: EAS Update.** `eas login`, `eas init`, `eas update --branch preview`, then a link or QR works in Expo Go from anywhere. Needs the owner's Expo account. Priority: P1.
+- [ ] **Installable test builds: TestFlight (iOS) and Google Play internal testing.** `eas build --profile preview` and `eas submit`. Needs Apple Developer and Google Play accounts. Priority: P1.
 - [ ] **Reach parity with the old website, then archive it.** Still only in the old code: Create/publish flow and Your stories, collections, funding and opportunities, notifications, search screen, settings and account/privacy screens, moderation and admin. Move each into the native app, then move `src/` to `archive/web/` and drop its CI jobs. Priority: P1.
-- [ ] **Web-specific checks on the exported app:** keyboard focus order, screen-reader names, 200% zoom and contrast (the old `a11y.spec.ts` / `manual-a11y.spec.ts` ideas, rewritten for the native app's web export). Priority: P1.
-- [ ] **Share links on the web export:** the old `/s/<id>` rich previews use `api/share-preview.ts`; decide whether the native app keeps them (deep links into the app need `expo-linking` and store association files). Priority: P2.
-- [ ] **Merge to `main` only when the owner is ready for testers to see the native app.** Needs the Vercel team-access fix (the `Justin-Mafie` author block) first.
+- [ ] **Accessibility checks on the native app** (screen-reader names, focus order, large text, contrast), run through the web export in CI and on real devices. Priority: P1.
+- [ ] **Link sharing and deep links** (the old `/s/<id>` previews): decide how stories are shared from the native app (`expo-linking`, universal links, Android app links). Priority: P2.
+- [ ] **Switch the Vercel project off** in the Vercel dashboard once nobody needs the old site. Owner. Priority: P3.

@@ -40,14 +40,8 @@
     {
       "source": "/s/:id",
       "destination": "/api/share-preview?id=:id"
-    },
-    {
-      "source": "/((?!api/|_expo/|assets/|favicon).*)",
-      "destination": "/index.html"
     }
   ],
   "framework": null,
-  "installCommand": "npm install --no-audit --no-fund && npm install --no-audit --no-fund --legacy-peer-deps --prefix mobile",
-  "buildCommand": "cd mobile && npx expo export --platform web --output-dir dist",
-  "outputDirectory": "mobile/dist"
+  "ignoreCommand": "exit 0"
 }
