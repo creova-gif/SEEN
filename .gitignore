@@ -13,3 +13,6 @@ out/
 *.log
 test-results/
 playwright-report/
+
+# Local, machine-specific tool hooks (absolute paths)
+.codex/
