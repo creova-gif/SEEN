@@ -48,3 +48,11 @@ Engineering tasks for approved requirements only. Items awaiting product approva
 - [ ] **Native: two-pane layout on foldables and tablets** (list left, reader right) and hinge awareness. Priority: P1.
 - [x] **Native tests (first set).** Jest with React Native Testing Library: guest sheet (opens, Not now, finishes the action after sign-up, signed-in skips it, sign out and back in) and the player (device voice play, pause, progress, finish, seek, speed); CI job "Native app". Added interests and guest-banner tests (14 in all). Still to do: reader, onboarding and navigation tests, and a Maestro or Detox journey on a device. Priority: P1.
 - [ ] **Retire the web app as a product** once the native app covers the screens above; keep it only as a test bench or remove it. Priority: P2.
+
+## Narration (AI voice, ElevenLabs)
+
+- [x] **Pilot: chapter 1 of "Voices of Migration" in English and French** (voice "Ash", `eleven_v4`, about 1 US cent each), bundled in `mobile/assets/narration/` and played by the native player with lock-screen controls, labelled "AI narration".
+- [ ] **Spanish clip of the pilot.** The first two attempts were rate-limited by ElevenLabs with nothing generated or charged; retry later. Priority: P1.
+- [ ] **Owner listens to the pilot** and approves or changes the voice before the full set. Full set: 40 chapters x 3 languages is about 120 clips; the pilot text is short, so real chapters will cost more per clip. Priority: P1.
+- [ ] **Full narration.** Generate all chapters, add them to `narration.ts` (or serve them from storage once the backend exists), and check clip sizes against app size. Priority: P2.
+- [ ] **Decide the disclosure and licence wording** for AI narration in the app and the store listing, and confirm the ElevenLabs plan covers commercial use of the generated voice. Owner. Priority: P1.

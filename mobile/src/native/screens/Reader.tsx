@@ -4,6 +4,7 @@ import { ScrollView, StyleSheet, Text, View, type LayoutChangeEvent } from 'reac
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getChaptersForStory, getLocalizedText, getStoryWorldById, sentencesOf, t } from '../data';
 import { RATES, formatTime, usePlayer } from '../player';
+import { narrationFor } from '../narration';
 import { useApp } from '../storage';
 import { useGuest } from '../guest';
 import { c, font, gutter, radius, space } from '../theme';
@@ -39,7 +40,7 @@ export function Reader() {
       artist: getLocalizedText(story.creator, lang),
       text,
       lang,
-      src: chapter.media.narration?.url,
+      src: narrationFor(chapter.id, lang),
       coverImage: story.coverImage,
     });
     setPaused(false);
@@ -121,7 +122,7 @@ export function Reader() {
           <Press accessibilityRole="button" accessibilityLabel="Next chapter" disabled={!canNext} onPress={() => goTo(i + 1)} style={[styles.small, !canNext && { opacity: 0.35 }]}><Text style={styles.glyph}>⏭</Text></Press>
         </View>
         <View style={styles.meta}>
-          <Text style={styles.time}>{player.source === 'recording' ? 'Recorded narration' : t('story.listenDevice', lang)}</Text>
+          <Text style={styles.time}>{player.source === 'recording' ? t('story.aiNarration', lang) : t('story.listenDevice', lang)}</Text>
           <Press accessibilityRole="button" accessibilityLabel={`Speed ${player.rate}×`} onPress={() => player.setRate(RATES[(RATES.indexOf(player.rate as (typeof RATES)[number]) + 1) % RATES.length])} style={styles.rate}>
             <Text style={styles.time}>{player.rate}×</Text>
           </Press>

@@ -73,3 +73,26 @@ describe('native player (device voice)', () => {
     expect(formatTime(NaN)).toBe('0:00');
   });
 });
+
+describe('native player (recorded narration)', () => {
+  it('plays a bundled recording through the system player, with lock-screen details', async () => {
+    const { createAudioPlayer } = jest.requireMock('expo-audio');
+    const fake = { setActiveForLockScreen: jest.fn(), addListener: jest.fn(), setPlaybackRate: jest.fn(), play: jest.fn(), pause: jest.fn(), remove: jest.fn(), seekTo: jest.fn(), clearLockScreenControls: jest.fn() };
+    createAudioPlayer.mockReturnValue(fake);
+    await mount();
+    await run(() => p.load({ ...track, src: 7 }, true));
+    expect(createAudioPlayer).toHaveBeenCalledWith(7);
+    expect(p.source).toBe('recording');
+    expect(fake.setActiveForLockScreen).toHaveBeenCalledWith(true, expect.objectContaining({ title: 'The First Note', artist: 'Kira Chen' }));
+    expect(fake.play).toHaveBeenCalled();
+    expect(Speech.speak).not.toHaveBeenCalled(); // a recording is never read over by the device voice
+  });
+
+  it('finds the pilot clips by chapter and language, and nothing for the rest', () => {
+    const { narrationFor } = require('../narration');
+    expect(narrationFor('voices-ch1', 'en')).toBeDefined();
+    expect(narrationFor('voices-ch1', 'fr')).toBeDefined();
+    expect(narrationFor('voices-ch1', 'es')).toBeUndefined();
+    expect(narrationFor('midnight-ch1', 'en')).toBeUndefined();
+  });
+});

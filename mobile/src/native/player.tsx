@@ -17,7 +17,8 @@ export interface Track {
   artist: string;
   text: string;
   lang: Language;
-  src?: string;
+  /** A recording: a bundled audio asset (number) or an http(s) address. */
+  src?: string | number;
   coverImage?: string;
 }
 export type Status = 'idle' | 'loading' | 'playing' | 'paused' | 'ended' | 'unavailable';
@@ -51,7 +52,7 @@ export const usePlayer = () => {
   return v;
 };
 
-const isRemote = (s?: string) => !!s && /^https?:\/\//.test(s);
+const isPlayable = (s?: string | number) => typeof s === 'number' || (typeof s === 'string' && /^https?:\/\//.test(s));
 
 export function PlayerProvider({ children }: { children: ReactNode }) {
   const [track, setTrack] = useState<Track | null>(null);
@@ -146,13 +147,13 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       trackRef.current = t;
       setTrack(t);
       const words = t.text.split(/\s+/).length;
-      if (isRemote(t.src)) {
+      if (isPlayable(t.src)) {
         sourceRef.current = 'recording';
         setSource('recording');
         set('loading');
         setTime(0, 0);
         try {
-          const p = createAudioPlayer({ uri: t.src! });
+          const p = createAudioPlayer(typeof t.src === 'number' ? t.src : { uri: t.src as string });
           audio.current = p;
           p.setActiveForLockScreen(true, { title: t.title, artist: t.artist, albumTitle: 'SEEN by CREOVA', artworkUrl: t.coverImage });
           p.addListener('playbackStatusUpdate', s => {

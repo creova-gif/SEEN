@@ -349,6 +349,7 @@ export const STRINGS = {
   "native.interests.next": { en: "Next: create your account", fr: "Suivant : créer votre compte", es: "Siguiente: crear tu cuenta" },
   "native.interests.skip": { en: "Skip: create your account", fr: "Passer : créer votre compte", es: "Omitir: crear tu cuenta" },
   "native.basedOnInterests": { en: "Based on your interests", fr: "Selon vos intérêts", es: "Según tus intereses" },
+  "story.aiNarration": { en: "AI narration", fr: "Narration par IA", es: "Narración con IA" },
   "nav.locked": { en: "{tab}, sign in required", fr: "{tab}, connexion requise", es: "{tab}, requiere iniciar sesión" },
   "guest.explore": { en: "Explore without an account", fr: "Explorer sans compte", es: "Explorar sin cuenta" },
   "guest.banner": { en: "Exploring as a guest. Sign up to save stories and pick up where you left off.", fr: "Vous explorez en tant qu'invité. Créez un compte pour enregistrer des histoires et reprendre votre lecture.", es: "Estás explorando como invitado. Crea una cuenta para guardar historias y retomar tu lectura." },
