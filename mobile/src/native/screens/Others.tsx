@@ -6,7 +6,7 @@ import { FlatList, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { narrationFor } from '../narration';
 import { audioSetup, configureAudio } from '../player';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { getPublicStories, t, type Language } from '../data';
+import { t, usePublicStories, type Language } from '../data';
 import { useApp } from '../storage';
 import { c, font, gutter, space } from '../theme';
 import { Button, Chip } from '../ui';
@@ -16,7 +16,7 @@ export function Library() {
   const nav = useNavigation<any>();
   const insets = useSafeAreaInsets();
   const { saved, lang } = useApp();
-  const stories = getPublicStories().filter(s => saved.includes(s.id));
+  const stories = usePublicStories().filter(s => saved.includes(s.id));
   return (
     <View style={{ flex: 1, backgroundColor: c.canvas, paddingTop: insets.top }}>
       <FlatList
@@ -98,21 +98,6 @@ function SoundCheck({ lang }: { lang: Language }) {
     <View style={{ marginHorizontal: gutter, marginTop: space.lg }}>
       <Button label="Sound check" variant="secondary" onPress={run} />
       {lines.map((l, i) => <Text key={i} style={[styles.note, { marginHorizontal: 0, fontSize: 12 }]}>{l}</Text>)}
-    </View>
-  );
-}
-
-export function CreateIntro() {
-  const nav = useNavigation<any>();
-  const insets = useSafeAreaInsets();
-  const { lang } = useApp();
-  return (
-    <View style={{ flex: 1, backgroundColor: c.canvas, padding: gutter, paddingTop: insets.top + space.xl }}>
-      <Text style={styles.eyebrow}>{t('creator.intro.eyebrow', lang)}</Text>
-      <Text style={styles.h1b}>{t('creator.intro.title', lang)}</Text>
-      <Text style={styles.note}>{t('creator.intro.body', lang)}</Text>
-      <Text style={[styles.note, { marginTop: space.lg }]}>{t('native.createSoon', lang)}</Text>
-      <Button label={t('creator.intro.later', lang)} variant="secondary" onPress={() => nav.goBack()} style={{ marginTop: space.xl }} />
     </View>
   );
 }

@@ -2,7 +2,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useMemo, useState } from 'react';
 import { FlatList, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { getCreators, getPublicStories, t } from '../data';
+import { getCreators, usePublicStories, t } from '../data';
 import { useApp } from '../storage';
 import { c, font, gutter, radius, space } from '../theme';
 import { Chip } from '../ui';
@@ -14,7 +14,7 @@ export function Explore() {
   const insets = useSafeAreaInsets();
   const { lang, isFollowing } = useApp();
   const [mode, setMode] = useState<'stories' | 'creators'>('stories');
-  const all = getPublicStories();
+  const all = usePublicStories();
   const topics = useMemo(() => {
     const n = new Map<string, number>();
     all.forEach(s => s.culturalThemes.forEach(t => n.set(t, (n.get(t) ?? 0) + 1)));

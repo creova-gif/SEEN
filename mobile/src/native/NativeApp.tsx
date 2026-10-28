@@ -3,6 +3,7 @@ import { DarkTheme, NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
+import { useRef } from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { t } from './data';
@@ -10,7 +11,8 @@ import { PlayerProvider } from './player';
 import { AppStateProvider, useApp } from './storage';
 import { Explore } from './screens/Explore';
 import { ForYou } from './screens/ForYou';
-import { CreateIntro, Library, Profile } from './screens/Others';
+import { CreateFlow, CreateHub, CreateIntro } from './screens/Create';
+import { Library, Profile } from './screens/Others';
 import { Reader } from './screens/Reader';
 import { Story } from './screens/Story';
 import { Account } from './screens/Account';
@@ -28,8 +30,10 @@ const theme = { ...DarkTheme, colors: { ...DarkTheme.colors, background: c.canva
 const ICON: Record<string, string> = { ForYou: '⌂', Explore: '◎', Create: '⊕', Library: '▥', Profile: '☺' };
 
 function Tabs() {
-  const { lang, user } = useApp();
+  const { lang, user, creatorIntroSeen } = useApp();
   const { requireAccount } = useGuest();
+  const userRef = useRef(user);
+  userRef.current = user;
   const label = (k: 'nav.forYou' | 'nav.explore' | 'nav.create' | 'nav.library' | 'nav.profile') => t(k, lang);
   return (
     <Tab.Navigator
@@ -49,7 +53,7 @@ function Tabs() {
         name="Create"
         component={View}
         options={{ title: label('nav.create') }}
-        listeners={({ navigation }) => ({ tabPress: e => { e.preventDefault(); requireAccount({ reason: 'create' }, () => navigation.getParent()?.navigate('CreateIntro')); } })}
+        listeners={({ navigation }) => ({ tabPress: e => { e.preventDefault(); requireAccount({ reason: 'create' }, () => navigation.getParent()?.navigate(creatorIntroSeen.includes(userRef.current?.id ?? '') ? 'CreateHub' : 'CreateIntro')); } })}
       />
       <Tab.Screen
         name="Library"
@@ -90,6 +94,8 @@ function Root() {
         <Stack.Screen name="Creator" component={Creator} />
         <Stack.Screen name="Reader" component={Reader} options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom' }} />
         <Stack.Screen name="CreateIntro" component={CreateIntro} options={{ presentation: 'modal' }} />
+        <Stack.Screen name="CreateHub" component={CreateHub} options={{ presentation: 'modal' }} />
+        <Stack.Screen name="CreateFlow" component={CreateFlow} options={{ presentation: 'fullScreenModal' }} />
       </Stack.Navigator>
       </GuestProvider>
     </NavigationContainer>

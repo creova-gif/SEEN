@@ -2,7 +2,7 @@ import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { FlatList, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { getLocalizedText, getPublicStories, storiesForInterests, t, type StoryWorld } from '../data';
+import { getLocalizedText, usePublicStories, storiesForInterests, t, type StoryWorld } from '../data';
 import { GuestBanner } from '../GuestBanner';
 import { InterestChips } from '../InterestChips';
 import { useApp } from '../storage';
@@ -14,7 +14,7 @@ export function ForYou() {
   const { lang, interests, setInterests } = useApp();
   const insets = useSafeAreaInsets();
   const { height } = useWindowDimensions();
-  const stories = getPublicStories();
+  const stories = usePublicStories();
   const hero = stories.find(s => s.featured) ?? stories[0];
   const picked = storiesForInterests(interests, lang).slice(0, 8);
   const open = (s: StoryWorld) => nav.navigate('Story', { id: s.id });

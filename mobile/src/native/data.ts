@@ -1,6 +1,9 @@
 import './polyfill';
+import { useSyncExternalStore } from 'react';
+import { getAllUserStoryWorlds } from '@seen/data/userStoriesService';
+import { catalogVersion, subscribeCatalog } from './create';
 import {
-  getPublicStories,
+  getPublicStories as getCatalogStories,
   getStoryWorldById,
   getLocalizedText,
   type Language,
@@ -13,7 +16,7 @@ import type { Creator } from '@seen/services/contracts';
 import { availableInterests, storiesForInterests } from '@seen/data/interests';
 
 export type { Language, StoryWorld };
-export { getPublicStories, getStoryWorldById, getLocalizedText, getChaptersForStory };
+export { getStoryWorldById, getLocalizedText, getChaptersForStory };
 
 export const t = (key: StringKey, lang: Language, vars?: Record<string, string>) => translate(key, lang, vars);
 
@@ -29,3 +32,11 @@ export const getCreator = (id: string) => getCreators().find(c => c.id === id);
 /** A creator's banner: the cover of their first catalogue story. */
 export const creatorCover = (cr: Creator) => cr.storyIds.map(id => getStoryWorldById(id)?.coverImage).find(Boolean);
 export const initialsOf = (name: string) => name.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]?.toUpperCase()).join('');
+
+/** The catalogue plus stories people published on this phone (public ones only). */
+export const getPublicStories = (): StoryWorld[] => [...getAllUserStoryWorlds().filter(s => s.visibility === 'public'), ...getCatalogStories()];
+/** Same list, and the screen redraws when someone publishes. */
+export const usePublicStories = () => {
+  useSyncExternalStore(subscribeCatalog, catalogVersion);
+  return getPublicStories();
+};

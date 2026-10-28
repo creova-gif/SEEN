@@ -386,6 +386,8 @@ export const STRINGS = {
   "native.create.untitled": { en: "Untitled story", fr: "Histoire sans titre", es: "Historia sin título" },
   "native.create.needTitle": { en: "Add a title and at least one chapter with text to publish.", fr: "Ajoutez un titre et au moins un chapitre avec du texte pour publier.", es: "Añade un título y al menos un capítulo con texto para publicar." },
   "native.create.needConsent": { en: "Confirm both boxes to publish.", fr: "Cochez les deux cases pour publier.", es: "Marca ambas casillas para publicar." },
+  "native.create.failed": { en: "Could not save your story. Nothing was published. Try again.", fr: "Impossible d'enregistrer votre histoire. Rien n'a été publié. Réessayez.", es: "No se pudo guardar tu historia. No se publicó nada. Inténtalo de nuevo." },
+  "native.create.new": { en: "Start a new story", fr: "Commencer une histoire", es: "Empezar una historia" },
   "nav.locked": { en: "{tab}, sign in required", fr: "{tab}, connexion requise", es: "{tab}, requiere iniciar sesión" },
   "guest.explore": { en: "Explore without an account", fr: "Explorer sans compte", es: "Explorar sin cuenta" },
   "guest.banner": { en: "Exploring as a guest. Sign up to save stories and pick up where you left off.", fr: "Vous explorez en tant qu'invité. Créez un compte pour enregistrer des histoires et reprendre votre lecture.", es: "Estás explorando como invitado. Crea una cuenta para guardar historias y retomar tu lectura." },
