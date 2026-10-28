@@ -1,4 +1,5 @@
 import { LANGS, copy } from "./content.mjs";
+import { mascot, spot, sparkle, burst } from "./art.mjs";
 
 export const PAGES = ["home", "terms", "privacy"];
 
@@ -128,11 +129,30 @@ const h1Html = (c) => {
   return t.replace(a, `<em>${a}</em>`);
 };
 
+const spark = (cls, size, fill) =>
+  `<svg class="spark ${cls}" viewBox="-14 -14 28 28" width="${size}" height="${size}" aria-hidden="true" focusable="false">${sparkle(0, 0, 1, fill)}</svg>`;
+
 function homeMain(c, cfg, here) {
   const app = escapeHtml(cfg.appUrl);
+  const url = (name) => rel(here, `/img/${name}`);
   const img = (name, alt, w, h, eager = false) =>
-    `<img src="${rel(here, `/img/${name}`)}" alt="${escapeHtml(alt)}" width="${w}" height="${h}"${eager ? "" : ' loading="lazy"'} decoding="async" />`;
+    `<img src="${url(name)}" alt="${escapeHtml(alt)}" width="${w}" height="${h}"${eager ? "" : ' loading="lazy"'} decoding="async" />`;
+  const phone = (name, alt, cls = "", eager = false) => `<div class="phone ${cls}">${img(name, alt, 508, 1100, eager)}</div>`;
+  const bubble = (text, cls = "") => `<p class="bubble ${cls}" aria-hidden="true">${escapeHtml(text)}</p>`;
+  const words = c.marquee.map((w) => `<span>${escapeHtml(w)}</span>`).join("");
+  const shots = [
+    ["app-onboard.jpg", c.photos.shotOnboard],
+    ["app-home.jpg", c.photos.shotHome],
+    ["app-explore.jpg", c.photos.shotExplore],
+    ["app-creators.jpg", c.photos.shotCreators],
+  ];
+  const panels = [
+    ["story", "lang", c.what.cards[0]],
+    ["creator", "create", c.what.cards[1]],
+    ["funding", "fund", c.what.cards[2]],
+  ];
   return `      <section class="band band--black hero" aria-labelledby="hero-title">
+        <div class="focus-lines" aria-hidden="true"></div>
         <div class="wrap hero-grid">
           <div class="hero-copy">
             <p class="eyebrow">${escapeHtml(c.hero.eyebrow)}</p>
@@ -144,23 +164,43 @@ function homeMain(c, cfg, here) {
             </p>
             <p class="note">${escapeHtml(c.hero.note)}</p>
           </div>
-          <figure class="hero-figure">
-            <div class="rings" aria-hidden="true"></div>
-            ${img("hero-portrait.jpg", c.photos.hero, 533, 800, true)}
-          </figure>
+          <div class="hero-stage">
+            ${phone("app-creators.jpg", c.photos.shotCreators, "phone--back", true)}
+            ${phone("app-home.jpg", c.photos.shotHome, "phone--front", true)}
+            <div class="hero-mascot">${bubble(c.hero.bubble, "bubble--hero")}${mascot("hello", 1)}</div>
+            ${spark("spark--a", 34, "#ffd166")}${spark("spark--b", 22, "#c084fc")}${spark("spark--c", 28, "#fff")}
+          </div>
         </div>
       </section>
 
-      <section class="band tagline-band" aria-label="${escapeHtml(c.hero.eyebrow)}">
-        <div class="wrap"><p class="tagline">${escapeHtml(c.tagline)}</p></div>
-      </section>
+      <div class="marquee" aria-hidden="true"><div class="marquee-track"><div class="marquee-group">${words}</div><div class="marquee-group">${words}</div></div></div>
 
       <section id="what" class="band band--black" aria-labelledby="what-title">
         <div class="wrap">
           <h2 id="what-title">${escapeHtml(c.what.h2)}</h2>
-          <div class="cards">
-            ${c.what.cards.map((k) => `<article class="card"><h3>${escapeHtml(k.h3)}</h3><p>${escapeHtml(k.p)}</p></article>`).join("\n            ")}
+          <div class="panels">
+            ${panels
+              .map(
+                ([k, art, card]) => `<article class="mpanel mpanel--${k}">
+              <div class="paper"><div class="tone" aria-hidden="true"></div>${spot(art)}</div>
+              <div class="caption"><h3>${escapeHtml(card.h3)}</h3><p>${escapeHtml(card.p)}</p></div>
+            </article>`,
+              )
+              .join("\n            ")}
           </div>
+        </div>
+      </section>
+
+      <section class="band band--surface tour" aria-labelledby="tour-title">
+        <div class="wrap">
+          <h2 id="tour-title">${escapeHtml(c.showcase.h2)}</h2>
+          <p class="lead">${escapeHtml(c.showcase.p)}</p>
+          <div class="shots">
+            ${shots
+              .map(([name, alt], i) => `<figure class="shot shot--${i + 1}">${phone(name, alt)}<figcaption>${escapeHtml(c.showcase.captions[i])}</figcaption></figure>`)
+              .join("\n            ")}
+          </div>
+          <p class="note">${escapeHtml(c.showcase.note)}</p>
         </div>
       </section>
 
@@ -170,12 +210,16 @@ function homeMain(c, cfg, here) {
             <h2 id="creators-title">${escapeHtml(c.creators.h2)}</h2>
             <p class="lead">${escapeHtml(c.creators.lead)}</p>
             <p>${escapeHtml(c.creators.p)}</p>
-            <div class="panel panel--accent">
+            <div class="quest-card">
               <h3>${escapeHtml(c.creators.listTitle)}</h3>
               ${list(c.creators.list)}
             </div>
           </div>
-          <figure class="photo">${img("creators-laptop.jpg", c.photos.creators, 960, 639)}</figure>
+          <figure class="polaroid polaroid--a">
+            <span class="tape" aria-hidden="true"></span>
+            ${img("creators-laptop.jpg", c.photos.creators, 960, 639)}
+            <div class="figure-mascot">${bubble(c.bubbles.creators)}${mascot("read", 2)}</div>
+          </figure>
         </div>
       </section>
 
@@ -185,22 +229,29 @@ function homeMain(c, cfg, here) {
             <h2 id="viewers-title">${escapeHtml(c.viewers.h2)}</h2>
             <p class="lead">${escapeHtml(c.viewers.lead)}</p>
             <p>${escapeHtml(c.viewers.p)}</p>
-            ${list(c.viewers.list)}
+            <ul class="chips">${c.viewers.list.map((i) => `<li>${escapeHtml(i)}</li>`).join("")}</ul>
           </div>
-          <figure class="photo">${img("viewers-chess.jpg", c.photos.viewers, 960, 639)}</figure>
+          <figure class="polaroid polaroid--b">
+            <span class="tape" aria-hidden="true"></span>
+            ${img("viewers-chess.jpg", c.photos.viewers, 960, 639)}
+            <div class="figure-mascot figure-mascot--left">${bubble(c.bubbles.viewers)}${mascot("wow", 3)}</div>
+          </figure>
         </div>
       </section>
 
       <section id="beta" class="band band--black" aria-labelledby="beta-title">
         <div class="wrap">
           <h2 id="beta-title">${escapeHtml(c.beta.h2)}</h2>
-          <div class="beta-grid">
-            <div class="panel panel--now">
+          <div class="quest">
+            <div class="stage stage--now">
+              <span class="ribbon">${escapeHtml(c.beta.now)}</span>
               <h3><span class="live-dot" aria-hidden="true"></span>${escapeHtml(c.beta.todayTitle)}</h3>
               <p>${escapeHtml(c.beta.today)}</p>
               <p class="actions"><a class="btn btn-primary" href="${app}" rel="noopener">${escapeHtml(c.cta)}</a></p>
             </div>
-            <div class="panel panel--plan">
+            <div class="trail" aria-hidden="true"><i></i><i></i><i></i><i></i><b></b></div>
+            <div class="stage stage--next">
+              <span class="ribbon ribbon--next">${escapeHtml(c.beta.next)}</span>
               <h3>${escapeHtml(c.beta.plannedTitle)}</h3>
               ${list(c.beta.plannedList)}
             </div>
@@ -209,7 +260,22 @@ function homeMain(c, cfg, here) {
         </div>
       </section>
 
-      <section id="about" class="band band--surface" aria-labelledby="about-title">
+      <section class="band band--surface closer" aria-labelledby="closer-title">
+        <div class="wrap closer-grid">
+          <figure class="arch">
+            ${img("hero-portrait.jpg", c.photos.hero, 533, 800)}
+            <span class="arch-burst" aria-hidden="true">${burst("burst", "#c084fc")}</span>
+          </figure>
+          <div class="closer-copy">
+            <div class="figure-mascot figure-mascot--inline">${bubble(c.bubbles.closer)}${mascot("joy", 4)}</div>
+            <h2 id="closer-title">${escapeHtml(c.closer.h2)}</h2>
+            <p class="lead">${escapeHtml(c.closer.p)}</p>
+            <p class="actions"><a class="btn btn-primary btn-big" href="${app}" rel="noopener">${escapeHtml(c.cta)}</a></p>
+          </div>
+        </div>
+      </section>
+
+      <section id="about" class="band band--black about" aria-labelledby="about-title">
         <div class="wrap">
           <h2 id="about-title">${escapeHtml(c.about.h2)}</h2>
           <p class="lead">${escapeHtml(c.about.p)}</p>

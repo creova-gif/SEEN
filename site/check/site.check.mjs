@@ -31,8 +31,8 @@ test("every language has exactly the same keys and no empty strings", () => {
 
 test("French and Spanish copy is translated, not copied from English", () => {
   const en = flatten(copy.en);
-  // "Contact" is the same word in French; the rest are codes or ISO dates.
-  const sameAllowed = new Set(["htmlLang", "langName", "legal.updated", "legal.contactH2"]);
+  // "Contact" and "Collections" are the same word in French; language names are written in their own language; the rest are codes or ISO dates.
+  const sameAllowed = new Set(["htmlLang", "langName", "legal.updated", "legal.contactH2", "marquee.2", "marquee.4", "marquee.5", "marquee.6"]);
   for (const lang of ["fr", "es"]) {
     for (const [k, v] of Object.entries(flatten(copy[lang]))) {
       if (sameAllowed.has(k)) continue;
@@ -155,11 +155,38 @@ test("headline accent, photos, fonts and licence are in place", () => {
       assert.match(tag, /\salt="/, `img has alt: ${tag}`);
     }
   }
-  for (const f of ["fonts/instrument-serif-latin-400-normal.woff2", "fonts/instrument-serif-latin-400-italic.woff2", "fonts/OFL.txt", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "img/hero-portrait.jpg", "img/creators-laptop.jpg", "img/viewers-chess.jpg"]) {
+  for (const f of ["img/app-home.jpg", "img/app-explore.jpg", "img/app-creators.jpg", "img/app-onboard.jpg", "fonts/instrument-serif-latin-400-normal.woff2", "fonts/instrument-serif-latin-400-italic.woff2", "fonts/OFL.txt", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "img/hero-portrait.jpg", "img/creators-laptop.jpg", "img/viewers-chess.jpg"]) {
     assert.ok(existsSync(join(out, f)), `${f} is in the build`);
   }
   const css = readFileSync(join(out, "styles.css"), "utf8");
   for (const [, u] of css.matchAll(/url\("([^"]+)"\)/g)) assert.ok(existsSync(join(out, u)), `css asset ${u} exists`);
+});
+
+test("illustrations are decorative and the page has no text trapped in images", () => {
+  for (const lang of LANGS) {
+    const html = read(lang, "home");
+    const svgs = [...html.matchAll(/<svg [^>]*>/g)].map((m) => m[0]);
+    assert.ok(svgs.length >= 8, `${lang}: art is present`);
+    for (const tag of svgs) assert.ok(tag.includes('aria-hidden="true"'), `${lang}: decorative svg is hidden from assistive tech: ${tag.slice(0, 60)}`);
+    assert.ok(html.includes('class="marquee" aria-hidden="true"'), `${lang}: ticker is hidden from assistive tech`);
+    for (const k of ["shotHome", "shotExplore", "shotCreators", "shotOnboard"]) {
+      assert.ok(html.includes(`alt="${copy[lang].photos[k].replace(/"/g, "&quot;")}"`), `${lang}: ${k} alt text rendered`);
+    }
+    assert.equal((html.match(/class="bubble/g) || []).length, 4, `${lang}: four speech bubbles`);
+    assert.ok(!/<h[1-6][^>]*>\s*<\/h/.test(html), `${lang}: no empty headings`);
+  }
+  const css = readFileSync(join(out, "styles.css"), "utf8");
+  assert.ok(css.includes("prefers-reduced-motion: no-preference"), "animation is gated on reduced motion");
+  // every animation must sit inside an @media (prefers-reduced-motion: no-preference) block
+  let depth = 0, gatedAt = -1, ungated = [];
+  for (const m of css.matchAll(/@media[^{]*\{|\{|\}|animation\s*:[^;}]*/g)) {
+    const t = m[0];
+    if (t.startsWith("@media")) { depth++; if (/no-preference/.test(t) && gatedAt < 0) gatedAt = depth; }
+    else if (t === "{") depth++;
+    else if (t === "}") { if (depth === gatedAt) gatedAt = -1; depth--; }
+    else if (gatedAt < 0) ungated.push(t.trim());
+  }
+  assert.deepEqual(ungated, [], "animations outside the reduced-motion gate");
 });
 
 test("the site makes no third-party requests", () => {
