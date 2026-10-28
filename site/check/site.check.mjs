@@ -155,7 +155,7 @@ test("headline accent, photos, fonts and licence are in place", () => {
       assert.match(tag, /\salt="/, `img has alt: ${tag}`);
     }
   }
-  for (const f of ["fonts/fraunces-latin-wght-normal.woff2", "fonts/fraunces-latin-wght-italic.woff2", "fonts/inter-latin-wght-normal.woff2", "fonts/OFL.txt", "img/hero-portrait.jpg", "img/creators-laptop.jpg", "img/viewers-chess.jpg"]) {
+  for (const f of ["fonts/instrument-serif-latin-400-normal.woff2", "fonts/instrument-serif-latin-400-italic.woff2", "fonts/OFL.txt", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "img/hero-portrait.jpg", "img/creators-laptop.jpg", "img/viewers-chess.jpg"]) {
     assert.ok(existsSync(join(out, f)), `${f} is in the build`);
   }
   const css = readFileSync(join(out, "styles.css"), "utf8");

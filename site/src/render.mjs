@@ -62,15 +62,17 @@ export function renderPage(lang, cfg, page = "home") {
     <title>${escapeHtml(title)}</title>
     <meta name="description" content="${escapeHtml(description)}" />
     <meta name="theme-color" content="#000000" />
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23000'/%3E%3Ctext x='32' y='45' font-size='38' font-family='sans-serif' font-weight='600' text-anchor='middle' fill='%23fff'%3ES%3C/text%3E%3C/svg%3E" />
+    <link rel="icon" type="image/png" sizes="192x192" href="${rel(here, "/icons/icon-192.png")}" />
+    <link rel="apple-touch-icon" href="${rel(here, "/icons/apple-touch-icon.png")}" />
+    <meta name="apple-mobile-web-app-title" content="SEEN" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="SEEN by CREOVA" />
     <meta property="og:title" content="${escapeHtml(title)}" />
     <meta property="og:description" content="${escapeHtml(description)}" />
     <meta name="twitter:card" content="summary" />
+    ${cfg.siteUrl ? `<meta property="og:image" content="${cfg.siteUrl.replace(/\/$/, "")}/icons/icon-512.png" />` : ""}
     ${alternates}
-    <link rel="preload" href="${rel(here, "/fonts/fraunces-latin-wght-normal.woff2")}" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="${rel(here, "/fonts/inter-latin-wght-normal.woff2")}" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="${rel(here, "/fonts/instrument-serif-latin-400-italic.woff2")}" as="font" type="font/woff2" crossorigin />
     <link rel="stylesheet" href="${rel(here, "/styles.css")}" />
   </head>
   <body>
@@ -149,7 +151,7 @@ function homeMain(c, cfg, here) {
         </div>
       </section>
 
-      <section class="band band--oxblood tagline-band" aria-label="${escapeHtml(c.hero.eyebrow)}">
+      <section class="band tagline-band" aria-label="${escapeHtml(c.hero.eyebrow)}">
         <div class="wrap"><p class="tagline">${escapeHtml(c.tagline)}</p></div>
       </section>
 
@@ -162,13 +164,13 @@ function homeMain(c, cfg, here) {
         </div>
       </section>
 
-      <section id="creators" class="band band--beige" aria-labelledby="creators-title">
+      <section id="creators" class="band band--elevated band--creator" aria-labelledby="creators-title">
         <div class="wrap split">
           <div>
             <h2 id="creators-title">${escapeHtml(c.creators.h2)}</h2>
             <p class="lead">${escapeHtml(c.creators.lead)}</p>
             <p>${escapeHtml(c.creators.p)}</p>
-            <div class="panel panel--paper">
+            <div class="panel panel--accent">
               <h3>${escapeHtml(c.creators.listTitle)}</h3>
               ${list(c.creators.list)}
             </div>
@@ -177,7 +179,7 @@ function homeMain(c, cfg, here) {
         </div>
       </section>
 
-      <section id="viewers" class="band band--surface" aria-labelledby="viewers-title">
+      <section id="viewers" class="band band--surface band--story" aria-labelledby="viewers-title">
         <div class="wrap split split--flip">
           <div>
             <h2 id="viewers-title">${escapeHtml(c.viewers.h2)}</h2>
@@ -189,7 +191,7 @@ function homeMain(c, cfg, here) {
         </div>
       </section>
 
-      <section id="beta" class="band band--oxblood" aria-labelledby="beta-title">
+      <section id="beta" class="band band--black" aria-labelledby="beta-title">
         <div class="wrap">
           <h2 id="beta-title">${escapeHtml(c.beta.h2)}</h2>
           <div class="beta-grid">
@@ -207,7 +209,7 @@ function homeMain(c, cfg, here) {
         </div>
       </section>
 
-      <section id="about" class="band band--black" aria-labelledby="about-title">
+      <section id="about" class="band band--surface" aria-labelledby="about-title">
         <div class="wrap">
           <h2 id="about-title">${escapeHtml(c.about.h2)}</h2>
           <p class="lead">${escapeHtml(c.about.p)}</p>

@@ -31,6 +31,7 @@ export function build(cfg = config, outDir = dist) {
   copyFileSync(join(root, "src", "styles.css"), join(outDir, "styles.css"));
   copyFileSync(join(root, "src", "creova-mark.png"), join(outDir, "creova-mark.png"));
   cpSync(join(root, "src", "fonts"), join(outDir, "fonts"), { recursive: true });
+  cpSync(join(root, "src", "icons"), join(outDir, "icons"), { recursive: true });
   cpSync(join(root, "src", "img"), join(outDir, "img"), { recursive: true });
 
   const site = cfg.siteUrl.replace(/\/$/, "");
