@@ -1,5 +1,6 @@
 import { LANGS, copy } from "./content.mjs";
-import { mascot, spot, sparkle, burst } from "./art.mjs";
+import { mascot, spot, sparkle, burst, study } from "./art.mjs";
+import { seeds } from "./seeds.mjs";
 
 export const PAGES = ["home", "terms", "privacy"];
 
@@ -22,7 +23,7 @@ const list = (items) => `<ul>${items.map((i) => `<li>${escapeHtml(i)}</li>`).joi
 // The only policy on hosts that cannot send headers (GitHub Pages), so it must stay in every page.
 // Fonts and images are served from this site; nothing is requested from other origins.
 const CSP =
-  "default-src 'none'; style-src 'self'; font-src 'self'; img-src 'self' data:; base-uri 'self'; form-action 'none'";
+  "default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; base-uri 'self'; form-action 'none'";
 
 /**
  * Render one page.
@@ -51,7 +52,7 @@ export function renderPage(lang, cfg, page = "home") {
       : `<li><a href="${rel(here, pathFor(l, page))}" lang="${l}" hreflang="${l}" aria-label="${escapeHtml(copy[l].langName)}">${l.toUpperCase()}</a></li>`,
   ).join("");
 
-  const main = isHome ? homeMain(c, cfg, here) : legalMain(c, doc, cfg, toHome);
+  const main = isHome ? homeMain(c, cfg, here, lang) : legalMain(c, doc, cfg, toHome);
 
   return `<!DOCTYPE html>
 <html lang="${c.htmlLang}">
@@ -75,6 +76,7 @@ export function renderPage(lang, cfg, page = "home") {
     ${alternates}
     <link rel="preload" href="${rel(here, "/fonts/instrument-serif-latin-400-italic.woff2")}" as="font" type="font/woff2" crossorigin />
     <link rel="stylesheet" href="${rel(here, "/styles.css")}" />
+    ${isHome ? `<script src="${rel(here, "/site.js")}" defer></script>` : ""}
   </head>
   <body>
     <a class="skip" href="#main">${escapeHtml(c.skip)}</a>
@@ -132,7 +134,7 @@ const h1Html = (c) => {
 const spark = (cls, size, fill) =>
   `<svg class="spark ${cls}" viewBox="-14 -14 28 28" width="${size}" height="${size}" aria-hidden="true" focusable="false">${sparkle(0, 0, 1, fill)}</svg>`;
 
-function homeMain(c, cfg, here) {
+function homeMain(c, cfg, here, lang) {
   const app = escapeHtml(cfg.appUrl);
   const url = (name) => rel(here, `/img/${name}`);
   const img = (name, alt, w, h, eager = false) =>
@@ -141,7 +143,6 @@ function homeMain(c, cfg, here) {
   const bubble = (text, cls = "") => `<p class="bubble ${cls}" aria-hidden="true">${escapeHtml(text)}</p>`;
   const words = c.marquee.map((w) => `<span>${escapeHtml(w)}</span>`).join("");
   const shots = [
-    ["app-onboard.jpg", c.photos.shotOnboard],
     ["app-home.jpg", c.photos.shotHome],
     ["app-explore.jpg", c.photos.shotExplore],
     ["app-creators.jpg", c.photos.shotCreators],
@@ -151,11 +152,21 @@ function homeMain(c, cfg, here) {
     ["creator", "create", c.what.cards[1]],
     ["funding", "fund", c.what.cards[2]],
   ];
+  const k = c.kickers;
+  const m = c.make;
+  const radio = (name, labels) =>
+    labels
+      .map((t, i) => `<label class="opt"><input type="radio" name="${name}" value="${i}"${i === (name === "lang" ? LANGS.indexOf(lang) : 0) ? " checked" : ""} /><span>${escapeHtml(t)}</span></label>`)
+      .join("");
+  const defaultSeed = seeds[lang][0][0];
+  const seedItems = LANGS.flatMap((ol) =>
+    seeds[ol].flatMap((row, f) => row.map((text, o) => `<li data-seed="${ol}-${f}-${o}" lang="${ol}">${escapeHtml(text)}</li>`)),
+  ).join("");
   return `      <section class="band band--black hero" aria-labelledby="hero-title">
         <div class="focus-lines" aria-hidden="true"></div>
         <div class="wrap hero-grid">
           <div class="hero-copy">
-            <p class="eyebrow">${escapeHtml(c.hero.eyebrow)}</p>
+            <p class="mono field">${escapeHtml(c.hero.field)}</p>
             <h1 id="hero-title">${h1Html(c)}</h1>
             <p class="lead">${escapeHtml(c.hero.lead)}</p>
             <p class="actions">
@@ -171,17 +182,33 @@ function homeMain(c, cfg, here) {
             ${spark("spark--a", 34, "#ffd166")}${spark("spark--b", 22, "#c084fc")}${spark("spark--c", 28, "#fff")}
           </div>
         </div>
+        <ul class="wrap statusbar mono">${c.status.map((t) => `<li>${escapeHtml(t)}</li>`).join("")}</ul>
       </section>
 
       <div class="marquee" aria-hidden="true"><div class="marquee-track"><div class="marquee-group">${words}</div><div class="marquee-group">${words}</div></div></div>
 
+      <section class="band band--black idea" aria-labelledby="idea-title">
+        <div class="wrap idea-grid">
+          <div>
+            <p class="kicker mono">${escapeHtml(k.idea)}</p>
+            <h2 id="idea-title" class="display">${escapeHtml(c.idea.h2)}</h2>
+          </div>
+          <div class="idea-side">
+            <figure class="study">${study()}<figcaption class="mono">${escapeHtml(c.idea.study)}</figcaption></figure>
+            <p>${escapeHtml(c.idea.p1)}</p>
+            <p>${escapeHtml(c.idea.p2)}</p>
+          </div>
+        </div>
+      </section>
+
       <section id="what" class="band band--black" aria-labelledby="what-title">
         <div class="wrap">
+          <p class="kicker mono">${escapeHtml(k.ways)}</p>
           <h2 id="what-title">${escapeHtml(c.what.h2)}</h2>
           <div class="panels">
             ${panels
               .map(
-                ([k, art, card]) => `<article class="mpanel mpanel--${k}">
+                ([kind, art, card]) => `<article class="mpanel mpanel--${kind}">
               <div class="paper"><div class="tone" aria-hidden="true"></div>${spot(art)}</div>
               <div class="caption"><h3>${escapeHtml(card.h3)}</h3><p>${escapeHtml(card.p)}</p></div>
             </article>`,
@@ -191,8 +218,34 @@ function homeMain(c, cfg, here) {
         </div>
       </section>
 
+      <section id="make" class="band band--elevated make" aria-labelledby="make-title" data-make>
+        <div class="wrap make-grid">
+          <div>
+            <p class="kicker mono">${escapeHtml(k.make)}</p>
+            <h2 id="make-title" class="display">${escapeHtml(m.h2)}</h2>
+            <p class="lead">${escapeHtml(m.p)}</p>
+            <div class="make-controls" data-controls hidden>
+              <fieldset><legend class="mono">${escapeHtml(m.legendFeeling)}</legend><div class="opts">${radio("feeling", m.feelings)}</div></fieldset>
+              <fieldset><legend class="mono">${escapeHtml(m.legendForm)}</legend><div class="opts">${radio("form", m.forms)}</div></fieldset>
+              <fieldset><legend class="mono">${escapeHtml(m.legendLang)}</legend><div class="opts">${radio("lang", m.langs)}</div></fieldset>
+            </div>
+          </div>
+          <div class="make-card">
+            <p class="mono make-label">${escapeHtml(m.result)} <span data-tags>${escapeHtml(`${m.feelings[0]} · ${m.forms[0]} · ${m.langs[LANGS.indexOf(lang)]}`)}</span></p>
+            <p class="seed" data-output lang="${lang}" aria-live="polite">${escapeHtml(defaultSeed)}</p>
+            <p class="note" data-fallback>${escapeHtml(m.fallback)}</p>
+            <p class="actions">
+              <button type="button" class="btn btn-ghost" data-copy data-done="${escapeHtml(m.copied)}" hidden>${escapeHtml(m.copy)}</button>
+              <a class="btn btn-primary" href="${app}" rel="noopener">${escapeHtml(m.open)}</a>
+            </p>
+          </div>
+        </div>
+        <ul data-seeds hidden>${seedItems}</ul>
+      </section>
+
       <section class="band band--surface tour" aria-labelledby="tour-title">
         <div class="wrap">
+          <p class="kicker mono">${escapeHtml(k.tour)}</p>
           <h2 id="tour-title">${escapeHtml(c.showcase.h2)}</h2>
           <p class="lead">${escapeHtml(c.showcase.p)}</p>
           <div class="shots">
@@ -207,6 +260,7 @@ function homeMain(c, cfg, here) {
       <section id="creators" class="band band--elevated band--creator" aria-labelledby="creators-title">
         <div class="wrap split">
           <div>
+            <p class="kicker mono">${escapeHtml(k.creators)}</p>
             <h2 id="creators-title">${escapeHtml(c.creators.h2)}</h2>
             <p class="lead">${escapeHtml(c.creators.lead)}</p>
             <p>${escapeHtml(c.creators.p)}</p>
@@ -226,6 +280,7 @@ function homeMain(c, cfg, here) {
       <section id="viewers" class="band band--surface band--story" aria-labelledby="viewers-title">
         <div class="wrap split split--flip">
           <div>
+            <p class="kicker mono">${escapeHtml(k.viewers)}</p>
             <h2 id="viewers-title">${escapeHtml(c.viewers.h2)}</h2>
             <p class="lead">${escapeHtml(c.viewers.lead)}</p>
             <p>${escapeHtml(c.viewers.p)}</p>
@@ -241,6 +296,7 @@ function homeMain(c, cfg, here) {
 
       <section id="beta" class="band band--black" aria-labelledby="beta-title">
         <div class="wrap">
+          <p class="kicker mono">${escapeHtml(k.beta)}</p>
           <h2 id="beta-title">${escapeHtml(c.beta.h2)}</h2>
           <div class="quest">
             <div class="stage stage--now">
@@ -260,7 +316,19 @@ function homeMain(c, cfg, here) {
         </div>
       </section>
 
-      <section class="band band--surface closer" aria-labelledby="closer-title">
+      <section class="band band--surface faq" aria-labelledby="faq-title">
+        <div class="wrap faq-grid">
+          <div>
+            <p class="kicker mono">${escapeHtml(k.faq)}</p>
+            <h2 id="faq-title" class="display">${escapeHtml(c.faq.h2)}</h2>
+          </div>
+          <div class="faq-list">
+            ${c.faq.items.map((it) => `<details><summary>${escapeHtml(it.q)}</summary><p>${escapeHtml(it.a)}</p></details>`).join("\n            ")}
+          </div>
+        </div>
+      </section>
+
+      <section class="band band--black closer" aria-labelledby="closer-title">
         <div class="wrap closer-grid">
           <figure class="arch">
             ${img("hero-portrait.jpg", c.photos.hero, 533, 800)}
@@ -275,13 +343,15 @@ function homeMain(c, cfg, here) {
         </div>
       </section>
 
-      <section id="about" class="band band--black about" aria-labelledby="about-title">
+      <section id="about" class="band band--surface about" aria-labelledby="about-title">
         <div class="wrap">
           <h2 id="about-title">${escapeHtml(c.about.h2)}</h2>
           <p class="lead">${escapeHtml(c.about.p)}</p>
           <p class="actions"><a class="btn btn-ghost" href="${escapeHtml(cfg.creovaUrl)}" rel="noopener">${escapeHtml(c.about.link)}</a></p>
           <p class="note">${escapeHtml(c.photos.credit)}</p>
         </div>
+        <div class="giant" aria-hidden="true">SEEN</div>
+        <p class="wrap mono giant-note">${escapeHtml(c.footer.status)}</p>
       </section>`;
 }
 

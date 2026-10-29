@@ -115,3 +115,37 @@ export function spot(kind) {
      ${sparkle(212, 56, 1, "#fff")}${sparkle(48, 70, 0.7, "#fff")}${sparkle(236, 168, 0.6, AMBER)}`,
   );
 }
+
+/**
+ * "Form study": a technical construction drawing of the mascot's eye (dashed guides, centre lines, dimensions),
+ * the SEEN counterpart to a pattern-maker's drawing. Line art only, decorative.
+ */
+export function study() {
+  const L = "rgba(255,255,255,.9)";
+  const dim = "rgba(255,255,255,.4)";
+  return SVG(
+    "study-art",
+    "0 0 340 340",
+    `<g fill="none" stroke-linecap="round">
+      <circle cx="170" cy="170" r="150" stroke="${dim}" stroke-width="1.2" stroke-dasharray="3 7"/>
+      <path d="M170 8 V332 M8 170 H332" stroke="${dim}" stroke-width="1" stroke-dasharray="2 6"/>
+      <circle cx="170" cy="170" r="104" stroke="${L}" stroke-width="2.2"/>
+      <circle cx="170" cy="170" r="46" stroke="${PURPLE}" stroke-width="2.2"/>
+      <circle cx="170" cy="170" r="18" stroke="${L}" stroke-width="1.6"/>
+      <circle cx="154" cy="152" r="9" stroke="${L}" stroke-width="1.4" stroke-dasharray="2 4"/>
+      <path d="M222 80 L232 64 M250 103 L266 92 M268 134 L286 128" stroke="${L}" stroke-width="2.4"/>
+      <path d="M146 224 q24 16 48 0" stroke="${L}" stroke-width="2.2"/>
+      <ellipse cx="136" cy="318" rx="22" ry="9" stroke="${L}" stroke-width="2"/><ellipse cx="204" cy="318" rx="22" ry="9" stroke="${L}" stroke-width="2"/>
+      <path d="M66 170 H124 M216 170 H274" stroke="${PURPLE}" stroke-width="1.2" stroke-dasharray="2 4"/>
+      <path d="M66 62 H274" stroke="${dim}" stroke-width="1"/><path d="M66 56 V68 M274 56 V68" stroke="${dim}" stroke-width="1"/>
+      <path d="M300 66 V274" stroke="${dim}" stroke-width="1"/><path d="M294 66 H306 M294 274 H306" stroke="${dim}" stroke-width="1"/>
+    </g>
+    <g fill="${L}" font-size="9.5" letter-spacing="1.4" style="font-family:ui-monospace,Menlo,Consolas,monospace">
+      <text x="170" y="50" text-anchor="middle" fill="${dim}">&#216; 208</text>
+      <text x="318" y="174" text-anchor="middle" fill="${dim}" transform="rotate(90 318 174)">&#216; 208</text>
+      <text x="170" y="236" text-anchor="middle" fill="${PURPLE}">IRIS</text>
+      
+    </g>
+    ${sparkle(292, 40, 0.9, "#fff")}${sparkle(40, 296, 0.6, PURPLE)}`,
+  ).replace(' style="font-family:ui-monospace,Menlo,Consolas,monospace"', ' class="mono-svg"');
+}
